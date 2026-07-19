@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- TAGS MÁGICAS PARA O IPHONE (WEB APP) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="App Casal">
+    <!-- Ícone da App no iPhone: -->
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/FF6B00/ffffff?text=App">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #050505;       /* Fundo preto profundo */
+        --card-bg: #171717;        /* Fundo dos cartões cinzento muito escuro */
+        --text-main: #ffffff;      /* Texto principal em branco puro */
+        --text-muted: #888888;     /* Texto secundário em cinzento */
+        --accent: #FF6B00;         /* Laranja vibrante principal */
+        --accent-hover: #E56000;   /* Laranja um pouco mais escuro para interações */
+        --btn-secondary: #222222;  /* Botões secundários quase pretos */
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      h1 {
+        font-weight: 600;
+        font-size: 28px;
+        margin-bottom: 30px;
+        text-align: center;
+        letter-spacing: 1px;
+      }
+
+      h2 {
+        font-weight: 400;
+        font-size: 20px;
+        color: var(--text-muted);
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .page-container {
+        padding: 40px 20px;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .page { 
+        display: none; 
+        opacity: 0;
+        transform: translateY(15px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        width: 100%;
+      }
+      
+      .page.active { 
+        display: block; 
+        animation: fadeIn 0.4s forwards;
+      }
+
+      @keyframes fadeIn {
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .btn {
+        background-color: var(--card-bg);
+        color: var(--text-main);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 16px;
+        font-size: 18px;
+        font-weight: 400;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .btn:active { 
+        transform: scale(0.98);
+        background-color: #2a2a2a;
+      }
+
+      .btn::after {
+        content: '→';
+        font-size: 20px;
+        color: var(--accent);
+      }
+
+      .btn-voltar {
+        background-color: transparent;
+        color: var(--text-muted);
+        border: none;
+        padding: 15px;
+        font-size: 16px;
+        margin-top: 20px;
+        justify-content: center;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      .btn-voltar::after { content: ''; } 
+      .btn-voltar::before { content: '← '; margin-right: 8px; }
+
+      .avatar-img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+        border: 2px solid var(--accent);
+        background-color: var(--bg-color);
+      }
+      
+      .perfil-conteudo {
+        display: flex;
+        align-items: center;
+      }
+
+      .folhetos-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .folheto-card {
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        transition: transform 0.2s ease;
+      }
+
+      .folheto-card:active { transform: scale(0.95); }
+      
+      .folheto-card img {
+        width: 100%;
+        height: 100px;
+        object-fit: contain;
+        background-color: white;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 8px;
+      }
+
+      .folheto-info { padding: 12px 10px; }
+      .folheto-info h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
+      .folheto-info p { margin: 5px 0 0 0; font-size: 10px; color: var(--accent); font-weight: 600;}
+      .folheto-info span { display: block; font-size: 10px; color: var(--text-muted); margin-top: 4px;}
+
+      .carros-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        width: 100%;
+      }
+
+      .car-card {
+        background-color: var(--card-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .car-card:active { transform: scale(0.97); }
+
+      .img-container { width: 100%; height: 180px; overflow: hidden; }
+      .img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+      .car-info {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .car-info h3 { margin: 0; font-weight: 600; font-size: 18px; }
+      .car-info span { color: var(--accent); font-size: 20px; }
+
+      .header-decor {
+        width: 50px; height: 4px; background-color: var(--accent);
+        border-radius: 2px; margin: 0 auto 20px auto;
+      }
+
+      .acoes-doc {
+        display: flex; gap: 10px; margin-bottom: 20px; width: 100%;
+      }
+
+      .btn-acao {
+        flex: 1; background-color: var(--btn-secondary); color: var(--text-main);
+        border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px;
+        border-radius: 10px; font-size: 14px; cursor: pointer;
+        transition: background-color 0.2s; display: flex; align-items: center;
+        justify-content: center; gap: 8px;
+      }
+
+      .btn-acao:active { background-color: #444; }
+
+      .lista-documentos { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+
+      .item-doc {
+        display: flex; align-items: center; background-color: var(--card-bg);
+        padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+      }
+
+      .item-doc:active { transform: scale(0.98); }
+      .icon-doc { font-size: 24px; margin-right: 15px; }
+      .nome-doc { font-size: 16px; flex: 1; text-align: left; }
+
+      .btn-opcoes {
+        background: none; border: none; color: var(--text-muted);
+        font-size: 20px; padding: 5px 10px; cursor: pointer; border-radius: 5px;
+      }
+      .btn-opcoes:active { background-color: rgba(255,255,255,0.1); }
+      
+      .breadcrumb {
+        width: 100%; text-align: left; margin-bottom: 15px; color: var(--accent);
+        font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+      }
+      .breadcrumb:active { color: var(--accent-hover); }
+      
+      .item-info { display: flex; align-items: center; flex: 1; overflow: hidden; }
+      .item-info .nome-doc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      .modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8); z-index: 1000;
+        align-items: center; justify-content: center; padding: 20px;
+      }
+
+      .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
+
+      .modal-content {
+        background-color: var(--card-bg); width: 100%; max-width: 350px;
+        padding: 25px; border-radius: 20px; text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .modal-content input[type="text"], .modal-content input[type="file"], select {
+        width: 100%; padding: 12px; margin: 15px 0; background-color: #121212;
+        border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; font-family: inherit;
+      }
+
+      .modal-btn-row { display: flex; gap: 10px; margin-top: 10px; }
+
+      .pesquisa-input {
+        width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg);
+        border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 12px;
+        font-family: inherit; font-size: 16px;
+      }
+
+      .lista-simples {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 15px;
+      }
+
+      .item-simples {
+        display: flex;
+        align-items: center;
+        background-color: var(--card-bg);
+        padding: 15px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: opacity 0.2s, transform 0.2s;
+      }
+
+      .checkbox-custom {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid var(--accent);
+        cursor: pointer;
+        margin-right: 15px;
+        flex-shrink: 0;
+        position: relative;
+        transition: background-color 0.2s, border-color 0.2s;
+      }
+
+      .item-simples.comprado {
+        opacity: 0.4;
+      }
+
+      .item-simples.comprado .checkbox-custom {
+        background-color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .item-simples.comprado .checkbox-custom::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #121212;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .item-simples.comprado .nome-item-simples {
+        text-decoration: line-through;
+        color: var(--text-muted);
+      }
+
+      .nome-item-simples {
+        flex: 1;
+        margin: 0;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .btn-eliminar-simples {
+        background: none;
+        border: none;
+        color: #ff4d4d;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 5px;
+        transition: transform 0.1s;
+      }
+      .btn-eliminar-simples:active {
+        transform: scale(0.9);
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="page-container">
+      
+      <div id="menu-principal" class="page active">
+        <div class="header-decor"></div>
+        <h1>Gonçalo & Nathália</h1>
+        <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
+        
+        <button class="btn" onclick="mostrarPagina('menu-goncalo')">
+          <div class="perfil-conteudo">
+            <img src="https://placehold.co/100x100/171717/FF6B00?text=G" alt="Foto Gonçalo" class="avatar-img">
+            <span>Gonçalo</span>
+          </div>
+        </button>
+        
+        <button class="btn" onclick="mostrarPagina('menu-nathalia')">
+          <div class="perfil-conteudo">
+            <img src="https://placehold.co/100x100/171717/FF6B00?text=N" alt="Foto Nathália" class="avatar-img">
+            <span>Nathália</span>
+          </div>
+        </button>
+        
+        <button class="btn" onclick="mostrarPagina('menu-casal')" style="border-left: 4px solid var(--accent);">
+          <div class="perfil-conteudo">
+            <img src="https://placehold.co/100x100/171717/FF6B00?text=C" alt="Foto Casal" class="avatar-img">
+            <span>Casal</span>
+          </div>
+        </button>
+
+        <button class="btn" onclick="mostrarPagina('menu-supermercados')" style="border-left: 4px solid #fff;">
+          <div class="perfil-conteudo">
+            <span style="font-size: 28px; margin-right: 15px;">🛒</span>
+            <span>Supermercados</span>
+          </div>
+        </button>
+        
+        <div style="width: 100%; height: 1px; background-color: rgba(255,255,255,0.1); margin: 25px 0;"></div>
+        <button class="btn" onclick="abrirPaginaGaragem()" style="background-color: #2a2a2a; border-color: rgba(255,255,255,0.2);">🚗 Garagem e Combustível</button>
+      </div>
+
+      <div id="menu-goncalo" class="page">
+        <div class="header-decor"></div>
+        <h1>Perfil: Gonçalo</h1>
+        
+        <button class="btn" onclick="mostrarAlerta('Área de Saúde do Gonçalo (Em construção)')">Registos de Saúde</button>
+        <button class="btn" onclick="abrirPaginaDocumentos('Gonçalo')">Documentos</button>
+        
+        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
+      </div>
+
+      <div id="menu-nathalia" class="page">
+        <div class="header-decor"></div>
+        <h1>Perfil: Nathália</h1>
+        
+        <button class="btn" onclick="mostrarAlerta('Área de Saúde da Nathália (Em construção)')">Registos de Saúde</button>
+        <button class="btn" onclick="abrirPaginaDocumentos('Nathália')">Documentos</button>
+        
+        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
+      </div>
+
+      <div id="menu-casal" class="page">
+        <div class="header-decor"></div>
+        <h1>Área do Casal</h1>
+        
+        <button class="btn" onclick="abrirPaginaDocumentos('Casal')">Documentos Partilhados</button>
+        
+        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
+      </div>
+
+      <div id="menu-supermercados" class="page">
+        <div class="header-decor"></div>
+        <h1>Supermercados</h1>
+        
+        <button class="btn" onclick="mostrarPagina('menu-folhetos')" style="background-color: rgba(255, 107, 0, 0.1); border-color: var(--accent);">
+          📖 Folhetos da Semana
+        </button>
+        <button class="btn" onclick="abrirPaginaComprasSimples()">🛒 Lista de Compras</button>
+        
+        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
+      </div>
+
+      <div id="menu-carros" class="page">
+        <div class="header-decor"></div>
+        <h1>Garagem</h1>
+        
+        <h2 style="font-size: 16px; margin-top: 20px;">Os Nossos Veículos</h2>
+        <div class="carros-grid" style="margin-bottom: 30px;">
+          <div class="car-card" onclick="mostrarAlerta('Entraste no Polo 9N!')">
+            <div class="img-container">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/VW_Polo_IV.JPG/800px-VW_Polo_IV.JPG" alt="Polo 9n">
+            </div>
+            <div class="car-info">
+              <h3>VW Polo 9n</h3><span>→</span>
+            </div>
+          </div>
+
+          <div class="car-card" onclick="mostrarAlerta('Entraste no Peugeot 206!')">
+            <div class="img-container">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Peugeot_206_1.4_16v.jpg/800px-Peugeot_206_1.4_16v.jpg" alt="Peugeot 206">
+            </div>
+            <div class="car-info">
+              <h3>Peugeot 206</h3><span>→</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="header-decor" style="width: 100%; height: 1px; background-color: rgba(255,255,255,0.1); margin: 10px 0 30px 0;"></div>
+
+        <h2 style="font-size: 16px;">Preços de Combustível</h2>
+
+        <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
+          📍 Ver postos perto de mim (20 km)
+        </button>
+
+        <button class="btn-acao" style="background-color: #222; color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/', '_blank')">
+          🗺️ Escolher Distrito
+        </button>
+
+        <button class="btn-acao" style="background-color: rgba(255,255,255,0.05); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.2); font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/lista-de-postos/setubal/setubal/', '_blank')">
+          🏙️ Ver postos em Setúbal
+        </button>
+
+        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
+      </div>
+
+      <div id="menu-compras" class="page">
+        <div class="header-decor"></div>
+        <h1>Lista de Compras</h1>
+        
+        <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 20px;">
+          <input type="text" id="novo-item-input" class="pesquisa-input" style="margin-bottom: 0;" placeholder="Escreve o que precisas..." onkeypress="verificarEnterLista(event)">
+          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-size: 20px; max-width: 60px;" onclick="adicionarItemLista()">+</button>
+        </div>
+
+        <div class="lista-simples" id="lista-simples-container"></div>
+
+        <button class="btn-voltar" onclick="mostrarPagina('menu-supermercados')">Voltar</button>
+      </div>
+
+      <div id="menu-folhetos" class="page">
+        <div class="header-decor"></div>
+        <h1>Folhetos da Semana</h1>
+        <h2 style="font-size: 14px; margin-bottom: 30px;">Acede às promoções sempre atualizadas</h2>
+
+        <div class="folhetos-grid">
+          <div class="folheto-card" onclick="window.open('https://folhetos.continente.pt/', '_blank')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg" alt="Continente">
+            <div class="folheto-info">
+              <h3>Continente</h3>
+              <p>Atualiza à Terça</p>
+              <span>Ver Folhetos →</span>
+            </div>
+          </div>
+
+          <div class="folheto-card" onclick="window.open('https://www.pingodoce.pt/folhetos/', '_blank')">
+            <img src="https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg" alt="Pingo Doce">
+            <div class="folheto-info">
+              <h3>Pingo Doce</h3>
+              <p>Atualiza à Terça</p>
+              <span>Ver Folhetos →</span>
+            </div>
+          </div>
+
+          <div class="folheto-card" onclick="window.open('https://www.lidl.pt/folhetos', '_blank')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png" alt="Lidl">
+            <div class="folheto-info">
+              <h3>Lidl</h3>
+              <p>Atualiza à Segunda</p>
+              <span>Ver Folhetos →</span>
+            </div>
+          </div>
+
+          <div class="folheto-card" onclick="window.open('https://www.auchan.pt/pt/folhetos/', '_blank')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg" alt="Auchan">
+            <div class="folheto-info">
+              <h3>Auchan</h3>
+              <p>Atualiza à Quinta</p>
+              <span>Ver Folhetos →</span>
+            </div>
+          </div>
+
+          <div class="folheto-card" onclick="window.open('https://www.intermarche.pt/folhetos/', '_blank')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg" alt="Intermarché">
+            <div class="folheto-info">
+              <h3>Intermarché</h3>
+              <p>Atualiza à Quinta</p>
+              <span>Ver Folhetos →</span>
+            </div>
+          </div>
+
+        <button class="btn-voltar" onclick="mostrarPagina('menu-supermercados')">Voltar</button>
+      </div>
+
+      <div id="menu-documentos" class="page">
+        <div class="header-decor"></div>
+        <h1 id="titulo-documentos">Documentos</h1>
+        
+        <div id="caminho-pasta" class="breadcrumb" style="display: none;" onclick="voltarPasta()">
+          <span>← Voltar à pasta anterior</span>
+        </div>
+
+        <div class="acoes-doc">
+          <button class="btn-acao" onclick="abrirModal('modal-pasta')">📁 Nova Pasta</button>
+          <button class="btn-acao" onclick="abrirModal('modal-upload')" style="background-color: var(--accent); color: #121212; font-weight: 600;">📄 Adicionar</button>
+        </div>
+
+        <div class="lista-documentos" id="lista-documentos-container"></div>
+        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
+      </div>
+
+    </div>
+
+    <div id="modal-pasta" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Criar Nova Pasta</h2>
+        <input type="text" id="nome-nova-pasta" placeholder="Ex: Faturas 2024">
+        <div class="modal-btn-row">
+          <button class="btn-acao" onclick="fecharModal('modal-pasta')">Cancelar</button>
+          <button class="btn-acao" onclick="criarPasta()" style="background-color: var(--accent); color: #121212;">Criar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-upload" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Adicionar Documento</h2>
+        <input type="file" id="ficheiro-upload">
+        <input type="text" id="nome-documento" placeholder="Nome do Ficheiro (Opcional)">
+        <div class="modal-btn-row">
+          <button class="btn-acao" onclick="fecharModal('modal-upload')">Cancelar</button>
+          <button class="btn-acao" onclick="adicionarDocumento()" style="background-color: var(--accent); color: #121212;">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-opcoes" class="modal-overlay">
+      <div class="modal-content">
+        <h2 id="titulo-opcoes">Opções do Item</h2>
+        <button class="btn" style="margin-bottom:10px; padding: 12px;" onclick="prepararRenomear()">✏️ Renomear</button>
+        <button class="btn" style="margin-bottom:10px; padding: 12px;" onclick="prepararMover()">📂 Mover</button>
+        <button class="btn" style="margin-bottom:10px; padding: 12px; background-color: #ff4d4d; border:none;" onclick="eliminarItem()">🗑️ Eliminar</button>
+        <button class="btn-voltar" style="width:100%; margin-top:0;" onclick="fecharModal('modal-opcoes')">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="modal-renomear" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Renomear</h2>
+        <input type="text" id="novo-nome-item" placeholder="Novo nome...">
+        <div class="modal-btn-row">
+          <button class="btn-acao" onclick="fecharModal('modal-renomear')">Cancelar</button>
+          <button class="btn-acao" onclick="confirmarRenomear()" style="background-color: var(--accent); color: #121212;">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-mover" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Mover para...</h2>
+        <select id="select-destino-mover"></select>
+        <div class="modal-btn-row">
+          <button class="btn-acao" onclick="fecharModal('modal-mover')">Cancelar</button>
+          <button class="btn-acao" onclick="confirmarMover()" style="background-color: var(--accent); color: #121212;">Mover</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-alerta" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Aviso</h2>
+        <p id="mensagem-alerta" style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;"></p>
+        <button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color: var(--accent); color: #121212; width: 100%;">OK</button>
+      </div>
+    </div>
+
+    <div id="modal-confirmacao" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Eliminar Item</h2>
+        <p style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;">Tens a certeza que queres eliminar este item? Esta ação não pode ser desfeita.</p>
+        <div class="modal-btn-row">
+          <button class="btn-acao" onclick="fecharModal('modal-confirmacao')">Cancelar</button>
+          <button class="btn-acao" onclick="confirmarEliminar()" style="background-color: #ff4d4d; color: white;">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function mostrarPagina(idPagina) {
+        var paginas = document.getElementsByClassName('page');
+        for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
+        setTimeout(function() {
+          document.getElementById(idPagina).classList.add('active');
+          window.scrollTo(0, 0); 
+        }, 50);
+      }
+
+      function abrirPaginaGaragem() {
+        mostrarPagina('menu-carros');
+      }
+
+      function gerarId() { return Math.random().toString(36).substr(2, 9); }
+
+      let perfilAtual = '';
+      let pastaAtual = null; 
+      let historicoNavegacao = []; 
+      let itemSelecionadoParaAcao = null; 
+
+      let baseDadosDocumentos = {
+        'Gonçalo': [ { id: 'g1', parentId: null, tipo: 'pasta', nome: 'Documentos Pessoais' } ],
+        'Nathália': [ { id: 'n1', parentId: null, tipo: 'pasta', nome: 'Exames Médicos' } ],
+        'Casal': [ { id: 'c1', parentId: null, tipo: 'pasta', nome: 'Despesas da Casa' } ]
+      };
+
+      // --- LÓGICA DA LISTA DE COMPRAS SIMPLES (MELHORADA) ---
+      let listaComprasSimples = []; 
+
+      function abrirPaginaComprasSimples() {
+        document.getElementById('novo-item-input').value = '';
+        renderizarListaSimples();
+        mostrarPagina('menu-compras');
+      }
+
+      function verificarEnterLista(event) {
+        if (event.key === 'Enter') adicionarItemLista();
+      }
+
+      function adicionarItemLista() {
+        const input = document.getElementById('novo-item-input');
+        const texto = input.value.trim();
+        if(texto !== '') {
+          listaComprasSimples.push({ id: gerarId(), nome: texto, comprado: false });
+          input.value = '';
+          renderizarListaSimples();
+        }
+      }
+
+      function alternarCheckItem(id) {
+        const item = listaComprasSimples.find(i => i.id === id);
+        if(item) {
+          item.comprado = !item.comprado;
+          renderizarListaSimples();
+        }
+      }
+
+      function removerItemLista(id) {
+        listaComprasSimples = listaComprasSimples.filter(i => i.id !== id);
+        renderizarListaSimples();
+      }
+
+      function renderizarListaSimples() {
+        const container = document.getElementById('lista-simples-container');
+        container.innerHTML = '';
+        
+        if(listaComprasSimples.length === 0) {
+          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top:20px;">A tua lista está vazia.</p>';
+          return;
+        }
+        
+        listaComprasSimples.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'item-simples' + (item.comprado ? ' comprado' : '');
+          div.innerHTML = `
+            <div class="checkbox-custom" onclick="alternarCheckItem('${item.id}')"></div>
+            <p class="nome-item-simples" onclick="alternarCheckItem('${item.id}')">${item.nome}</p>
+            <button class="btn-eliminar-simples" onclick="removerItemLista('${item.id}')">🗑️</button>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      // --- FUNÇÕES DE DOCUMENTOS (REORGANIZADAS) ---
+      function abrirPaginaDocumentos(perfil) {
+        perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; 
+        document.getElementById('titulo-documentos').innerText = 'Documentos: ' + perfil;
+        renderizarDocumentos(); mostrarPagina('menu-documentos');
+      }
+
+      function entrarPasta(idPasta) {
+        historicoNavegacao.push(pastaAtual); pastaAtual = idPasta; renderizarDocumentos();
+      }
+
+      function voltarPasta() {
+        if (historicoNavegacao.length > 0) { pastaAtual = historicoNavegacao.pop(); renderizarDocumentos(); }
+      }
+
+      function renderizarDocumentos() {
+        const container = document.getElementById('lista-documentos-container');
+        const breadcrumb = document.getElementById('caminho-pasta');
+        container.innerHTML = ''; 
+        breadcrumb.style.display = (pastaAtual !== null) ? 'flex' : 'none';
+
+        const todosItens = baseDadosDocumentos[perfilAtual] || [];
+        const itensMostrar = todosItens.filter(item => item.parentId === pastaAtual);
+        
+        if (itensMostrar.length === 0) {
+          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">A pasta está vazia.</p>'; return;
+        }
+
+        itensMostrar.sort((a, b) => {
+          if (a.tipo === b.tipo) return a.nome.localeCompare(b.nome);
+          return a.tipo === 'pasta' ? -1 : 1;
+        });
+
+        itensMostrar.forEach(function(item) {
+          const div = document.createElement('div');
+          div.className = 'item-doc';
+          const icone = item.tipo === 'pasta' ? '📁' : '📄';
+          div.innerHTML = `
+            <div class="item-info" onclick="acaoPrincipalItem('${item.id}', '${item.tipo}')">
+              <span class="icon-doc">${icone}</span><span class="nome-doc">${item.nome}</span>
+            </div>
+            <button class="btn-opcoes" onclick="abrirOpcoes('${item.id}')">⋮</button>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      function acaoPrincipalItem(id, tipo) {
+        if(tipo === 'pasta') entrarPasta(id); else mostrarAlerta('Abrir documento... (A implementar)');
+      }
+
+      function abrirModal(id) { document.getElementById(id).classList.add('active'); }
+      function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+      function mostrarAlerta(mensagem) { document.getElementById('mensagem-alerta').innerText = mensagem; abrirModal('modal-alerta'); }
+
+      function criarPasta() {
+        const inputNome = document.getElementById('nome-nova-pasta');
+        const nome = inputNome.value.trim();
+        if (nome !== '') {
+          baseDadosDocumentos[perfilAtual].push({ id: gerarId(), parentId: pastaAtual, tipo: 'pasta', nome: nome });
+          inputNome.value = ''; fecharModal('modal-pasta'); renderizarDocumentos(); 
+        } else mostrarAlerta('Escreve um nome para a pasta.');
+      }
+
+      function adicionarDocumento() {
+        const inputFile = document.getElementById('ficheiro-upload');
+        const inputNome = document.getElementById('nome-documento');
+        if (inputFile.files.length > 0) {
+          let nome = inputNome.value.trim(); if (nome === '') nome = inputFile.files[0].name;
+          baseDadosDocumentos[perfilAtual].push({ id: gerarId(), parentId: pastaAtual, tipo: 'ficheiro', nome: nome });
+          inputFile.value = ''; inputNome.value = ''; fecharModal('modal-upload'); renderizarDocumentos();
+        } else mostrarAlerta('Seleciona um ficheiro primeiro.');
+      }
+
+      function abrirOpcoes(id) {
+        itemSelecionadoParaAcao = id;
+        const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id);
+        document.getElementById('titulo-opcoes').innerText = item.nome;
+        abrirModal('modal-opcoes');
+      }
+
+      function eliminarItem() { fecharModal('modal-opcoes'); abrirModal('modal-confirmacao'); }
+
+      function confirmarEliminar() {
+        baseDadosDocumentos[perfilAtual] = baseDadosDocumentos[perfilAtual].filter(i => i.id !== itemSelecionadoParaAcao);
+        fecharModal('modal-confirmacao'); renderizarDocumentos();
+      }
+
+      function prepararRenomear() {
+        const item = baseDadosDocumentos[perfilAtual].find(i => i.id === itemSelecionadoParaAcao);
+        document.getElementById('novo-nome-item').value = item.nome;
+        fecharModal('modal-opcoes'); abrirModal('modal-renomear');
+      }
+
+      function confirmarRenomear() {
+        const novoNome = document.getElementById('novo-nome-item').value.trim();
+        if (novoNome !== '') {
+          const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao);
+          baseDadosDocumentos[perfilAtual][itemIndex].nome = novoNome;
+          fecharModal('modal-renomear'); renderizarDocumentos();
+        }
+      }
+
+      function prepararMover() {
+        fecharModal('modal-opcoes');
+        const select = document.getElementById('select-destino-mover');
+        select.innerHTML = '<option value="root">Raiz (Ecrã Principal)</option>';
+        const todasPastas = baseDadosDocumentos[perfilAtual].filter(i => i.tipo === 'pasta' && i.id !== itemSelecionadoParaAcao);
+        todasPastas.forEach(pasta => { select.innerHTML += `<option value="${pasta.id}">📁 ${pasta.nome}</option>`; });
+        abrirModal('modal-mover');
+      }
+
+      function confirmarMover() {
+        const destinoSelecionado = document.getElementById('select-destino-mover').value;
+        const novoParentId = destinoSelecionado === 'root' ? null : destinoSelecionado;
+        const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao);
+        baseDadosDocumentos[perfilAtual][itemIndex].parentId = novoParentId;
+        fecharModal('modal-mover'); renderizarDocumentos();
+      }
+    </script>
+  </body>
+</html>

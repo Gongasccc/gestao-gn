@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="App Casal">
-    <!-- Ícone da App no iPhone: (Substitui pelo teu link se quiseres) -->
+    <!-- Ícone da App no iPhone: -->
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/FF6B00/ffffff?text=App">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,17 +44,17 @@
       h1 {
         font-weight: 600;
         font-size: 28px;
-        margin-bottom: 10px;
+        margin-bottom: 30px;
         text-align: center;
         letter-spacing: 1px;
       }
 
       h2 {
         font-weight: 400;
-        font-size: 14px;
+        font-size: 20px;
         color: var(--text-muted);
         text-align: center;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
       }
 
       .page-container {
@@ -356,36 +356,16 @@
       .btn-eliminar-simples:active {
         transform: scale(0.9);
       }
-
-      /* Barra de Conexão com o Google Sheets */
-      #status-conexao {
-        width: 100%;
-        text-align: center;
-        font-size: 11px;
-        color: #888;
-        margin-bottom: 20px;
-        display: block;
-        transition: color 0.3s;
-      }
     </style>
   </head>
   <body>
 
     <div class="page-container">
       
-      <!-- Painel de Erros em Tempo Real -->
-      <div id="debug-banner" style="display: none; background-color: #ff4d4d; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; text-align: left; border: 1px solid rgba(255,255,255,0.2); width: 100%;">
-        <strong style="display: block; margin-bottom: 5px;">⚠️ Alerta de Sistema:</strong>
-        <span id="debug-message"></span>
-      </div>
-
-      <!-- Barra de Estado do Google Sheets -->
-      <span id="status-conexao">⏳ A carregar sincronização...</span>
-      
       <div id="menu-principal" class="page active">
         <div class="header-decor"></div>
         <h1>Gonçalo & Nathália</h1>
-        <h2>Selecione o menu</h2>
+        <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
         
         <button class="btn" onclick="mostrarPagina('menu-goncalo')">
           <div class="perfil-conteudo">
@@ -523,7 +503,6 @@
         <h1>Folhetos da Semana</h1>
         <h2 style="font-size: 14px; margin-bottom: 30px;">Acede às promoções sempre atualizadas</h2>
 
-        <!-- FIXED: Este era o div da grelha de folhetos que estava em falta e causava o ecrã preto! -->
         <div class="folhetos-grid">
           <div class="folheto-card" onclick="window.open('https://folhetos.continente.pt/', '_blank')">
             <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg" alt="Continente">
@@ -569,7 +548,6 @@
               <span>Ver Folhetos →</span>
             </div>
           </div>
-        </div> <!-- FECHO DA GRELHA CORRIGIDO! -->
 
         <button class="btn-voltar" onclick="mostrarPagina('menu-supermercados')">Voltar</button>
       </div>
@@ -668,39 +646,17 @@
     </div>
 
     <script>
+      // =========================================
+      // A TUA NOVA LIGAÇÃO AO GOOGLE!
+      // =========================================
       const API_URL = "https://script.google.com/macros/s/AKfycbzKR2TkfSL5yyzUDpySKcFVLzZwGnoqun71nwiPoi2Msk9QSkJfHSPHgXn5bJL02Gjm/exec";
-
-      // Captura erros globais e exibe no topo do telemóvel para não haver ecrãs pretos invisíveis!
-      window.onerror = function(message, source, lineno, colno, error) {
-        const banner = document.getElementById('debug-banner');
-        const msg = document.getElementById('debug-message');
-        if (banner && msg) {
-          banner.style.display = 'block';
-          msg.innerText = `${message} (Linha ${lineno}:${colno})`;
-        }
-        return false;
-      };
-
-      window.onunhandledrejection = function(event) {
-        const banner = document.getElementById('debug-banner');
-        const msg = document.getElementById('debug-message');
-        if (banner && msg) {
-          banner.style.display = 'block';
-          msg.innerText = `Erro de Conexão: ${event.reason}`;
-        }
-      };
 
       function mostrarPagina(idPagina) {
         var paginas = document.getElementsByClassName('page');
         for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
         setTimeout(function() {
-          const el = document.getElementById(idPagina);
-          if (el) {
-            el.classList.add('active');
-            window.scrollTo(0, 0);
-          } else {
-            console.error("Ecrã não encontrado: " + idPagina);
-          }
+          document.getElementById(idPagina).classList.add('active');
+          window.scrollTo(0, 0); 
         }, 50);
       }
 
@@ -715,74 +671,50 @@
       let historicoNavegacao = []; 
       let itemSelecionadoParaAcao = null; 
 
+      // A base de dados começa vazia e vai ser preenchida pelo Google!
       let baseDadosDocumentos = {
         'Gonçalo': [],
         'Nathália': [],
         'Casal': []
       };
 
+      // --- NOVA FUNÇÃO: CARREGAR DADOS DO GOOGLE ---
       async function carregarDocumentosDoGoogle() {
-        const statusDiv = document.getElementById('status-conexao');
         try {
-          if (statusDiv) statusDiv.innerHTML = "⏳ A ligar ao Google Sheets...";
-          
           const resposta = await fetch(API_URL);
-          if (!resposta.ok) throw new Error("Erro de resposta do servidor: " + resposta.status);
-          
           const dados = await resposta.json();
           
-          if (dados && dados.erro) {
-            throw new Error(dados.erro);
-          }
-
-          if (!Array.isArray(dados)) {
-            throw new Error("O Google Sheets não devolveu uma lista válida.");
-          }
-          
-          // Limpa a memória local
+          // Limpa a memória atual para não duplicar coisas
           baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };
           
+          // Organiza as pastas vindas do Excel nos vossos perfis
           dados.forEach(item => {
-            if (item && item.perfil && baseDadosDocumentos[item.perfil]) {
+            if (baseDadosDocumentos[item.perfil]) {
               baseDadosDocumentos[item.perfil].push({
-                id: item.id || gerarId(),
-                parentId: item.parentId === "" ? null : item.parentId,
-                tipo: item.tipo || 'ficheiro',
-                nome: item.nome || 'Sem Nome',
-                url: item.url || ''
+                id: item.id,
+                parentId: item.parentId,
+                tipo: item.tipo,
+                nome: item.nome,
+                url: item.url
               });
             }
           });
           
-          if (statusDiv) {
-            statusDiv.innerHTML = "🟢 Ligado ao Google Sheets";
-            statusDiv.style.color = "#4caf50";
-            setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
-          }
-          
+          // Se estiveres num menu de documentos, recarrega a página visualmente
           if (document.getElementById('menu-documentos').classList.contains('active')) {
             renderizarDocumentos();
           }
         } catch (erro) {
-          console.error("Erro na ligação ao Google:", erro);
-          if (statusDiv) {
-            statusDiv.innerHTML = "🔴 Erro de Sincronização";
-            statusDiv.style.color = "#ff4d4d";
-          }
-          // Se falhar o Google, mostramos o erro mas a app continua a funcionar localmente
-          const banner = document.getElementById('debug-banner');
-          const msg = document.getElementById('debug-message');
-          if (banner && msg) {
-            banner.style.display = 'block';
-            msg.innerText = `Não foi possível obter os dados do Google Sheets (${erro.message}). A usar memória temporária.`;
-          }
+          console.error("Erro ao comunicar com o Google:", erro);
         }
       }
 
+      // Quando a app abre, carrega os dados automaticamente!
       window.onload = function() {
         carregarDocumentosDoGoogle();
       };
 
+      // --- LÓGICA DA LISTA DE COMPRAS SIMPLES (MELHORADA) ---
       let listaComprasSimples = []; 
 
       function abrirPaginaComprasSimples() {
@@ -820,7 +752,6 @@
 
       function renderizarListaSimples() {
         const container = document.getElementById('lista-simples-container');
-        if (!container) return;
         container.innerHTML = '';
         
         if(listaComprasSimples.length === 0) {
@@ -840,51 +771,37 @@
         });
       }
 
+      // --- FUNÇÕES DE DOCUMENTOS (REORGANIZADAS) ---
       function abrirPaginaDocumentos(perfil) {
-        perfilAtual = perfil; 
-        pastaAtual = null; 
-        historicoNavegacao = []; 
+        perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; 
         document.getElementById('titulo-documentos').innerText = 'Documentos: ' + perfil;
-        renderizarDocumentos(); 
-        mostrarPagina('menu-documentos');
+        renderizarDocumentos(); mostrarPagina('menu-documentos');
       }
 
       function entrarPasta(idPasta) {
-        historicoNavegacao.push(pastaAtual); 
-        pastaAtual = idPasta; 
-        renderizarDocumentos();
+        historicoNavegacao.push(pastaAtual); pastaAtual = idPasta; renderizarDocumentos();
       }
 
       function voltarPasta() {
-        if (historicoNavegacao.length > 0) { 
-          pastaAtual = historicoNavegacao.pop(); 
-          renderizarDocumentos(); 
-        }
+        if (historicoNavegacao.length > 0) { pastaAtual = historicoNavegacao.pop(); renderizarDocumentos(); }
       }
 
       function renderizarDocumentos() {
         const container = document.getElementById('lista-documentos-container');
         const breadcrumb = document.getElementById('caminho-pasta');
-        if (!container) return;
-        
         container.innerHTML = ''; 
         breadcrumb.style.display = (pastaAtual !== null) ? 'flex' : 'none';
 
         const todosItens = baseDadosDocumentos[perfilAtual] || [];
-        const itensMostrar = todosItens.filter(item => item && item.parentId === pastaAtual);
+        const itensMostrar = todosItens.filter(item => item.parentId === pastaAtual);
         
         if (itensMostrar.length === 0) {
-          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">A pasta está vazia.</p>'; 
-          return;
+          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">A pasta está vazia.</p>'; return;
         }
 
         itensMostrar.sort((a, b) => {
-          const tipoA = a.tipo || '';
-          const tipoB = b.tipo || '';
-          const nomeA = a.nome || '';
-          const nomeB = b.nome || '';
-          if (tipoA === tipoB) return nomeA.localeCompare(nomeB);
-          return tipoA === 'pasta' ? -1 : 1;
+          if (a.tipo === b.tipo) return a.nome.localeCompare(b.nome);
+          return a.tipo === 'pasta' ? -1 : 1;
         });
 
         itensMostrar.forEach(function(item) {
@@ -902,20 +819,12 @@
       }
 
       function acaoPrincipalItem(id, tipo) {
-        if(tipo === 'pasta') entrarPasta(id); 
-        else {
-          const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id);
-          if (item && item.url) {
-            window.open(item.url, '_blank');
-          } else {
-            mostrarAlerta('Este ficheiro não tem um link associado.');
-          }
-        }
+        if(tipo === 'pasta') entrarPasta(id); else mostrarAlerta('Abrir documento... (A implementar)');
       }
 
       function abrirModal(id) { document.getElementById(id).classList.add('active'); }
       function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
-      function mostrarAlerta(mensagem) { document.getElementById('mensagem-alerta').innerText = mensaje || mensagem; abrirModal('modal-alerta'); }
+      function mostrarAlerta(mensagem) { document.getElementById('mensagem-alerta').innerText = mensagem; abrirModal('modal-alerta'); }
 
       async function criarPasta() {
         const inputNome = document.getElementById('nome-nova-pasta');
@@ -924,11 +833,13 @@
         if (nome !== '') {
           const novoId = gerarId();
           
-          baseDadosDocumentos[perfilAtual].push({ id: novoId, parentId: pastaAtual, tipo: 'pasta', nome: nome, url: '' });
+          // 1. Mostra na App imediatamente (Truque para parecer super rápida!)
+          baseDadosDocumentos[perfilAtual].push({ id: novoId, parentId: pastaAtual, tipo: 'pasta', nome: nome });
           inputNome.value = ''; 
           fecharModal('modal-pasta'); 
           renderizarDocumentos(); 
           
+          // 2. Avisa o teu Google Sheets silenciosamente
           const dadosEnviar = new URLSearchParams();
           dadosEnviar.append('acao', 'criarPasta');
           dadosEnviar.append('id', novoId);
@@ -943,8 +854,7 @@
               headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
           } catch(e) {
-            console.error(e);
-            mostrarAlerta('A pasta foi criada temporariamente na App, mas houve um erro ao sincronizar com o Google.');
+            mostrarAlerta('A pasta foi criada na App, mas houve um erro de internet ao guardar no Excel.');
           }
         } else {
           mostrarAlerta('Escreve um nome para a pasta.');
@@ -955,56 +865,58 @@
         const inputFile = document.getElementById('ficheiro-upload');
         const inputNome = document.getElementById('nome-documento');
         if (inputFile.files.length > 0) {
-          let nome = inputNome.value.trim(); 
-          if (nome === '') nome = inputFile.files[0].name;
-          
-          baseDadosDocumentos[perfilAtual].push({ id: gerarId(), parentId: pastaAtual, tipo: 'ficheiro', nome: nome, url: '' });
-          inputFile.value = ''; 
-          inputNome.value = ''; 
-          fecharModal('modal-upload'); 
-          renderizarDocumentos();
-          
-          mostrarAlerta('Ficheiro guardado localmente na App!');
-        } else {
-          mostrarAlerta('Seleciona um ficheiro primeiro.');
-        }
+          let nome = inputNome.value.trim(); if (nome === '') nome = inputFile.files[0].name;
+          baseDadosDocumentos[perfilAtual].push({ id: gerarId(), parentId: pastaAtual, tipo: 'ficheiro', nome: nome });
+          inputFile.value = ''; inputNome.value = ''; fecharModal('modal-upload'); renderizarDocumentos();
+        } else mostrarAlerta('Seleciona um ficheiro primeiro.');
       }
 
       function abrirOpcoes(id) {
         itemSelecionadoParaAcao = id;
         const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id);
-        if (item) {
-          document.getElementById('titulo-opcoes').innerText = item.nome;
-          abrirModal('modal-opcoes');
-        }
+        document.getElementById('titulo-opcoes').innerText = item.nome;
+        abrirModal('modal-opcoes');
       }
 
       function eliminarItem() { fecharModal('modal-opcoes'); abrirModal('modal-confirmacao'); }
 
-      function confirmarEliminar() {
-        baseDadosDocumentos[perfilAtual] = baseDadosDocumentos[perfilAtual].filter(i => i.id !== itemSelecionadoParaAcao);
+      async function confirmarEliminar() {
+        const idApagar = itemSelecionadoParaAcao;
+        
+        // 1. Apaga visualmente da App na hora
+        baseDadosDocumentos[perfilAtual] = baseDadosDocumentos[perfilAtual].filter(i => i.id !== idApagar);
         fecharModal('modal-confirmacao'); 
         renderizarDocumentos();
+
+        // 2. Manda a ordem secreta para o Google apagar a linha
+        const dadosEnviar = new URLSearchParams();
+        dadosEnviar.append('acao', 'eliminarItem');
+        dadosEnviar.append('id', idApagar);
+        
+        try {
+          await fetch(API_URL, {
+            method: 'POST',
+            body: dadosEnviar,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+          });
+        } catch(e) {
+          console.error(e);
+          mostrarAlerta('O item foi apagado visualmente, mas houve um erro ao contactar o Google Sheets.');
+        }
       }
 
       function prepararRenomear() {
         const item = baseDadosDocumentos[perfilAtual].find(i => i.id === itemSelecionadoParaAcao);
-        if (item) {
-          document.getElementById('novo-nome-item').value = item.nome;
-          fecharModal('modal-opcoes'); 
-          abrirModal('modal-renomear');
-        }
+        document.getElementById('novo-nome-item').value = item.nome;
+        fecharModal('modal-opcoes'); abrirModal('modal-renomear');
       }
 
       function confirmarRenomear() {
         const novoNome = document.getElementById('novo-nome-item').value.trim();
         if (novoNome !== '') {
           const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao);
-          if (itemIndex > -1) {
-            baseDadosDocumentos[perfilAtual][itemIndex].nome = novoNome;
-          }
-          fecharModal('modal-renomear'); 
-          renderizarDocumentos();
+          baseDadosDocumentos[perfilAtual][itemIndex].nome = novoNome;
+          fecharModal('modal-renomear'); renderizarDocumentos();
         }
       }
 
@@ -1021,11 +933,8 @@
         const destinoSelecionado = document.getElementById('select-destino-mover').value;
         const novoParentId = destinoSelecionado === 'root' ? null : destinoSelecionado;
         const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao);
-        if (itemIndex > -1) {
-          baseDadosDocumentos[perfilAtual][itemIndex].parentId = novoParentId;
-        }
-        fecharModal('modal-mover'); 
-        renderizarDocumentos();
+        baseDadosDocumentos[perfilAtual][itemIndex].parentId = novoParentId;
+        fecharModal('modal-mover'); renderizarDocumentos();
       }
     </script>
   </body>

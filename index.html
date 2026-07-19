@@ -646,6 +646,11 @@
     </div>
 
     <script>
+      // =========================================
+      // A TUA NOVA LIGAÇÃO AO GOOGLE!
+      // =========================================
+      const API_URL = "https://script.google.com/macros/s/AKfycbzKR2TkfSL5yyzUDpySKcFVLzZwGnoqun71nwiPoi2Msk9QSkJfHSPHgXn5bJL02Gjm/exec";
+
       function mostrarPagina(idPagina) {
         var paginas = document.getElementsByClassName('page');
         for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
@@ -666,10 +671,47 @@
       let historicoNavegacao = []; 
       let itemSelecionadoParaAcao = null; 
 
+      // A base de dados começa vazia e vai ser preenchida pelo Google!
       let baseDadosDocumentos = {
-        'Gonçalo': [ { id: 'g1', parentId: null, tipo: 'pasta', nome: 'Documentos Pessoais' } ],
-        'Nathália': [ { id: 'n1', parentId: null, tipo: 'pasta', nome: 'Exames Médicos' } ],
-        'Casal': [ { id: 'c1', parentId: null, tipo: 'pasta', nome: 'Despesas da Casa' } ]
+        'Gonçalo': [],
+        'Nathália': [],
+        'Casal': []
+      };
+
+      // --- NOVA FUNÇÃO: CARREGAR DADOS DO GOOGLE ---
+      async function carregarDocumentosDoGoogle() {
+        try {
+          const resposta = await fetch(API_URL);
+          const dados = await resposta.json();
+          
+          // Limpa a memória atual para não duplicar coisas
+          baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };
+          
+          // Organiza as pastas vindas do Excel nos vossos perfis
+          dados.forEach(item => {
+            if (baseDadosDocumentos[item.perfil]) {
+              baseDadosDocumentos[item.perfil].push({
+                id: item.id,
+                parentId: item.parentId,
+                tipo: item.tipo,
+                nome: item.nome,
+                url: item.url
+              });
+            }
+          });
+          
+          // Se estiveres num menu de documentos, recarrega a página visualmente
+          if (document.getElementById('menu-documentos').classList.contains('active')) {
+            renderizarDocumentos();
+          }
+        } catch (erro) {
+          console.error("Erro ao comunicar com o Google:", erro);
+        }
+      }
+
+      // Quando a app abre, carrega os dados automaticamente!
+      window.onload = function() {
+        carregarDocumentosDoGoogle();
       };
 
       // --- LÓGICA DA LISTA DE COMPRAS SIMPLES (MELHORADA) ---
@@ -784,13 +826,39 @@
       function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
       function mostrarAlerta(mensagem) { document.getElementById('mensagem-alerta').innerText = mensagem; abrirModal('modal-alerta'); }
 
-      function criarPasta() {
+      async function criarPasta() {
         const inputNome = document.getElementById('nome-nova-pasta');
         const nome = inputNome.value.trim();
+        
         if (nome !== '') {
-          baseDadosDocumentos[perfilAtual].push({ id: gerarId(), parentId: pastaAtual, tipo: 'pasta', nome: nome });
-          inputNome.value = ''; fecharModal('modal-pasta'); renderizarDocumentos(); 
-        } else mostrarAlerta('Escreve um nome para a pasta.');
+          const novoId = gerarId();
+          
+          // 1. Mostra na App imediatamente (Truque para parecer super rápida!)
+          baseDadosDocumentos[perfilAtual].push({ id: novoId, parentId: pastaAtual, tipo: 'pasta', nome: nome });
+          inputNome.value = ''; 
+          fecharModal('modal-pasta'); 
+          renderizarDocumentos(); 
+          
+          // 2. Avisa o teu Google Sheets silenciosamente
+          const dadosEnviar = new URLSearchParams();
+          dadosEnviar.append('acao', 'criarPasta');
+          dadosEnviar.append('id', novoId);
+          dadosEnviar.append('nome', nome);
+          dadosEnviar.append('parentId', pastaAtual || '');
+          dadosEnviar.append('perfil', perfilAtual);
+          
+          try {
+            await fetch(API_URL, {
+              method: 'POST',
+              body: dadosEnviar,
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+          } catch(e) {
+            mostrarAlerta('A pasta foi criada na App, mas houve um erro de internet ao guardar no Excel.');
+          }
+        } else {
+          mostrarAlerta('Escreve um nome para a pasta.');
+        }
       }
 
       function adicionarDocumento() {

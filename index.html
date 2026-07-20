@@ -8,7 +8,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="App Casal">
-    <!-- Ícone da App principal no telemóvel (Logo preto fundo branco) -->
     <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,12 +57,8 @@
       h1 { font-weight: 600; font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
       h2 { font-weight: 400; font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
       
-      /* SISTEMA INTELIGENTE DE LOGÓTIPOS NA BARRA LATERAL */
       .sidebar-logo { width: 140px; height: 90px; object-fit: contain; margin: 0 auto; display: block; }
-      
-      .light-logo { display: none; } /* Esconde o logo preto por defeito (Dark Mode) */
-      
-      /* Quando o modo claro está ativo, inverte a visibilidade! */
+      .light-logo { display: none; }
       body.light-mode .light-logo { display: block; }
       body.light-mode .dark-logo { display: none; }
 
@@ -85,14 +80,19 @@
       .sidebar-item.active { border-left: 4px solid var(--accent); background-color: rgba(255,107,0,0.05); color: var(--accent);}
       .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); }
       
-      /* Estilização para os SVG Icons */
       .icon-svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 24px; height: 24px; margin-bottom: 4px; }
       .sidebar-icon-svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-      #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height); background-color: rgba(32, 32, 32, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 1500; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.3s ease; }
+      #bottom-nav { 
+        position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height); 
+        background-color: rgba(32, 32, 32, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
+        border-top: 1px solid var(--border-color); 
+        display: flex; justify-content: center; align-items: center; gap: 60px; /* Centra os dois botões no meio */
+        z-index: 1500; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.3s ease; 
+      }
       body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.85); }
 
-      .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
+      .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
       .nav-btn:active { transform: scale(0.9); }
       .nav-btn span { font-size: 10px; font-weight: 500; }
       .nav-btn.active { color: var(--accent); }
@@ -104,13 +104,45 @@
         #app-container { flex-direction: row; } #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } #sidebar-overlay { display: none !important; }
       }
 
+      /* WIDGETS DO DASHBOARD (HOME PAGE) */
+      .dashboard-widget {
+        background-color: var(--card-bg); width: 100%; border-radius: 20px; 
+        padding: 25px; margin-bottom: 20px; border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: background-color 0.3s ease;
+      }
+      
+      .widget-relogio { text-align: center; }
+      #data-atual { font-size: 14px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;}
+      #hora-atual { font-size: 42px; font-weight: 300; color: var(--text-main); margin: 0; line-height: 1; }
+      #segundos-atual { font-size: 20px; color: var(--text-muted); }
+
+      .widget-frase { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px;}
+      .frase-texto { font-size: 17px; font-style: italic; color: var(--text-main); font-weight: 300; line-height: 1.5; margin: 0;}
+      .frase-autor { font-size: 12px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
+      .quote-icon { opacity: 0.2; width: 30px; margin-bottom: 10px; fill: var(--text-main); }
+
+      /* LISTA DE TAREFAS WIDGET */
+      .widget-tarefas h3 { margin: 0 0 15px 0; font-size: 18px; font-weight: 500; display: flex; align-items: center; gap: 8px;}
+      .input-tarefa-container { display: flex; gap: 10px; margin-bottom: 15px; }
+      .input-tarefa { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
+      .btn-add-tarefa { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; font-size: 24px; font-weight: 600; cursor: pointer; transition: transform 0.1s;}
+      .btn-add-tarefa:active { transform: scale(0.9); }
+      
+      .lista-tarefas { display: flex; flex-direction: column; gap: 8px; }
+      .tarefa-item { display: flex; align-items: center; background-color: var(--bg-color); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color); transition: background-color 0.3s ease;}
+      .tarefa-texto { flex: 1; font-size: 14px; margin-left: 12px; transition: color 0.2s;}
+      .tarefa-item.feita .tarefa-texto { text-decoration: line-through; color: var(--text-muted); }
+      .tarefa-item.feita .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
+      .tarefa-item.feita .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 12px; }
+      .btn-icon-tarefa { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 5px; margin-left: 5px; transition: color 0.2s; }
+      .btn-icon-tarefa:active { transform: scale(0.9); }
+      .btn-icon-tarefa:hover { color: var(--text-main); }
+      .btn-apagar-tarefa:hover { color: #ff4d4d; }
+
       /* Estilos Comuns */
       .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 18px; font-weight: 400; cursor: pointer; width: 100%; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
       .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
       .btn::after { content: '→'; font-size: 20px; color: var(--accent); }
-
-      .avatar-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 15px; border: 2px solid var(--accent); background-color: var(--bg-color); }
-      .perfil-conteudo { display: flex; align-items: center; }
 
       .folhetos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
       .folheto-card { background-color: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease, background-color 0.3s ease; }
@@ -152,7 +184,7 @@
       .pesquisa-input { width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; font-family: inherit; font-size: 16px; transition: background-color 0.3s ease, color 0.3s ease; }
       .lista-simples { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
       .item-simples { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); transition: opacity 0.2s, transform 0.2s, background-color 0.3s ease; }
-      .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; margin-right: 15px; flex-shrink: 0; position: relative; }
+      .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; flex-shrink: 0; position: relative; }
       .item-simples.comprado { opacity: 0.4; }
       .item-simples.comprado .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
       .item-simples.comprado .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 14px; }
@@ -170,10 +202,8 @@
       <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
       <div id="sidebar">
         <div class="sidebar-header">
-          <!-- Sistema Duplo de Logos: Um para o Escuro, outro para o Claro -->
           <img src="logobranco_semfundo.png" alt="Logo Gestão" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
           <img src="logopreto_semfundo.png" alt="Logo Gestão" class="sidebar-logo light-logo" onerror="this.style.display='none'">
-          
           <span style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.5px;">Gestão G&N</span>
         </div>
         
@@ -212,7 +242,7 @@
         </div>
       </div>
 
-      <!-- A NOVA BARRA INFERIOR (BOTTOM NAV IPHONE) COM SVG -->
+      <!-- A NOVA BARRA INFERIOR (SÓ 2 BOTÕES CENTRADOS) -->
       <div id="bottom-nav">
         <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
           <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -221,10 +251,6 @@
         <div class="nav-btn active" id="nav-btn-home" onclick="navegarMenu('menu-principal')">
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           <span>Início</span>
-        </div>
-        <div class="nav-btn" id="nav-btn-compras" onclick="navegarMenu('menu-supermercados')">
-          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-          <span>Compras</span>
         </div>
       </div>
 
@@ -237,44 +263,43 @@
           <span id="debug-message"></span>
         </div>
 
-        <span id="status-conexao">⏳ A carregar sincronização...</span>
+        <span id="status-conexao" style="margin-bottom: 5px;">⏳ A carregar sincronização...</span>
         
-        <!-- PÁGINA: INÍCIO (LIMPA, SEM LOGO NEM NOME) -->
+        <!-- ============================================== -->
+        <!-- NOVO DASHBOARD (INÍCIO) -->
+        <!-- ============================================== -->
         <div id="menu-principal" class="page active">
           
-          <h2 style="font-size: 16px; margin-top: 10px; margin-bottom: 40px; color: var(--text-main); font-weight: 500;">Selecione o menu</h2>
-          
-          <button class="btn" onclick="navegarMenu('menu-goncalo')">
-            <div class="perfil-conteudo">
-              <img src="https://placehold.co/100x100/202020/FF6B00?text=G" alt="Foto Gonçalo" class="avatar-img">
-              <span>Gonçalo</span>
-            </div>
-          </button>
-          
-          <button class="btn" onclick="navegarMenu('menu-nathalia')">
-            <div class="perfil-conteudo">
-              <img src="https://placehold.co/100x100/202020/FF6B00?text=N" alt="Foto Nathália" class="avatar-img">
-              <span>Nathália</span>
-            </div>
-          </button>
-          
-          <button class="btn" onclick="navegarMenu('menu-casal')" style="border-left: 4px solid var(--accent);">
-            <div class="perfil-conteudo">
-              <img src="https://placehold.co/100x100/202020/FF6B00?text=C" alt="Foto Casal" class="avatar-img">
-              <span>Casal</span>
-            </div>
-          </button>
+          <!-- Widget: Relógio e Data -->
+          <div class="dashboard-widget widget-relogio">
+            <span id="data-atual">Carregando data...</span>
+            <h1 id="hora-atual">00:00<span id="segundos-atual">:00</span></h1>
+          </div>
 
-          <button class="btn" onclick="navegarMenu('menu-supermercados')" style="border-left: 4px solid #fff;">
-            <div class="perfil-conteudo">
-              <span style="font-size: 28px; margin-right: 15px;">🛒</span>
-              <span>Supermercados</span>
+          <!-- Widget: Frase do Dia (Motivação / Deus) -->
+          <div class="dashboard-widget widget-frase">
+            <!-- Icon de aspas decorativo -->
+            <svg class="quote-icon" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+            <p class="frase-texto" id="frase-texto">"Carregando a inspiração de hoje..."</p>
+            <span class="frase-autor" id="frase-autor"></span>
+          </div>
+
+          <!-- Widget: A fazer para o dia -->
+          <div class="dashboard-widget widget-tarefas">
+            <h3><svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> A Fazer Hoje</h3>
+            
+            <div class="input-tarefa-container">
+              <input type="text" id="input-nova-tarefa" class="input-tarefa" placeholder="Escreve uma nova tarefa..." onkeypress="verificarEnterTarefa(event)">
+              <button class="btn-add-tarefa" onclick="adicionarTarefa()">+</button>
             </div>
-          </button>
-          
-          <div style="width: 100%; height: 1px; background-color: var(--border-color); margin: 25px 0;"></div>
-          <button class="btn" onclick="abrirPaginaGaragem()" style="background-color: var(--btn-secondary);">🚗 Garagem e Combustível</button>
+            
+            <div class="lista-tarefas" id="container-tarefas-diarias">
+              <!-- As tarefas aparecem aqui -->
+            </div>
+          </div>
+
         </div>
+        <!-- FIM DO DASHBOARD -->
 
         <!-- PÁGINAS SECUNDÁRIAS -->
         <div id="menu-goncalo" class="page">
@@ -392,7 +417,7 @@
     </div>
 
 
-    <!-- Modals -->
+    <!-- Modals (Pastas e Avisos) -->
     <div id="modal-pasta" class="modal-overlay">
       <div class="modal-content">
         <h2>Criar Nova Pasta</h2>
@@ -477,7 +502,7 @@
       };
 
       // ==========================================
-      // SISTEMA DE TEMAS (DARK / LIGHT MODE - SVG)
+      // SISTEMA DE TEMAS (DARK / LIGHT MODE)
       // ==========================================
       function alternarTema() {
         const isLight = document.body.classList.toggle('light-mode');
@@ -485,12 +510,10 @@
         const texto = document.getElementById('texto-tema');
         
         if (isLight) {
-          // SVG da Lua (Escuro)
           icone.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
           texto.innerText = 'Modo Escuro';
           localStorage.setItem('temaApp', 'light');
         } else {
-          // SVG do Sol (Claro)
           icone.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
           texto.innerText = 'Modo Claro';
           localStorage.setItem('temaApp', 'dark');
@@ -510,6 +533,120 @@
         }
       }
       carregarTemaSalvo();
+
+
+      // ==========================================
+      // LÓGICA DO DASHBOARD (HOME PAGE)
+      // ==========================================
+
+      // 1. Relógio em Tempo Real
+      function atualizarRelogio() {
+        const agora = new Date();
+        const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        
+        const dataStr = `${diasSemana[agora.getDay()]}, ${agora.getDate()} de ${meses[agora.getMonth()]}`;
+        
+        const horas = String(agora.getHours()).padStart(2, '0');
+        const minutos = String(agora.getMinutes()).padStart(2, '0');
+        const segundos = String(agora.getSeconds()).padStart(2, '0');
+
+        document.getElementById('data-atual').innerText = dataStr;
+        document.getElementById('hora-atual').innerHTML = `${horas}:${minutos}<span id="segundos-atual">:${segundos}</span>`;
+      }
+      setInterval(atualizarRelogio, 1000);
+      atualizarRelogio();
+
+      // 2. Frase do Dia (Baseada no dia do ano para mudar automaticamente)
+      const frasesMotivacionais = [
+        { texto: "Entregue o seu caminho ao Senhor; confie nele, e ele o fará.", autor: "Salmos 37:5" },
+        { texto: "Tudo posso naquele que me fortalece.", autor: "Filipenses 4:13" },
+        { texto: "O amor é paciente, o amor é bondoso. Tudo sofre, tudo crê, tudo espera, tudo suporta.", autor: "1 Coríntios 13:4-7" },
+        { texto: "Alegrem-se na esperança, sejam pacientes na tribulação, perseverem na oração.", autor: "Romanos 12:12" },
+        { texto: "Consagre ao Senhor tudo o que você faz, e os seus planos serão bem-sucedidos.", autor: "Provérbios 16:3" },
+        { texto: "Não fui eu que ordenei a você? Seja forte e corajoso! Não se apavore nem desanime.", autor: "Josué 1:9" },
+        { texto: "O Senhor é o meu pastor; de nada me faltará.", autor: "Salmos 23:1" },
+        { texto: "Acima de tudo, porém, revistam-se do amor, que é o elo perfeito.", autor: "Colossenses 3:14" },
+        { texto: "Deem graças em todas as circunstâncias, pois esta é a vontade de Deus.", autor: "1 Tessalonicenses 5:18" },
+        { texto: "Deus é o nosso refúgio e a nossa fortaleza, auxílio sempre presente na adversidade.", autor: "Salmos 46:1" }
+      ];
+
+      function carregarFraseDoDia() {
+        const hoje = new Date();
+        const diaDoAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        const indexFrase = diaDoAno % frasesMotivacionais.length; // Escolhe uma frase ciclicamente
+        
+        document.getElementById('frase-texto').innerText = `"${frasesMotivacionais[indexFrase].texto}"`;
+        document.getElementById('frase-autor').innerText = frasesMotivacionais[indexFrase].autor;
+      }
+      carregarFraseDoDia();
+
+      // 3. Lista de Tarefas do Dashboard (Local)
+      let tarefasDiarias = JSON.parse(localStorage.getItem('tarefasDiariasApp')) || [];
+
+      function guardarTarefas() {
+        localStorage.setItem('tarefasDiariasApp', JSON.stringify(tarefasDiarias));
+      }
+
+      function renderizarTarefasDiarias() {
+        const container = document.getElementById('container-tarefas-diarias');
+        container.innerHTML = '';
+        
+        if (tarefasDiarias.length === 0) {
+          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Tudo limpo para hoje! Parabéns.</p>';
+          return;
+        }
+
+        tarefasDiarias.forEach(tarefa => {
+          const div = document.createElement('div');
+          div.className = 'tarefa-item' + (tarefa.feita ? ' feita' : '');
+          
+          div.innerHTML = `
+            <div class="checkbox-custom" onclick="alternarTarefaDiaria('${tarefa.id}')"></div>
+            <span class="tarefa-texto" onclick="alternarTarefaDiaria('${tarefa.id}')">${tarefa.texto}</span>
+            <button class="btn-icon-tarefa" onclick="editarTarefaDiaria('${tarefa.id}')">✏️</button>
+            <button class="btn-icon-tarefa btn-apagar-tarefa" onclick="eliminarTarefaDiaria('${tarefa.id}')">🗑️</button>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      function verificarEnterTarefa(e) { if (e.key === 'Enter') adicionarTarefa(); }
+      
+      function adicionarTarefa() {
+        const input = document.getElementById('input-nova-tarefa');
+        const texto = input.value.trim();
+        if (texto) {
+          tarefasDiarias.push({ id: gerarId(), texto: texto, feita: false });
+          input.value = '';
+          guardarTarefas();
+          renderizarTarefasDiarias();
+        }
+      }
+
+      function alternarTarefaDiaria(id) {
+        const tarefa = tarefasDiarias.find(t => t.id === id);
+        if (tarefa) { tarefa.feita = !tarefa.feita; guardarTarefas(); renderizarTarefasDiarias(); }
+      }
+
+      function editarTarefaDiaria(id) {
+        const tarefa = tarefasDiarias.find(t => t.id === id);
+        if (tarefa) {
+          const novoTexto = prompt("Edita a tua tarefa:", tarefa.texto);
+          if (novoTexto !== null && novoTexto.trim() !== "") {
+            tarefa.texto = novoTexto.trim();
+            guardarTarefas(); renderizarTarefasDiarias();
+          }
+        }
+      }
+
+      function eliminarTarefaDiaria(id) {
+        tarefasDiarias = tarefasDiarias.filter(t => t.id !== id);
+        guardarTarefas(); renderizarTarefasDiarias();
+      }
+      
+      // Carrega as tarefas logo ao início
+      renderizarTarefasDiarias();
 
 
       // ==========================================
@@ -548,14 +685,12 @@
 
       function atualizarBotoesAtivos(idPagina) {
         document.getElementById('nav-btn-home').classList.remove('active');
-        document.getElementById('nav-btn-compras').classList.remove('active');
         document.getElementById('nav-btn-menu').classList.remove('active');
         
         const sideBtns = document.getElementsByClassName('sidebar-item');
         for (let i = 0; i < sideBtns.length; i++) sideBtns[i].classList.remove('active');
 
         if (idPagina === 'menu-principal') document.getElementById('nav-btn-home').classList.add('active');
-        else if (idPagina === 'menu-supermercados' || idPagina === 'menu-compras' || idPagina === 'menu-folhetos') document.getElementById('nav-btn-compras').classList.add('active');
         else if (idPagina === 'menu') document.getElementById('nav-btn-menu').classList.add('active');
 
         const sideId = 'sidebtn-' + idPagina;
@@ -576,7 +711,6 @@
         }
       }
 
-      // --- SWIPE MÁGICO DO IPHONE ---
       let touchstartX = 0; let touchstartY = 0;
       document.addEventListener('touchstart', function(e) {
         touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY;
@@ -587,11 +721,8 @@
         let deltaX = touchendX - touchstartX; let deltaY = touchendY - touchstartY;
 
         if (touchstartX < 80 && deltaX > 70 && Math.abs(deltaY) < 50) {
-          if (paginaAtualID !== 'menu-principal') {
-             voltarAtrasGeral();
-          } else {
-             abrirSidebar();
-          }
+          if (paginaAtualID !== 'menu-principal') { voltarAtrasGeral(); } 
+          else { abrirSidebar(); }
         }
         if (deltaX < -70 && Math.abs(deltaY) < 50 && document.getElementById('sidebar').classList.contains('open')) {
           fecharSidebar();
@@ -603,7 +734,7 @@
 
 
       // ==========================================
-      // LÓGICA DO RESTO DA APP
+      // LÓGICA DO GOOGLE SHEETS
       // ==========================================
       let perfilAtual = ''; let pastaAtual = null; let historicoNavegacao = []; let itemSelecionadoParaAcao = null; 
       let baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };
@@ -627,7 +758,7 @@
             }
           });
           
-          if (statusDiv) { statusDiv.innerHTML = "🟢 Sincronizado"; statusDiv.style.color = "#4caf50"; setTimeout(() => { statusDiv.style.display = 'none'; }, 3000); }
+          if (statusDiv) { statusDiv.innerHTML = ""; statusDiv.style.display = 'none'; }
           if (document.getElementById('menu-documentos').classList.contains('active')) renderizarDocumentos();
         } catch (erro) {
           console.error(erro);
@@ -637,9 +768,7 @@
       window.onload = function() { carregarDocumentosDoGoogle(); };
 
       let listaComprasSimples = []; 
-      function abrirPaginaComprasSimples() {
-        navegarMenu('menu-compras'); document.getElementById('novo-item-input').value = ''; renderizarListaSimples(); 
-      }
+      function abrirPaginaComprasSimples() { navegarMenu('menu-compras'); document.getElementById('novo-item-input').value = ''; renderizarListaSimples(); }
       function verificarEnterLista(event) { if (event.key === 'Enter') adicionarItemLista(); }
       function adicionarItemLista() {
         const input = document.getElementById('novo-item-input'); const texto = input.value.trim();
@@ -657,11 +786,7 @@
         });
       }
 
-      function abrirPaginaDocumentos(perfil) {
-        navegarMenu('menu-documentos'); perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; 
-        document.getElementById('titulo-documentos').innerText = 'Documentos: ' + perfil;
-        renderizarDocumentos(); 
-      }
+      function abrirPaginaDocumentos(perfil) { navegarMenu('menu-documentos'); perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; document.getElementById('titulo-documentos').innerText = 'Documentos: ' + perfil; renderizarDocumentos(); }
       function entrarPasta(idPasta) { historicoNavegacao.push(pastaAtual); pastaAtual = idPasta; renderizarDocumentos(); }
       function voltarPasta() { if (historicoNavegacao.length > 0) { pastaAtual = historicoNavegacao.pop(); renderizarDocumentos(); } }
       function renderizarDocumentos() {
@@ -691,9 +816,7 @@
         if (nome !== '') {
           const novoId = gerarId(); baseDadosDocumentos[perfilAtual].push({ id: novoId, parentId: pastaAtual, tipo: 'pasta', nome: nome, url: '' });
           inputNome.value = ''; fecharModal('modal-pasta'); renderizarDocumentos(); 
-          const dadosEnviar = new URLSearchParams();
-          dadosEnviar.append('acao', 'criarPasta'); dadosEnviar.append('id', novoId); dadosEnviar.append('nome', nome);
-          dadosEnviar.append('parentId', pastaAtual || ''); dadosEnviar.append('perfil', perfilAtual);
+          const dadosEnviar = new URLSearchParams(); dadosEnviar.append('acao', 'criarPasta'); dadosEnviar.append('id', novoId); dadosEnviar.append('nome', nome); dadosEnviar.append('parentId', pastaAtual || ''); dadosEnviar.append('perfil', perfilAtual);
           fetch(API_URL, { method: 'POST', body: dadosEnviar, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).catch(e => console.error(e));
         } else mostrarAlerta('Escreve um nome para a pasta.');
       }

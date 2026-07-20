@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="App Casal">
     <!-- Ícone da App no iPhone: -->
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/FF6B00/ffffff?text=App">
+    <link rel="apple-touch-icon" href="logo.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,6 +55,15 @@
         color: var(--text-muted);
         text-align: center;
         margin-bottom: 20px;
+      }
+
+      .main-logo {
+        width: 140px;
+        height: auto;
+        margin: 0 auto 10px auto;
+        display: block;
+        /* O truque mágico para inverter as cores para combinar com o fundo escuro da App! */
+        filter: invert(1); 
       }
 
       .page-container {
@@ -360,10 +369,10 @@
   </head>
   <body>
 
-    <div class="page-container">
+      <span id="status-conexao">⏳ A carregar sincronização...</span>
       
       <div id="menu-principal" class="page active">
-        <div class="header-decor"></div>
+        <img src="logo.png" alt="Logo G&N" class="main-logo">
         <h1>Gonçalo & Nathália</h1>
         <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
         

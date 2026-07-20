@@ -8,21 +8,22 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="App Casal">
-    <!-- Ícone Quadrado para o iPhone não esmagar a imagem -->
     <link rel="apple-touch-icon" href="logo-quadrado.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+      /* --- NOTION DARK MODE PALETTE --- */
       :root {
-        --bg-color: #050505;       /* Fundo preto profundo */
-        --card-bg: #171717;        /* Fundo dos cartões cinzento muito escuro */
-        --text-main: #ffffff;      /* Texto principal em branco puro */
-        --text-muted: #888888;     /* Texto secundário em cinzento */
-        --accent: #FF6B00;         /* Laranja vibrante principal */
-        --accent-hover: #E56000;   /* Laranja um pouco mais escuro para interações */
-        --btn-secondary: #222222;  /* Botões secundários quase pretos */
+        --bg-color: #191919;       /* Fundo principal cinza muito escuro (Notion style) */
+        --card-bg: #202020;        /* Fundo dos cartões ligeiramente mais claro */
+        --text-main: rgba(255, 255, 255, 0.9);  /* Branco suave para não doer nos olhos */
+        --text-muted: rgba(255, 255, 255, 0.5); /* Cinza para textos secundários */
+        --accent: #FF6B00;         /* Laranja vibrante mantém-se */
+        --accent-hover: #E56000;   
+        --btn-secondary: #2C2C2C;  /* Botões neutros mais suaves */
+        --border-color: rgba(255, 255, 255, 0.05); /* Bordas muito subtis */
       }
 
       * {
@@ -57,14 +58,13 @@
         margin-bottom: 20px;
       }
       
-      /* STREAMING_CHUNK: Styling layout and buttons... */
       .main-logo {
-        width: 180px;
-        height: 120px;
-        object-fit: contain; /* Não deixa a imagem esticar dentro da App */
+        width: 150px;
+        height: 100px;
+        object-fit: contain;
         margin: 0 auto 10px auto;
         display: block;
-        filter: invert(1); /* Inverte as cores para o Dark Mode! */
+        filter: invert(1) opacity(0.9); /* Inversão de cores um pouco mais suave */
       }
 
       .page-container {
@@ -94,10 +94,63 @@
         to { opacity: 1; transform: translateY(0); }
       }
 
+      /* --- NOVO MENU LATERAL (SIDEBAR) --- */
+      #sidebar-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0,0,0,0.6);
+        z-index: 1999;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      #sidebar-overlay.open {
+        opacity: 1; pointer-events: auto;
+      }
+
+      #sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        width: 280px;
+        background-color: var(--card-bg);
+        z-index: 2000;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-right: 1px solid var(--border-color);
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        display: flex; flex-direction: column;
+      }
+      #sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-header {
+        padding: 30px 20px 20px 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex; flex-direction: column; align-items: center;
+      }
+
+      .sidebar-item {
+        padding: 18px 25px;
+        font-size: 16px; font-weight: 500;
+        color: var(--text-main);
+        display: flex; align-items: center; gap: 15px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.02);
+        transition: background-color 0.2s;
+      }
+      .sidebar-item:active { background-color: rgba(255,255,255,0.05); }
+
+      .menu-btn-top {
+        position: absolute; top: 25px; left: 20px;
+        font-size: 28px; color: var(--text-muted);
+        cursor: pointer; z-index: 100;
+        padding: 10px; border-radius: 8px;
+      }
+      .menu-btn-top:active { background-color: var(--card-bg); }
+
+      /* --- ESTILOS DOS BOTÕES E LISTAS --- */
       .btn {
         background-color: var(--card-bg);
         color: var(--text-main);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
         padding: 20px;
         margin-bottom: 15px;
         border-radius: 16px;
@@ -113,7 +166,7 @@
 
       .btn:active { 
         transform: scale(0.98);
-        background-color: #2a2a2a;
+        background-color: var(--btn-secondary);
       }
 
       .btn::after {
@@ -122,89 +175,46 @@
         color: var(--accent);
       }
 
-      /* BOTÃO DE VOLTAR ESCONDIDO (Navegação por Gesto Ativa) */
-      .btn-voltar {
-        display: none !important;
-      }
+      .btn-voltar { display: none !important; } /* Escondido por causa do Swipe */
 
       .avatar-img {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 15px;
-        border: 2px solid var(--accent);
-        background-color: var(--bg-color);
+        width: 45px; height: 45px; border-radius: 50%;
+        object-fit: cover; margin-right: 15px;
+        border: 2px solid var(--accent); background-color: var(--bg-color);
       }
       
-      .perfil-conteudo {
-        display: flex;
-        align-items: center;
-      }
-      
-      /* STREAMING_CHUNK: Styling grids and lists... */
+      .perfil-conteudo { display: flex; align-items: center; }
+
       .folhetos-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        width: 100%;
-        margin-bottom: 20px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px;
       }
 
       .folheto-card {
-        background-color: var(--card-bg);
-        border-radius: 16px;
-        overflow: hidden;
-        cursor: pointer;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        text-align: center;
-        transition: transform 0.2s ease;
+        background-color: var(--card-bg); border-radius: 16px; overflow: hidden;
+        cursor: pointer; border: 1px solid var(--border-color);
+        text-align: center; transition: transform 0.2s ease;
       }
-
       .folheto-card:active { transform: scale(0.95); }
       
       .folheto-card img {
-        width: 100%;
-        height: 100px;
-        object-fit: contain;
-        background-color: white;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding: 8px;
+        width: 100%; height: 100px; object-fit: contain;
+        background-color: white; border-bottom: 1px solid var(--border-color); padding: 8px;
       }
 
       .folheto-info { padding: 12px 10px; }
       .folheto-info h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
       .folheto-info p { margin: 5px 0 0 0; font-size: 10px; color: var(--accent); font-weight: 600;}
-      .folheto-info span { display: block; font-size: 10px; color: var(--text-muted); margin-top: 4px;}
 
-      .carros-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 20px;
-        width: 100%;
-      }
-
+      .carros-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; }
       .car-card {
-        background-color: var(--card-bg);
-        border-radius: 20px;
-        overflow: hidden;
-        cursor: pointer;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background-color: var(--card-bg); border-radius: 20px; overflow: hidden;
+        cursor: pointer; border: 1px solid var(--border-color);
+        transition: transform 0.2s ease;
       }
-
       .car-card:active { transform: scale(0.97); }
-
       .img-container { width: 100%; height: 180px; overflow: hidden; }
       .img-container img { width: 100%; height: 100%; object-fit: cover; }
-
-      .car-info {
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
+      .car-info { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
       .car-info h3 { margin: 0; font-weight: 600; font-size: 18px; }
       .car-info span { color: var(--accent); font-size: 20px; }
 
@@ -213,28 +223,21 @@
         border-radius: 2px; margin: 0 auto 20px auto;
       }
 
-      .acoes-doc {
-        display: flex; gap: 10px; margin-bottom: 20px; width: 100%;
-      }
-
+      .acoes-doc { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
       .btn-acao {
         flex: 1; background-color: var(--btn-secondary); color: var(--text-main);
-        border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px;
+        border: 1px solid var(--border-color); padding: 12px;
         border-radius: 10px; font-size: 14px; cursor: pointer;
         transition: background-color 0.2s; display: flex; align-items: center;
         justify-content: center; gap: 8px;
       }
-
       .btn-acao:active { background-color: #444; }
 
       .lista-documentos { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-
       .item-doc {
         display: flex; align-items: center; background-color: var(--card-bg);
-        padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);
-        cursor: pointer;
+        padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer;
       }
-
       .item-doc:active { transform: scale(0.98); }
       .icon-doc { font-size: 24px; margin-right: 15px; }
       .nome-doc { font-size: 16px; flex: 1; text-align: left; }
@@ -243,138 +246,82 @@
         background: none; border: none; color: var(--text-muted);
         font-size: 20px; padding: 5px 10px; cursor: pointer; border-radius: 5px;
       }
-      .btn-opcoes:active { background-color: rgba(255,255,255,0.1); }
       
-      /* TEXTO DE VOLTAR NA PASTA ESCONDIDO (Gesto Ativo) */
-      .breadcrumb {
-        display: none !important;
-      }
-      
+      .breadcrumb { display: none !important; }
       .item-info { display: flex; align-items: center; flex: 1; overflow: hidden; }
       .item-info .nome-doc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      /* STREAMING_CHUNK: Styling modals and simple list... */
+      /* Modals elevados acima da Sidebar */
       .modal-overlay {
         display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(0, 0, 0, 0.8); z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.8); z-index: 3000;
         align-items: center; justify-content: center; padding: 20px;
       }
-
       .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
 
       .modal-content {
         background-color: var(--card-bg); width: 100%; max-width: 350px;
         padding: 25px; border-radius: 20px; text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       }
 
       .modal-content input[type="text"], .modal-content input[type="file"], select {
-        width: 100%; padding: 12px; margin: 15px 0; background-color: #121212;
-        border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; font-family: inherit;
+        width: 100%; padding: 12px; margin: 15px 0; background-color: var(--bg-color);
+        border: 1px solid var(--border-color); color: white; border-radius: 8px; font-family: inherit;
       }
-
       .modal-btn-row { display: flex; gap: 10px; margin-top: 10px; }
 
       .pesquisa-input {
         width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg);
-        border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 12px;
+        border: 1px solid var(--border-color); color: white; border-radius: 12px;
         font-family: inherit; font-size: 16px;
       }
 
-      .lista-simples {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 15px;
-      }
-
+      .lista-simples { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
       .item-simples {
-        display: flex;
-        align-items: center;
-        background-color: var(--card-bg);
-        padding: 15px;
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.05);
-        transition: opacity 0.2s, transform 0.2s;
+        display: flex; align-items: center; background-color: var(--card-bg);
+        padding: 15px; border-radius: 14px; border: 1px solid var(--border-color);
       }
-
       .checkbox-custom {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        border: 2px solid var(--accent);
-        cursor: pointer;
-        margin-right: 15px;
-        flex-shrink: 0;
-        position: relative;
-        transition: background-color 0.2s, border-color 0.2s;
+        width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent);
+        cursor: pointer; margin-right: 15px; flex-shrink: 0; position: relative;
       }
-
-      .item-simples.comprado {
-        opacity: 0.4;
-      }
-
-      .item-simples.comprado .checkbox-custom {
-        background-color: var(--accent);
-        border-color: var(--accent);
-      }
-
+      .item-simples.comprado { opacity: 0.4; }
+      .item-simples.comprado .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
       .item-simples.comprado .checkbox-custom::after {
-        content: '✓';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #121212;
-        font-weight: bold;
-        font-size: 14px;
+        content: '✓'; position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%); color: #121212; font-weight: bold; font-size: 14px;
       }
-
-      .item-simples.comprado .nome-item-simples {
-        text-decoration: line-through;
-        color: var(--text-muted);
-      }
-
-      .nome-item-simples {
-        flex: 1;
-        margin: 0;
-        font-size: 16px;
-        cursor: pointer;
-        text-align: left;
-      }
-
-      .btn-eliminar-simples {
-        background: none;
-        border: none;
-        color: #ff4d4d;
-        font-size: 18px;
-        cursor: pointer;
-        padding: 5px;
-        transition: transform 0.1s;
-      }
-      .btn-eliminar-simples:active {
-        transform: scale(0.9);
-      }
+      .item-simples.comprado .nome-item-simples { text-decoration: line-through; color: var(--text-muted); }
+      .nome-item-simples { flex: 1; margin: 0; font-size: 16px; text-align: left; }
+      .btn-eliminar-simples { background: none; border: none; color: #ff4d4d; font-size: 18px; cursor: pointer; padding: 5px; }
       
       #status-conexao {
-        width: 100%;
-        text-align: center;
-        font-size: 11px;
-        color: #888;
-        margin-bottom: 20px;
-        display: block;
-        transition: color 0.3s;
+        width: 100%; text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; display: block;
       }
     </style>
   </head>
   <body>
 
+    <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
+    <div id="sidebar">
+      <div class="sidebar-header">
+        <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'" style="margin-bottom: 0;">
+        <span style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">G & N • Hub Central</span>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
+        <div class="sidebar-item" onclick="mostrarPagina('menu-goncalo')">👤 Perfil Gonçalo</div>
+        <div class="sidebar-item" onclick="mostrarPagina('menu-nathalia')">👤 Perfil Nathália</div>
+        <div class="sidebar-item" onclick="mostrarPagina('menu-casal')">❤️ Área do Casal</div>
+        <div class="sidebar-item" onclick="mostrarPagina('menu-supermercados')">🛒 Supermercados</div>
+        <div class="sidebar-item" onclick="abrirPaginaGaragem()">🚗 Garagem & Combustível</div>
+      </div>
+    </div>
+
     <div class="page-container">
-      <!-- STREAMING_CHUNK: Constructing HTML structure... -->
       
-      <!-- Painel de Erros em Tempo Real -->
-      <div id="debug-banner" style="display: none; background-color: #ff4d4d; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; text-align: left; border: 1px solid rgba(255,255,255,0.2); width: 100%;">
+      <div id="debug-banner" style="display: none; background-color: #ff4d4d; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; text-align: left; width: 100%;">
         <strong style="display: block; margin-bottom: 5px;">⚠️ Alerta de Sistema:</strong>
         <span id="debug-message"></span>
       </div>
@@ -382,27 +329,30 @@
       <span id="status-conexao">⏳ A carregar sincronização...</span>
       
       <div id="menu-principal" class="page active">
+        <!-- Ícone do Menu Lateral -->
+        <div class="menu-btn-top" onclick="abrirSidebar()">☰</div>
+        
         <img src="logo.png" alt="Logo G&N" class="main-logo" onerror="this.style.display='none'">
         <h1>Gonçalo & Nathália</h1>
         <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
         
         <button class="btn" onclick="mostrarPagina('menu-goncalo')">
           <div class="perfil-conteudo">
-            <img src="https://placehold.co/100x100/171717/FF6B00?text=G" alt="Foto Gonçalo" class="avatar-img">
+            <img src="https://placehold.co/100x100/202020/FF6B00?text=G" alt="Foto Gonçalo" class="avatar-img">
             <span>Gonçalo</span>
           </div>
         </button>
         
         <button class="btn" onclick="mostrarPagina('menu-nathalia')">
           <div class="perfil-conteudo">
-            <img src="https://placehold.co/100x100/171717/FF6B00?text=N" alt="Foto Nathália" class="avatar-img">
+            <img src="https://placehold.co/100x100/202020/FF6B00?text=N" alt="Foto Nathália" class="avatar-img">
             <span>Nathália</span>
           </div>
         </button>
         
         <button class="btn" onclick="mostrarPagina('menu-casal')" style="border-left: 4px solid var(--accent);">
           <div class="perfil-conteudo">
-            <img src="https://placehold.co/100x100/171717/FF6B00?text=C" alt="Foto Casal" class="avatar-img">
+            <img src="https://placehold.co/100x100/202020/FF6B00?text=C" alt="Foto Casal" class="avatar-img">
             <span>Casal</span>
           </div>
         </button>
@@ -414,11 +364,10 @@
           </div>
         </button>
         
-        <div style="width: 100%; height: 1px; background-color: rgba(255,255,255,0.1); margin: 25px 0;"></div>
-        <button class="btn" onclick="abrirPaginaGaragem()" style="background-color: #2a2a2a; border-color: rgba(255,255,255,0.2);">🚗 Garagem e Combustível</button>
+        <div style="width: 100%; height: 1px; background-color: var(--border-color); margin: 25px 0;"></div>
+        <button class="btn" onclick="abrirPaginaGaragem()" style="background-color: var(--btn-secondary);">🚗 Garagem e Combustível</button>
       </div>
 
-      <!-- STREAMING_CHUNK: Constructing subpages... -->
       <div id="menu-goncalo" class="page">
         <div class="header-decor"></div>
         <h1>Perfil: Gonçalo</h1>
@@ -471,15 +420,15 @@
           </div>
         </div>
         
-        <div class="header-decor" style="width: 100%; height: 1px; background-color: rgba(255,255,255,0.1); margin: 10px 0 30px 0;"></div>
+        <div class="header-decor" style="width: 100%; height: 1px; background-color: var(--border-color); margin: 10px 0 30px 0;"></div>
         <h2 style="font-size: 16px;">Preços de Combustível</h2>
         <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
           📍 Ver postos perto de mim (20 km)
         </button>
-        <button class="btn-acao" style="background-color: #222; color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/', '_blank')">
+        <button class="btn-acao" style="background-color: var(--btn-secondary); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/', '_blank')">
           🗺️ Escolher Distrito
         </button>
-        <button class="btn-acao" style="background-color: rgba(255,255,255,0.05); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.2); font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/lista-de-postos/setubal/setubal/', '_blank')">
+        <button class="btn-acao" style="background-color: var(--bg-color); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 20px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/lista-de-postos/setubal/setubal/', '_blank')">
           🏙️ Ver postos em Setúbal
         </button>
         <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
@@ -496,12 +445,10 @@
         <button class="btn-voltar" onclick="mostrarPagina('menu-supermercados')">Voltar</button>
       </div>
 
-      <!-- STREAMING_CHUNK: Constructing leaflets grid... -->
       <div id="menu-folhetos" class="page">
         <div class="header-decor"></div>
         <h1>Folhetos da Semana</h1>
         <h2 style="font-size: 14px; margin-bottom: 30px;">Acede às promoções sempre atualizadas</h2>
-
         <div class="folhetos-grid">
           <div class="folheto-card" onclick="window.open('https://folhetos.continente.pt/', '_blank')">
             <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg" alt="Continente">
@@ -542,7 +489,6 @@
       </div>
     </div>
 
-    <!-- STREAMING_CHUNK: Constructing overlays and modals... -->
     <div id="modal-pasta" class="modal-overlay">
       <div class="modal-content">
         <h2>Criar Nova Pasta</h2>
@@ -571,7 +517,7 @@
         <h2 id="titulo-opcoes">Opções do Item</h2>
         <button class="btn" style="margin-bottom:10px; padding: 12px;" onclick="prepararRenomear()">✏️ Renomear</button>
         <button class="btn" style="margin-bottom:10px; padding: 12px;" onclick="prepararMover()">📂 Mover</button>
-        <button class="btn" style="margin-bottom:10px; padding: 12px; background-color: #ff4d4d; border:none;" onclick="eliminarItem()">🗑️ Eliminar</button>
+        <button class="btn" style="margin-bottom:10px; padding: 12px; background-color: #ff4d4d; border:none; color: white;" onclick="eliminarItem()">🗑️ Eliminar</button>
         <button class="btn-acao" style="width:100%; margin-top:0;" onclick="fecharModal('modal-opcoes')">Cancelar</button>
       </div>
     </div>
@@ -609,7 +555,7 @@
     <div id="modal-confirmacao" class="modal-overlay">
       <div class="modal-content">
         <h2>Eliminar Item</h2>
-        <p style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;">Tens a certeza que queres eliminar este item? Esta ação não pode ser desfeita.</p>
+        <p style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;">Tens a certeza que queres eliminar este item?</p>
         <div class="modal-btn-row">
           <button class="btn-acao" onclick="fecharModal('modal-confirmacao')">Cancelar</button>
           <button class="btn-acao" onclick="confirmarEliminar()" style="background-color: #ff4d4d; color: white;">Eliminar</button>
@@ -617,26 +563,32 @@
       </div>
     </div>
 
-    <!-- STREAMING_CHUNK: Initializing JavaScript logic and API connection... -->
     <script>
       const API_URL = "https://script.google.com/macros/s/AKfycbzKR2TkfSL5yyzUDpySKcFVLzZwGnoqun71nwiPoi2Msk9QSkJfHSPHgXn5bJL02Gjm/exec";
 
-      // Error handler global
       window.onerror = function(message, source, lineno, colno, error) {
         const banner = document.getElementById('debug-banner');
-        const msg = document.getElementById('debug-message');
-        if (banner && msg) {
-          banner.style.display = 'block';
-          msg.innerText = `${message} (Linha ${lineno}:${colno})`;
-        }
+        if (banner) { banner.style.display = 'block'; document.getElementById('debug-message').innerText = `${message} (L${lineno})`; }
         return false;
       };
 
-      // --- SISTEMA DE NAVEGAÇÃO NATIVA (SWIPE IOS) ---
+      // --- CONTROLO DO MENU LATERAL (SIDEBAR) ---
+      function abrirSidebar() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('sidebar-overlay').classList.add('open');
+      }
+
+      function fecharSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+      }
+
+      // --- NAVEGAÇÃO E SWIPE ---
       let historicoPaginas = [];
       let paginaAtualID = 'menu-principal';
 
       function mostrarPagina(idPagina) {
+        fecharSidebar(); // Fecha o menu sempre que se muda de página
         if (idPagina === paginaAtualID) return;
         historicoPaginas.push(paginaAtualID);
         paginaAtualID = idPagina;
@@ -650,52 +602,46 @@
       }
 
       function voltarAtrasGeral() {
-        if (paginaAtualID === 'menu-documentos' && pastaAtual !== null) {
-            voltarPasta(); return;
-        }
+        if (paginaAtualID === 'menu-documentos' && pastaAtual !== null) { voltarPasta(); return; }
         if (historicoPaginas.length > 0) {
             const paginaAnterior = historicoPaginas.pop();
             paginaAtualID = paginaAnterior;
             var paginas = document.getElementsByClassName('page');
             for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
-            setTimeout(function() {
-              document.getElementById(paginaAnterior).classList.add('active');
-              window.scrollTo(0, 0); 
-            }, 50);
+            setTimeout(function() { document.getElementById(paginaAnterior).classList.add('active'); window.scrollTo(0, 0); }, 50);
         }
       }
 
       let touchstartX = 0; let touchstartY = 0;
       document.addEventListener('touchstart', function(e) {
-        touchstartX = e.changedTouches[0].screenX;
-        touchstartY = e.changedTouches[0].screenY;
+        touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY;
       }, {passive: true});
 
       document.addEventListener('touchend', function(e) {
-        let touchendX = e.changedTouches[0].screenX;
-        let touchendY = e.changedTouches[0].screenY;
-        let deltaX = touchendX - touchstartX;
-        let deltaY = touchendY - touchstartY;
+        let touchendX = e.changedTouches[0].screenX; let touchendY = e.changedTouches[0].screenY;
+        let deltaX = touchendX - touchstartX; let deltaY = touchendY - touchstartY;
 
-        // Deslizar para a direita da berma esquerda (como no iPhone)
+        // Deslizar para a Direita (Swipe Right) a partir da berma
         if (touchstartX < 80 && deltaX > 70 && Math.abs(deltaY) < 50) {
           if (paginaAtualID !== 'menu-principal') {
-             voltarAtrasGeral();
+             voltarAtrasGeral(); // Nas subpáginas, volta atrás
+          } else {
+             abrirSidebar(); // Na página principal, abre o menu
           }
+        }
+
+        // Deslizar para a Esquerda (Swipe Left) para fechar o menu
+        if (deltaX < -70 && Math.abs(deltaY) < 50 && document.getElementById('sidebar').classList.contains('open')) {
+          fecharSidebar();
         }
       }, {passive: true});
 
-      function abrirPaginaGaragem() { mostrarPagina('menu-carros'); }
+      function abrirPaginaGaragem() { fecharSidebar(); mostrarPagina('menu-carros'); }
       function gerarId() { return Math.random().toString(36).substr(2, 9); }
 
-      let perfilAtual = '';
-      let pastaAtual = null; 
-      let historicoNavegacao = []; 
-      let itemSelecionadoParaAcao = null; 
-
+      let perfilAtual = ''; let pastaAtual = null; let historicoNavegacao = []; let itemSelecionadoParaAcao = null; 
       let baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };
 
-      // STREAMING_CHUNK: Handling Google Sheets synchronization...
       async function carregarDocumentosDoGoogle() {
         const statusDiv = document.getElementById('status-conexao');
         try {
@@ -715,116 +661,59 @@
             }
           });
           
-          if (statusDiv) {
-            statusDiv.innerHTML = "🟢 Ligado ao Google Sheets";
-            statusDiv.style.color = "#4caf50";
-            setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
-          }
+          if (statusDiv) { statusDiv.innerHTML = "🟢 Sincronizado"; statusDiv.style.color = "#4caf50"; setTimeout(() => { statusDiv.style.display = 'none'; }, 3000); }
           if (document.getElementById('menu-documentos').classList.contains('active')) renderizarDocumentos();
         } catch (erro) {
           console.error(erro);
-          if (statusDiv) { statusDiv.innerHTML = "🔴 Erro de Sincronização"; statusDiv.style.color = "#ff4d4d"; }
+          if (statusDiv) { statusDiv.innerHTML = "🔴 Modo Offline"; statusDiv.style.color = "var(--accent)"; }
         }
       }
-
       window.onload = function() { carregarDocumentosDoGoogle(); };
 
-      // STREAMING_CHUNK: Shopping list logic...
       let listaComprasSimples = []; 
       function abrirPaginaComprasSimples() {
-        document.getElementById('novo-item-input').value = '';
-        renderizarListaSimples(); mostrarPagina('menu-compras');
+        fecharSidebar(); document.getElementById('novo-item-input').value = ''; renderizarListaSimples(); mostrarPagina('menu-compras');
       }
-
       function verificarEnterLista(event) { if (event.key === 'Enter') adicionarItemLista(); }
       function adicionarItemLista() {
-        const input = document.getElementById('novo-item-input');
-        const texto = input.value.trim();
-        if(texto !== '') {
-          listaComprasSimples.push({ id: gerarId(), nome: texto, comprado: false });
-          input.value = ''; renderizarListaSimples();
-        }
+        const input = document.getElementById('novo-item-input'); const texto = input.value.trim();
+        if(texto !== '') { listaComprasSimples.push({ id: gerarId(), nome: texto, comprado: false }); input.value = ''; renderizarListaSimples(); }
       }
-
-      function alternarCheckItem(id) {
-        const item = listaComprasSimples.find(i => i.id === id);
-        if(item) { item.comprado = !item.comprado; renderizarListaSimples(); }
-      }
-
-      function removerItemLista(id) {
-        listaComprasSimples = listaComprasSimples.filter(i => i.id !== id); renderizarListaSimples();
-      }
-
+      function alternarCheckItem(id) { const item = listaComprasSimples.find(i => i.id === id); if(item) { item.comprado = !item.comprado; renderizarListaSimples(); } }
+      function removerItemLista(id) { listaComprasSimples = listaComprasSimples.filter(i => i.id !== id); renderizarListaSimples(); }
       function renderizarListaSimples() {
-        const container = document.getElementById('lista-simples-container');
-        if (!container) return; container.innerHTML = '';
-        if(listaComprasSimples.length === 0) {
-          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top:20px;">A tua lista está vazia.</p>'; return;
-        }
+        const container = document.getElementById('lista-simples-container'); if (!container) return; container.innerHTML = '';
+        if(listaComprasSimples.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top:20px;">Lista vazia.</p>'; return; }
         listaComprasSimples.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'item-simples' + (item.comprado ? ' comprado' : '');
-          div.innerHTML = `
-            <div class="checkbox-custom" onclick="alternarCheckItem('${item.id}')"></div>
-            <p class="nome-item-simples" onclick="alternarCheckItem('${item.id}')">${item.nome}</p>
-            <button class="btn-eliminar-simples" onclick="removerItemLista('${item.id}')">🗑️</button>`;
+          const div = document.createElement('div'); div.className = 'item-simples' + (item.comprado ? ' comprado' : '');
+          div.innerHTML = `<div class="checkbox-custom" onclick="alternarCheckItem('${item.id}')"></div><p class="nome-item-simples" onclick="alternarCheckItem('${item.id}')">${item.nome}</p><button class="btn-eliminar-simples" onclick="removerItemLista('${item.id}')">🗑️</button>`;
           container.appendChild(div);
         });
       }
 
-      // STREAMING_CHUNK: Managing documents logic...
       function abrirPaginaDocumentos(perfil) {
-        perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; 
+        fecharSidebar(); perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; 
         document.getElementById('titulo-documentos').innerText = 'Documentos: ' + perfil;
         renderizarDocumentos(); mostrarPagina('menu-documentos');
       }
-
-      function entrarPasta(idPasta) {
-        historicoNavegacao.push(pastaAtual); pastaAtual = idPasta; renderizarDocumentos();
-      }
-
-      function voltarPasta() {
-        if (historicoNavegacao.length > 0) { pastaAtual = historicoNavegacao.pop(); renderizarDocumentos(); }
-      }
-
+      function entrarPasta(idPasta) { historicoNavegacao.push(pastaAtual); pastaAtual = idPasta; renderizarDocumentos(); }
+      function voltarPasta() { if (historicoNavegacao.length > 0) { pastaAtual = historicoNavegacao.pop(); renderizarDocumentos(); } }
       function renderizarDocumentos() {
-        const container = document.getElementById('lista-documentos-container');
-        if (!container) return; container.innerHTML = ''; 
-
+        const container = document.getElementById('lista-documentos-container'); if (!container) return; container.innerHTML = ''; 
         const todosItens = baseDadosDocumentos[perfilAtual] || [];
         const itensMostrar = todosItens.filter(item => item && item.parentId === pastaAtual);
-        
-        if (itensMostrar.length === 0) {
-          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">A pasta está vazia.</p>'; return;
-        }
-
-        itensMostrar.sort((a, b) => {
-          const tipoA = a.tipo || ''; const tipoB = b.tipo || '';
-          const nomeA = a.nome || ''; const nomeB = b.nome || '';
-          if (tipoA === tipoB) return nomeA.localeCompare(nomeB);
-          return tipoA === 'pasta' ? -1 : 1;
-        });
-
+        if (itensMostrar.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">Pasta vazia.</p>'; return; }
+        itensMostrar.sort((a, b) => { const tipoA = a.tipo || ''; const tipoB = b.tipo || ''; const nomeA = a.nome || ''; const nomeB = b.nome || ''; if (tipoA === tipoB) return nomeA.localeCompare(nomeB); return tipoA === 'pasta' ? -1 : 1; });
         itensMostrar.forEach(function(item) {
-          const div = document.createElement('div');
-          div.className = 'item-doc';
-          const icone = item.tipo === 'pasta' ? '📁' : '📄';
-          div.innerHTML = `
-            <div class="item-info" onclick="acaoPrincipalItem('${item.id}', '${item.tipo}')">
-              <span class="icon-doc">${icone}</span><span class="nome-doc">${item.nome}</span>
-            </div>
-            <button class="btn-opcoes" onclick="abrirOpcoes('${item.id}')">⋮</button>`;
+          const div = document.createElement('div'); div.className = 'item-doc'; const icone = item.tipo === 'pasta' ? '📁' : '📄';
+          div.innerHTML = `<div class="item-info" onclick="acaoPrincipalItem('${item.id}', '${item.tipo}')"><span class="icon-doc">${icone}</span><span class="nome-doc">${item.nome}</span></div><button class="btn-opcoes" onclick="abrirOpcoes('${item.id}')">⋮</button>`;
           container.appendChild(div);
         });
       }
 
       function acaoPrincipalItem(id, tipo) {
         if(tipo === 'pasta') entrarPasta(id); 
-        else {
-          const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id);
-          if (item && item.url) window.open(item.url, '_blank');
-          else mostrarAlerta('Este ficheiro não tem um link associado.');
-        }
+        else { const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id); if (item && item.url) window.open(item.url, '_blank'); else mostrarAlerta('Ficheiro sem link.'); }
       }
 
       function abrirModal(id) { document.getElementById(id).classList.add('active'); }
@@ -832,82 +721,48 @@
       function mostrarAlerta(mensagem) { document.getElementById('mensagem-alerta').innerText = mensagem; abrirModal('modal-alerta'); }
 
       async function criarPasta() {
-        const inputNome = document.getElementById('nome-nova-pasta');
-        const nome = inputNome.value.trim();
+        const inputNome = document.getElementById('nome-nova-pasta'); const nome = inputNome.value.trim();
         if (nome !== '') {
-          const novoId = gerarId();
-          baseDadosDocumentos[perfilAtual].push({ id: novoId, parentId: pastaAtual, tipo: 'pasta', nome: nome, url: '' });
+          const novoId = gerarId(); baseDadosDocumentos[perfilAtual].push({ id: novoId, parentId: pastaAtual, tipo: 'pasta', nome: nome, url: '' });
           inputNome.value = ''; fecharModal('modal-pasta'); renderizarDocumentos(); 
-          
           const dadosEnviar = new URLSearchParams();
-          dadosEnviar.append('acao', 'criarPasta');
-          dadosEnviar.append('id', novoId); dadosEnviar.append('nome', nome);
+          dadosEnviar.append('acao', 'criarPasta'); dadosEnviar.append('id', novoId); dadosEnviar.append('nome', nome);
           dadosEnviar.append('parentId', pastaAtual || ''); dadosEnviar.append('perfil', perfilAtual);
-          
           fetch(API_URL, { method: 'POST', body: dadosEnviar, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).catch(e => console.error(e));
         } else mostrarAlerta('Escreve um nome para a pasta.');
       }
 
       function adicionarDocumento() {
-        const inputFile = document.getElementById('ficheiro-upload');
-        const inputNome = document.getElementById('nome-documento');
+        const inputFile = document.getElementById('ficheiro-upload'); const inputNome = document.getElementById('nome-documento');
         if (inputFile.files.length > 0) {
           let nome = inputNome.value.trim(); if (nome === '') nome = inputFile.files[0].name;
           baseDadosDocumentos[perfilAtual].push({ id: gerarId(), parentId: pastaAtual, tipo: 'ficheiro', nome: nome, url: '' });
-          inputFile.value = ''; inputNome.value = ''; fecharModal('modal-upload'); renderizarDocumentos();
-          mostrarAlerta('Ficheiro guardado localmente na App!');
+          inputFile.value = ''; inputNome.value = ''; fecharModal('modal-upload'); renderizarDocumentos(); mostrarAlerta('Guardado localmente.');
         } else mostrarAlerta('Seleciona um ficheiro primeiro.');
       }
 
-      function abrirOpcoes(id) {
-        itemSelecionadoParaAcao = id;
-        const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id);
-        if (item) { document.getElementById('titulo-opcoes').innerText = item.nome; abrirModal('modal-opcoes'); }
-      }
-
+      function abrirOpcoes(id) { itemSelecionadoParaAcao = id; const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id); if (item) { document.getElementById('titulo-opcoes').innerText = item.nome; abrirModal('modal-opcoes'); } }
       function eliminarItem() { fecharModal('modal-opcoes'); abrirModal('modal-confirmacao'); }
-
       async function confirmarEliminar() {
-        const idApagar = itemSelecionadoParaAcao;
-        baseDadosDocumentos[perfilAtual] = baseDadosDocumentos[perfilAtual].filter(i => i.id !== idApagar);
+        const idApagar = itemSelecionadoParaAcao; baseDadosDocumentos[perfilAtual] = baseDadosDocumentos[perfilAtual].filter(i => i.id !== idApagar);
         fecharModal('modal-confirmacao'); renderizarDocumentos();
-
-        const dadosEnviar = new URLSearchParams();
-        dadosEnviar.append('acao', 'eliminarItem');
-        dadosEnviar.append('id', idApagar);
-        
+        const dadosEnviar = new URLSearchParams(); dadosEnviar.append('acao', 'eliminarItem'); dadosEnviar.append('id', idApagar);
         fetch(API_URL, { method: 'POST', body: dadosEnviar, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).catch(e => console.error(e));
       }
-
-      function prepararRenomear() {
-        const item = baseDadosDocumentos[perfilAtual].find(i => i.id === itemSelecionadoParaAcao);
-        if (item) { document.getElementById('novo-nome-item').value = item.nome; fecharModal('modal-opcoes'); abrirModal('modal-renomear'); }
-      }
-
+      function prepararRenomear() { const item = baseDadosDocumentos[perfilAtual].find(i => i.id === itemSelecionadoParaAcao); if (item) { document.getElementById('novo-nome-item').value = item.nome; fecharModal('modal-opcoes'); abrirModal('modal-renomear'); } }
       function confirmarRenomear() {
         const novoNome = document.getElementById('novo-nome-item').value.trim();
-        if (novoNome !== '') {
-          const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao);
-          if (itemIndex > -1) baseDadosDocumentos[perfilAtual][itemIndex].nome = novoNome;
-          fecharModal('modal-renomear'); renderizarDocumentos();
-        }
+        if (novoNome !== '') { const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao); if (itemIndex > -1) baseDadosDocumentos[perfilAtual][itemIndex].nome = novoNome; fecharModal('modal-renomear'); renderizarDocumentos(); }
       }
-
       function prepararMover() {
-        fecharModal('modal-opcoes');
-        const select = document.getElementById('select-destino-mover');
-        select.innerHTML = '<option value="root">Raiz (Ecrã Principal)</option>';
+        fecharModal('modal-opcoes'); const select = document.getElementById('select-destino-mover'); select.innerHTML = '<option value="root">Raiz (Ecrã Principal)</option>';
         const todasPastas = baseDadosDocumentos[perfilAtual].filter(i => i.tipo === 'pasta' && i.id !== itemSelecionadoParaAcao);
-        todasPastas.forEach(pasta => { select.innerHTML += `<option value="${pasta.id}">📁 ${pasta.nome}</option>`; });
-        abrirModal('modal-mover');
+        todasPastas.forEach(pasta => { select.innerHTML += `<option value="${pasta.id}">📁 ${pasta.nome}</option>`; }); abrirModal('modal-mover');
       }
-
       function confirmarMover() {
-        const destinoSelecionado = document.getElementById('select-destino-mover').value;
-        const novoParentId = destinoSelecionado === 'root' ? null : destinoSelecionado;
+        const destinoSelecionado = document.getElementById('select-destino-mover').value; const novoParentId = destinoSelecionado === 'root' ? null : destinoSelecionado;
         const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao);
-        if (itemIndex > -1) baseDadosDocumentos[perfilAtual][itemIndex].parentId = novoParentId;
-        fecharModal('modal-mover'); renderizarDocumentos();
+        if (itemIndex > -1) baseDadosDocumentos[perfilAtual][itemIndex].parentId = novoParentId; fecharModal('modal-mover'); renderizarDocumentos();
       }
     </script>
   </body>

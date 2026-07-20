@@ -2,6 +2,7 @@
 <html>
   <head>
     <base target="_top">
+    <!-- O viewport-fit=cover é essencial para o iPhone respeitar o ecrã todo -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- TAGS MÁGICAS PARA O IPHONE (WEB APP) -->
@@ -50,7 +51,9 @@
       #app-container { display: flex; width: 100%; height: 100vh; }
 
       .page-container {
-        flex: 1; padding: 40px 20px; padding-bottom: calc(var(--bottom-nav-height) + 20px); 
+        flex: 1; 
+        /* A MAGIA DO NOTCH: Calcula o topo da câmara e adiciona 20px de margem! */
+        padding: calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 20px) 20px; 
         width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; overflow-y: auto;
       }
 
@@ -73,7 +76,8 @@
       #sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width); background-color: var(--card-bg); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
       #sidebar.open { transform: translateX(0); }
 
-      .sidebar-header { padding: 30px 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
+      /* Notch no Sidebar também */
+      .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
 
       .sidebar-item { padding: 18px 25px; font-size: 16px; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s, color 0.3s ease; }
       .sidebar-item:active { background-color: var(--btn-secondary); }
@@ -108,25 +112,36 @@
       /* WIDGETS DO DASHBOARD (HOME PAGE) */
       .dashboard-widget {
         background-color: var(--card-bg); width: 100%; border-radius: 20px; 
-        padding: 25px; margin-bottom: 20px; border: 1px solid var(--border-color);
+        padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color);
         box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: background-color 0.3s ease;
       }
       
-      .widget-relogio { text-align: center; }
-      #data-atual { font-size: 14px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;}
-      #hora-atual { font-size: 42px; font-weight: 300; color: var(--text-main); margin: 0; line-height: 1; }
-      #segundos-atual { font-size: 20px; color: var(--text-muted); }
+      .top-widgets-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 15px;
+      }
+      
+      .widget-relogio, .widget-meteorologia {
+        margin-bottom: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      }
 
-      .widget-frase { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px;}
-      .frase-texto { font-size: 17px; font-style: italic; color: var(--text-main); font-weight: 300; line-height: 1.5; margin: 0;}
-      .frase-autor { font-size: 12px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
-      .quote-icon { opacity: 0.2; width: 30px; margin-bottom: 10px; fill: var(--text-main); }
+      #data-atual { font-size: 11px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; }
+      #hora-atual { font-size: 34px; font-weight: 300; color: var(--text-main); margin: 5px 0 0 0; line-height: 1; }
+
+      .meteo-top-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+      #meteo-temp { font-size: 28px; font-weight: 300; line-height: 1; color: var(--text-main); }
+      #meteo-desc { font-size: 11px; color: var(--text-muted); margin-top: 5px; display: block; font-weight: 500;}
+      #meteo-local-texto { font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
+
+      .widget-frase { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px;}
+      .frase-texto { font-size: 16px; font-style: italic; color: var(--text-main); font-weight: 300; line-height: 1.5; margin: 0;}
+      .frase-autor { font-size: 11px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
+      .quote-icon { opacity: 0.2; width: 24px; margin-bottom: 12px; fill: var(--text-main); }
 
       /* LISTA DE TAREFAS WIDGET */
-      .widget-tarefas h3 { margin: 0 0 15px 0; font-size: 18px; font-weight: 500; display: flex; align-items: center; gap: 8px;}
+      .widget-tarefas h3 { margin: 0 0 15px 0; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px;}
       .input-tarefa-container { display: flex; gap: 10px; margin-bottom: 15px; }
       .input-tarefa { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
-      .btn-add-tarefa { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; font-size: 24px; font-weight: 600; cursor: pointer; transition: transform 0.1s;}
+      .btn-add-tarefa { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; cursor: pointer; transition: transform 0.1s;}
       .btn-add-tarefa:active { transform: scale(0.9); }
       
       .lista-tarefas { display: flex; flex-direction: column; gap: 8px; }
@@ -272,17 +287,34 @@
         <!-- DASHBOARD (INÍCIO) -->
         <div id="menu-principal" class="page active">
           
-          <div class="dashboard-widget widget-relogio">
-            <span id="data-atual">Carregando data...</span>
-            <h1 id="hora-atual">00:00<span id="segundos-atual">:00</span></h1>
+          <div class="top-widgets-grid">
+            <!-- Widget: Relógio e Data -->
+            <div class="dashboard-widget widget-relogio">
+              <span id="data-atual">A carregar...</span>
+              <h1 id="hora-atual">00:00</h1>
+            </div>
+
+            <!-- Widget: Meteorologia Inteligente -->
+            <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
+              <div class="meteo-top-row">
+                <div id="meteo-icone" style="color: var(--accent);">
+                  <svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg>
+                </div>
+                <span id="meteo-temp">--°</span>
+              </div>
+              <span id="meteo-desc">A localizar...</span>
+              <span id="meteo-local-texto">📍 GPS</span>
+            </div>
           </div>
 
+          <!-- Widget: Frase do Dia -->
           <div class="dashboard-widget widget-frase">
             <svg class="quote-icon" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
             <p class="frase-texto" id="frase-texto">"Carregando a inspiração de hoje..."</p>
             <span class="frase-autor" id="frase-autor"></span>
           </div>
 
+          <!-- Widget: A fazer para o dia -->
           <div class="dashboard-widget widget-tarefas">
             <h3>
               <svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> 
@@ -522,7 +554,7 @@
       };
 
       // ==========================================
-      // SISTEMA DE TEMAS (DARK / LIGHT MODE - SVG)
+      // SISTEMA DE TEMAS (DARK / LIGHT MODE)
       // ==========================================
       function alternarTema() {
         const isLight = document.body.classList.toggle('light-mode');
@@ -559,23 +591,81 @@
       // LÓGICA DO DASHBOARD (HOME PAGE)
       // ==========================================
 
+      // --- WIDGET 1: RELÓGIO ---
       function atualizarRelogio() {
         const agora = new Date();
         const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
         
-        const dataStr = `${diasSemana[agora.getDay()]}, ${agora.getDate()} de ${meses[agora.getMonth()]}`;
+        const dataStr = `${diasSemana[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
         
         const horas = String(agora.getHours()).padStart(2, '0');
         const minutos = String(agora.getMinutes()).padStart(2, '0');
-        const segundos = String(agora.getSeconds()).padStart(2, '0');
 
         document.getElementById('data-atual').innerText = dataStr;
-        document.getElementById('hora-atual').innerHTML = `${horas}:${minutos}<span id="segundos-atual">:${segundos}</span>`;
+        document.getElementById('hora-atual').innerText = `${horas}:${minutos}`;
       }
       setInterval(atualizarRelogio, 1000);
       atualizarRelogio();
 
+      // --- WIDGET 2: METEOROLOGIA INTELIGENTE ---
+      // Converte os códigos numéricos da API mundial em Ícones SVG limpos
+      function interpretarClima(codigo) {
+        const sol = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+        const nuvem = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>';
+        const chuva = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path><line x1="8" y1="21" x2="8" y2="23"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="16" y1="21" x2="16" y2="23"></line>';
+        const trovoada = '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>';
+
+        if (codigo === 0) return { desc: "Limpo", icon: sol };
+        if (codigo >= 1 && codigo <= 3) return { desc: "Nublado", icon: nuvem };
+        if (codigo === 45 || codigo === 48) return { desc: "Nevoeiro", icon: nuvem };
+        if (codigo >= 51 && codigo <= 67) return { desc: "Chuva", icon: chuva };
+        if (codigo >= 71 && codigo <= 77) return { desc: "Neve", icon: chuva };
+        if (codigo >= 80 && codigo <= 82) return { desc: "Aguaceiros", icon: chuva };
+        if (codigo >= 95) return { desc: "Trovoada", icon: trovoada };
+        return { desc: "Misto", icon: nuvem };
+      }
+
+      async function buscarClimaAPI(lat, lon, localNome) {
+        try {
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+          const resposta = await fetch(url);
+          const dados = await resposta.json();
+          const clima = dados.current_weather;
+          
+          const info = interpretarClima(clima.weathercode);
+          
+          document.getElementById('meteo-temp').innerText = Math.round(clima.temperature) + "°";
+          document.getElementById('meteo-desc').innerText = info.desc;
+          document.getElementById('meteo-icone').innerHTML = `<svg class="icon-svg" style="width:28px;height:28px;" viewBox="0 0 24 24">${info.icon}</svg>`;
+          document.getElementById('meteo-local-texto').innerText = `📍 ${localNome}`;
+        } catch(e) {
+          document.getElementById('meteo-desc').innerText = "Sem dados";
+        }
+      }
+
+      // Função que tenta procurar por GPS, se falhar ou recusares, assume Setúbal
+      function carregarMeteorologia(forcarAviso = false) {
+        document.getElementById('meteo-desc').innerText = "A procurar...";
+        const latSetubal = 38.5244;
+        const lonSetubal = -8.8882;
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => buscarClimaAPI(pos.coords.latitude, pos.coords.longitude, "Localização"),
+            (err) => {
+              if(forcarAviso) alert("GPS desativado. A mostrar a meteorologia de Setúbal.");
+              buscarClimaAPI(latSetubal, lonSetubal, "Setúbal");
+            }
+          );
+        } else {
+          buscarClimaAPI(latSetubal, lonSetubal, "Setúbal");
+        }
+      }
+      // Arranca mal a app abre
+      setTimeout(() => carregarMeteorologia(false), 500);
+
+      // --- WIDGET 3: FRASE DO DIA ---
       const frasesMotivacionais = [
         { texto: "Entregue o seu caminho ao Senhor; confie nele, e ele o fará.", autor: "Salmos 37:5" },
         { texto: "Tudo posso naquele que me fortalece.", autor: "Filipenses 4:13" },
@@ -599,6 +689,7 @@
       }
       carregarFraseDoDia();
 
+      // --- WIDGET 4: TAREFAS DO DIA ---
       let tarefasDiarias = JSON.parse(localStorage.getItem('tarefasDiariasApp')) || [];
 
       function guardarTarefas() { localStorage.setItem('tarefasDiariasApp', JSON.stringify(tarefasDiarias)); }

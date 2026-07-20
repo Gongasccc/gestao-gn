@@ -130,7 +130,11 @@
       .meteo-top-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
       #meteo-temp { font-size: 28px; font-weight: 300; line-height: 1; color: var(--text-main); }
       #meteo-desc { font-size: 11px; color: var(--text-muted); margin-top: 5px; display: block; font-weight: 500;}
-      #meteo-local-texto { font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
+      
+      #meteo-local-texto { 
+        font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; 
+        letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 3px;
+      }
 
       .widget-frase { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px;}
       .frase-texto { font-size: 16px; font-style: italic; color: var(--text-main); font-weight: 300; line-height: 1.5; margin: 0;}
@@ -303,7 +307,10 @@
                 <span id="meteo-temp">--°</span>
               </div>
               <span id="meteo-desc">A localizar...</span>
-              <span id="meteo-local-texto">📍 GPS</span>
+              <span id="meteo-local-texto">
+                <svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span id="nome-cidade-texto">GPS</span>
+              </span>
             </div>
           </div>
 
@@ -591,7 +598,6 @@
       // LÓGICA DO DASHBOARD (HOME PAGE)
       // ==========================================
 
-      // --- WIDGET 1: RELÓGIO ---
       function atualizarRelogio() {
         const agora = new Date();
         const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
@@ -608,7 +614,6 @@
       setInterval(atualizarRelogio, 1000);
       atualizarRelogio();
 
-      // --- WIDGET 2: METEOROLOGIA INTELIGENTE COM NOME DA RUA/CIDADE ---
       function interpretarClima(codigo) {
         const sol = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
         const nuvem = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>';
@@ -637,7 +642,7 @@
           document.getElementById('meteo-temp').innerText = Math.round(clima.temperature) + "°";
           document.getElementById('meteo-desc').innerText = info.desc;
           document.getElementById('meteo-icone').innerHTML = `<svg class="icon-svg" style="width:28px;height:28px;" viewBox="0 0 24 24">${info.icon}</svg>`;
-          document.getElementById('meteo-local-texto').innerText = `📍 ${localNome}`;
+          document.getElementById('nome-cidade-texto').innerText = localNome;
         } catch(e) {
           document.getElementById('meteo-desc').innerText = "Sem dados";
         }
@@ -654,7 +659,6 @@
               const lat = pos.coords.latitude;
               const lon = pos.coords.longitude;
               try {
-                // A Magia: Transforma GPS em Nome da Cidade/Rua (Gratuito)
                 const respLocal = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`);
                 const dadosLocal = await respLocal.json();
                 const nomeCidade = dadosLocal.city || dadosLocal.locality || "Localização Atual";

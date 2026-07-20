@@ -2,7 +2,7 @@
 <html>
   <head>
     <base target="_top">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- TAGS MÁGICAS PARA O IPHONE (WEB APP) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,19 +16,20 @@
     <style>
       /* --- NOTION DARK MODE PALETTE --- */
       :root {
-        --bg-color: #191919;       /* Fundo principal cinza muito escuro (Notion style) */
-        --card-bg: #202020;        /* Fundo dos cartões ligeiramente mais claro */
-        --text-main: rgba(255, 255, 255, 0.9);  /* Branco suave para não doer nos olhos */
-        --text-muted: rgba(255, 255, 255, 0.5); /* Cinza para textos secundários */
-        --accent: #FF6B00;         /* Laranja vibrante mantém-se */
-        --accent-hover: #E56000;   
-        --btn-secondary: #2C2C2C;  /* Botões neutros mais suaves */
-        --border-color: rgba(255, 255, 255, 0.05); /* Bordas muito subtis */
+        --bg-color: #191919;       
+        --card-bg: #202020;        
+        --text-main: rgba(255, 255, 255, 0.9);  
+        --text-muted: rgba(255, 255, 255, 0.5); 
+        --accent: #FF6B00;         
+        --btn-secondary: #2C2C2C;  
+        --border-color: rgba(255, 255, 255, 0.05); 
+        
+        /* Variáveis de layout Inteligente */
+        --sidebar-width: 280px;
+        --bottom-nav-height: 80px; 
       }
 
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
       body {
         font-family: 'Poppins', sans-serif;
@@ -37,180 +38,149 @@
         margin: 0;
         padding: 0;
         display: flex;
-        flex-direction: column;
         min-height: 100vh;
         overflow-x: hidden;
       }
 
-      h1 {
-        font-weight: 600;
-        font-size: 28px;
-        margin-bottom: 30px;
-        text-align: center;
-        letter-spacing: 1px;
-      }
-
-      h2 {
-        font-weight: 400;
-        font-size: 20px;
-        color: var(--text-muted);
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      
-      .main-logo {
-        width: 150px;
-        height: 100px;
-        object-fit: contain;
-        margin: 0 auto 10px auto;
-        display: block;
-        filter: invert(1) opacity(0.9); /* Inversão de cores um pouco mais suave */
+      /* STREAMING_CHUNK: Layout Base e Container da Página... */
+      #app-container {
+        display: flex;
+        width: 100%;
+        height: 100vh;
       }
 
       .page-container {
+        flex: 1;
         padding: 40px 20px;
+        /* Dá espaço no fundo para a nova barra no telemóvel! */
+        padding-bottom: calc(var(--bottom-nav-height) + 20px); 
         width: 100%;
         max-width: 500px;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
         align-items: center;
+        overflow-y: auto;
       }
 
-      .page { 
-        display: none; 
-        opacity: 0;
-        transform: translateY(15px);
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        width: 100%;
-      }
+      h1 { font-weight: 600; font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
+      h2 { font-weight: 400; font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
       
-      .page.active { 
-        display: block; 
-        animation: fadeIn 0.4s forwards;
+      .main-logo {
+        width: 150px; height: 100px; object-fit: contain; margin: 0 auto 10px auto;
+        display: block; filter: invert(1) opacity(0.9);
       }
 
-      @keyframes fadeIn {
-        to { opacity: 1; transform: translateY(0); }
+      /* STREAMING_CHUNK: Páginas... */
+      .page { 
+        display: none; opacity: 0; transform: translateY(15px);
+        transition: opacity 0.3s ease, transform 0.3s ease; width: 100%;
       }
+      .page.active { display: block; animation: fadeIn 0.4s forwards; }
 
-      /* --- NOVO MENU LATERAL (SIDEBAR) --- */
+      @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+      /* ========================================================
+         SISTEMA DE MENU E BARRA INFERIOR (O CÉREBRO RESPONSIVO)
+         ======================================================== */
+
+      /* 1. O Menu Lateral (Por defeito é flutuante no telemóvel e escondido) */
       #sidebar-overlay {
         position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(0,0,0,0.6);
-        z-index: 1999;
-        opacity: 0; pointer-events: none;
-        transition: opacity 0.3s ease;
+        background-color: rgba(0,0,0,0.6); z-index: 1999;
+        opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
       }
-      #sidebar-overlay.open {
-        opacity: 1; pointer-events: auto;
-      }
+      #sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 
       #sidebar {
         position: fixed; top: 0; left: 0; bottom: 0;
-        width: 280px;
-        background-color: var(--card-bg);
-        z-index: 2000;
-        transform: translateX(-100%);
+        width: var(--sidebar-width); background-color: var(--card-bg);
+        z-index: 2000; transform: translateX(-100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border-right: 1px solid var(--border-color);
-        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-        display: flex; flex-direction: column;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column;
       }
-      #sidebar.open {
-        transform: translateX(0);
-      }
+      #sidebar.open { transform: translateX(0); }
 
       .sidebar-header {
-        padding: 30px 20px 20px 20px;
-        border-bottom: 1px solid var(--border-color);
+        padding: 30px 20px 20px 20px; border-bottom: 1px solid var(--border-color);
         display: flex; flex-direction: column; align-items: center;
       }
 
       .sidebar-item {
-        padding: 18px 25px;
-        font-size: 16px; font-weight: 500;
-        color: var(--text-main);
-        display: flex; align-items: center; gap: 15px;
-        cursor: pointer;
-        border-bottom: 1px solid rgba(255,255,255,0.02);
-        transition: background-color 0.2s;
+        padding: 18px 25px; font-size: 16px; font-weight: 500; color: var(--text-main);
+        display: flex; align-items: center; gap: 15px; cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.02); transition: background-color 0.2s;
       }
       .sidebar-item:active { background-color: rgba(255,255,255,0.05); }
+      .sidebar-item.active { border-left: 4px solid var(--accent); background-color: rgba(255,107,0,0.05); color: var(--accent);}
 
-      .menu-btn-top {
-        position: absolute; top: 25px; left: 20px;
-        font-size: 28px; color: var(--text-muted);
-        cursor: pointer; z-index: 100;
-        padding: 10px; border-radius: 8px;
-      }
-      .menu-btn-top:active { background-color: var(--card-bg); }
-
-      /* --- ESTILOS DOS BOTÕES E LISTAS --- */
-      .btn {
-        background-color: var(--card-bg);
-        color: var(--text-main);
-        border: 1px solid var(--border-color);
-        padding: 20px;
-        margin-bottom: 15px;
-        border-radius: 16px;
-        font-size: 18px;
-        font-weight: 400;
-        cursor: pointer;
-        width: 100%;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      /* 2. A Nova Barra Inferior (Bottom Navigation) - Só visível no telemóvel */
+      #bottom-nav {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        height: var(--bottom-nav-height);
+        background-color: rgba(32, 32, 32, 0.85); /* Efeito de Vidro */
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border-top: 1px solid var(--border-color);
+        display: flex; justify-content: space-around; align-items: center;
+        z-index: 1500; padding-bottom: env(safe-area-inset-bottom); /* Respeita a barra do iPhone */
       }
 
-      .btn:active { 
-        transform: scale(0.98);
-        background-color: var(--btn-secondary);
+      .nav-btn {
+        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; color: var(--text-muted); cursor: pointer;
+        transition: color 0.2s, transform 0.1s;
       }
-
-      .btn::after {
-        content: '→';
-        font-size: 20px;
-        color: var(--accent);
-      }
-
-      .btn-voltar { display: none !important; } /* Escondido por causa do Swipe */
-
-      .avatar-img {
-        width: 45px; height: 45px; border-radius: 50%;
-        object-fit: cover; margin-right: 15px;
-        border: 2px solid var(--accent); background-color: var(--bg-color);
-      }
+      .nav-btn:active { transform: scale(0.9); }
+      .nav-btn i { font-size: 24px; margin-bottom: 4px; font-style: normal;}
+      .nav-btn span { font-size: 10px; font-weight: 500; }
       
+      /* O Botão Fica "Aceso" quando estamos nessa página */
+      .nav-btn.active { color: var(--accent); }
+
+      /* Esconde o Botão de Voltar antigo */
+      .btn-voltar { display: none !important; } 
+
+      /* 3. A Magia do PC (Ecrãs Grandes) */
+      @media (min-width: 800px) {
+        #bottom-nav { display: none; } /* Esconde a barra inferior no PC */
+        .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
+        
+        #app-container { flex-direction: row; }
+        
+        /* O Sidebar fica fixo na esquerda como o Spotify/Notion! */
+        #sidebar { 
+          position: static; transform: translateX(0); 
+          box-shadow: none; z-index: 10;
+        }
+        #sidebar-overlay { display: none !important; } /* O fundo preto do sidebar deixa de existir */
+      }
+
+
+      /* STREAMING_CHUNK: Estilos Comuns da App (Botões, Grelhas, Documentos)... */
+      .btn {
+        background-color: var(--card-bg); color: var(--text-main);
+        border: 1px solid var(--border-color); padding: 20px;
+        margin-bottom: 15px; border-radius: 16px; font-size: 18px;
+        font-weight: 400; cursor: pointer; width: 100%;
+        transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;
+      }
+      .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
+      .btn::after { content: '→'; font-size: 20px; color: var(--accent); }
+
+      .avatar-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 15px; border: 2px solid var(--accent); background-color: var(--bg-color); }
       .perfil-conteudo { display: flex; align-items: center; }
 
-      .folhetos-grid {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px;
-      }
-
-      .folheto-card {
-        background-color: var(--card-bg); border-radius: 16px; overflow: hidden;
-        cursor: pointer; border: 1px solid var(--border-color);
-        text-align: center; transition: transform 0.2s ease;
-      }
+      .folhetos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
+      .folheto-card { background-color: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease; }
       .folheto-card:active { transform: scale(0.95); }
-      
-      .folheto-card img {
-        width: 100%; height: 100px; object-fit: contain;
-        background-color: white; border-bottom: 1px solid var(--border-color); padding: 8px;
-      }
-
+      .folheto-card img { width: 100%; height: 100px; object-fit: contain; background-color: white; border-bottom: 1px solid var(--border-color); padding: 8px; }
       .folheto-info { padding: 12px 10px; }
       .folheto-info h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
       .folheto-info p { margin: 5px 0 0 0; font-size: 10px; color: var(--accent); font-weight: 600;}
 
       .carros-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; }
-      .car-card {
-        background-color: var(--card-bg); border-radius: 20px; overflow: hidden;
-        cursor: pointer; border: 1px solid var(--border-color);
-        transition: transform 0.2s ease;
-      }
+      .car-card { background-color: var(--card-bg); border-radius: 20px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); transition: transform 0.2s ease; }
       .car-card:active { transform: scale(0.97); }
       .img-container { width: 100%; height: 180px; overflow: hidden; }
       .img-container img { width: 100%; height: 100%; object-fit: cover; }
@@ -218,277 +188,251 @@
       .car-info h3 { margin: 0; font-weight: 600; font-size: 18px; }
       .car-info span { color: var(--accent); font-size: 20px; }
 
-      .header-decor {
-        width: 50px; height: 4px; background-color: var(--accent);
-        border-radius: 2px; margin: 0 auto 20px auto;
-      }
+      .header-decor { width: 50px; height: 4px; background-color: var(--accent); border-radius: 2px; margin: 0 auto 20px auto; }
 
       .acoes-doc { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
-      .btn-acao {
-        flex: 1; background-color: var(--btn-secondary); color: var(--text-main);
-        border: 1px solid var(--border-color); padding: 12px;
-        border-radius: 10px; font-size: 14px; cursor: pointer;
-        transition: background-color 0.2s; display: flex; align-items: center;
-        justify-content: center; gap: 8px;
-      }
+      .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; font-size: 14px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
       .btn-acao:active { background-color: #444; }
 
       .lista-documentos { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-      .item-doc {
-        display: flex; align-items: center; background-color: var(--card-bg);
-        padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer;
-      }
+      .item-doc { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; }
       .item-doc:active { transform: scale(0.98); }
       .icon-doc { font-size: 24px; margin-right: 15px; }
       .nome-doc { font-size: 16px; flex: 1; text-align: left; }
-
-      .btn-opcoes {
-        background: none; border: none; color: var(--text-muted);
-        font-size: 20px; padding: 5px 10px; cursor: pointer; border-radius: 5px;
-      }
+      .btn-opcoes { background: none; border: none; color: var(--text-muted); font-size: 20px; padding: 5px 10px; cursor: pointer; border-radius: 5px; }
       
       .breadcrumb { display: none !important; }
       .item-info { display: flex; align-items: center; flex: 1; overflow: hidden; }
       .item-info .nome-doc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      /* Modals elevados acima da Sidebar */
-      .modal-overlay {
-        display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(0, 0, 0, 0.8); z-index: 3000;
-        align-items: center; justify-content: center; padding: 20px;
-      }
+      /* STREAMING_CHUNK: Modals & Listas ... */
+      .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
       .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
-
-      .modal-content {
-        background-color: var(--card-bg); width: 100%; max-width: 350px;
-        padding: 25px; border-radius: 20px; text-align: center;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      }
-
-      .modal-content input[type="text"], .modal-content input[type="file"], select {
-        width: 100%; padding: 12px; margin: 15px 0; background-color: var(--bg-color);
-        border: 1px solid var(--border-color); color: white; border-radius: 8px; font-family: inherit;
-      }
+      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+      .modal-content input[type="text"], .modal-content input[type="file"], select { width: 100%; padding: 12px; margin: 15px 0; background-color: var(--bg-color); border: 1px solid var(--border-color); color: white; border-radius: 8px; font-family: inherit; }
       .modal-btn-row { display: flex; gap: 10px; margin-top: 10px; }
 
-      .pesquisa-input {
-        width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg);
-        border: 1px solid var(--border-color); color: white; border-radius: 12px;
-        font-family: inherit; font-size: 16px;
-      }
-
+      .pesquisa-input { width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: white; border-radius: 12px; font-family: inherit; font-size: 16px; }
       .lista-simples { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-      .item-simples {
-        display: flex; align-items: center; background-color: var(--card-bg);
-        padding: 15px; border-radius: 14px; border: 1px solid var(--border-color);
-      }
-      .checkbox-custom {
-        width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent);
-        cursor: pointer; margin-right: 15px; flex-shrink: 0; position: relative;
-      }
+      .item-simples { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); }
+      .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; margin-right: 15px; flex-shrink: 0; position: relative; }
       .item-simples.comprado { opacity: 0.4; }
       .item-simples.comprado .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
-      .item-simples.comprado .checkbox-custom::after {
-        content: '✓'; position: absolute; top: 50%; left: 50%;
-        transform: translate(-50%, -50%); color: #121212; font-weight: bold; font-size: 14px;
-      }
+      .item-simples.comprado .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #121212; font-weight: bold; font-size: 14px; }
       .item-simples.comprado .nome-item-simples { text-decoration: line-through; color: var(--text-muted); }
       .nome-item-simples { flex: 1; margin: 0; font-size: 16px; text-align: left; }
       .btn-eliminar-simples { background: none; border: none; color: #ff4d4d; font-size: 18px; cursor: pointer; padding: 5px; }
       
-      #status-conexao {
-        width: 100%; text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; display: block;
-      }
+      #status-conexao { width: 100%; text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; display: block; }
     </style>
   </head>
   <body>
 
-    <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
-    <div id="sidebar">
-      <div class="sidebar-header">
-        <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'" style="margin-bottom: 0;">
-        <span style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">G & N • Hub Central</span>
-      </div>
-      <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
-        <div class="sidebar-item" onclick="mostrarPagina('menu-goncalo')">👤 Perfil Gonçalo</div>
-        <div class="sidebar-item" onclick="mostrarPagina('menu-nathalia')">👤 Perfil Nathália</div>
-        <div class="sidebar-item" onclick="mostrarPagina('menu-casal')">❤️ Área do Casal</div>
-        <div class="sidebar-item" onclick="mostrarPagina('menu-supermercados')">🛒 Supermercados</div>
-        <div class="sidebar-item" onclick="abrirPaginaGaragem()">🚗 Garagem & Combustível</div>
-      </div>
-    </div>
-
-    <div class="page-container">
+    <div id="app-container">
       
-      <div id="debug-banner" style="display: none; background-color: #ff4d4d; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; text-align: left; width: 100%;">
-        <strong style="display: block; margin-bottom: 5px;">⚠️ Alerta de Sistema:</strong>
-        <span id="debug-message"></span>
+      <!-- O MENU LATERAL (SIDEBAR) -->
+      <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
+      <div id="sidebar">
+        <div class="sidebar-header">
+          <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'" style="margin-bottom: 0;">
+          <span style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">G & N • Hub Central</span>
+        </div>
+        <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
+          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">🏠 Início</div>
+          <div class="sidebar-item" id="sidebtn-menu-goncalo" onclick="navegarMenu('menu-goncalo')">👤 Perfil Gonçalo</div>
+          <div class="sidebar-item" id="sidebtn-menu-nathalia" onclick="navegarMenu('menu-nathalia')">👤 Perfil Nathália</div>
+          <div class="sidebar-item" id="sidebtn-menu-casal" onclick="navegarMenu('menu-casal')">❤️ Área do Casal</div>
+          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="navegarMenu('menu-supermercados')">🛒 Supermercados</div>
+          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="abrirPaginaGaragem()">🚗 Garagem & Combustível</div>
+        </div>
       </div>
 
-      <span id="status-conexao">⏳ A carregar sincronização...</span>
-      
-      <div id="menu-principal" class="page active">
-        <!-- Ícone do Menu Lateral -->
-        <div class="menu-btn-top" onclick="abrirSidebar()">☰</div>
+      <!-- A NOVA BARRA INFERIOR (BOTTOM NAV IPHONE) -->
+      <div id="bottom-nav">
+        <!-- Botão Menu abre a SidebarLateral -->
+        <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
+          <i>☰</i>
+          <span>Menu</span>
+        </div>
+        <!-- Botão Home vai para a página principal -->
+        <div class="nav-btn active" id="nav-btn-home" onclick="navegarMenu('menu-principal')">
+          <i>🏠</i>
+          <span>Início</span>
+        </div>
+        <!-- Botão Supermercados -->
+        <div class="nav-btn" id="nav-btn-compras" onclick="navegarMenu('menu-supermercados')">
+          <i>🛒</i>
+          <span>Compras</span>
+        </div>
+      </div>
+
+
+      <!-- O ESPAÇO PRINCIPAL (ONDE AS PÁGINAS APARECEM) -->
+      <div class="page-container">
         
-        <img src="logo.png" alt="Logo G&N" class="main-logo" onerror="this.style.display='none'">
-        <h1>Gonçalo & Nathália</h1>
-        <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
+        <div id="debug-banner" style="display: none; background-color: #ff4d4d; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; text-align: left; width: 100%;">
+          <strong style="display: block; margin-bottom: 5px;">⚠️ Alerta de Sistema:</strong>
+          <span id="debug-message"></span>
+        </div>
+
+        <span id="status-conexao">⏳ A carregar sincronização...</span>
         
-        <button class="btn" onclick="mostrarPagina('menu-goncalo')">
-          <div class="perfil-conteudo">
-            <img src="https://placehold.co/100x100/202020/FF6B00?text=G" alt="Foto Gonçalo" class="avatar-img">
-            <span>Gonçalo</span>
-          </div>
-        </button>
-        
-        <button class="btn" onclick="mostrarPagina('menu-nathalia')">
-          <div class="perfil-conteudo">
-            <img src="https://placehold.co/100x100/202020/FF6B00?text=N" alt="Foto Nathália" class="avatar-img">
-            <span>Nathália</span>
-          </div>
-        </button>
-        
-        <button class="btn" onclick="mostrarPagina('menu-casal')" style="border-left: 4px solid var(--accent);">
-          <div class="perfil-conteudo">
-            <img src="https://placehold.co/100x100/202020/FF6B00?text=C" alt="Foto Casal" class="avatar-img">
-            <span>Casal</span>
-          </div>
-        </button>
-
-        <button class="btn" onclick="mostrarPagina('menu-supermercados')" style="border-left: 4px solid #fff;">
-          <div class="perfil-conteudo">
-            <span style="font-size: 28px; margin-right: 15px;">🛒</span>
-            <span>Supermercados</span>
-          </div>
-        </button>
-        
-        <div style="width: 100%; height: 1px; background-color: var(--border-color); margin: 25px 0;"></div>
-        <button class="btn" onclick="abrirPaginaGaragem()" style="background-color: var(--btn-secondary);">🚗 Garagem e Combustível</button>
-      </div>
-
-      <div id="menu-goncalo" class="page">
-        <div class="header-decor"></div>
-        <h1>Perfil: Gonçalo</h1>
-        <button class="btn" onclick="mostrarAlerta('Área de Saúde do Gonçalo (Em construção)')">Registos de Saúde</button>
-        <button class="btn" onclick="abrirPaginaDocumentos('Gonçalo')">Documentos</button>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
-      </div>
-
-      <div id="menu-nathalia" class="page">
-        <div class="header-decor"></div>
-        <h1>Perfil: Nathália</h1>
-        <button class="btn" onclick="mostrarAlerta('Área de Saúde da Nathália (Em construção)')">Registos de Saúde</button>
-        <button class="btn" onclick="abrirPaginaDocumentos('Nathália')">Documentos</button>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
-      </div>
-
-      <div id="menu-casal" class="page">
-        <div class="header-decor"></div>
-        <h1>Área do Casal</h1>
-        <button class="btn" onclick="abrirPaginaDocumentos('Casal')">Documentos Partilhados</button>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
-      </div>
-
-      <div id="menu-supermercados" class="page">
-        <div class="header-decor"></div>
-        <h1>Supermercados</h1>
-        <button class="btn" onclick="mostrarPagina('menu-folhetos')" style="background-color: rgba(255, 107, 0, 0.1); border-color: var(--accent);">
-          📖 Folhetos da Semana
-        </button>
-        <button class="btn" onclick="abrirPaginaComprasSimples()">🛒 Lista de Compras</button>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
-      </div>
-
-      <div id="menu-carros" class="page">
-        <div class="header-decor"></div>
-        <h1>Garagem</h1>
-        <h2 style="font-size: 16px; margin-top: 20px;">Os Nossos Veículos</h2>
-        <div class="carros-grid" style="margin-bottom: 30px;">
-          <div class="car-card" onclick="mostrarAlerta('Entraste no Polo 9N!')">
-            <div class="img-container">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/VW_Polo_IV.JPG/800px-VW_Polo_IV.JPG" alt="Polo 9n">
+        <!-- PÁGINA: INÍCIO -->
+        <div id="menu-principal" class="page active">
+          
+          <img src="logo.png" alt="Logo G&N" class="main-logo" onerror="this.style.display='none'">
+          <h1>Gonçalo & Nathália</h1>
+          <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
+          
+          <button class="btn" onclick="navegarMenu('menu-goncalo')">
+            <div class="perfil-conteudo">
+              <img src="https://placehold.co/100x100/202020/FF6B00?text=G" alt="Foto Gonçalo" class="avatar-img">
+              <span>Gonçalo</span>
             </div>
-            <div class="car-info"><h3>VW Polo 9n</h3><span>→</span></div>
-          </div>
-          <div class="car-card" onclick="mostrarAlerta('Entraste no Peugeot 206!')">
-            <div class="img-container">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Peugeot_206_1.4_16v.jpg/800px-Peugeot_206_1.4_16v.jpg" alt="Peugeot 206">
+          </button>
+          
+          <button class="btn" onclick="navegarMenu('menu-nathalia')">
+            <div class="perfil-conteudo">
+              <img src="https://placehold.co/100x100/202020/FF6B00?text=N" alt="Foto Nathália" class="avatar-img">
+              <span>Nathália</span>
             </div>
-            <div class="car-info"><h3>Peugeot 206</h3><span>→</span></div>
-          </div>
-        </div>
-        
-        <div class="header-decor" style="width: 100%; height: 1px; background-color: var(--border-color); margin: 10px 0 30px 0;"></div>
-        <h2 style="font-size: 16px;">Preços de Combustível</h2>
-        <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
-          📍 Ver postos perto de mim (20 km)
-        </button>
-        <button class="btn-acao" style="background-color: var(--btn-secondary); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/', '_blank')">
-          🗺️ Escolher Distrito
-        </button>
-        <button class="btn-acao" style="background-color: var(--bg-color); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 20px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/lista-de-postos/setubal/setubal/', '_blank')">
-          🏙️ Ver postos em Setúbal
-        </button>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
-      </div>
+          </button>
+          
+          <button class="btn" onclick="navegarMenu('menu-casal')" style="border-left: 4px solid var(--accent);">
+            <div class="perfil-conteudo">
+              <img src="https://placehold.co/100x100/202020/FF6B00?text=C" alt="Foto Casal" class="avatar-img">
+              <span>Casal</span>
+            </div>
+          </button>
 
-      <div id="menu-compras" class="page">
-        <div class="header-decor"></div>
-        <h1>Lista de Compras</h1>
-        <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 20px;">
-          <input type="text" id="novo-item-input" class="pesquisa-input" style="margin-bottom: 0;" placeholder="Escreve o que precisas..." onkeypress="verificarEnterLista(event)">
-          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-size: 20px; max-width: 60px;" onclick="adicionarItemLista()">+</button>
+          <button class="btn" onclick="navegarMenu('menu-supermercados')" style="border-left: 4px solid #fff;">
+            <div class="perfil-conteudo">
+              <span style="font-size: 28px; margin-right: 15px;">🛒</span>
+              <span>Supermercados</span>
+            </div>
+          </button>
+          
+          <div style="width: 100%; height: 1px; background-color: var(--border-color); margin: 25px 0;"></div>
+          <button class="btn" onclick="abrirPaginaGaragem()" style="background-color: var(--btn-secondary);">🚗 Garagem e Combustível</button>
         </div>
-        <div class="lista-simples" id="lista-simples-container"></div>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-supermercados')">Voltar</button>
-      </div>
 
-      <div id="menu-folhetos" class="page">
-        <div class="header-decor"></div>
-        <h1>Folhetos da Semana</h1>
-        <h2 style="font-size: 14px; margin-bottom: 30px;">Acede às promoções sempre atualizadas</h2>
-        <div class="folhetos-grid">
-          <div class="folheto-card" onclick="window.open('https://folhetos.continente.pt/', '_blank')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg" alt="Continente">
-            <div class="folheto-info"><h3>Continente</h3><p>Atualiza à Terça</p></div>
-          </div>
-          <div class="folheto-card" onclick="window.open('https://www.pingodoce.pt/folhetos/', '_blank')">
-            <img src="https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg" alt="Pingo Doce">
-            <div class="folheto-info"><h3>Pingo Doce</h3><p>Atualiza à Terça</p></div>
-          </div>
-          <div class="folheto-card" onclick="window.open('https://www.lidl.pt/folhetos', '_blank')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png" alt="Lidl">
-            <div class="folheto-info"><h3>Lidl</h3><p>Atualiza à Segunda</p></div>
-          </div>
-          <div class="folheto-card" onclick="window.open('https://www.auchan.pt/pt/folhetos/', '_blank')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg" alt="Auchan">
-            <div class="folheto-info"><h3>Auchan</h3><p>Atualiza à Quinta</p></div>
-          </div>
-          <div class="folheto-card" onclick="window.open('https://www.intermarche.pt/folhetos/', '_blank')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg" alt="Intermarché">
-            <div class="folheto-info"><h3>Intermarché</h3><p>Atualiza à Quinta</p></div>
-          </div>
+        <!-- PÁGINAS SECUNDÁRIAS -->
+        <div id="menu-goncalo" class="page">
+          <div class="header-decor"></div>
+          <h1>Perfil: Gonçalo</h1>
+          <button class="btn" onclick="mostrarAlerta('Área de Saúde do Gonçalo (Em construção)')">Registos de Saúde</button>
+          <button class="btn" onclick="abrirPaginaDocumentos('Gonçalo')">Documentos</button>
         </div>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-supermercados')">Voltar</button>
-      </div>
 
-      <div id="menu-documentos" class="page">
-        <div class="header-decor"></div>
-        <h1 id="titulo-documentos">Documentos</h1>
-        <div id="caminho-pasta" class="breadcrumb" style="display: none;" onclick="voltarPasta()">
-          <span>← Voltar à pasta anterior</span>
+        <div id="menu-nathalia" class="page">
+          <div class="header-decor"></div>
+          <h1>Perfil: Nathália</h1>
+          <button class="btn" onclick="mostrarAlerta('Área de Saúde da Nathália (Em construção)')">Registos de Saúde</button>
+          <button class="btn" onclick="abrirPaginaDocumentos('Nathália')">Documentos</button>
         </div>
-        <div class="acoes-doc">
-          <button class="btn-acao" onclick="abrirModal('modal-pasta')">📁 Nova Pasta</button>
-          <button class="btn-acao" onclick="abrirModal('modal-upload')" style="background-color: var(--accent); color: #121212; font-weight: 600;">📄 Adicionar</button>
-        </div>
-        <div class="lista-documentos" id="lista-documentos-container"></div>
-        <button class="btn-voltar" onclick="mostrarPagina('menu-principal')">Voltar ao Início</button>
-      </div>
-    </div>
 
+        <div id="menu-casal" class="page">
+          <div class="header-decor"></div>
+          <h1>Área do Casal</h1>
+          <button class="btn" onclick="abrirPaginaDocumentos('Casal')">Documentos Partilhados</button>
+        </div>
+
+        <div id="menu-supermercados" class="page">
+          <div class="header-decor"></div>
+          <h1>Supermercados</h1>
+          <button class="btn" onclick="navegarMenu('menu-folhetos')" style="background-color: rgba(255, 107, 0, 0.1); border-color: var(--accent);">
+            📖 Folhetos da Semana
+          </button>
+          <button class="btn" onclick="abrirPaginaComprasSimples()">🛒 Lista de Compras</button>
+        </div>
+
+        <div id="menu-carros" class="page">
+          <div class="header-decor"></div>
+          <h1>Garagem</h1>
+          <h2 style="font-size: 16px; margin-top: 20px;">Os Nossos Veículos</h2>
+          <div class="carros-grid" style="margin-bottom: 30px;">
+            <div class="car-card" onclick="mostrarAlerta('Entraste no Polo 9N!')">
+              <div class="img-container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/VW_Polo_IV.JPG/800px-VW_Polo_IV.JPG" alt="Polo 9n">
+              </div>
+              <div class="car-info"><h3>VW Polo 9n</h3><span>→</span></div>
+            </div>
+            <div class="car-card" onclick="mostrarAlerta('Entraste no Peugeot 206!')">
+              <div class="img-container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Peugeot_206_1.4_16v.jpg/800px-Peugeot_206_1.4_16v.jpg" alt="Peugeot 206">
+              </div>
+              <div class="car-info"><h3>Peugeot 206</h3><span>→</span></div>
+            </div>
+          </div>
+          
+          <div class="header-decor" style="width: 100%; height: 1px; background-color: var(--border-color); margin: 10px 0 30px 0;"></div>
+          <h2 style="font-size: 16px;">Preços de Combustível</h2>
+          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
+            📍 Ver postos perto de mim (20 km)
+          </button>
+          <button class="btn-acao" style="background-color: var(--btn-secondary); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/', '_blank')">
+            🗺️ Escolher Distrito
+          </button>
+          <button class="btn-acao" style="background-color: var(--bg-color); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 20px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/lista-de-postos/setubal/setubal/', '_blank')">
+            🏙️ Ver postos em Setúbal
+          </button>
+        </div>
+
+        <div id="menu-compras" class="page">
+          <div class="header-decor"></div>
+          <h1>Lista de Compras</h1>
+          <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 20px;">
+            <input type="text" id="novo-item-input" class="pesquisa-input" style="margin-bottom: 0;" placeholder="Escreve o que precisas..." onkeypress="verificarEnterLista(event)">
+            <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-size: 20px; max-width: 60px;" onclick="adicionarItemLista()">+</button>
+          </div>
+          <div class="lista-simples" id="lista-simples-container"></div>
+        </div>
+
+        <div id="menu-folhetos" class="page">
+          <div class="header-decor"></div>
+          <h1>Folhetos da Semana</h1>
+          <h2 style="font-size: 14px; margin-bottom: 30px;">Acede às promoções sempre atualizadas</h2>
+          <div class="folhetos-grid">
+            <div class="folheto-card" onclick="window.open('https://folhetos.continente.pt/', '_blank')">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg" alt="Continente">
+              <div class="folheto-info"><h3>Continente</h3><p>Atualiza à Terça</p></div>
+            </div>
+            <div class="folheto-card" onclick="window.open('https://www.pingodoce.pt/folhetos/', '_blank')">
+              <img src="https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg" alt="Pingo Doce">
+              <div class="folheto-info"><h3>Pingo Doce</h3><p>Atualiza à Terça</p></div>
+            </div>
+            <div class="folheto-card" onclick="window.open('https://www.lidl.pt/folhetos', '_blank')">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png" alt="Lidl">
+              <div class="folheto-info"><h3>Lidl</h3><p>Atualiza à Segunda</p></div>
+            </div>
+            <div class="folheto-card" onclick="window.open('https://www.auchan.pt/pt/folhetos/', '_blank')">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg" alt="Auchan">
+              <div class="folheto-info"><h3>Auchan</h3><p>Atualiza à Quinta</p></div>
+            </div>
+            <div class="folheto-card" onclick="window.open('https://www.intermarche.pt/folhetos/', '_blank')">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg" alt="Intermarché">
+              <div class="folheto-info"><h3>Intermarché</h3><p>Atualiza à Quinta</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="menu-documentos" class="page">
+          <div class="header-decor"></div>
+          <h1 id="titulo-documentos">Documentos</h1>
+          <div id="caminho-pasta" class="breadcrumb" style="display: none;" onclick="voltarPasta()">
+            <span>← Voltar à pasta anterior</span>
+          </div>
+          <div class="acoes-doc">
+            <button class="btn-acao" onclick="abrirModal('modal-pasta')">📁 Nova Pasta</button>
+            <button class="btn-acao" onclick="abrirModal('modal-upload')" style="background-color: var(--accent); color: #121212; font-weight: 600;">📄 Adicionar</button>
+          </div>
+          <div class="lista-documentos" id="lista-documentos-container"></div>
+        </div>
+      </div>
+    </div> <!-- FIM DO APP-CONTAINER -->
+
+
+    <!-- STREAMING_CHUNK: Modals & Overlays no fundo da página -->
     <div id="modal-pasta" class="modal-overlay">
       <div class="modal-content">
         <h2>Criar Nova Pasta</h2>
@@ -563,6 +507,7 @@
       </div>
     </div>
 
+    <!-- STREAMING_CHUNK: Inicialização de Scripts Inteligentes -->
     <script>
       const API_URL = "https://script.google.com/macros/s/AKfycbzKR2TkfSL5yyzUDpySKcFVLzZwGnoqun71nwiPoi2Msk9QSkJfHSPHgXn5bJL02Gjm/exec";
 
@@ -572,27 +517,36 @@
         return false;
       };
 
-      // --- CONTROLO DO MENU LATERAL (SIDEBAR) ---
+      // ==========================================
+      // CÉREBRO DA NAVEGAÇÃO E BARRAS
+      // ==========================================
+
+      let historicoPaginas = [];
+      let paginaAtualID = 'menu-principal';
+
+      // Abre/Fecha a aba lateral (Só importa no telemóvel)
       function abrirSidebar() {
         document.getElementById('sidebar').classList.add('open');
         document.getElementById('sidebar-overlay').classList.add('open');
+        atualizarBotoesAtivos('menu'); // "Acende" o ícone menu
       }
 
       function fecharSidebar() {
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('open');
+        atualizarBotoesAtivos(paginaAtualID); // Devolve a "luz" à página atual
       }
 
-      // --- NAVEGAÇÃO E SWIPE ---
-      let historicoPaginas = [];
-      let paginaAtualID = 'menu-principal';
-
-      function mostrarPagina(idPagina) {
-        fecharSidebar(); // Fecha o menu sempre que se muda de página
+      // Função Principal de mudança de Ecrã
+      function navegarMenu(idPagina) {
+        fecharSidebar(); // Fecha sempre a aba lateral se estiver aberta
+        
         if (idPagina === paginaAtualID) return;
         historicoPaginas.push(paginaAtualID);
         paginaAtualID = idPagina;
         
+        atualizarBotoesAtivos(idPagina);
+
         var paginas = document.getElementsByClassName('page');
         for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
         setTimeout(function() {
@@ -601,17 +555,42 @@
         }, 50);
       }
 
+      // Controlador das Cores Laranja nos ícones selecionados (Sidebar e BottomBar)
+      function atualizarBotoesAtivos(idPagina) {
+        // Limpa os de baixo
+        document.getElementById('nav-btn-home').classList.remove('active');
+        document.getElementById('nav-btn-compras').classList.remove('active');
+        document.getElementById('nav-btn-menu').classList.remove('active');
+        
+        // Limpa os do lado (PC)
+        const sideBtns = document.getElementsByClassName('sidebar-item');
+        for (let i = 0; i < sideBtns.length; i++) sideBtns[i].classList.remove('active');
+
+        // Acende o de baixo correspondente (se existir)
+        if (idPagina === 'menu-principal') document.getElementById('nav-btn-home').classList.add('active');
+        else if (idPagina === 'menu-supermercados' || idPagina === 'menu-compras' || idPagina === 'menu-folhetos') document.getElementById('nav-btn-compras').classList.add('active');
+        else if (idPagina === 'menu') document.getElementById('nav-btn-menu').classList.add('active');
+
+        // Acende o lateral correspondente
+        const sideId = 'sidebtn-' + idPagina;
+        const sideElement = document.getElementById(sideId);
+        if(sideElement) sideElement.classList.add('active');
+      }
+
       function voltarAtrasGeral() {
         if (paginaAtualID === 'menu-documentos' && pastaAtual !== null) { voltarPasta(); return; }
         if (historicoPaginas.length > 0) {
             const paginaAnterior = historicoPaginas.pop();
             paginaAtualID = paginaAnterior;
+            atualizarBotoesAtivos(paginaAtualID);
+            
             var paginas = document.getElementsByClassName('page');
             for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
             setTimeout(function() { document.getElementById(paginaAnterior).classList.add('active'); window.scrollTo(0, 0); }, 50);
         }
       }
 
+      // --- SWIPE MÁGICO DO IPHONE ---
       let touchstartX = 0; let touchstartY = 0;
       document.addEventListener('touchstart', function(e) {
         touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY;
@@ -621,24 +600,29 @@
         let touchendX = e.changedTouches[0].screenX; let touchendY = e.changedTouches[0].screenY;
         let deltaX = touchendX - touchstartX; let deltaY = touchendY - touchstartY;
 
-        // Deslizar para a Direita (Swipe Right) a partir da berma
+        // Deslizar para a Direita (Swipe Right) - Voltar Atrás ou Abrir Menu
         if (touchstartX < 80 && deltaX > 70 && Math.abs(deltaY) < 50) {
           if (paginaAtualID !== 'menu-principal') {
-             voltarAtrasGeral(); // Nas subpáginas, volta atrás
+             voltarAtrasGeral();
           } else {
-             abrirSidebar(); // Na página principal, abre o menu
+             // Se estivermos na principal, deslizar para a direita abre o menu lateral!
+             abrirSidebar();
           }
         }
 
-        // Deslizar para a Esquerda (Swipe Left) para fechar o menu
+        // Deslizar para a Esquerda (Swipe Left) - Fecha o Menu lateral
         if (deltaX < -70 && Math.abs(deltaY) < 50 && document.getElementById('sidebar').classList.contains('open')) {
           fecharSidebar();
         }
       }, {passive: true});
 
-      function abrirPaginaGaragem() { fecharSidebar(); mostrarPagina('menu-carros'); }
+      function abrirPaginaGaragem() { navegarMenu('menu-carros'); }
       function gerarId() { return Math.random().toString(36).substr(2, 9); }
 
+
+      // ==========================================
+      // LÓGICA DO RESTO DA APP (Não mexemos aqui)
+      // ==========================================
       let perfilAtual = ''; let pastaAtual = null; let historicoNavegacao = []; let itemSelecionadoParaAcao = null; 
       let baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };
 
@@ -672,7 +656,7 @@
 
       let listaComprasSimples = []; 
       function abrirPaginaComprasSimples() {
-        fecharSidebar(); document.getElementById('novo-item-input').value = ''; renderizarListaSimples(); mostrarPagina('menu-compras');
+        navegarMenu('menu-compras'); document.getElementById('novo-item-input').value = ''; renderizarListaSimples(); 
       }
       function verificarEnterLista(event) { if (event.key === 'Enter') adicionarItemLista(); }
       function adicionarItemLista() {
@@ -692,9 +676,9 @@
       }
 
       function abrirPaginaDocumentos(perfil) {
-        fecharSidebar(); perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; 
+        navegarMenu('menu-documentos'); perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; 
         document.getElementById('titulo-documentos').innerText = 'Documentos: ' + perfil;
-        renderizarDocumentos(); mostrarPagina('menu-documentos');
+        renderizarDocumentos(); 
       }
       function entrarPasta(idPasta) { historicoNavegacao.push(pastaAtual); pastaAtual = idPasta; renderizarDocumentos(); }
       function voltarPasta() { if (historicoNavegacao.length > 0) { pastaAtual = historicoNavegacao.pop(); renderizarDocumentos(); } }

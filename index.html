@@ -8,7 +8,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="App Casal">
-    <link rel="apple-touch-icon" href="logo-quadrado.png">
+    <!-- Ícone da App principal no telemóvel (Logo preto fundo branco) -->
+    <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,8 +58,14 @@
       h1 { font-weight: 600; font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
       h2 { font-weight: 400; font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
       
-      .main-logo { width: 150px; height: 100px; object-fit: contain; margin: 0 auto 10px auto; display: block; filter: invert(1) opacity(0.9); transition: filter 0.3s ease; }
-      body.light-mode .main-logo { filter: invert(0) opacity(1); }
+      /* SISTEMA INTELIGENTE DE LOGÓTIPOS NA BARRA LATERAL */
+      .sidebar-logo { width: 140px; height: 90px; object-fit: contain; margin: 0 auto; display: block; }
+      
+      .light-logo { display: none; } /* Esconde o logo preto por defeito (Dark Mode) */
+      
+      /* Quando o modo claro está ativo, inverte a visibilidade! */
+      body.light-mode .light-logo { display: block; }
+      body.light-mode .dark-logo { display: none; }
 
       .page { display: none; opacity: 0; transform: translateY(15px); transition: opacity 0.3s ease, transform 0.3s ease; width: 100%; }
       .page.active { display: block; animation: fadeIn 0.4s forwards; }
@@ -163,12 +170,14 @@
       <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
       <div id="sidebar">
         <div class="sidebar-header">
-          <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'" style="margin-bottom: 0;">
-          <span style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">G & N • Hub Central</span>
+          <!-- Sistema Duplo de Logos: Um para o Escuro, outro para o Claro -->
+          <img src="logobranco_semfundo.png" alt="Logo Gestão" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
+          <img src="logopreto_semfundo.png" alt="Logo Gestão" class="sidebar-logo light-logo" onerror="this.style.display='none'">
+          
+          <span style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.5px;">Gestão G&N</span>
         </div>
         
         <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
-          <!-- SVG Ícones no Sidebar para manter o design clean -->
           <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             Início
@@ -230,11 +239,10 @@
 
         <span id="status-conexao">⏳ A carregar sincronização...</span>
         
-        <!-- PÁGINA: INÍCIO -->
+        <!-- PÁGINA: INÍCIO (LIMPA, SEM LOGO NEM NOME) -->
         <div id="menu-principal" class="page active">
-          <img src="logo.png" alt="Logo G&N" class="main-logo" onerror="this.style.display='none'">
-          <h1>Gonçalo & Nathália</h1>
-          <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
+          
+          <h2 style="font-size: 16px; margin-top: 10px; margin-bottom: 40px; color: var(--text-main); font-weight: 500;">Selecione o menu</h2>
           
           <button class="btn" onclick="navegarMenu('menu-goncalo')">
             <div class="perfil-conteudo">
@@ -498,7 +506,6 @@
           icone.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
           texto.innerText = 'Modo Escuro';
         } else {
-          // Força o SVG do sol caso o dark seja o padrão
           icone.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
         }
       }

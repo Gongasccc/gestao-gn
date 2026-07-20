@@ -608,8 +608,7 @@
       setInterval(atualizarRelogio, 1000);
       atualizarRelogio();
 
-      // --- WIDGET 2: METEOROLOGIA INTELIGENTE ---
-      // Converte os códigos numéricos da API mundial em Ícones SVG limpos
+      // --- WIDGET 2: METEOROLOGIA INTELIGENTE COM NOME DA RUA/CIDADE ---
       function interpretarClima(codigo) {
         const sol = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
         const nuvem = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>';
@@ -644,7 +643,6 @@
         }
       }
 
-      // Função que tenta procurar por GPS, se falhar ou recusares, assume Setúbal
       function carregarMeteorologia(forcarAviso = false) {
         document.getElementById('meteo-desc').innerText = "A procurar...";
         const latSetubal = 38.5244;
@@ -652,7 +650,20 @@
 
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
-            (pos) => buscarClimaAPI(pos.coords.latitude, pos.coords.longitude, "Localização"),
+            async (pos) => {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+              try {
+                // A Magia: Transforma GPS em Nome da Cidade/Rua (Gratuito)
+                const respLocal = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`);
+                const dadosLocal = await respLocal.json();
+                const nomeCidade = dadosLocal.city || dadosLocal.locality || "Localização Atual";
+                
+                buscarClimaAPI(lat, lon, nomeCidade);
+              } catch(e) {
+                buscarClimaAPI(lat, lon, "Localização Atual");
+              }
+            },
             (err) => {
               if(forcarAviso) alert("GPS desativado. A mostrar a meteorologia de Setúbal.");
               buscarClimaAPI(latSetubal, lonSetubal, "Setúbal");
@@ -662,7 +673,6 @@
           buscarClimaAPI(latSetubal, lonSetubal, "Setúbal");
         }
       }
-      // Arranca mal a app abre
       setTimeout(() => carregarMeteorologia(false), 500);
 
       // --- WIDGET 3: FRASE DO DIA ---

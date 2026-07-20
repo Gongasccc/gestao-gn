@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-      /* --- NOTION DARK MODE PALETTE --- */
+      /* --- NOTION DARK MODE (DEFAULT) --- */
       :root {
         --bg-color: #191919;       
         --card-bg: #202020;        
@@ -24,147 +24,81 @@
         --btn-secondary: #2C2C2C;  
         --border-color: rgba(255, 255, 255, 0.05); 
         
-        /* Variáveis de layout Inteligente */
         --sidebar-width: 280px;
         --bottom-nav-height: 80px; 
+      }
+
+      /* --- NOTION LIGHT MODE --- */
+      body.light-mode {
+        --bg-color: #FFFFFF;             
+        --card-bg: #F7F7F5;              
+        --text-main: #37352F;            
+        --text-muted: rgba(55, 53, 47, 0.6); 
+        --accent: #FF6B00;               
+        --btn-secondary: #EBEBEA;        
+        --border-color: rgba(0, 0, 0, 0.08); 
       }
 
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
       body {
-        font-family: 'Poppins', sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-main);
-        margin: 0;
-        padding: 0;
-        display: flex;
-        min-height: 100vh;
-        overflow-x: hidden;
+        font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-main);
+        margin: 0; padding: 0; display: flex; min-height: 100vh; overflow-x: hidden;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
-      /* STREAMING_CHUNK: Layout Base e Container da Página... */
-      #app-container {
-        display: flex;
-        width: 100%;
-        height: 100vh;
-      }
+      #app-container { display: flex; width: 100%; height: 100vh; }
 
       .page-container {
-        flex: 1;
-        padding: 40px 20px;
-        /* Dá espaço no fundo para a nova barra no telemóvel! */
-        padding-bottom: calc(var(--bottom-nav-height) + 20px); 
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        overflow-y: auto;
+        flex: 1; padding: 40px 20px; padding-bottom: calc(var(--bottom-nav-height) + 20px); 
+        width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; overflow-y: auto;
       }
 
       h1 { font-weight: 600; font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
       h2 { font-weight: 400; font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
       
-      .main-logo {
-        width: 150px; height: 100px; object-fit: contain; margin: 0 auto 10px auto;
-        display: block; filter: invert(1) opacity(0.9);
-      }
+      .main-logo { width: 150px; height: 100px; object-fit: contain; margin: 0 auto 10px auto; display: block; filter: invert(1) opacity(0.9); transition: filter 0.3s ease; }
+      body.light-mode .main-logo { filter: invert(0) opacity(1); }
 
-      /* STREAMING_CHUNK: Páginas... */
-      .page { 
-        display: none; opacity: 0; transform: translateY(15px);
-        transition: opacity 0.3s ease, transform 0.3s ease; width: 100%;
-      }
+      .page { display: none; opacity: 0; transform: translateY(15px); transition: opacity 0.3s ease, transform 0.3s ease; width: 100%; }
       .page.active { display: block; animation: fadeIn 0.4s forwards; }
-
       @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-      /* ========================================================
-         SISTEMA DE MENU E BARRA INFERIOR (O CÉREBRO RESPONSIVO)
-         ======================================================== */
-
-      /* 1. O Menu Lateral (Por defeito é flutuante no telemóvel e escondido) */
-      #sidebar-overlay {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(0,0,0,0.6); z-index: 1999;
-        opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-      }
+      /* MENU & BOTTOM NAV */
+      #sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
       #sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 
-      #sidebar {
-        position: fixed; top: 0; left: 0; bottom: 0;
-        width: var(--sidebar-width); background-color: var(--card-bg);
-        z-index: 2000; transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-right: 1px solid var(--border-color);
-        box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column;
-      }
+      #sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width); background-color: var(--card-bg); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
       #sidebar.open { transform: translateX(0); }
 
-      .sidebar-header {
-        padding: 30px 20px 20px 20px; border-bottom: 1px solid var(--border-color);
-        display: flex; flex-direction: column; align-items: center;
-      }
+      .sidebar-header { padding: 30px 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
 
-      .sidebar-item {
-        padding: 18px 25px; font-size: 16px; font-weight: 500; color: var(--text-main);
-        display: flex; align-items: center; gap: 15px; cursor: pointer;
-        border-bottom: 1px solid rgba(255,255,255,0.02); transition: background-color 0.2s;
-      }
-      .sidebar-item:active { background-color: rgba(255,255,255,0.05); }
+      .sidebar-item { padding: 18px 25px; font-size: 16px; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s, color 0.3s ease; }
+      .sidebar-item:active { background-color: var(--btn-secondary); }
       .sidebar-item.active { border-left: 4px solid var(--accent); background-color: rgba(255,107,0,0.05); color: var(--accent);}
-
-      /* 2. A Nova Barra Inferior (Bottom Navigation) - Só visível no telemóvel */
-      #bottom-nav {
-        position: fixed; bottom: 0; left: 0; right: 0;
-        height: var(--bottom-nav-height);
-        background-color: rgba(32, 32, 32, 0.85); /* Efeito de Vidro */
-        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-        border-top: 1px solid var(--border-color);
-        display: flex; justify-content: space-around; align-items: center;
-        z-index: 1500; padding-bottom: env(safe-area-inset-bottom); /* Respeita a barra do iPhone */
-      }
-
-      .nav-btn {
-        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%; color: var(--text-muted); cursor: pointer;
-        transition: color 0.2s, transform 0.1s;
-      }
-      .nav-btn:active { transform: scale(0.9); }
-      .nav-btn i { font-size: 24px; margin-bottom: 4px; font-style: normal;}
-      .nav-btn span { font-size: 10px; font-weight: 500; }
+      .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); }
       
-      /* O Botão Fica "Aceso" quando estamos nessa página */
+      /* Estilização para os SVG Icons */
+      .icon-svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 24px; height: 24px; margin-bottom: 4px; }
+      .sidebar-icon-svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+      #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height); background-color: rgba(32, 32, 32, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 1500; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.3s ease; }
+      body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.85); }
+
+      .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
+      .nav-btn:active { transform: scale(0.9); }
+      .nav-btn span { font-size: 10px; font-weight: 500; }
       .nav-btn.active { color: var(--accent); }
 
-      /* Esconde o Botão de Voltar antigo */
       .btn-voltar { display: none !important; } 
 
-      /* 3. A Magia do PC (Ecrãs Grandes) */
       @media (min-width: 800px) {
-        #bottom-nav { display: none; } /* Esconde a barra inferior no PC */
-        .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
-        
-        #app-container { flex-direction: row; }
-        
-        /* O Sidebar fica fixo na esquerda como o Spotify/Notion! */
-        #sidebar { 
-          position: static; transform: translateX(0); 
-          box-shadow: none; z-index: 10;
-        }
-        #sidebar-overlay { display: none !important; } /* O fundo preto do sidebar deixa de existir */
+        #bottom-nav { display: none; } .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
+        #app-container { flex-direction: row; } #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } #sidebar-overlay { display: none !important; }
       }
 
-
-      /* STREAMING_CHUNK: Estilos Comuns da App (Botões, Grelhas, Documentos)... */
-      .btn {
-        background-color: var(--card-bg); color: var(--text-main);
-        border: 1px solid var(--border-color); padding: 20px;
-        margin-bottom: 15px; border-radius: 16px; font-size: 18px;
-        font-weight: 400; cursor: pointer; width: 100%;
-        transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;
-      }
+      /* Estilos Comuns */
+      .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 18px; font-weight: 400; cursor: pointer; width: 100%; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
       .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
       .btn::after { content: '→'; font-size: 20px; color: var(--accent); }
 
@@ -172,7 +106,7 @@
       .perfil-conteudo { display: flex; align-items: center; }
 
       .folhetos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
-      .folheto-card { background-color: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease; }
+      .folheto-card { background-color: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease, background-color 0.3s ease; }
       .folheto-card:active { transform: scale(0.95); }
       .folheto-card img { width: 100%; height: 100px; object-fit: contain; background-color: white; border-bottom: 1px solid var(--border-color); padding: 8px; }
       .folheto-info { padding: 12px 10px; }
@@ -180,7 +114,7 @@
       .folheto-info p { margin: 5px 0 0 0; font-size: 10px; color: var(--accent); font-weight: 600;}
 
       .carros-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; }
-      .car-card { background-color: var(--card-bg); border-radius: 20px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); transition: transform 0.2s ease; }
+      .car-card { background-color: var(--card-bg); border-radius: 20px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); transition: transform 0.2s ease, background-color 0.3s ease; }
       .car-card:active { transform: scale(0.97); }
       .img-container { width: 100%; height: 180px; overflow: hidden; }
       .img-container img { width: 100%; height: 100%; object-fit: cover; }
@@ -189,40 +123,35 @@
       .car-info span { color: var(--accent); font-size: 20px; }
 
       .header-decor { width: 50px; height: 4px; background-color: var(--accent); border-radius: 2px; margin: 0 auto 20px auto; }
-
       .acoes-doc { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
       .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; font-size: 14px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-      .btn-acao:active { background-color: #444; }
-
+      .btn-acao:active { background-color: var(--border-color); }
       .lista-documentos { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-      .item-doc { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; }
+      .item-doc { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.3s ease; }
       .item-doc:active { transform: scale(0.98); }
       .icon-doc { font-size: 24px; margin-right: 15px; }
       .nome-doc { font-size: 16px; flex: 1; text-align: left; }
       .btn-opcoes { background: none; border: none; color: var(--text-muted); font-size: 20px; padding: 5px 10px; cursor: pointer; border-radius: 5px; }
-      
       .breadcrumb { display: none !important; }
       .item-info { display: flex; align-items: center; flex: 1; overflow: hidden; }
       .item-info .nome-doc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      /* STREAMING_CHUNK: Modals & Listas ... */
+      /* Modals */
       .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
       .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
-      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-      .modal-content input[type="text"], .modal-content input[type="file"], select { width: 100%; padding: 12px; margin: 15px 0; background-color: var(--bg-color); border: 1px solid var(--border-color); color: white; border-radius: 8px; font-family: inherit; }
+      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background-color 0.3s ease; }
+      .modal-content input[type="text"], .modal-content input[type="file"], select { width: 100%; padding: 12px; margin: 15px 0; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; font-family: inherit; transition: background-color 0.3s ease, color 0.3s ease; }
       .modal-btn-row { display: flex; gap: 10px; margin-top: 10px; }
-
-      .pesquisa-input { width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: white; border-radius: 12px; font-family: inherit; font-size: 16px; }
+      .pesquisa-input { width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; font-family: inherit; font-size: 16px; transition: background-color 0.3s ease, color 0.3s ease; }
       .lista-simples { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-      .item-simples { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); }
+      .item-simples { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); transition: opacity 0.2s, transform 0.2s, background-color 0.3s ease; }
       .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; margin-right: 15px; flex-shrink: 0; position: relative; }
       .item-simples.comprado { opacity: 0.4; }
       .item-simples.comprado .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
-      .item-simples.comprado .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #121212; font-weight: bold; font-size: 14px; }
+      .item-simples.comprado .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 14px; }
       .item-simples.comprado .nome-item-simples { text-decoration: line-through; color: var(--text-muted); }
       .nome-item-simples { flex: 1; margin: 0; font-size: 16px; text-align: left; }
       .btn-eliminar-simples { background: none; border: none; color: #ff4d4d; font-size: 18px; cursor: pointer; padding: 5px; }
-      
       #status-conexao { width: 100%; text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; display: block; }
     </style>
   </head>
@@ -237,37 +166,61 @@
           <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'" style="margin-bottom: 0;">
           <span style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">G & N • Hub Central</span>
         </div>
+        
         <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
-          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">🏠 Início</div>
-          <div class="sidebar-item" id="sidebtn-menu-goncalo" onclick="navegarMenu('menu-goncalo')">👤 Perfil Gonçalo</div>
-          <div class="sidebar-item" id="sidebtn-menu-nathalia" onclick="navegarMenu('menu-nathalia')">👤 Perfil Nathália</div>
-          <div class="sidebar-item" id="sidebtn-menu-casal" onclick="navegarMenu('menu-casal')">❤️ Área do Casal</div>
-          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="navegarMenu('menu-supermercados')">🛒 Supermercados</div>
-          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="abrirPaginaGaragem()">🚗 Garagem & Combustível</div>
+          <!-- SVG Ícones no Sidebar para manter o design clean -->
+          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Início
+          </div>
+          <div class="sidebar-item" id="sidebtn-menu-goncalo" onclick="navegarMenu('menu-goncalo')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Perfil Gonçalo
+          </div>
+          <div class="sidebar-item" id="sidebtn-menu-nathalia" onclick="navegarMenu('menu-nathalia')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Perfil Nathália
+          </div>
+          <div class="sidebar-item" id="sidebtn-menu-casal" onclick="navegarMenu('menu-casal')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            Área do Casal
+          </div>
+          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="navegarMenu('menu-supermercados')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            Supermercados
+          </div>
+          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="abrirPaginaGaragem()">
+             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
+            Garagem & Combustível
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-item" onclick="alternarTema()" style="border-bottom: none; justify-content: center; margin: 10px;">
+            <svg id="icone-tema" class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <span id="texto-tema">Modo Claro</span>
+          </div>
         </div>
       </div>
 
-      <!-- A NOVA BARRA INFERIOR (BOTTOM NAV IPHONE) -->
+      <!-- A NOVA BARRA INFERIOR (BOTTOM NAV IPHONE) COM SVG -->
       <div id="bottom-nav">
-        <!-- Botão Menu abre a SidebarLateral -->
         <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
-          <i>☰</i>
+          <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           <span>Menu</span>
         </div>
-        <!-- Botão Home vai para a página principal -->
         <div class="nav-btn active" id="nav-btn-home" onclick="navegarMenu('menu-principal')">
-          <i>🏠</i>
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           <span>Início</span>
         </div>
-        <!-- Botão Supermercados -->
         <div class="nav-btn" id="nav-btn-compras" onclick="navegarMenu('menu-supermercados')">
-          <i>🛒</i>
+          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
           <span>Compras</span>
         </div>
       </div>
 
 
-      <!-- O ESPAÇO PRINCIPAL (ONDE AS PÁGINAS APARECEM) -->
+      <!-- O ESPAÇO PRINCIPAL -->
       <div class="page-container">
         
         <div id="debug-banner" style="display: none; background-color: #ff4d4d; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; text-align: left; width: 100%;">
@@ -279,7 +232,6 @@
         
         <!-- PÁGINA: INÍCIO -->
         <div id="menu-principal" class="page active">
-          
           <img src="logo.png" alt="Logo G&N" class="main-logo" onerror="this.style.display='none'">
           <h1>Gonçalo & Nathália</h1>
           <h2 style="font-size: 14px; margin-bottom: 40px;">Selecione o menu</h2>
@@ -429,10 +381,10 @@
           <div class="lista-documentos" id="lista-documentos-container"></div>
         </div>
       </div>
-    </div> <!-- FIM DO APP-CONTAINER -->
+    </div>
 
 
-    <!-- STREAMING_CHUNK: Modals & Overlays no fundo da página -->
+    <!-- Modals -->
     <div id="modal-pasta" class="modal-overlay">
       <div class="modal-content">
         <h2>Criar Nova Pasta</h2>
@@ -507,7 +459,6 @@
       </div>
     </div>
 
-    <!-- STREAMING_CHUNK: Inicialização de Scripts Inteligentes -->
     <script>
       const API_URL = "https://script.google.com/macros/s/AKfycbzKR2TkfSL5yyzUDpySKcFVLzZwGnoqun71nwiPoi2Msk9QSkJfHSPHgXn5bJL02Gjm/exec";
 
@@ -518,29 +469,62 @@
       };
 
       // ==========================================
+      // SISTEMA DE TEMAS (DARK / LIGHT MODE - SVG)
+      // ==========================================
+      function alternarTema() {
+        const isLight = document.body.classList.toggle('light-mode');
+        const icone = document.getElementById('icone-tema');
+        const texto = document.getElementById('texto-tema');
+        
+        if (isLight) {
+          // SVG da Lua (Escuro)
+          icone.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+          texto.innerText = 'Modo Escuro';
+          localStorage.setItem('temaApp', 'light');
+        } else {
+          // SVG do Sol (Claro)
+          icone.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+          texto.innerText = 'Modo Claro';
+          localStorage.setItem('temaApp', 'dark');
+        }
+      }
+
+      function carregarTemaSalvo() {
+        const temaSalvo = localStorage.getItem('temaApp');
+        const icone = document.getElementById('icone-tema');
+        const texto = document.getElementById('texto-tema');
+        if (temaSalvo === 'light') {
+          document.body.classList.add('light-mode');
+          icone.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+          texto.innerText = 'Modo Escuro';
+        } else {
+          // Força o SVG do sol caso o dark seja o padrão
+          icone.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+        }
+      }
+      carregarTemaSalvo();
+
+
+      // ==========================================
       // CÉREBRO DA NAVEGAÇÃO E BARRAS
       // ==========================================
-
       let historicoPaginas = [];
       let paginaAtualID = 'menu-principal';
 
-      // Abre/Fecha a aba lateral (Só importa no telemóvel)
       function abrirSidebar() {
         document.getElementById('sidebar').classList.add('open');
         document.getElementById('sidebar-overlay').classList.add('open');
-        atualizarBotoesAtivos('menu'); // "Acende" o ícone menu
+        atualizarBotoesAtivos('menu'); 
       }
 
       function fecharSidebar() {
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('open');
-        atualizarBotoesAtivos(paginaAtualID); // Devolve a "luz" à página atual
+        atualizarBotoesAtivos(paginaAtualID); 
       }
 
-      // Função Principal de mudança de Ecrã
       function navegarMenu(idPagina) {
-        fecharSidebar(); // Fecha sempre a aba lateral se estiver aberta
-        
+        fecharSidebar(); 
         if (idPagina === paginaAtualID) return;
         historicoPaginas.push(paginaAtualID);
         paginaAtualID = idPagina;
@@ -555,23 +539,18 @@
         }, 50);
       }
 
-      // Controlador das Cores Laranja nos ícones selecionados (Sidebar e BottomBar)
       function atualizarBotoesAtivos(idPagina) {
-        // Limpa os de baixo
         document.getElementById('nav-btn-home').classList.remove('active');
         document.getElementById('nav-btn-compras').classList.remove('active');
         document.getElementById('nav-btn-menu').classList.remove('active');
         
-        // Limpa os do lado (PC)
         const sideBtns = document.getElementsByClassName('sidebar-item');
         for (let i = 0; i < sideBtns.length; i++) sideBtns[i].classList.remove('active');
 
-        // Acende o de baixo correspondente (se existir)
         if (idPagina === 'menu-principal') document.getElementById('nav-btn-home').classList.add('active');
         else if (idPagina === 'menu-supermercados' || idPagina === 'menu-compras' || idPagina === 'menu-folhetos') document.getElementById('nav-btn-compras').classList.add('active');
         else if (idPagina === 'menu') document.getElementById('nav-btn-menu').classList.add('active');
 
-        // Acende o lateral correspondente
         const sideId = 'sidebtn-' + idPagina;
         const sideElement = document.getElementById(sideId);
         if(sideElement) sideElement.classList.add('active');
@@ -600,17 +579,13 @@
         let touchendX = e.changedTouches[0].screenX; let touchendY = e.changedTouches[0].screenY;
         let deltaX = touchendX - touchstartX; let deltaY = touchendY - touchstartY;
 
-        // Deslizar para a Direita (Swipe Right) - Voltar Atrás ou Abrir Menu
         if (touchstartX < 80 && deltaX > 70 && Math.abs(deltaY) < 50) {
           if (paginaAtualID !== 'menu-principal') {
              voltarAtrasGeral();
           } else {
-             // Se estivermos na principal, deslizar para a direita abre o menu lateral!
              abrirSidebar();
           }
         }
-
-        // Deslizar para a Esquerda (Swipe Left) - Fecha o Menu lateral
         if (deltaX < -70 && Math.abs(deltaY) < 50 && document.getElementById('sidebar').classList.contains('open')) {
           fecharSidebar();
         }
@@ -621,7 +596,7 @@
 
 
       // ==========================================
-      // LÓGICA DO RESTO DA APP (Não mexemos aqui)
+      // LÓGICA DO RESTO DA APP
       // ==========================================
       let perfilAtual = ''; let pastaAtual = null; let historicoNavegacao = []; let itemSelecionadoParaAcao = null; 
       let baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };

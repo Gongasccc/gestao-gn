@@ -2,10 +2,8 @@
 <html>
   <head>
     <base target="_top">
-    <!-- O viewport-fit=cover é essencial para o iPhone respeitar o ecrã todo -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- TAGS MÁGICAS PARA O IPHONE (WEB APP) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="App Casal">
@@ -15,27 +13,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-      /* --- NOTION DARK MODE (DEFAULT) --- */
       :root {
         --bg-color: #191919;       
         --card-bg: #202020;        
         --text-main: rgba(255, 255, 255, 0.9);  
         --text-muted: rgba(255, 255, 255, 0.5); 
-        --accent: #FF6B00;         
+        --accent: #FF6B00; /* Cor inicial, será alterada pelo JS */        
         --btn-secondary: #2C2C2C;  
         --border-color: rgba(255, 255, 255, 0.05); 
         
         --sidebar-width: 280px;
-        --bottom-nav-height: 80px; 
       }
 
-      /* --- NOTION LIGHT MODE --- */
       body.light-mode {
         --bg-color: #FFFFFF;             
         --card-bg: #F7F7F5;              
         --text-main: #37352F;            
         --text-muted: rgba(55, 53, 47, 0.6); 
-        --accent: #FF6B00;               
         --btn-secondary: #EBEBEA;        
         --border-color: rgba(0, 0, 0, 0.08); 
       }
@@ -51,14 +45,13 @@
       #app-container { display: flex; width: 100%; height: 100vh; }
 
       .page-container {
-        flex: 1; 
-        /* A MAGIA DO NOTCH: Calcula o topo da câmara e adiciona 20px de margem! */
-        padding: calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 20px) 20px; 
+        flex: 1; padding: calc(env(safe-area-inset-top) + 20px) 20px 100px 20px; 
         width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; overflow-y: auto;
       }
 
       h1 { font-weight: 600; font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
       h2 { font-weight: 400; font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+      h3 { font-size: 16px; font-weight: 500; margin: 0 0 15px 0; color: var(--text-main); }
       
       .sidebar-logo { width: 140px; height: 90px; object-fit: contain; margin: 0 auto; display: block; }
       .light-logo { display: none; }
@@ -69,158 +62,148 @@
       .page.active { display: block; animation: fadeIn 0.4s forwards; }
       @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-      /* MENU & BOTTOM NAV */
+      /* AUTENTICAÇÃO (LOGIN) */
+      #auth-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-color);
+        z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 30px; transition: opacity 0.5s ease;
+      }
+      .auth-box { background-color: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); width: 100%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+      .auth-input { width: 100%; padding: 15px; margin-bottom: 15px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; font-family: inherit; }
+      .auth-btn { background-color: var(--accent); color: #fff; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+      .auth-link { color: var(--accent); font-size: 13px; cursor: pointer; text-decoration: underline; }
+
       #sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
       #sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 
       #sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width); background-color: var(--card-bg); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
       #sidebar.open { transform: translateX(0); }
 
-      /* Notch no Sidebar também */
-      .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
+      .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; }
+      .gestao-text { font-size: 14px; font-weight: 500; color: var(--text-main); margin-top: 5px; letter-spacing: 0.5px; transition: color 0.3s ease;}
 
-      .sidebar-item { padding: 18px 25px; font-size: 16px; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s, color 0.3s ease; }
+      .sidebar-item { padding: 18px 25px; font-size: 15px; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02); transition: background-color 0.2s, color 0.3s ease; }
       .sidebar-item:active { background-color: var(--btn-secondary); }
       .sidebar-item.active { border-left: 4px solid var(--accent); background-color: rgba(255,107,0,0.05); color: var(--accent);}
+      
+      .sidebar-submenu { display: none; flex-direction: column; background-color: rgba(0,0,0,0.1); }
+      body.light-mode .sidebar-submenu { background-color: rgba(0,0,0,0.02); }
+      .sidebar-subitem { padding: 12px 25px 12px 55px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.01); }
+      .sidebar-subitem:active { color: var(--text-main); }
       .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); }
       
       .icon-svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 24px; height: 24px; margin-bottom: 4px; }
       .sidebar-icon-svg { width: 20px; height: 20px; flex-shrink: 0; margin-bottom: 0; }
       .btn-icon-svg { width: 20px; height: 20px; margin-bottom: 0; margin-right: 8px; }
+      .nav-badge { position: absolute; top: 5px; right: 20px; width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; display: none; }
 
+      /* A NOVA BARRA INFERIOR (Estilo iOS Espelhado/Arredondado) */
       #bottom-nav { 
-        position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height); 
-        background-color: rgba(32, 32, 32, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
-        border-top: 1px solid var(--border-color); 
-        display: flex; justify-content: center; align-items: center; gap: 60px; 
-        z-index: 1500; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.3s ease; 
+        position: fixed; bottom: 20px; left: 15px; right: 15px; height: 65px; 
+        border-radius: 35px; /* Bordas super arredondadas */
+        background-color: rgba(30, 30, 30, 0.7); 
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        display: flex; justify-content: space-evenly; align-items: center; 
+        z-index: 1500; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: background-color 0.3s ease; 
       }
-      body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.85); }
+      body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.05);}
 
-      .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
+      .nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
       .nav-btn:active { transform: scale(0.9); }
-      .nav-btn span { font-size: 10px; font-weight: 500; }
+      .nav-btn span { font-size: 9px; font-weight: 500; margin-top: 2px;}
       .nav-btn.active { color: var(--accent); }
-
-      .btn-voltar { display: none !important; } 
 
       @media (min-width: 800px) {
         #bottom-nav { display: none; } .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
         #app-container { flex-direction: row; } #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } #sidebar-overlay { display: none !important; }
       }
 
-      /* WIDGETS DO DASHBOARD (HOME PAGE) */
-      .dashboard-widget {
-        background-color: var(--card-bg); width: 100%; border-radius: 20px; 
-        padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: background-color 0.3s ease;
-      }
-      
-      .top-widgets-grid {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 15px;
-      }
-      
-      .widget-relogio, .widget-meteorologia {
-        margin-bottom: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-      }
-
+      .dashboard-widget { background-color: var(--card-bg); width: 100%; border-radius: 20px; padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+      .top-widgets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 15px; }
+      .widget-relogio, .widget-meteorologia { margin-bottom: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
       #data-atual { font-size: 11px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; }
       #hora-atual { font-size: 34px; font-weight: 300; color: var(--text-main); margin: 5px 0 0 0; line-height: 1; }
-
       .meteo-top-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
       #meteo-temp { font-size: 28px; font-weight: 300; line-height: 1; color: var(--text-main); }
       #meteo-desc { font-size: 11px; color: var(--text-muted); margin-top: 5px; display: block; font-weight: 500;}
-      
-      #meteo-local-texto { 
-        font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; 
-        letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 3px;
-      }
+      #meteo-local-texto { font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 3px; }
 
       .widget-frase { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px;}
       .frase-texto { font-size: 16px; font-style: italic; color: var(--text-main); font-weight: 300; line-height: 1.5; margin: 0;}
-      .frase-autor { font-size: 11px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
+      .frase-autor { font-size: 11px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; }
       .quote-icon { opacity: 0.2; width: 24px; margin-bottom: 12px; fill: var(--text-main); }
 
-      /* LISTA DE TAREFAS WIDGET */
-      .widget-tarefas h3 { margin: 0 0 15px 0; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px;}
-      .input-tarefa-container { display: flex; gap: 10px; margin-bottom: 15px; }
-      .input-tarefa { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
-      .btn-add-tarefa { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; cursor: pointer; transition: transform 0.1s;}
-      .btn-add-tarefa:active { transform: scale(0.9); }
+      /* LISTAS E WIDGETS */
+      .input-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
+      .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; }
+      .btn-add { background-color: var(--accent); color: #fff; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+      .btn-add:active { transform: scale(0.9); }
       
-      .lista-tarefas { display: flex; flex-direction: column; gap: 8px; }
-      .tarefa-item { display: flex; align-items: center; background-color: var(--bg-color); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color); transition: background-color 0.3s ease;}
-      .tarefa-texto { flex: 1; font-size: 14px; margin-left: 12px; transition: color 0.2s;}
-      .tarefa-item.feita .tarefa-texto { text-decoration: line-through; color: var(--text-muted); }
-      .tarefa-item.feita .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
-      .tarefa-item.feita .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 12px; }
-      .btn-icon-tarefa { background: none; border: none; color: var(--text-muted); padding: 5px; margin-left: 5px; cursor: pointer; transition: color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; }
-      .btn-icon-tarefa:active { transform: scale(0.9); }
-      .btn-icon-tarefa:hover { color: var(--text-main); }
-      .btn-apagar-tarefa:hover { color: #ff4d4d; }
-
-      /* Estilos Comuns */
-      .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 18px; font-weight: 400; cursor: pointer; width: 100%; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
-      .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
-      .btn::after { content: '→'; font-size: 20px; color: var(--accent); }
-
-      .folhetos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
-      .folheto-card { background-color: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease, background-color 0.3s ease; }
-      .folheto-card:active { transform: scale(0.95); }
-      .folheto-card img { width: 100%; height: 100px; object-fit: contain; background-color: white; border-bottom: 1px solid var(--border-color); padding: 8px; }
-      .folheto-info { padding: 12px 10px; }
-      .folheto-info h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
-      .folheto-info p { margin: 5px 0 0 0; font-size: 10px; color: var(--accent); font-weight: 600;}
-
-      .carros-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; }
-      .car-card { background-color: var(--card-bg); border-radius: 20px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); transition: transform 0.2s ease, background-color 0.3s ease; }
-      .car-card:active { transform: scale(0.97); }
-      .img-container { width: 100%; height: 180px; overflow: hidden; }
-      .img-container img { width: 100%; height: 100%; object-fit: cover; }
-      .car-info { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-      .car-info h3 { margin: 0; font-weight: 600; font-size: 18px; }
-      .car-info span { color: var(--accent); font-size: 20px; }
-
-      .header-decor { width: 50px; height: 4px; background-color: var(--accent); border-radius: 2px; margin: 0 auto 20px auto; }
-      .acoes-doc { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
-      .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; font-size: 14px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-      .btn-acao:active { background-color: var(--border-color); }
-      .lista-documentos { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-      .item-doc { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.3s ease; }
-      .item-doc:active { transform: scale(0.98); }
-      .icon-doc { margin-right: 15px; display: flex; align-items: center; justify-content: center;}
-      .nome-doc { font-size: 16px; flex: 1; text-align: left; }
-      .btn-opcoes { background: none; border: none; color: var(--text-muted); padding: 5px 10px; cursor: pointer; border-radius: 5px; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
-      .btn-opcoes:active, .btn-opcoes:hover { color: var(--text-main); }
-      .breadcrumb { display: none !important; }
-      .item-info { display: flex; align-items: center; flex: 1; overflow: hidden; }
-      .item-info .nome-doc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-      /* Modals */
-      .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
-      .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
-      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background-color 0.3s ease; }
-      .modal-content input[type="text"], .modal-content input[type="file"], select { width: 100%; padding: 12px; margin: 15px 0; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; font-family: inherit; transition: background-color 0.3s ease, color 0.3s ease; }
-      .modal-btn-row { display: flex; gap: 10px; margin-top: 10px; }
-      .pesquisa-input { width: 100%; padding: 15px; margin-bottom: 10px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; font-family: inherit; font-size: 16px; transition: background-color 0.3s ease, color 0.3s ease; }
-      
-      .lista-simples { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-      .item-simples { display: flex; align-items: center; background-color: var(--card-bg); padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); transition: opacity 0.2s, transform 0.2s, background-color 0.3s ease; }
+      .lista-itens { display: flex; flex-direction: column; gap: 8px; width: 100%;}
+      .list-item { display: flex; align-items: center; background-color: var(--card-bg); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+      .item-texto { flex: 1; font-size: 14px; margin-left: 12px; transition: color 0.2s;}
+      .list-item.feita .item-texto { text-decoration: line-through; color: var(--text-muted); }
       .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; flex-shrink: 0; position: relative; }
-      .item-simples.comprado { opacity: 0.4; }
-      .item-simples.comprado .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
-      .item-simples.comprado .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 14px; }
-      .item-simples.comprado .nome-item-simples { text-decoration: line-through; color: var(--text-muted); }
-      .nome-item-simples { flex: 1; margin: 0; font-size: 16px; text-align: left; padding-left: 15px;}
-      .btn-eliminar-simples { background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
-      .btn-eliminar-simples:active { transform: scale(0.9); }
+      .list-item.feita .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
+      .list-item.feita .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 12px; }
+      .btn-icon-list { background: none; border: none; color: var(--text-muted); padding: 5px; cursor: pointer; display: flex; align-items: center; }
+      .btn-icon-list:active { transform: scale(0.9); color: var(--text-main); }
+      .btn-apagar:active { color: #ff4d4d; }
+
+      /* SUPERMERCADOS LOGOS & DETALHE */
+      .logos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+      .logo-card { background-color: #fff; border-radius: 20px; padding: 20px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.1s; height: 120px; }
+      .logo-card:active { transform: scale(0.95); }
+      .logo-card img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+      .cartao-desconto-container { width: 100%; height: 200px; background-color: #fff; border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; cursor: pointer; border: 1px solid var(--border-color);}
+      .cartao-desconto-container img { width: 100%; height: 100%; object-fit: cover; }
+      .textarea-obs { width: 100%; height: 120px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 15px; font-family: inherit; resize: none; margin-top: 15px; }
+
+      .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 16px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: space-between; }
+      .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
       
-      #status-conexao { width: 100%; text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; display: block; }
+      .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+      .btn-acao:active { background-color: var(--border-color); }
+
+      .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+      .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
+      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+      
+      .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
+      .color-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+      .color-circle:active { transform: scale(0.8); }
+
+      .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
+      .user-info { display: flex; align-items: center; gap: 12px; text-align: left;}
+      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px;}
+      .user-name { font-size: 15px; font-weight: 500; color: var(--text-main); margin:0;}
+      .user-email { font-size: 11px; color: var(--text-muted); margin:0;}
+
+      .fullscreen-img { max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain; }
     </style>
   </head>
   <body>
 
-    <div id="app-container">
+    <!-- ECRÃ DE LOGIN -->
+    <div id="auth-overlay">
+      <img src="logopreto_fundobranco.png" alt="Logo" class="sidebar-logo light-logo" style="margin-bottom: 30px; border-radius: 20px;" onerror="this.style.display='none'">
+      <img src="logobranco_semfundo.png" alt="Logo" class="sidebar-logo dark-logo" style="margin-bottom: 30px;" onerror="this.style.display='none'">
+      
+      <div class="auth-box">
+        <h2 style="margin-bottom: 25px; color: var(--text-main);" id="auth-title">Entrar</h2>
+        <input type="text" id="auth-name" class="auth-input" placeholder="O teu nome (Ex: Gonçalo)" style="display: none;">
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email">
+        <input type="password" id="auth-password" class="auth-input" placeholder="Password">
+        
+        <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
+        <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Regista-te.</p>
+        <p id="auth-error" style="color: #ff4d4d; font-size: 12px; margin-top: 15px; display: none;"></p>
+      </div>
+    </div>
+
+    <div id="app-container" style="display: none;">
       
       <!-- O MENU LATERAL (SIDEBAR) -->
       <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
@@ -228,45 +211,54 @@
         <div class="sidebar-header">
           <img src="logobranco_semfundo.png" alt="Logo Gestão" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
           <img src="logopreto_semfundo.png" alt="Logo Gestão" class="sidebar-logo light-logo" onerror="this.style.display='none'">
-          <span style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.5px;">Gestão G&N</span>
+          <span class="gestao-text">Gestão G&N</span>
         </div>
         
         <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
-          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
+          <!-- Início -->
+          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="handleSidebarClick(event, 'menu-principal')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             Início
           </div>
-          <div class="sidebar-item" id="sidebtn-menu-goncalo" onclick="navegarMenu('menu-goncalo')">
-            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Perfil Gonçalo
-          </div>
-          <div class="sidebar-item" id="sidebtn-menu-nathalia" onclick="navegarMenu('menu-nathalia')">
-            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Perfil Nathália
-          </div>
-          <div class="sidebar-item" id="sidebtn-menu-casal" onclick="navegarMenu('menu-casal')">
-            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-            Área do Casal
-          </div>
-          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="navegarMenu('menu-supermercados')">
+
+          <!-- Supermercados com Submenu -->
+          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="handleSidebarClick(event, 'menu-supermercados')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
             Supermercados
           </div>
-          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="abrirPaginaGaragem()">
+          <div class="sidebar-submenu" id="submenu-menu-supermercados">
+            <div class="sidebar-subitem" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</div>
+            <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</div>
+            <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</div>
+          </div>
+
+          <!-- Documentos -->
+          <div class="sidebar-item" onclick="handleSidebarClick(event, 'menu-documentos-casal')">
+             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            Documentos
+          </div>
+          <div class="sidebar-submenu" id="submenu-menu-documentos-casal">
+            <div class="sidebar-subitem" onclick="abrirPaginaDocumentos('Casal')">Área do Casal</div>
+            <div class="sidebar-subitem" onclick="abrirPaginaDocumentos('Gonçalo')">Perfil Gonçalo</div>
+            <div class="sidebar-subitem" onclick="abrirPaginaDocumentos('Nathália')">Perfil Nathália</div>
+          </div>
+
+          <!-- Garagem -->
+          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="handleSidebarClick(event, 'menu-carros')">
              <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
-            Garagem & Combustível
+            Garagem
           </div>
         </div>
 
+        <!-- Definições na Base -->
         <div class="sidebar-footer">
-          <div class="sidebar-item" onclick="alternarTema()" style="border-bottom: none; justify-content: center; margin: 10px;">
-            <svg id="icone-tema" class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <span id="texto-tema">Modo Claro</span>
+          <div class="sidebar-item" onclick="abrirModal('modal-definicoes')" style="border-bottom: none; justify-content: center; margin: 10px;">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Definições</span>
           </div>
         </div>
       </div>
 
-      <!-- A NOVA BARRA INFERIOR (SÓ 2 BOTÕES CENTRADOS) -->
       <div id="bottom-nav">
         <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
           <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -276,29 +268,26 @@
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           <span>Início</span>
         </div>
+        <div class="nav-btn" id="nav-btn-familia" onclick="navegarMenu('menu-familia')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>Família</span>
+        </div>
+        <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
+          <div class="nav-badge" id="badge-notificacoes"></div>
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span>Notificações</span>
+        </div>
       </div>
 
-      <!-- O ESPAÇO PRINCIPAL -->
       <div class="page-container">
-        
-        <div id="debug-banner" style="display: none; background-color: #ff4d4d; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; text-align: left; width: 100%;">
-          <strong style="display: block; margin-bottom: 5px;">⚠️ Alerta de Sistema:</strong>
-          <span id="debug-message"></span>
-        </div>
-
-        <span id="status-conexao" style="margin-bottom: 5px;">⏳ A carregar sincronização...</span>
         
         <!-- DASHBOARD (INÍCIO) -->
         <div id="menu-principal" class="page active">
-          
           <div class="top-widgets-grid">
-            <!-- Widget: Relógio e Data -->
             <div class="dashboard-widget widget-relogio">
               <span id="data-atual">A carregar...</span>
               <h1 id="hora-atual">00:00</h1>
             </div>
-
-            <!-- Widget: Meteorologia Inteligente -->
             <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
               <div class="meteo-top-row">
                 <div id="meteo-icone" style="color: var(--accent);">
@@ -314,478 +303,366 @@
             </div>
           </div>
 
-          <!-- Widget: Frase do Dia -->
           <div class="dashboard-widget widget-frase">
             <svg class="quote-icon" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
-            <p class="frase-texto" id="frase-texto">"Carregando a inspiração de hoje..."</p>
+            <p class="frase-texto" id="frase-texto">"Carregando..."</p>
             <span class="frase-autor" id="frase-autor"></span>
           </div>
 
-          <!-- Widget: A fazer para o dia -->
           <div class="dashboard-widget widget-tarefas">
-            <h3>
-              <svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> 
-              A Fazer Hoje
-            </h3>
-            
-            <div class="input-tarefa-container">
-              <input type="text" id="input-nova-tarefa" class="input-tarefa" placeholder="Escreve uma nova tarefa..." onkeypress="verificarEnterTarefa(event)">
-              <button class="btn-add-tarefa" onclick="adicionarTarefa()">
+            <h3><svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> A Fazer Hoje</h3>
+            <div class="input-row">
+              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarItemDB('tarefas')">
+              <button class="btn-add" onclick="adicionarItemDB('tarefas')">
                 <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               </button>
             </div>
-            <div class="lista-tarefas" id="container-tarefas-diarias"></div>
+            <div class="lista-itens" id="container-tarefas"></div>
           </div>
         </div>
 
-        <!-- PÁGINAS SECUNDÁRIAS -->
-        <div id="menu-goncalo" class="page">
-          <div class="header-decor"></div>
-          <h1>Perfil: Gonçalo</h1>
-          <button class="btn" onclick="mostrarAlerta('Área de Saúde (Em construção)')">Registos de Saúde</button>
-          <button class="btn" onclick="abrirPaginaDocumentos('Gonçalo')">Documentos</button>
+        <!-- FAMÍLIA E AMIGOS -->
+        <div id="menu-familia" class="page">
+          <h2>Família & Amigos</h2>
+          <div class="input-row">
+            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar por nome..." oninput="pesquisarUtilizadores()">
+          </div>
+          <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom: 20px;"></div>
+          
+          <h3 style="margin-top: 20px;">A Minha Família</h3>
+          <div class="lista-itens" id="container-amigos"></div>
         </div>
 
-        <div id="menu-nathalia" class="page">
-          <div class="header-decor"></div>
-          <h1>Perfil: Nathália</h1>
-          <button class="btn" onclick="mostrarAlerta('Área de Saúde (Em construção)')">Registos de Saúde</button>
-          <button class="btn" onclick="abrirPaginaDocumentos('Nathália')">Documentos</button>
+        <!-- NOTIFICAÇÕES -->
+        <div id="menu-notificacoes" class="page">
+          <h2>Notificações</h2>
+          <div class="lista-itens" id="container-pedidos">
+            <p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>
+          </div>
         </div>
 
-        <div id="menu-casal" class="page">
-          <div class="header-decor"></div>
-          <h1>Área do Casal</h1>
-          <button class="btn" onclick="abrirPaginaDocumentos('Casal')">Documentos Partilhados</button>
-        </div>
-
+        <!-- SUPERMERCADOS (Main) -->
         <div id="menu-supermercados" class="page">
           <div class="header-decor"></div>
-          <h1>Supermercados</h1>
-          <button class="btn" onclick="navegarMenu('menu-folhetos')" style="background-color: rgba(255, 107, 0, 0.1); border-color: var(--accent);">
-            <svg class="icon-svg btn-icon-svg" style="color:var(--accent);" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-            Folhetos da Semana
-          </button>
-          <button class="btn" onclick="abrirPaginaComprasSimples()">
-            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-            Lista de Compras
-          </button>
-        </div>
-
-        <div id="menu-carros" class="page">
-          <div class="header-decor"></div>
-          <h1>Garagem</h1>
-          <h2 style="font-size: 16px; margin-top: 20px;">Os Nossos Veículos</h2>
-          <div class="carros-grid" style="margin-bottom: 30px;">
-            <div class="car-card" onclick="mostrarAlerta('Entraste no Polo 9N!')">
-              <div class="img-container">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/VW_Polo_IV.JPG/800px-VW_Polo_IV.JPG" alt="Polo 9n">
-              </div>
-              <div class="car-info"><h3>VW Polo 9n</h3><span>→</span></div>
-            </div>
-            <div class="car-card" onclick="mostrarAlerta('Entraste no Peugeot 206!')">
-              <div class="img-container">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Peugeot_206_1.4_16v.jpg/800px-Peugeot_206_1.4_16v.jpg" alt="Peugeot 206">
-              </div>
-              <div class="car-info"><h3>Peugeot 206</h3><span>→</span></div>
-            </div>
-          </div>
+          <h1>Menu Supermercados</h1>
           
-          <div class="header-decor" style="width: 100%; height: 1px; background-color: var(--border-color); margin: 10px 0 30px 0;"></div>
-          <h2 style="font-size: 16px;">Preços de Combustível</h2>
-          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
-            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Ver postos perto de mim (20 km)
+          <button class="btn" onclick="navegarMenu('menu-super-logos')">
+            <svg class="icon-svg btn-icon-svg" style="color:var(--accent);" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            Lojas & Cartões
           </button>
-          <button class="btn-acao" style="background-color: var(--btn-secondary); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/', '_blank')">
-            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-            Escolher Distrito
+          <button class="btn" onclick="navegarMenu('menu-compras-semanais')">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            Compras Semanais
           </button>
-          <button class="btn-acao" style="background-color: var(--bg-color); color: var(--text-main); font-weight: 600; width: 100%; margin-bottom: 20px; padding: 15px; font-size: 15px;" onclick="window.open('https://www.maisgasolina.com/lista-de-postos/setubal/setubal/', '_blank')">
-            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="22"></line><line x1="15" y1="22" x2="15" y2="22"></line><line x1="9" y1="6" x2="9" y2="6"></line><line x1="15" y1="6" x2="15" y2="6"></line><line x1="9" y1="10" x2="9" y2="10"></line><line x1="15" y1="10" x2="15" y2="10"></line><line x1="9" y1="14" x2="9" y2="14"></line><line x1="15" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="9" y2="18"></line><line x1="15" y1="18" x2="15" y2="18"></line></svg>
-            Ver postos em Setúbal
+          <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M5 22h14c1.1 0 2-.9 2-2V7.5L14.5 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+            Compras Rápidas
           </button>
         </div>
 
-        <div id="menu-compras" class="page">
-          <div class="header-decor"></div>
-          <h1>Lista de Compras</h1>
-          <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 20px;">
-            <input type="text" id="novo-item-input" class="pesquisa-input" style="margin-bottom: 0;" placeholder="Escreve o que precisas..." onkeypress="verificarEnterLista(event)">
-            <button class="btn-acao" style="background-color: var(--accent); color: #121212; border-radius: 12px; width: 60px; font-weight:600; cursor: pointer; transition: transform 0.1s;" onclick="adicionarItemLista()">
-              <svg class="icon-svg" style="margin:auto; display:block;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
-          </div>
-          <div class="lista-simples" id="lista-simples-container"></div>
-        </div>
-
-        <div id="menu-folhetos" class="page">
-          <div class="header-decor"></div>
-          <h1>Folhetos da Semana</h1>
-          <h2 style="font-size: 14px; margin-bottom: 30px;">Acede às promoções sempre atualizadas</h2>
-          <div class="folhetos-grid">
-            <div class="folheto-card" onclick="window.open('https://folhetos.continente.pt/', '_blank')">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg" alt="Continente">
-              <div class="folheto-info"><h3>Continente</h3><p>Atualiza à Terça</p></div>
-            </div>
-            <div class="folheto-card" onclick="window.open('https://www.pingodoce.pt/folhetos/', '_blank')">
-              <img src="https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg" alt="Pingo Doce">
-              <div class="folheto-info"><h3>Pingo Doce</h3><p>Atualiza à Terça</p></div>
-            </div>
-            <div class="folheto-card" onclick="window.open('https://www.lidl.pt/folhetos', '_blank')">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png" alt="Lidl">
-              <div class="folheto-info"><h3>Lidl</h3><p>Atualiza à Segunda</p></div>
-            </div>
-            <div class="folheto-card" onclick="window.open('https://www.auchan.pt/pt/folhetos/', '_blank')">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg" alt="Auchan">
-              <div class="folheto-info"><h3>Auchan</h3><p>Atualiza à Quinta</p></div>
-            </div>
-            <div class="folheto-card" onclick="window.open('https://www.intermarche.pt/folhetos/', '_blank')">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg" alt="Intermarché">
-              <div class="folheto-info"><h3>Intermarché</h3><p>Atualiza à Quinta</p></div>
-            </div>
+        <!-- LISTA LOGOS SUPERMERCADOS -->
+        <div id="menu-super-logos" class="page">
+          <h2>Lista de Lojas</h2>
+          <div class="logos-grid" id="container-logos">
+             <!-- Preenchido via JS -->
           </div>
         </div>
 
+        <!-- DETALHE DO SUPERMERCADO -->
+        <div id="page-super-detail" class="page">
+          <h1 id="detalhe-nome">Supermercado</h1>
+          <div class="cartao-desconto-container" onclick="abrirModalCartao()">
+            <img id="detalhe-cartao-img" src="" alt="Cartão">
+          </div>
+          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #fff; width: 100%; padding: 15px; font-weight: 600;">Ver Folheto da Semana</button>
+          
+          <h3 style="margin-top: 25px;">Observações</h3>
+          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Ex: A carne é melhor à terça-feira..." onchange="guardarObservacaoSuper()"></textarea>
+        </div>
+
+        <!-- COMPRAS SEMANAIS -->
+        <div id="menu-compras-semanais" class="page">
+          <h2>Compras Semanais</h2>
+          <div class="input-row">
+            <input type="text" id="input-semanal" class="input-text" placeholder="Item semanal..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais')">
+            <button class="btn-add" onclick="adicionarItemDB('semanais')">+</button>
+          </div>
+          <div class="lista-itens" id="container-semanais"></div>
+        </div>
+
+        <!-- COMPRAS RÁPIDAS -->
+        <div id="menu-compras-rapidas" class="page">
+          <h2>Compras Rápidas</h2>
+          <div class="input-row">
+            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarItemDB('rapidas')">
+            <button class="btn-add" onclick="adicionarItemDB('rapidas')">+</button>
+          </div>
+          <div class="lista-itens" id="container-rapidas"></div>
+        </div>
+
+        <!-- DOCUMENTOS (ANTIGO) -->
         <div id="menu-documentos" class="page">
           <div class="header-decor"></div>
           <h1 id="titulo-documentos">Documentos</h1>
-          
           <div class="acoes-doc">
-            <button class="btn-acao" onclick="abrirModal('modal-pasta')">
-              <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
-              Nova Pasta
-            </button>
-            <button class="btn-acao" onclick="abrirModal('modal-upload')" style="background-color: var(--accent); color: #121212; font-weight: 600;">
-              <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-              Adicionar
-            </button>
+            <button class="btn-acao" onclick="abrirModal('modal-pasta')">Nova Pasta</button>
+            <button class="btn-acao" style="background-color: var(--accent); color: #fff;" onclick="abrirModal('modal-upload')">Adicionar</button>
           </div>
           <div class="lista-documentos" id="lista-documentos-container"></div>
         </div>
-      </div>
-    </div>
 
-
-    <!-- Modals -->
-    <div id="modal-pasta" class="modal-overlay">
-      <div class="modal-content">
-        <h2>Criar Nova Pasta</h2>
-        <input type="text" id="nome-nova-pasta" placeholder="Ex: Faturas 2024">
-        <div class="modal-btn-row">
-          <button class="btn-acao" onclick="fecharModal('modal-pasta')">Cancelar</button>
-          <button class="btn-acao" onclick="criarPasta()" style="background-color: var(--accent); color: #121212;">Criar</button>
+        <div id="menu-carros" class="page">
+          <h2>Garagem & Combustível</h2>
+          <div class="carros-grid" style="margin-bottom: 30px;">
+            <div class="car-card" onclick="mostrarAlerta('Entraste no Polo!')">
+              <div class="img-container"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/VW_Polo_IV.JPG/800px-VW_Polo_IV.JPG" alt="Polo 9n"></div>
+              <div class="car-info"><h3>VW Polo 9n</h3><span>→</span></div>
+            </div>
+          </div>
+          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
         </div>
+
       </div>
     </div>
 
-    <div id="modal-upload" class="modal-overlay">
-      <div class="modal-content">
-        <h2>Adicionar Documento</h2>
-        <input type="file" id="ficheiro-upload">
-        <input type="text" id="nome-documento" placeholder="Nome do Ficheiro (Opcional)">
-        <div class="modal-btn-row">
-          <button class="btn-acao" onclick="fecharModal('modal-upload')">Cancelar</button>
-          <button class="btn-acao" onclick="adicionarDocumento()" style="background-color: var(--accent); color: #121212;">Guardar</button>
+
+    <!-- MODAL DEFINIÇÕES -->
+    <div id="modal-definicoes" class="modal-overlay">
+      <div class="modal-content" style="max-width: 400px;">
+        <h2 style="margin-bottom: 20px;">Definições</h2>
+        
+        <div class="user-card">
+          <div class="user-info">
+            <div class="user-avatar" id="settings-avatar">G</div>
+            <div>
+              <p class="user-name" id="settings-name">Gonçalo</p>
+              <p class="user-email" id="settings-email">email@email.com</p>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div id="modal-opcoes" class="modal-overlay">
-      <div class="modal-content">
-        <h2 id="titulo-opcoes">Opções do Item</h2>
-        <button class="btn" style="margin-bottom:10px; padding: 12px; justify-content: flex-start; gap: 15px;" onclick="prepararRenomear()">
-          <svg class="icon-svg" style="width:20px;height:20px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-          Renomear
+        <button class="btn-acao" style="width: 100%; margin: 15px 0; padding: 15px; background-color: var(--bg-color);" onclick="alternarTema()">
+          <span id="texto-tema-modal">Alternar para Modo Claro</span>
         </button>
-        <button class="btn" style="margin-bottom:10px; padding: 12px; justify-content: flex-start; gap: 15px;" onclick="prepararMover()">
-          <svg class="icon-svg" style="width:20px;height:20px" viewBox="0 0 24 24"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>
-          Mover
-        </button>
-        <button class="btn" style="margin-bottom:10px; padding: 12px; background-color: #ff4d4d; border:none; color: white; justify-content: flex-start; gap: 15px;" onclick="eliminarItem()">
-          <svg class="icon-svg" style="width:20px;height:20px; stroke:white;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          Eliminar
-        </button>
-        <button class="btn-acao" style="width:100%; margin-top:0;" onclick="fecharModal('modal-opcoes')">Cancelar</button>
+
+        <h3 style="text-align: left; font-size: 13px; color: var(--text-muted); margin-top: 20px;">COR DE DESTAQUE</h3>
+        <div class="color-grid" id="color-picker-grid"></div>
+
+        <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; margin-top: 20px;" onclick="abrirModalLogout()">Terminar Sessão</button>
+        <button class="btn-acao" style="width: 100%; margin-top: 10px; background: transparent; border: none;" onclick="fecharModal('modal-definicoes')">Fechar</button>
       </div>
     </div>
 
-    <div id="modal-renomear" class="modal-overlay">
+    <!-- MODAL CONFIRMA LOGOUT -->
+    <div id="modal-logout" class="modal-overlay">
       <div class="modal-content">
-        <h2>Renomear</h2>
-        <input type="text" id="novo-nome-item" placeholder="Novo nome...">
+        <h2>Terminar Sessão</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin: 15px 0;">Tens a certeza que queres sair da conta?</p>
         <div class="modal-btn-row">
-          <button class="btn-acao" onclick="fecharModal('modal-renomear')">Cancelar</button>
-          <button class="btn-acao" onclick="confirmarRenomear()" style="background-color: var(--accent); color: #121212;">Guardar</button>
+          <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
+          <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="fazerLogout()">Sair</button>
         </div>
       </div>
     </div>
 
-    <div id="modal-mover" class="modal-overlay">
-      <div class="modal-content">
-        <h2>Mover para...</h2>
-        <select id="select-destino-mover"></select>
-        <div class="modal-btn-row">
-          <button class="btn-acao" onclick="fecharModal('modal-mover')">Cancelar</button>
-          <button class="btn-acao" onclick="confirmarMover()" style="background-color: var(--accent); color: #121212;">Mover</button>
-        </div>
-      </div>
+    <!-- MODAL CARTÃO FULLSCREEN -->
+    <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')">
+      <img id="img-fullscreen-cartao" class="fullscreen-img" src="" alt="Cartão Grande">
     </div>
 
+    <!-- Modals Antigos (Alertas) -->
     <div id="modal-alerta" class="modal-overlay">
       <div class="modal-content">
         <h2>Aviso</h2>
         <p id="mensagem-alerta" style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;"></p>
-        <button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color: var(--accent); color: #121212; width: 100%;">OK</button>
+        <button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color: var(--accent); color: #fff; width: 100%;">OK</button>
       </div>
     </div>
 
-    <div id="modal-confirmacao" class="modal-overlay">
-      <div class="modal-content">
-        <h2>Eliminar Item</h2>
-        <p style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;">Tens a certeza que queres eliminar este item?</p>
-        <div class="modal-btn-row">
-          <button class="btn-acao" onclick="fecharModal('modal-confirmacao')">Cancelar</button>
-          <button class="btn-acao" onclick="confirmarEliminar()" style="background-color: #ff4d4d; color: white;">Eliminar</button>
-        </div>
-      </div>
-    </div>
 
-    <script>
-      const API_URL = "https://script.google.com/macros/s/AKfycbzKR2TkfSL5yyzUDpySKcFVLzZwGnoqun71nwiPoi2Msk9QSkJfHSPHgXn5bJL02Gjm/exec";
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-      window.onerror = function(message, source, lineno, colno, error) {
-        const banner = document.getElementById('debug-banner');
-        if (banner) { banner.style.display = 'block'; document.getElementById('debug-message').innerText = `${message} (L${lineno})`; }
-        return false;
-      };
+      // Configuração Firebase do Ambiente
+      const appId = typeof __app_id !== 'undefined' ? __app_id : 'gestao-gn-app';
+      const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+      
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      // Variáveis Globais
+      let userId = null;
+      let userName = "";
+      let isLoginMode = true; // Modalidade de Auth
+      let currentSuperId = null;
 
       // ==========================================
-      // SISTEMA DE TEMAS (DARK / LIGHT MODE)
+      // AUTENTICAÇÃO
       // ==========================================
-      function alternarTema() {
-        const isLight = document.body.classList.toggle('light-mode');
-        const icone = document.getElementById('icone-tema');
-        const texto = document.getElementById('texto-tema');
+      
+      // Expõe funções para o HTML
+      window.toggleAuthMode = function() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar' : 'Criar Conta';
+        document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar';
+        document.getElementById('auth-toggle-mode').innerText = isLoginMode ? 'Não tens conta? Regista-te.' : 'Já tens conta? Entra aqui.';
+        document.getElementById('auth-name').style.display = isLoginMode ? 'none' : 'block';
+        document.getElementById('auth-error').style.display = 'none';
+      }
+
+      window.handleAuth = async function() {
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-password').value;
+        const name = document.getElementById('auth-name').value;
+        const errEl = document.getElementById('auth-error');
         
-        if (isLight) {
-          icone.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
-          texto.innerText = 'Modo Escuro';
-          localStorage.setItem('temaApp', 'light');
-        } else {
-          icone.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
-          texto.innerText = 'Modo Claro';
-          localStorage.setItem('temaApp', 'dark');
-        }
-      }
-
-      function carregarTemaSalvo() {
-        const temaSalvo = localStorage.getItem('temaApp');
-        const icone = document.getElementById('icone-tema');
-        const texto = document.getElementById('texto-tema');
-        if (temaSalvo === 'light') {
-          document.body.classList.add('light-mode');
-          icone.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
-          texto.innerText = 'Modo Escuro';
-        } else {
-          icone.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
-        }
-      }
-      carregarTemaSalvo();
-
-
-      // ==========================================
-      // LÓGICA DO DASHBOARD (HOME PAGE)
-      // ==========================================
-
-      function atualizarRelogio() {
-        const agora = new Date();
-        const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-        
-        const dataStr = `${diasSemana[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
-        
-        const horas = String(agora.getHours()).padStart(2, '0');
-        const minutos = String(agora.getMinutes()).padStart(2, '0');
-
-        document.getElementById('data-atual').innerText = dataStr;
-        document.getElementById('hora-atual').innerText = `${horas}:${minutos}`;
-      }
-      setInterval(atualizarRelogio, 1000);
-      atualizarRelogio();
-
-      function interpretarClima(codigo) {
-        const sol = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
-        const nuvem = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>';
-        const chuva = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path><line x1="8" y1="21" x2="8" y2="23"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="16" y1="21" x2="16" y2="23"></line>';
-        const trovoada = '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>';
-
-        if (codigo === 0) return { desc: "Limpo", icon: sol };
-        if (codigo >= 1 && codigo <= 3) return { desc: "Nublado", icon: nuvem };
-        if (codigo === 45 || codigo === 48) return { desc: "Nevoeiro", icon: nuvem };
-        if (codigo >= 51 && codigo <= 67) return { desc: "Chuva", icon: chuva };
-        if (codigo >= 71 && codigo <= 77) return { desc: "Neve", icon: chuva };
-        if (codigo >= 80 && codigo <= 82) return { desc: "Aguaceiros", icon: chuva };
-        if (codigo >= 95) return { desc: "Trovoada", icon: trovoada };
-        return { desc: "Misto", icon: nuvem };
-      }
-
-      async function buscarClimaAPI(lat, lon, localNome) {
         try {
-          const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-          const resposta = await fetch(url);
-          const dados = await resposta.json();
-          const clima = dados.current_weather;
-          
-          const info = interpretarClima(clima.weathercode);
-          
-          document.getElementById('meteo-temp').innerText = Math.round(clima.temperature) + "°";
-          document.getElementById('meteo-desc').innerText = info.desc;
-          document.getElementById('meteo-icone').innerHTML = `<svg class="icon-svg" style="width:28px;height:28px;" viewBox="0 0 24 24">${info.icon}</svg>`;
-          document.getElementById('nome-cidade-texto').innerText = localNome;
-        } catch(e) {
-          document.getElementById('meteo-desc').innerText = "Sem dados";
+          if (isLoginMode) {
+            await signInWithEmailAndPassword(auth, email, pass);
+          } else {
+            if(!name) throw new Error("Preenche o teu nome.");
+            const cred = await createUserWithEmailAndPassword(auth, email, pass);
+            // Salva perfil público
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
+              uid: cred.user.uid,
+              email: email.toLowerCase(),
+              name: name,
+              searchName: name.toLowerCase()
+            });
+          }
+        } catch (error) {
+          errEl.innerText = "Erro: " + error.message;
+          errEl.style.display = 'block';
         }
       }
 
-      function carregarMeteorologia(forcarAviso = false) {
-        document.getElementById('meteo-desc').innerText = "A procurar...";
-        const latSetubal = 38.5244;
-        const lonSetubal = -8.8882;
+      window.abrirModalLogout = function() { fecharModal('modal-definicoes'); abrirModal('modal-logout'); }
+      window.fazerLogout = async function() { fecharModal('modal-logout'); await signOut(auth); }
 
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-              const lat = pos.coords.latitude;
-              const lon = pos.coords.longitude;
-              try {
-                const respLocal = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`);
-                const dadosLocal = await respLocal.json();
-                const nomeCidade = dadosLocal.city || dadosLocal.locality || "Localização Atual";
-                
-                buscarClimaAPI(lat, lon, nomeCidade);
-              } catch(e) {
-                buscarClimaAPI(lat, lon, "Localização Atual");
-              }
-            },
-            (err) => {
-              if(forcarAviso) alert("GPS desativado. A mostrar a meteorologia de Setúbal.");
-              buscarClimaAPI(latSetubal, lonSetubal, "Setúbal");
-            }
-          );
+      // Inicialização exigida pelas regras do ambiente
+      async function initAuth() {
+        try {
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              await signInWithCustomToken(auth, __initial_auth_token);
+          } else if (!auth.currentUser) {
+              await signInAnonymously(auth);
+          }
+        } catch(e) { console.error("Erro init auth:", e); }
+      }
+      initAuth();
+
+      // Observador de Estado
+      onAuthStateChanged(auth, async (user) => {
+        if (user && !user.isAnonymous) {
+          userId = user.uid;
+          document.getElementById('auth-overlay').style.opacity = '0';
+          setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
+          document.getElementById('app-container').style.display = 'flex';
+          
+          // Buscar info do user
+          const profileDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
+          if(profileDoc.exists()) {
+             userName = profileDoc.data().name;
+             document.getElementById('settings-name').innerText = userName;
+             document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase();
+          } else {
+             userName = "Utilizador";
+          }
+          document.getElementById('settings-email').innerText = user.email;
+          
+          // Iniciar Sincronização
+          iniciarListenersFirebase();
         } else {
-          buscarClimaAPI(latSetubal, lonSetubal, "Setúbal");
+          userId = null;
+          document.getElementById('auth-overlay').style.display = 'flex';
+          setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 10);
+          document.getElementById('app-container').style.display = 'none';
         }
-      }
-      setTimeout(() => carregarMeteorologia(false), 500);
+      });
 
-      // --- WIDGET 3: FRASE DO DIA ---
-      const frasesMotivacionais = [
-        { texto: "Entregue o seu caminho ao Senhor; confie nele, e ele o fará.", autor: "Salmos 37:5" },
-        { texto: "Tudo posso naquele que me fortalece.", autor: "Filipenses 4:13" },
-        { texto: "O amor é paciente, o amor é bondoso. Tudo sofre, tudo crê, tudo espera, tudo suporta.", autor: "1 Coríntios 13:4-7" },
-        { texto: "Alegrem-se na esperança, sejam pacientes na tribulação, perseverem na oração.", autor: "Romanos 12:12" },
-        { texto: "Consagre ao Senhor tudo o que você faz, e os seus planos serão bem-sucedidos.", autor: "Provérbios 16:3" },
-        { texto: "Não fui eu que ordenei a você? Seja forte e corajoso! Não se apavore nem desanime.", autor: "Josué 1:9" },
-        { texto: "O Senhor é o meu pastor; de nada me faltará.", autor: "Salmos 23:1" },
-        { texto: "Acima de tudo, porém, revistam-se do amor, que é o elo perfeito.", autor: "Colossenses 3:14" },
-        { texto: "Deem graças em todas as circunstâncias, pois esta é a vontade de Deus.", autor: "1 Tessalonicenses 5:18" },
-        { texto: "Deus é o nosso refúgio e a nossa fortaleza, auxílio sempre presente na adversidade.", autor: "Salmos 46:1" }
+      // ==========================================
+      // SISTEMA DE TEMAS E CORES
+      // ==========================================
+      const coresDestaque = [
+        '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', '#E5A8F2', '#FFCC00', '#FF2D55',
+        '#5AC8FA', '#00C7BE', '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', '#2ECC71',
+        '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
       ];
 
-      function carregarFraseDoDia() {
-        const hoje = new Date();
-        const diaDoAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-        const indexFrase = diaDoAno % frasesMotivacionais.length;
-        
-        document.getElementById('frase-texto').innerText = `"${frasesMotivacionais[indexFrase].texto}"`;
-        document.getElementById('frase-autor').innerText = frasesMotivacionais[indexFrase].autor;
-      }
-      carregarFraseDoDia();
-
-      // --- WIDGET 4: TAREFAS DO DIA ---
-      let tarefasDiarias = JSON.parse(localStorage.getItem('tarefasDiariasApp')) || [];
-
-      function guardarTarefas() { localStorage.setItem('tarefasDiariasApp', JSON.stringify(tarefasDiarias)); }
-
-      function renderizarTarefasDiarias() {
-        const container = document.getElementById('container-tarefas-diarias');
-        container.innerHTML = '';
-        
-        if (tarefasDiarias.length === 0) {
-          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Tudo limpo para hoje! Parabéns.</p>';
-          return;
-        }
-
-        const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
-        const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-
-        tarefasDiarias.forEach(tarefa => {
-          const div = document.createElement('div');
-          div.className = 'tarefa-item' + (tarefa.feita ? ' feita' : '');
-          div.innerHTML = `
-            <div class="checkbox-custom" onclick="alternarTarefaDiaria('${tarefa.id}')"></div>
-            <span class="tarefa-texto" onclick="alternarTarefaDiaria('${tarefa.id}')">${tarefa.texto}</span>
-            <button class="btn-icon-tarefa" onclick="editarTarefaDiaria('${tarefa.id}')">${iconEdit}</button>
-            <button class="btn-icon-tarefa btn-apagar-tarefa" onclick="eliminarTarefaDiaria('${tarefa.id}')">${iconTrash}</button>
-          `;
-          container.appendChild(div);
+      function renderColorPicker() {
+        const grid = document.getElementById('color-picker-grid');
+        grid.innerHTML = '';
+        coresDestaque.forEach(cor => {
+          const c = document.createElement('div');
+          c.className = 'color-circle';
+          c.style.backgroundColor = cor;
+          c.onclick = () => mudarCorApp(cor);
+          grid.appendChild(c);
         });
       }
 
-      function verificarEnterTarefa(e) { if (e.key === 'Enter') adicionarTarefa(); }
-      
-      function adicionarTarefa() {
-        const input = document.getElementById('input-nova-tarefa');
-        const texto = input.value.trim();
-        if (texto) {
-          tarefasDiarias.push({ id: gerarId(), texto: texto, feita: false });
-          input.value = ''; guardarTarefas(); renderizarTarefasDiarias();
+      window.mudarCorApp = function(cor) {
+        document.documentElement.style.setProperty('--accent', cor);
+        localStorage.setItem('accentColorApp', cor);
+      }
+
+      window.alternarTema = function() {
+        const isLight = document.body.classList.toggle('light-mode');
+        document.getElementById('texto-tema-modal').innerText = isLight ? 'Alternar para Modo Escuro' : 'Alternar para Modo Claro';
+        localStorage.setItem('temaApp', isLight ? 'light' : 'dark');
+      }
+
+      function carregarConfigs() {
+        const tema = localStorage.getItem('temaApp');
+        if (tema === 'light') {
+          document.body.classList.add('light-mode');
+          document.getElementById('texto-tema-modal').innerText = 'Alternar para Modo Escuro';
         }
+        const cor = localStorage.getItem('accentColorApp');
+        if (cor) mudarCorApp(cor);
+        renderColorPicker();
       }
-
-      function alternarTarefaDiaria(id) {
-        const tarefa = tarefasDiarias.find(t => t.id === id);
-        if (tarefa) { tarefa.feita = !tarefa.feita; guardarTarefas(); renderizarTarefasDiarias(); }
-      }
-
-      function editarTarefaDiaria(id) {
-        const tarefa = tarefasDiarias.find(t => t.id === id);
-        if (tarefa) {
-          const novoTexto = prompt("Edita a tua tarefa:", tarefa.texto);
-          if (novoTexto !== null && novoTexto.trim() !== "") {
-            tarefa.texto = novoTexto.trim(); guardarTarefas(); renderizarTarefasDiarias();
-          }
-        }
-      }
-
-      function eliminarTarefaDiaria(id) {
-        tarefasDiarias = tarefasDiarias.filter(t => t.id !== id);
-        guardarTarefas(); renderizarTarefasDiarias();
-      }
-      renderizarTarefasDiarias();
-
+      carregarConfigs();
 
       // ==========================================
-      // CÉREBRO DA NAVEGAÇÃO E BARRAS
+      // NAVEGAÇÃO E MENUS LATERAIS (ACCORDION)
       // ==========================================
       let historicoPaginas = [];
       let paginaAtualID = 'menu-principal';
+      let clickTimers = {};
 
-      function abrirSidebar() {
+      window.abrirSidebar = function() {
         document.getElementById('sidebar').classList.add('open');
         document.getElementById('sidebar-overlay').classList.add('open');
-        atualizarBotoesAtivos('menu'); 
       }
 
-      function fecharSidebar() {
+      window.fecharSidebar = function() {
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('open');
-        atualizarBotoesAtivos(paginaAtualID); 
       }
 
-      function navegarMenu(idPagina) {
-        fecharSidebar(); 
+      window.handleSidebarClick = function(e, idPagina) {
+        if(clickTimers[idPagina]) {
+            clearTimeout(clickTimers[idPagina]);
+            delete clickTimers[idPagina];
+            window.navegarMenu(idPagina); // Duplo Clique navega
+        } else {
+            clickTimers[idPagina] = setTimeout(() => {
+                delete clickTimers[idPagina];
+                // Clique simples expande o submenu
+                const submenu = document.getElementById('submenu-' + idPagina);
+                if(submenu) {
+                    submenu.style.display = submenu.style.display === 'flex' ? 'none' : 'flex';
+                }
+            }, 250);
+        }
+      }
+
+      window.navegarMenu = function(idPagina) {
+        window.fecharSidebar(); 
         if (idPagina === paginaAtualID) return;
         historicoPaginas.push(paginaAtualID);
         paginaAtualID = idPagina;
@@ -800,185 +677,265 @@
         }, 50);
       }
 
-      function atualizarBotoesAtivos(idPagina) {
+      function atualizarBotoesAtivos(id) {
         document.getElementById('nav-btn-home').classList.remove('active');
-        document.getElementById('nav-btn-menu').classList.remove('active');
+        document.getElementById('nav-btn-familia').classList.remove('active');
+        document.getElementById('nav-btn-notificacoes').classList.remove('active');
         
         const sideBtns = document.getElementsByClassName('sidebar-item');
         for (let i = 0; i < sideBtns.length; i++) sideBtns[i].classList.remove('active');
 
-        if (idPagina === 'menu-principal') document.getElementById('nav-btn-home').classList.add('active');
-        else if (idPagina === 'menu') document.getElementById('nav-btn-menu').classList.add('active');
+        if (id === 'menu-principal') document.getElementById('nav-btn-home').classList.add('active');
+        else if (id === 'menu-familia') document.getElementById('nav-btn-familia').classList.add('active');
+        else if (id === 'menu-notificacoes') document.getElementById('nav-btn-notificacoes').classList.add('active');
 
-        const sideId = 'sidebtn-' + idPagina;
+        const sideId = 'sidebtn-' + id;
         const sideElement = document.getElementById(sideId);
         if(sideElement) sideElement.classList.add('active');
       }
 
-      function voltarAtrasGeral() {
-        if (paginaAtualID === 'menu-documentos' && pastaAtual !== null) { voltarPasta(); return; }
-        if (historicoPaginas.length > 0) {
-            const paginaAnterior = historicoPaginas.pop();
-            paginaAtualID = paginaAnterior;
-            atualizarBotoesAtivos(paginaAtualID);
-            
-            var paginas = document.getElementsByClassName('page');
-            for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
-            setTimeout(function() { document.getElementById(paginaAnterior).classList.add('active'); window.scrollTo(0, 0); }, 50);
-        }
+      function atualizarRelogio() {
+        const agora = new Date();
+        const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        document.getElementById('data-atual').innerText = `${diasSemana[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
+        document.getElementById('hora-atual').innerText = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
       }
+      setInterval(atualizarRelogio, 1000); atualizarRelogio();
 
-      let touchstartX = 0; let touchstartY = 0;
-      document.addEventListener('touchstart', function(e) {
-        touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY;
-      }, {passive: true});
-
-      document.addEventListener('touchend', function(e) {
-        let touchendX = e.changedTouches[0].screenX; let touchendY = e.changedTouches[0].screenY;
-        let deltaX = touchendX - touchstartX; let deltaY = touchendY - touchstartY;
-
-        if (touchstartX < 80 && deltaX > 70 && Math.abs(deltaY) < 50) {
-          if (paginaAtualID !== 'menu-principal') { voltarAtrasGeral(); } 
-          else { abrirSidebar(); }
-        }
-        if (deltaX < -70 && Math.abs(deltaY) < 50 && document.getElementById('sidebar').classList.contains('open')) {
-          fecharSidebar();
-        }
-      }, {passive: true});
-
-      function abrirPaginaGaragem() { navegarMenu('menu-carros'); }
-      function gerarId() { return Math.random().toString(36).substr(2, 9); }
-
-
-      // ==========================================
-      // LÓGICA DO GOOGLE SHEETS E LISTAS
-      // ==========================================
-      let perfilAtual = ''; let pastaAtual = null; let historicoNavegacao = []; let itemSelecionadoParaAcao = null; 
-      let baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };
-
-      async function carregarDocumentosDoGoogle() {
-        const statusDiv = document.getElementById('status-conexao');
-        try {
-          if (statusDiv) statusDiv.innerHTML = "⏳ A ligar ao Google Sheets...";
-          const resposta = await fetch(API_URL);
-          if (!resposta.ok) throw new Error("Erro de resposta do servidor.");
-          const dados = await resposta.json();
-          if (dados && dados.erro) throw new Error(dados.erro);
-          
-          baseDadosDocumentos = { 'Gonçalo': [], 'Nathália': [], 'Casal': [] };
-          dados.forEach(item => {
-            if (item && item.perfil && baseDadosDocumentos[item.perfil]) {
-              baseDadosDocumentos[item.perfil].push({
-                id: item.id || gerarId(), parentId: item.parentId === "" ? null : item.parentId,
-                tipo: item.tipo || 'ficheiro', nome: item.nome || 'Sem Nome', url: item.url || ''
-              });
-            }
-          });
-          
-          if (statusDiv) { statusDiv.innerHTML = ""; statusDiv.style.display = 'none'; }
-          if (document.getElementById('menu-documentos').classList.contains('active')) renderizarDocumentos();
-        } catch (erro) {
-          console.error(erro);
-          if (statusDiv) { statusDiv.innerHTML = "🔴 Modo Offline"; statusDiv.style.color = "var(--accent)"; }
-        }
+      window.carregarMeteorologia = function() {
+        // Mock simples para não bloquear por localização, num ambiente real usa GPS
+        document.getElementById('meteo-temp').innerText = "25°";
+        document.getElementById('meteo-desc').innerText = "Limpo";
+        document.getElementById('nome-cidade-texto').innerText = "Setúbal";
       }
-      window.onload = function() { carregarDocumentosDoGoogle(); };
+      carregarMeteorologia();
 
-      let listaComprasSimples = []; 
-      function abrirPaginaComprasSimples() { navegarMenu('menu-compras'); document.getElementById('novo-item-input').value = ''; renderizarListaSimples(); }
-      function verificarEnterLista(event) { if (event.key === 'Enter') adicionarItemLista(); }
-      function adicionarItemLista() {
-        const input = document.getElementById('novo-item-input'); const texto = input.value.trim();
-        if(texto !== '') { listaComprasSimples.push({ id: gerarId(), nome: texto, comprado: false }); input.value = ''; renderizarListaSimples(); }
+      const supermercadosData = [
+        { id: 'continente', nome: 'Continente', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg', link: 'https://folhetos.continente.pt/', cartao: 'https://placehold.co/400x250/E5231F/FFF?text=Cartão+Continente' },
+        { id: 'pingodoce', nome: 'Pingo Doce', logo: 'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg', link: 'https://www.pingodoce.pt/folhetos/', cartao: 'https://placehold.co/400x250/007A33/FFF?text=Cartão+Poupa+Mais' },
+        { id: 'lidl', nome: 'Lidl', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png', link: 'https://www.lidl.pt/folhetos', cartao: 'https://placehold.co/400x250/0050AA/FFF?text=Lidl+Plus' },
+        { id: 'auchan', nome: 'Auchan', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg', link: 'https://www.auchan.pt/pt/folhetos/', cartao: 'https://placehold.co/400x250/E41B13/FFF?text=Clube+Auchan' },
+        { id: 'intermarche', nome: 'Intermarché', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg', link: 'https://www.intermarche.pt/folhetos/', cartao: 'https://placehold.co/400x250/000/FFF?text=Cartão+Intermarché' }
+      ];
+
+      function renderizarLogosSupermercados() {
+        const container = document.getElementById('container-logos');
+        container.innerHTML = '';
+        supermercadosData.forEach(s => {
+          const div = document.createElement('div'); div.className = 'logo-card';
+          div.onclick = () => abrirDetalheSupermercado(s.id);
+          div.innerHTML = `<img src="${s.logo}" alt="${s.nome}">`;
+          container.appendChild(div);
+        });
       }
-      function alternarCheckItem(id) { const item = listaComprasSimples.find(i => i.id === id); if(item) { item.comprado = !item.comprado; renderizarListaSimples(); } }
-      function removerItemLista(id) { listaComprasSimples = listaComprasSimples.filter(i => i.id !== id); renderizarListaSimples(); }
-      function renderizarListaSimples() {
-        const container = document.getElementById('lista-simples-container'); if (!container) return; container.innerHTML = '';
-        if(listaComprasSimples.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top:20px;">Lista vazia.</p>'; return; }
+      renderizarLogosSupermercados();
+
+      window.abrirDetalheSupermercado = async function(id) {
+        currentSuperId = id;
+        const superInfo = supermercadosData.find(s => s.id === id);
+        document.getElementById('detalhe-nome').innerText = superInfo.nome;
+        document.getElementById('detalhe-cartao-img').src = superInfo.cartao;
+        document.getElementById('btn-ver-folheto').onclick = () => window.open(superInfo.link, '_blank');
         
-        const iconTrash = `<svg class="icon-svg" style="width:18px;height:18px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+        // Load Obs from Firebase
+        if(userId) {
+          const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', id));
+          document.getElementById('detalhe-obs').value = docSnap.exists() ? docSnap.data().notas : "";
+        }
+        window.navegarMenu('page-super-detail');
+      }
+
+      window.guardarObservacaoSuper = async function() {
+        if(!userId || !currentSuperId) return;
+        const text = document.getElementById('detalhe-obs').value;
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { notas: text });
+      }
+
+      window.abrirModalCartao = function() {
+        document.getElementById('img-fullscreen-cartao').src = document.getElementById('detalhe-cartao-img').src;
+        abrirModal('modal-cartao');
+      }
+
+      let unsusbscribes = [];
+
+      function iniciarListenersFirebase() {
+        // Limpar antigos
+        unsusbscribes.forEach(unsub => unsubscribe());
+        unsusbscribes = [];
+
+        // 1. Tarefas Dashboard
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'tarefas'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
+          renderList(itens, 'container-tarefas', 'tarefas');
+        }, e => console.log(e)));
+
+        // 2. Compras Semanais
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'semanais'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
+          renderList(itens, 'container-semanais', 'semanais');
+        }, e => console.log(e)));
+
+        // 3. Compras Rápidas
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'rapidas'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
+          renderList(itens, 'container-rapidas', 'rapidas');
+        }, e => console.log(e)));
+
+        // 4. Pedidos de Amizade (Notificações)
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'requests'), (snap) => {
+          let requests = []; snap.forEach(d => requests.push({id: d.id, ...d.data()}));
+          renderRequests(requests);
+          document.getElementById('badge-notificacoes').style.display = requests.length > 0 ? 'block' : 'none';
+        }, e => console.log(e)));
+
+        // 5. Lista Amigos
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'friends'), (snap) => {
+          let friends = []; snap.forEach(d => friends.push({id: d.id, ...d.data()}));
+          renderFriends(friends);
+        }, e => console.log(e)));
+      }
+
+      // List Renderer genérico para Tarefas/Compras
+      function renderList(array, containerId, collName) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        if(array.length === 0) {
+          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>';
+          return;
+        }
         
-        listaComprasSimples.forEach(item => {
-          const div = document.createElement('div'); div.className = 'item-simples' + (item.comprado ? ' comprado' : '');
-          div.innerHTML = `<div class="checkbox-custom" onclick="alternarCheckItem('${item.id}')"></div><p class="nome-item-simples" onclick="alternarCheckItem('${item.id}')">${item.nome}</p><button class="btn-eliminar-simples" onclick="removerItemLista('${item.id}')">${iconTrash}</button>`;
+        const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+        
+        array.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'list-item' + (item.feita ? ' feita' : '');
+          div.innerHTML = `
+            <div class="checkbox-custom" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})"></div>
+            <span class="item-texto" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})">${item.texto}</span>
+            <button class="btn-icon-list btn-apagar" onclick="apagarItemDB('${collName}', '${item.id}')">${iconTrash}</button>
+          `;
           container.appendChild(div);
         });
       }
 
-      function abrirPaginaDocumentos(perfil) { navegarMenu('menu-documentos'); perfilAtual = perfil; pastaAtual = null; historicoNavegacao = []; document.getElementById('titulo-documentos').innerText = 'Documentos: ' + perfil; renderizarDocumentos(); }
-      function entrarPasta(idPasta) { historicoNavegacao.push(pastaAtual); pastaAtual = idPasta; renderizarDocumentos(); }
-      function voltarPasta() { if (historicoNavegacao.length > 0) { pastaAtual = historicoNavegacao.pop(); renderizarDocumentos(); } }
-      function renderizarDocumentos() {
-        const container = document.getElementById('lista-documentos-container'); if (!container) return; container.innerHTML = ''; 
-        const todosItens = baseDadosDocumentos[perfilAtual] || [];
-        const itensMostrar = todosItens.filter(item => item && item.parentId === pastaAtual);
-        if (itensMostrar.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">Pasta vazia.</p>'; return; }
-        itensMostrar.sort((a, b) => { const tipoA = a.tipo || ''; const tipoB = b.tipo || ''; const nomeA = a.nome || ''; const nomeB = b.nome || ''; if (tipoA === tipoB) return nomeA.localeCompare(nomeB); return tipoA === 'pasta' ? -1 : 1; });
-        
-        const iconFolder = `<svg class="icon-svg" style="width:24px;height:24px;color:var(--accent);" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`;
-        const iconFile = `<svg class="icon-svg" style="width:24px;height:24px;color:var(--text-muted);" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
-        const iconDots = `<svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>`;
+      window.adicionarItemDB = async function(collName) {
+        if(!userId) return;
+        let inputId = collName === 'tarefas' ? 'input-nova-tarefa' : (collName === 'semanais' ? 'input-semanal' : 'input-rapidas');
+        const input = document.getElementById(inputId);
+        const text = input.value.trim();
+        if(text) {
+          input.value = '';
+          await addDoc(collection(db, 'artifacts', appId, 'users', userId, collName), { texto: text, feita: false, timestamp: Date.now() });
+        }
+      }
 
-        itensMostrar.forEach(function(item) {
-          const div = document.createElement('div'); div.className = 'item-doc'; 
-          const icone = item.tipo === 'pasta' ? iconFolder : iconFile;
-          div.innerHTML = `<div class="item-info" onclick="acaoPrincipalItem('${item.id}', '${item.tipo}')"><span class="icon-doc">${icone}</span><span class="nome-doc">${item.nome}</span></div><button class="btn-opcoes" onclick="abrirOpcoes('${item.id}')">${iconDots}</button>`;
+      window.toggleItemDB = async function(collName, id, status) {
+        if(!userId) return;
+        await updateDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id), { feita: status });
+      }
+
+      window.apagarItemDB = async function(collName, id) {
+        if(!userId) return;
+        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id));
+      }
+
+      window.pesquisarUtilizadores = async function() {
+        const queryText = document.getElementById('input-search-users').value.toLowerCase();
+        const container = document.getElementById('container-pesquisa-users');
+        if(queryText.length < 2) { container.innerHTML = ''; return; }
+        
+        container.innerHTML = '<p style="text-align:center;font-size:12px;">A procurar...</p>';
+        const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles'));
+        let results = [];
+        querySnapshot.forEach(doc => {
+           let d = doc.data();
+           if(d.uid !== userId && d.searchName && d.searchName.includes(queryText)) results.push(d);
+        });
+
+        container.innerHTML = '';
+        if(results.length === 0) container.innerHTML = '<p style="text-align:center;font-size:12px;">Nenhum utilizador encontrado.</p>';
+        
+        results.forEach(u => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `
+            <div class="user-info">
+              <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.name.charAt(0).toUpperCase()}</div>
+              <div><p class="user-name" style="font-size:13px;">${u.name}</p></div>
+            </div>
+            <button class="btn-add" style="width:auto; padding: 5px 15px; font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.name}')">Adicionar</button>
+          `;
           container.appendChild(div);
         });
       }
 
-      function acaoPrincipalItem(id, tipo) {
-        if(tipo === 'pasta') entrarPasta(id); 
-        else { const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id); if (item && item.url) window.open(item.url, '_blank'); else mostrarAlerta('Ficheiro sem link.'); }
+      window.enviarPedido = async function(targetUid, targetName) {
+        if(!userId) return;
+        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'requests', userId), {
+           fromUid: userId,
+           fromName: userName,
+           timestamp: Date.now()
+        });
+        window.mostrarAlerta(`Pedido enviado a ${targetName}!`);
+        document.getElementById('input-search-users').value = '';
+        document.getElementById('container-pesquisa-users').innerHTML = '';
       }
 
-      function abrirModal(id) { document.getElementById(id).classList.add('active'); }
-      function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
-      function mostrarAlerta(mensagem) { document.getElementById('mensagem-alerta').innerText = mensagem; abrirModal('modal-alerta'); }
-
-      async function criarPasta() {
-        const inputNome = document.getElementById('nome-nova-pasta'); const nome = inputNome.value.trim();
-        if (nome !== '') {
-          const novoId = gerarId(); baseDadosDocumentos[perfilAtual].push({ id: novoId, parentId: pastaAtual, tipo: 'pasta', nome: nome, url: '' });
-          inputNome.value = ''; fecharModal('modal-pasta'); renderizarDocumentos(); 
-          const dadosEnviar = new URLSearchParams(); dadosEnviar.append('acao', 'criarPasta'); dadosEnviar.append('id', novoId); dadosEnviar.append('nome', nome); dadosEnviar.append('parentId', pastaAtual || ''); dadosEnviar.append('perfil', perfilAtual);
-          fetch(API_URL, { method: 'POST', body: dadosEnviar, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).catch(e => console.error(e));
-        } else mostrarAlerta('Escreve um nome para a pasta.');
+      function renderRequests(requests) {
+        const container = document.getElementById('container-pedidos');
+        container.innerHTML = '';
+        if(requests.length === 0) {
+          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>';
+          return;
+        }
+        requests.forEach(r => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `
+            <div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${r.fromName.charAt(0).toUpperCase()}</div>
+            <div><p class="user-name" style="font-size:13px;">${r.fromName}</p><p class="user-email">Pedido de amizade</p></div></div>
+            <div style="display:flex; gap:5px;">
+              <button class="btn-add" style="background-color: var(--accent); width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${r.fromUid}', '${r.fromName}')">✓</button>
+              <button class="btn-add" style="background-color: #ff3b30; width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${r.fromUid}')">X</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
       }
 
-      function adicionarDocumento() {
-        const inputFile = document.getElementById('ficheiro-upload'); const inputNome = document.getElementById('nome-documento');
-        if (inputFile.files.length > 0) {
-          let nome = inputNome.value.trim(); if (nome === '') nome = inputFile.files[0].name;
-          baseDadosDocumentos[perfilAtual].push({ id: gerarId(), parentId: pastaAtual, tipo: 'ficheiro', nome: nome, url: '' });
-          inputFile.value = ''; inputNome.value = ''; fecharModal('modal-upload'); renderizarDocumentos(); mostrarAlerta('Guardado localmente.');
-        } else mostrarAlerta('Seleciona um ficheiro primeiro.');
+      window.aceitarPedido = async function(targetUid, targetName) {
+        if(!userId) return;
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', targetUid), { name: targetName, uid: targetUid });
+        // Simetria (adiciona-me no amigo dele)
+        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'friends', userId), { name: userName, uid: userId });
+        await recusarPedido(targetUid); // Apaga a notificação
+      }
+      
+      window.recusarPedido = async function(targetUid) {
+        if(!userId) return;
+        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'requests', targetUid));
       }
 
-      function abrirOpcoes(id) { itemSelecionadoParaAcao = id; const item = baseDadosDocumentos[perfilAtual].find(i => i.id === id); if (item) { document.getElementById('titulo-opcoes').innerText = item.nome; abrirModal('modal-opcoes'); } }
-      function eliminarItem() { fecharModal('modal-opcoes'); abrirModal('modal-confirmacao'); }
-      async function confirmarEliminar() {
-        const idApagar = itemSelecionadoParaAcao; baseDadosDocumentos[perfilAtual] = baseDadosDocumentos[perfilAtual].filter(i => i.id !== idApagar);
-        fecharModal('modal-confirmacao'); renderizarDocumentos();
-        const dadosEnviar = new URLSearchParams(); dadosEnviar.append('acao', 'eliminarItem'); dadosEnviar.append('id', idApagar);
-        fetch(API_URL, { method: 'POST', body: dadosEnviar, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).catch(e => console.error(e));
+      function renderFriends(friends) {
+        const container = document.getElementById('container-amigos');
+        container.innerHTML = '';
+        if(friends.length === 0) {
+           container.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;
+        }
+        friends.forEach(f => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `
+            <div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${f.name.charAt(0).toUpperCase()}</div>
+            <p class="user-name">${f.name}</p></div>
+          `;
+          container.appendChild(div);
+        });
       }
-      function prepararRenomear() { const item = baseDadosDocumentos[perfilAtual].find(i => i.id === itemSelecionadoParaAcao); if (item) { document.getElementById('novo-nome-item').value = item.nome; fecharModal('modal-opcoes'); abrirModal('modal-renomear'); } }
-      function confirmarRenomear() {
-        const novoNome = document.getElementById('novo-nome-item').value.trim();
-        if (novoNome !== '') { const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao); if (itemIndex > -1) baseDadosDocumentos[perfilAtual][itemIndex].nome = novoNome; fecharModal('modal-renomear'); renderizarDocumentos(); }
-      }
-      function prepararMover() {
-        fecharModal('modal-opcoes'); const select = document.getElementById('select-destino-mover'); select.innerHTML = '<option value="root">Mover para a Raiz Principal</option>';
-        const todasPastas = baseDadosDocumentos[perfilAtual].filter(i => i.tipo === 'pasta' && i.id !== itemSelecionadoParaAcao);
-        todasPastas.forEach(pasta => { select.innerHTML += `<option value="${pasta.id}">Pasta: ${pasta.nome}</option>`; }); abrirModal('modal-mover');
-      }
-      function confirmarMover() {
-        const destinoSelecionado = document.getElementById('select-destino-mover').value; const novoParentId = destinoSelecionado === 'root' ? null : destinoSelecionado;
-        const itemIndex = baseDadosDocumentos[perfilAtual].findIndex(i => i.id === itemSelecionadoParaAcao);
-        if (itemIndex > -1) baseDadosDocumentos[perfilAtual][itemIndex].parentId = novoParentId; fecharModal('modal-mover'); renderizarDocumentos();
-      }
+
+
+      // Utilitários Globais
+      window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); }
+      window.fecharModal = function(id) { document.getElementById(id).classList.remove('active'); }
+      window.mostrarAlerta = function(mensagem) { document.getElementById('mensagem-alerta').innerText = mensagem; window.abrirModal('modal-alerta'); }
     </script>
   </body>
 </html>

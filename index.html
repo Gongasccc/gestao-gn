@@ -2,8 +2,10 @@
 <html>
   <head>
     <base target="_top">
+    <!-- O viewport-fit=cover é essencial para o iPhone respeitar o ecrã todo -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- TAGS MÁGICAS PARA O IPHONE (WEB APP) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="App Casal">
@@ -13,23 +15,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+      /* --- NOTION DARK MODE (DEFAULT) --- */
       :root {
         --bg-color: #191919;       
         --card-bg: #202020;        
         --text-main: rgba(255, 255, 255, 0.9);  
         --text-muted: rgba(255, 255, 255, 0.5); 
-        --accent: #FF6B00; /* Cor inicial, será alterada pelo JS */        
+        --accent: #FF6B00;         
         --btn-secondary: #2C2C2C;  
         --border-color: rgba(255, 255, 255, 0.05); 
         
         --sidebar-width: 280px;
+        --bottom-nav-height: 80px; 
       }
 
+      /* --- NOTION LIGHT MODE --- */
       body.light-mode {
         --bg-color: #FFFFFF;             
         --card-bg: #F7F7F5;              
         --text-main: #37352F;            
         --text-muted: rgba(55, 53, 47, 0.6); 
+        --accent: #FF6B00;               
         --btn-secondary: #EBEBEA;        
         --border-color: rgba(0, 0, 0, 0.08); 
       }
@@ -45,13 +51,13 @@
       #app-container { display: flex; width: 100%; height: 100vh; }
 
       .page-container {
-        flex: 1; padding: calc(env(safe-area-inset-top) + 20px) 20px 100px 20px; 
+        flex: 1; padding: calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 20px) 20px; 
         width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; overflow-y: auto;
       }
 
       h1 { font-weight: 600; font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
       h2 { font-weight: 400; font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
-      h3 { font-size: 16px; font-weight: 500; margin: 0 0 15px 0; color: var(--text-main); }
+      h3 { font-size: 16px; font-weight: 500; margin: 0 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
       
       .sidebar-logo { width: 140px; height: 90px; object-fit: contain; margin: 0 auto; display: block; }
       .light-logo { display: none; }
@@ -62,15 +68,17 @@
       .page.active { display: block; animation: fadeIn 0.4s forwards; }
       @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-      /* AUTENTICAÇÃO (LOGIN) */
+      /* ECRÃ DE LOGIN */
       #auth-overlay {
         position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-color);
         z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
         padding: 30px; transition: opacity 0.5s ease;
       }
       .auth-box { background-color: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); width: 100%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-      .auth-input { width: 100%; padding: 15px; margin-bottom: 15px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; font-family: inherit; }
-      .auth-btn { background-color: var(--accent); color: #fff; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+      .auth-input { width: 100%; padding: 15px; margin-bottom: 15px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; font-family: inherit; transition: border-color 0.3s ease; }
+      .auth-input:focus { outline: none; border-color: var(--accent); }
+      .auth-btn { background-color: var(--accent); color: #fff; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: transform 0.1s;}
+      .auth-btn:active { transform: scale(0.95); }
       .auth-link { color: var(--accent); font-size: 13px; cursor: pointer; text-decoration: underline; }
 
       #sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
@@ -79,8 +87,7 @@
       #sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width); background-color: var(--card-bg); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
       #sidebar.open { transform: translateX(0); }
 
-      .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; }
-      .gestao-text { font-size: 14px; font-weight: 500; color: var(--text-main); margin-top: 5px; letter-spacing: 0.5px; transition: color 0.3s ease;}
+      .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
 
       .sidebar-item { padding: 18px 25px; font-size: 15px; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02); transition: background-color 0.2s, color 0.3s ease; }
       .sidebar-item:active { background-color: var(--btn-secondary); }
@@ -90,139 +97,163 @@
       body.light-mode .sidebar-submenu { background-color: rgba(0,0,0,0.02); }
       .sidebar-subitem { padding: 12px 25px 12px 55px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.01); }
       .sidebar-subitem:active { color: var(--text-main); }
+      
       .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); }
       
       .icon-svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 24px; height: 24px; margin-bottom: 4px; }
       .sidebar-icon-svg { width: 20px; height: 20px; flex-shrink: 0; margin-bottom: 0; }
       .btn-icon-svg { width: 20px; height: 20px; margin-bottom: 0; margin-right: 8px; }
-      .nav-badge { position: absolute; top: 5px; right: 20px; width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; display: none; }
 
-      /* A NOVA BARRA INFERIOR (Estilo iOS Espelhado/Arredondado) */
+      .nav-badge { position: absolute; top: 5px; right: 15px; width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; display: none; }
+
       #bottom-nav { 
-        position: fixed; bottom: 20px; left: 15px; right: 15px; height: 65px; 
-        border-radius: 35px; /* Bordas super arredondadas */
-        background-color: rgba(30, 30, 30, 0.7); 
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-        border: 1px solid rgba(255, 255, 255, 0.1); 
-        display: flex; justify-content: space-evenly; align-items: center; 
-        z-index: 1500; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: background-color 0.3s ease; 
+        position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height); 
+        background-color: rgba(32, 32, 32, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
+        border-top: 1px solid var(--border-color); 
+        display: flex; justify-content: center; align-items: center; gap: 60px; 
+        z-index: 1500; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.3s ease; 
       }
-      body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.05);}
+      body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.85); }
 
-      .nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
+      .nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
       .nav-btn:active { transform: scale(0.9); }
-      .nav-btn span { font-size: 9px; font-weight: 500; margin-top: 2px;}
+      .nav-btn span { font-size: 10px; font-weight: 500; }
       .nav-btn.active { color: var(--accent); }
+
+      .btn-voltar { display: none !important; } 
 
       @media (min-width: 800px) {
         #bottom-nav { display: none; } .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
         #app-container { flex-direction: row; } #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } #sidebar-overlay { display: none !important; }
       }
 
-      .dashboard-widget { background-color: var(--card-bg); width: 100%; border-radius: 20px; padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+      .dashboard-widget {
+        background-color: var(--card-bg); width: 100%; border-radius: 20px; 
+        padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: background-color 0.3s ease;
+      }
+      
       .top-widgets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 15px; }
       .widget-relogio, .widget-meteorologia { margin-bottom: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
       #data-atual { font-size: 11px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; }
       #hora-atual { font-size: 34px; font-weight: 300; color: var(--text-main); margin: 5px 0 0 0; line-height: 1; }
+
       .meteo-top-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
       #meteo-temp { font-size: 28px; font-weight: 300; line-height: 1; color: var(--text-main); }
       #meteo-desc { font-size: 11px; color: var(--text-muted); margin-top: 5px; display: block; font-weight: 500;}
-      #meteo-local-texto { font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 3px; }
+      #meteo-local-texto { font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 3px; }
 
       .widget-frase { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px;}
       .frase-texto { font-size: 16px; font-style: italic; color: var(--text-main); font-weight: 300; line-height: 1.5; margin: 0;}
-      .frase-autor { font-size: 11px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; }
+      .frase-autor { font-size: 11px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
       .quote-icon { opacity: 0.2; width: 24px; margin-bottom: 12px; fill: var(--text-main); }
 
-      /* LISTAS E WIDGETS */
+      /* TAREFAS / LISTAS GERAIS */
       .input-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
-      .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; }
-      .btn-add { background-color: var(--accent); color: #fff; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+      .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
+      .btn-add { background-color: var(--accent); color: #fff; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
       .btn-add:active { transform: scale(0.9); }
       
       .lista-itens { display: flex; flex-direction: column; gap: 8px; width: 100%;}
-      .list-item { display: flex; align-items: center; background-color: var(--card-bg); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+      .list-item { display: flex; align-items: center; background-color: var(--card-bg); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color); transition: background-color 0.3s ease;}
       .item-texto { flex: 1; font-size: 14px; margin-left: 12px; transition: color 0.2s;}
       .list-item.feita .item-texto { text-decoration: line-through; color: var(--text-muted); }
       .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; flex-shrink: 0; position: relative; }
       .list-item.feita .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
       .list-item.feita .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 12px; }
-      .btn-icon-list { background: none; border: none; color: var(--text-muted); padding: 5px; cursor: pointer; display: flex; align-items: center; }
+      .btn-icon-list { background: none; border: none; color: var(--text-muted); padding: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s, transform 0.1s;}
       .btn-icon-list:active { transform: scale(0.9); color: var(--text-main); }
       .btn-apagar:active { color: #ff4d4d; }
 
-      /* SUPERMERCADOS LOGOS & DETALHE */
-      .logos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-      .logo-card { background-color: #fff; border-radius: 20px; padding: 20px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.1s; height: 120px; }
+      .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 16px; cursor: pointer; width: 100%; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
+      .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
+      .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+      .btn-acao:active { background-color: var(--border-color); }
+
+      .logos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
+      .logo-card { background-color: #fff; border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease; height: 100px; }
       .logo-card:active { transform: scale(0.95); }
       .logo-card img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-      .cartao-desconto-container { width: 100%; height: 200px; background-color: #fff; border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; cursor: pointer; border: 1px solid var(--border-color);}
-      .cartao-desconto-container img { width: 100%; height: 100%; object-fit: cover; }
-      .textarea-obs { width: 100%; height: 120px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 15px; font-family: inherit; resize: none; margin-top: 15px; }
+      /* A zona do Cartão do Supermercado */
+      .cartao-desconto-container { width: 100%; height: 200px; background-color: var(--card-bg); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; cursor: pointer; border: 1px dashed var(--border-color); transition: border-color 0.3s; position: relative;}
+      .cartao-desconto-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: 2;}
+      .textarea-obs { width: 100%; height: 100px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 15px; font-family: inherit; resize: none; margin-top: 10px; transition: border-color 0.3s; }
+      .textarea-obs:focus { outline:none; border-color: var(--accent); }
 
-      .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 16px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: space-between; }
-      .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
-      
-      .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-      .btn-acao:active { background-color: var(--border-color); }
-
-      .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-      .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
-      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+      /* Utilizadores / Família */
+      .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
+      .user-info { display: flex; align-items: center; gap: 12px; text-align: left;}
+      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px;}
+      .user-name { font-size: 15px; font-weight: 500; color: var(--text-main); margin:0;}
       
       .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
       .color-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
       .color-circle:active { transform: scale(0.8); }
 
-      .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
-      .user-info { display: flex; align-items: center; gap: 12px; text-align: left;}
-      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px;}
-      .user-name { font-size: 15px; font-weight: 500; color: var(--text-main); margin:0;}
-      .user-email { font-size: 11px; color: var(--text-muted); margin:0;}
-
+      /* Modals */
+      .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);}
+      .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
+      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background-color 0.3s ease; }
+      .modal-btn-row { display: flex; gap: 10px; margin-top: 15px; }
       .fullscreen-img { max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain; }
     </style>
   </head>
   <body>
 
-    <!-- ECRÃ DE LOGIN -->
+    <!-- ECRÃ DE LOGIN / REGISTO (Nome de Utilizador) -->
     <div id="auth-overlay">
       <img src="logopreto_fundobranco.png" alt="Logo" class="sidebar-logo light-logo" style="margin-bottom: 30px; border-radius: 20px;" onerror="this.style.display='none'">
       <img src="logobranco_semfundo.png" alt="Logo" class="sidebar-logo dark-logo" style="margin-bottom: 30px;" onerror="this.style.display='none'">
       
       <div class="auth-box">
-        <h2 style="margin-bottom: 25px; color: var(--text-main);" id="auth-title">Entrar</h2>
-        <input type="text" id="auth-name" class="auth-input" placeholder="O teu nome (Ex: Gonçalo)" style="display: none;">
-        <input type="email" id="auth-email" class="auth-input" placeholder="Email">
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password">
+        <h2 style="margin-bottom: 25px; color: var(--text-main);" id="auth-title">Entrar na App</h2>
+        
+        <input type="text" id="auth-username" class="auth-input" placeholder="Nome de Utilizador (ex: goncalo20)">
+        <input type="password" id="auth-password" class="auth-input" placeholder="Password secreta">
+        <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display: none;">
         
         <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
-        <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Regista-te.</p>
+        <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Regista-te aqui.</p>
         <p id="auth-error" style="color: #ff4d4d; font-size: 12px; margin-top: 15px; display: none;"></p>
+        
+        <p style="font-size: 10px; color: var(--text-muted); margin-top: 20px;">Para partilharem as listas, entrem os dois com a mesma conta!</p>
       </div>
     </div>
 
     <div id="app-container" style="display: none;">
       
-      <!-- O MENU LATERAL (SIDEBAR) -->
+      <!-- O MENU LATERAL EM ÁRVORE (ACCORDION) -->
       <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
       <div id="sidebar">
         <div class="sidebar-header">
           <img src="logobranco_semfundo.png" alt="Logo Gestão" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
           <img src="logopreto_semfundo.png" alt="Logo Gestão" class="sidebar-logo light-logo" onerror="this.style.display='none'">
-          <span class="gestao-text">Gestão G&N</span>
+          <span style="font-size: 14px; font-weight: 500; color: var(--text-main); margin-top: 5px; letter-spacing: 0.5px; transition: color 0.3s ease;">Gestão G&N</span>
         </div>
         
         <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
           <!-- Início -->
-          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="handleSidebarClick(event, 'menu-principal')">
+          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="handleSidebarClick('menu-principal')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             Início
           </div>
 
-          <!-- Supermercados com Submenu -->
-          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="handleSidebarClick(event, 'menu-supermercados')">
+          <!-- Família -->
+          <div class="sidebar-item" id="sidebtn-menu-familia" onclick="handleSidebarClick('menu-familia')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Família & Amigos
+          </div>
+
+          <!-- Notificações -->
+          <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="handleSidebarClick('menu-notificacoes')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Notificações
+          </div>
+
+          <!-- Supermercados c/ Submenu -->
+          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="handleSidebarClick('menu-supermercados')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
             Supermercados
           </div>
@@ -233,24 +264,21 @@
           </div>
 
           <!-- Documentos -->
-          <div class="sidebar-item" onclick="handleSidebarClick(event, 'menu-documentos-casal')">
+          <div class="sidebar-item" onclick="handleSidebarClick('menu-documentos-dummy')">
              <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            Documentos
+            Documentos Antigos
           </div>
-          <div class="sidebar-submenu" id="submenu-menu-documentos-casal">
-            <div class="sidebar-subitem" onclick="abrirPaginaDocumentos('Casal')">Área do Casal</div>
-            <div class="sidebar-subitem" onclick="abrirPaginaDocumentos('Gonçalo')">Perfil Gonçalo</div>
-            <div class="sidebar-subitem" onclick="abrirPaginaDocumentos('Nathália')">Perfil Nathália</div>
+          <div class="sidebar-submenu" id="submenu-menu-documentos-dummy">
+            <div class="sidebar-subitem" onclick="mostrarAlerta('Funcionalidade no Excel (Em manutenção)')">Área do Casal</div>
           </div>
 
           <!-- Garagem -->
-          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="handleSidebarClick(event, 'menu-carros')">
+          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="handleSidebarClick('menu-carros')">
              <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
             Garagem
           </div>
         </div>
 
-        <!-- Definições na Base -->
         <div class="sidebar-footer">
           <div class="sidebar-item" onclick="abrirModal('modal-definicoes')" style="border-bottom: none; justify-content: center; margin: 10px;">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -259,26 +287,24 @@
         </div>
       </div>
 
+      <!-- A NOVA BARRA INFERIOR (BOTTOM NAV IPHONE) COM ESPAÇO PARA A BOLINHA -->
       <div id="bottom-nav">
         <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
           <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-          <span>Menu</span>
         </div>
         <div class="nav-btn active" id="nav-btn-home" onclick="navegarMenu('menu-principal')">
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-          <span>Início</span>
         </div>
         <div class="nav-btn" id="nav-btn-familia" onclick="navegarMenu('menu-familia')">
-          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          <span>Família</span>
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
         </div>
-        <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
-          <div class="nav-badge" id="badge-notificacoes"></div>
+        <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')" style="position: relative;">
+          <div class="nav-badge" id="badge-notificacoes-bottom"></div>
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <span>Notificações</span>
         </div>
       </div>
 
+      <!-- O ESPAÇO PRINCIPAL -->
       <div class="page-container">
         
         <!-- DASHBOARD (INÍCIO) -->
@@ -290,16 +316,11 @@
             </div>
             <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
               <div class="meteo-top-row">
-                <div id="meteo-icone" style="color: var(--accent);">
-                  <svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg>
-                </div>
+                <div id="meteo-icone" style="color: var(--accent);"><svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg></div>
                 <span id="meteo-temp">--°</span>
               </div>
               <span id="meteo-desc">A localizar...</span>
-              <span id="meteo-local-texto">
-                <svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <span id="nome-cidade-texto">GPS</span>
-              </span>
+              <span id="meteo-local-texto"><svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span id="nome-cidade-texto">GPS</span></span>
             </div>
           </div>
 
@@ -313,9 +334,7 @@
             <h3><svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> A Fazer Hoje</h3>
             <div class="input-row">
               <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarItemDB('tarefas')">
-              <button class="btn-add" onclick="adicionarItemDB('tarefas')">
-                <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              </button>
+              <button class="btn-add" onclick="adicionarItemDB('tarefas')"><svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
             </div>
             <div class="lista-itens" id="container-tarefas"></div>
           </div>
@@ -323,13 +342,13 @@
 
         <!-- FAMÍLIA E AMIGOS -->
         <div id="menu-familia" class="page">
-          <h2>Família & Amigos</h2>
+          <h2>Adicionar Pessoas</h2>
           <div class="input-row">
-            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar por nome..." oninput="pesquisarUtilizadores()">
+            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar o username exato..." oninput="pesquisarUtilizadores()">
           </div>
           <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom: 20px;"></div>
           
-          <h3 style="margin-top: 20px;">A Minha Família</h3>
+          <h3 style="margin-top: 20px; text-align: center;">A Minha Rede</h3>
           <div class="lista-itens" id="container-amigos"></div>
         </div>
 
@@ -341,51 +360,57 @@
           </div>
         </div>
 
-        <!-- SUPERMERCADOS (Main) -->
+        <!-- SUPERMERCADOS (Main Page) -->
         <div id="menu-supermercados" class="page">
           <div class="header-decor"></div>
-          <h1>Menu Supermercados</h1>
+          <h1>Supermercados</h1>
           
           <button class="btn" onclick="navegarMenu('menu-super-logos')">
             <svg class="icon-svg btn-icon-svg" style="color:var(--accent);" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            Lojas & Cartões
+            Lojas & Cartões de Desconto
           </button>
           <button class="btn" onclick="navegarMenu('menu-compras-semanais')">
             <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-            Compras Semanais
+            Lista de Compras Semanal
           </button>
           <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">
             <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M5 22h14c1.1 0 2-.9 2-2V7.5L14.5 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-            Compras Rápidas
+            Lista de Compras Rápida
           </button>
         </div>
 
         <!-- LISTA LOGOS SUPERMERCADOS -->
         <div id="menu-super-logos" class="page">
-          <h2>Lista de Lojas</h2>
-          <div class="logos-grid" id="container-logos">
-             <!-- Preenchido via JS -->
-          </div>
+          <h2>Selecione uma Loja</h2>
+          <div class="logos-grid" id="container-logos"></div>
         </div>
 
-        <!-- DETALHE DO SUPERMERCADO -->
+        <!-- DETALHE DO SUPERMERCADO E CARTÃO -->
         <div id="page-super-detail" class="page">
           <h1 id="detalhe-nome">Supermercado</h1>
-          <div class="cartao-desconto-container" onclick="abrirModalCartao()">
-            <img id="detalhe-cartao-img" src="" alt="Cartão">
-          </div>
-          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #fff; width: 100%; padding: 15px; font-weight: 600;">Ver Folheto da Semana</button>
+          <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: -20px; margin-bottom: 20px;">Clica no cartão para ecrã inteiro</p>
           
-          <h3 style="margin-top: 25px;">Observações</h3>
-          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Ex: A carne é melhor à terça-feira..." onchange="guardarObservacaoSuper()"></textarea>
+          <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
+            <svg id="icone-inserir-cartao" class="icon-svg" style="width: 32px; height: 32px; color: var(--text-muted); margin-bottom: 10px;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span id="msg-sem-cartao" style="color: var(--text-muted); font-size: 14px;">Inserir cartão de cliente</span>
+            <img id="detalhe-cartao-img" src="" alt="Cartão" style="display:none;">
+          </div>
+          
+          <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
+          <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width: 100%; margin-bottom: 15px;">Fotografar / Inserir Cartão</button>
+          
+          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #fff; width: 100%; padding: 15px; font-weight: 600;">Abrir Folheto da Semana</button>
+          
+          <h3 style="margin-top: 25px;">Notas / Observações</h3>
+          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Ex: A fruta é melhor aqui..." onchange="guardarObservacaoSuper()"></textarea>
         </div>
 
         <!-- COMPRAS SEMANAIS -->
         <div id="menu-compras-semanais" class="page">
-          <h2>Compras Semanais</h2>
+          <h2>Lista Semanal</h2>
           <div class="input-row">
-            <input type="text" id="input-semanal" class="input-text" placeholder="Item semanal..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais')">
-            <button class="btn-add" onclick="adicionarItemDB('semanais')">+</button>
+            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar à lista semanal..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais')">
+            <button class="btn-add" onclick="adicionarItemDB('semanais')"><svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
           </div>
           <div class="lista-itens" id="container-semanais"></div>
         </div>
@@ -395,54 +420,37 @@
           <h2>Compras Rápidas</h2>
           <div class="input-row">
             <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarItemDB('rapidas')">
-            <button class="btn-add" onclick="adicionarItemDB('rapidas')">+</button>
+            <button class="btn-add" onclick="adicionarItemDB('rapidas')"><svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
           </div>
           <div class="lista-itens" id="container-rapidas"></div>
         </div>
 
-        <!-- DOCUMENTOS (ANTIGO) -->
-        <div id="menu-documentos" class="page">
-          <div class="header-decor"></div>
-          <h1 id="titulo-documentos">Documentos</h1>
-          <div class="acoes-doc">
-            <button class="btn-acao" onclick="abrirModal('modal-pasta')">Nova Pasta</button>
-            <button class="btn-acao" style="background-color: var(--accent); color: #fff;" onclick="abrirModal('modal-upload')">Adicionar</button>
-          </div>
-          <div class="lista-documentos" id="lista-documentos-container"></div>
-        </div>
-
+        <!-- GARAGEM -->
         <div id="menu-carros" class="page">
           <h2>Garagem & Combustível</h2>
-          <div class="carros-grid" style="margin-bottom: 30px;">
-            <div class="car-card" onclick="mostrarAlerta('Entraste no Polo!')">
-              <div class="img-container"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/VW_Polo_IV.JPG/800px-VW_Polo_IV.JPG" alt="Polo 9n"></div>
-              <div class="car-info"><h3>VW Polo 9n</h3><span>→</span></div>
-            </div>
-          </div>
-          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
+          <button class="btn-acao" style="background-color: var(--accent); color: #fff; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
         </div>
 
       </div>
     </div>
 
-
-    <!-- MODAL DEFINIÇÕES -->
+    <!-- MODAL DEFINIÇÕES E CORES -->
     <div id="modal-definicoes" class="modal-overlay">
       <div class="modal-content" style="max-width: 400px;">
         <h2 style="margin-bottom: 20px;">Definições</h2>
         
         <div class="user-card">
           <div class="user-info">
-            <div class="user-avatar" id="settings-avatar">G</div>
+            <div class="user-avatar" id="settings-avatar">U</div>
             <div>
-              <p class="user-name" id="settings-name">Gonçalo</p>
-              <p class="user-email" id="settings-email">email@email.com</p>
+              <p class="user-name" id="settings-name">Utilizador</p>
+              <p style="font-size: 11px; color: var(--text-muted); margin:0;" id="settings-username">A carregar...</p>
             </div>
           </div>
         </div>
 
         <button class="btn-acao" style="width: 100%; margin: 15px 0; padding: 15px; background-color: var(--bg-color);" onclick="alternarTema()">
-          <span id="texto-tema-modal">Alternar para Modo Claro</span>
+          <span id="texto-tema-modal">Mudar para Modo Claro</span>
         </button>
 
         <h3 style="text-align: left; font-size: 13px; color: var(--text-muted); margin-top: 20px;">COR DE DESTAQUE</h3>
@@ -457,7 +465,7 @@
     <div id="modal-logout" class="modal-overlay">
       <div class="modal-content">
         <h2>Terminar Sessão</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin: 15px 0;">Tens a certeza que queres sair da conta?</p>
+        <p style="color: var(--text-muted); font-size: 14px; margin: 15px 0;">Tens a certeza que queres sair da tua conta?</p>
         <div class="modal-btn-row">
           <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
           <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="fazerLogout()">Sair</button>
@@ -470,7 +478,7 @@
       <img id="img-fullscreen-cartao" class="fullscreen-img" src="" alt="Cartão Grande">
     </div>
 
-    <!-- Modals Antigos (Alertas) -->
+    <!-- Modais Genéricos -->
     <div id="modal-alerta" class="modal-overlay">
       <div class="modal-content">
         <h2>Aviso</h2>
@@ -479,112 +487,98 @@
       </div>
     </div>
 
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-      import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-      import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      import { getAuth, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-      // Configuração Firebase do Ambiente
-      const appId = typeof __app_id !== 'undefined' ? __app_id : 'gestao-gn-app';
-      const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+      const appId = 'gestao-gn-app';
+      const firebaseConfig = { apiKey: "demo-key", authDomain: "demo.firebaseapp.com", projectId: "demo-project" };
       
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const auth = getAuth(app);
+      let app, db, auth;
+      try { app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app); } 
+      catch(e) { console.error("Firebase Placeholder (Usa as tuas chaves reais depois):", e); }
 
-      // Variáveis Globais
       let userId = null;
       let userName = "";
-      let isLoginMode = true; // Modalidade de Auth
+      let isLoginMode = true; 
       let currentSuperId = null;
 
       // ==========================================
-      // AUTENTICAÇÃO
+      // LÓGICA DE AUTENTICAÇÃO (SÓ USERNAME)
       // ==========================================
-      
-      // Expõe funções para o HTML
       window.toggleAuthMode = function() {
         isLoginMode = !isLoginMode;
-        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar' : 'Criar Conta';
+        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
         document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar';
-        document.getElementById('auth-toggle-mode').innerText = isLoginMode ? 'Não tens conta? Regista-te.' : 'Já tens conta? Entra aqui.';
-        document.getElementById('auth-name').style.display = isLoginMode ? 'none' : 'block';
+        document.getElementById('auth-toggle-mode').innerText = isLoginMode ? 'Não tens conta? Regista-te aqui.' : 'Já tens conta? Entra aqui.';
+        document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
         document.getElementById('auth-error').style.display = 'none';
       }
 
       window.handleAuth = async function() {
-        const email = document.getElementById('auth-email').value;
+        if(!auth) { alert("Base de dados demo. Adiciona chaves Firebase reais no código."); return; }
+        
+        const userTyped = document.getElementById('auth-username').value.trim();
         const pass = document.getElementById('auth-password').value;
-        const name = document.getElementById('auth-name').value;
+        const passConfirm = document.getElementById('auth-confirm-password').value;
         const errEl = document.getElementById('auth-error');
         
+        if(!userTyped || !pass) { errEl.innerText = "Preenche os campos."; errEl.style.display = 'block'; return; }
+        
+        // Truque Mestre: Transformar o Username num Email Fantasma para o Firebase aceitar
+        const cleanUser = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if(cleanUser.length < 3) { errEl.innerText = "Nome muito curto/inválido."; errEl.style.display = 'block'; return; }
+        const fakeEmail = cleanUser + "@gestaogn.app";
+
         try {
           if (isLoginMode) {
-            await signInWithEmailAndPassword(auth, email, pass);
+            await signInWithEmailAndPassword(auth, fakeEmail, pass);
           } else {
-            if(!name) throw new Error("Preenche o teu nome.");
-            const cred = await createUserWithEmailAndPassword(auth, email, pass);
-            // Salva perfil público
+            if(pass !== passConfirm) throw new Error("As passwords não são iguais.");
+            if(pass.length < 6) throw new Error("A password deve ter 6 ou mais letras/números.");
+            
+            const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass);
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
-              uid: cred.user.uid,
-              email: email.toLowerCase(),
-              name: name,
-              searchName: name.toLowerCase()
+              uid: cred.user.uid, username: userTyped, searchName: userTyped.toLowerCase()
             });
           }
         } catch (error) {
-          errEl.innerText = "Erro: " + error.message;
-          errEl.style.display = 'block';
+          errEl.innerText = "Erro: " + error.message.replace('Firebase:', ''); errEl.style.display = 'block';
         }
       }
 
-      window.abrirModalLogout = function() { fecharModal('modal-definicoes'); abrirModal('modal-logout'); }
-      window.fazerLogout = async function() { fecharModal('modal-logout'); await signOut(auth); }
+      window.abrirModalLogout = function() { window.fecharModal('modal-definicoes'); window.abrirModal('modal-logout'); }
+      window.fazerLogout = async function() { window.fecharModal('modal-logout'); if(auth) await signOut(auth); else window.location.reload(); }
 
-      // Inicialização exigida pelas regras do ambiente
-      async function initAuth() {
-        try {
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-              await signInWithCustomToken(auth, __initial_auth_token);
-          } else if (!auth.currentUser) {
-              await signInAnonymously(auth);
-          }
-        } catch(e) { console.error("Erro init auth:", e); }
-      }
-      initAuth();
-
-      // Observador de Estado
-      onAuthStateChanged(auth, async (user) => {
-        if (user && !user.isAnonymous) {
-          userId = user.uid;
-          document.getElementById('auth-overlay').style.opacity = '0';
-          setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
-          document.getElementById('app-container').style.display = 'flex';
-          
-          // Buscar info do user
-          const profileDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
-          if(profileDoc.exists()) {
-             userName = profileDoc.data().name;
-             document.getElementById('settings-name').innerText = userName;
-             document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase();
+      if(auth) {
+        onAuthStateChanged(auth, async (user) => {
+          if (user && !user.isAnonymous) {
+            userId = user.uid;
+            document.getElementById('auth-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
+            document.getElementById('app-container').style.display = 'flex';
+            
+            const profileDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
+            if(profileDoc.exists()) {
+               userName = profileDoc.data().username;
+               document.getElementById('settings-name').innerText = userName;
+               document.getElementById('settings-username').innerText = "@" + userName.toLowerCase();
+               document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase();
+            } else { userName = "User"; }
+            
+            iniciarListenersFirebase();
           } else {
-             userName = "Utilizador";
+            userId = null;
+            document.getElementById('auth-overlay').style.display = 'flex';
+            setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 10);
+            document.getElementById('app-container').style.display = 'none';
           }
-          document.getElementById('settings-email').innerText = user.email;
-          
-          // Iniciar Sincronização
-          iniciarListenersFirebase();
-        } else {
-          userId = null;
-          document.getElementById('auth-overlay').style.display = 'flex';
-          setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 10);
-          document.getElementById('app-container').style.display = 'none';
-        }
-      });
+        });
+      }
 
       // ==========================================
-      // SISTEMA DE TEMAS E CORES
+      // SISTEMA DE TEMAS E AS 20 CORES
       // ==========================================
       const coresDestaque = [
         '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', '#E5A8F2', '#FFCC00', '#FF2D55',
@@ -596,220 +590,166 @@
         const grid = document.getElementById('color-picker-grid');
         grid.innerHTML = '';
         coresDestaque.forEach(cor => {
-          const c = document.createElement('div');
-          c.className = 'color-circle';
-          c.style.backgroundColor = cor;
-          c.onclick = () => mudarCorApp(cor);
-          grid.appendChild(c);
+          const c = document.createElement('div'); c.className = 'color-circle'; c.style.backgroundColor = cor;
+          c.onclick = () => mudarCorApp(cor); grid.appendChild(c);
         });
       }
 
-      window.mudarCorApp = function(cor) {
-        document.documentElement.style.setProperty('--accent', cor);
-        localStorage.setItem('accentColorApp', cor);
-      }
+      window.mudarCorApp = function(cor) { document.documentElement.style.setProperty('--accent', cor); localStorage.setItem('accentColorApp', cor); }
 
       window.alternarTema = function() {
         const isLight = document.body.classList.toggle('light-mode');
-        document.getElementById('texto-tema-modal').innerText = isLight ? 'Alternar para Modo Escuro' : 'Alternar para Modo Claro';
+        document.getElementById('texto-tema-modal').innerText = isLight ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro';
         localStorage.setItem('temaApp', isLight ? 'light' : 'dark');
       }
 
       function carregarConfigs() {
         const tema = localStorage.getItem('temaApp');
-        if (tema === 'light') {
-          document.body.classList.add('light-mode');
-          document.getElementById('texto-tema-modal').innerText = 'Alternar para Modo Escuro';
-        }
-        const cor = localStorage.getItem('accentColorApp');
-        if (cor) mudarCorApp(cor);
+        if (tema === 'light') { document.body.classList.add('light-mode'); const txt = document.getElementById('texto-tema-modal'); if(txt) txt.innerText = 'Mudar para Modo Escuro'; }
+        const cor = localStorage.getItem('accentColorApp'); if (cor) mudarCorApp(cor);
         renderColorPicker();
       }
       carregarConfigs();
 
       // ==========================================
-      // NAVEGAÇÃO E MENUS LATERAIS (ACCORDION)
+      // NAVEGAÇÃO, ACCORDION E SUPERMERCADOS
       // ==========================================
-      let historicoPaginas = [];
-      let paginaAtualID = 'menu-principal';
       let clickTimers = {};
-
-      window.abrirSidebar = function() {
-        document.getElementById('sidebar').classList.add('open');
-        document.getElementById('sidebar-overlay').classList.add('open');
-      }
-
-      window.fecharSidebar = function() {
-        document.getElementById('sidebar').classList.remove('open');
-        document.getElementById('sidebar-overlay').classList.remove('open');
-      }
-
-      window.handleSidebarClick = function(e, idPagina) {
+      window.handleSidebarClick = function(idPagina) {
         if(clickTimers[idPagina]) {
-            clearTimeout(clickTimers[idPagina]);
-            delete clickTimers[idPagina];
-            window.navegarMenu(idPagina); // Duplo Clique navega
+            clearTimeout(clickTimers[idPagina]); delete clickTimers[idPagina];
+            window.navegarMenu(idPagina);
         } else {
             clickTimers[idPagina] = setTimeout(() => {
                 delete clickTimers[idPagina];
-                // Clique simples expande o submenu
                 const submenu = document.getElementById('submenu-' + idPagina);
-                if(submenu) {
-                    submenu.style.display = submenu.style.display === 'flex' ? 'none' : 'flex';
-                }
+                if(submenu) submenu.style.display = submenu.style.display === 'flex' ? 'none' : 'flex';
+                else window.navegarMenu(idPagina);
             }, 250);
         }
       }
 
+      window.abrirSidebar = function() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
+      window.fecharSidebar = function() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
+
       window.navegarMenu = function(idPagina) {
-        window.fecharSidebar(); 
-        if (idPagina === paginaAtualID) return;
-        historicoPaginas.push(paginaAtualID);
-        paginaAtualID = idPagina;
-        
-        atualizarBotoesAtivos(idPagina);
-
-        var paginas = document.getElementsByClassName('page');
+        window.fecharSidebar(); var paginas = document.getElementsByClassName('page');
         for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
-        setTimeout(function() {
-          const ecr = document.getElementById(idPagina);
-          if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); }
-        }, 50);
+        setTimeout(() => { const ecr = document.getElementById(idPagina); if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); } }, 50);
       }
 
-      function atualizarBotoesAtivos(id) {
-        document.getElementById('nav-btn-home').classList.remove('active');
-        document.getElementById('nav-btn-familia').classList.remove('active');
-        document.getElementById('nav-btn-notificacoes').classList.remove('active');
-        
-        const sideBtns = document.getElementsByClassName('sidebar-item');
-        for (let i = 0; i < sideBtns.length; i++) sideBtns[i].classList.remove('active');
-
-        if (id === 'menu-principal') document.getElementById('nav-btn-home').classList.add('active');
-        else if (id === 'menu-familia') document.getElementById('nav-btn-familia').classList.add('active');
-        else if (id === 'menu-notificacoes') document.getElementById('nav-btn-notificacoes').classList.add('active');
-
-        const sideId = 'sidebtn-' + id;
-        const sideElement = document.getElementById(sideId);
-        if(sideElement) sideElement.classList.add('active');
-      }
-
-      function atualizarRelogio() {
-        const agora = new Date();
-        const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-        document.getElementById('data-atual').innerText = `${diasSemana[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
-        document.getElementById('hora-atual').innerText = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
-      }
-      setInterval(atualizarRelogio, 1000); atualizarRelogio();
-
-      window.carregarMeteorologia = function() {
-        // Mock simples para não bloquear por localização, num ambiente real usa GPS
-        document.getElementById('meteo-temp').innerText = "25°";
-        document.getElementById('meteo-desc').innerText = "Limpo";
-        document.getElementById('nome-cidade-texto').innerText = "Setúbal";
-      }
-      carregarMeteorologia();
-
+      // Dados Supermercados Base
       const supermercadosData = [
-        { id: 'continente', nome: 'Continente', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg', link: 'https://folhetos.continente.pt/', cartao: 'https://placehold.co/400x250/E5231F/FFF?text=Cartão+Continente' },
-        { id: 'pingodoce', nome: 'Pingo Doce', logo: 'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg', link: 'https://www.pingodoce.pt/folhetos/', cartao: 'https://placehold.co/400x250/007A33/FFF?text=Cartão+Poupa+Mais' },
-        { id: 'lidl', nome: 'Lidl', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png', link: 'https://www.lidl.pt/folhetos', cartao: 'https://placehold.co/400x250/0050AA/FFF?text=Lidl+Plus' },
-        { id: 'auchan', nome: 'Auchan', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg', link: 'https://www.auchan.pt/pt/folhetos/', cartao: 'https://placehold.co/400x250/E41B13/FFF?text=Clube+Auchan' },
-        { id: 'intermarche', nome: 'Intermarché', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg', link: 'https://www.intermarche.pt/folhetos/', cartao: 'https://placehold.co/400x250/000/FFF?text=Cartão+Intermarché' }
+        { id: 'continente', nome: 'Continente', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg', link: 'https://folhetos.continente.pt/' },
+        { id: 'pingodoce', nome: 'Pingo Doce', logo: 'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg', link: 'https://www.pingodoce.pt/folhetos/' },
+        { id: 'lidl', nome: 'Lidl', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png', link: 'https://www.lidl.pt/folhetos' },
+        { id: 'auchan', nome: 'Auchan', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg', link: 'https://www.auchan.pt/pt/folhetos/' },
+        { id: 'intermarche', nome: 'Intermarché', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg', link: 'https://www.intermarche.pt/folhetos/' }
       ];
 
       function renderizarLogosSupermercados() {
-        const container = document.getElementById('container-logos');
-        container.innerHTML = '';
+        const container = document.getElementById('container-logos'); if(!container) return; container.innerHTML = '';
         supermercadosData.forEach(s => {
-          const div = document.createElement('div'); div.className = 'logo-card';
-          div.onclick = () => abrirDetalheSupermercado(s.id);
-          div.innerHTML = `<img src="${s.logo}" alt="${s.nome}">`;
-          container.appendChild(div);
+          const div = document.createElement('div'); div.className = 'logo-card'; div.onclick = () => window.abrirDetalheSupermercado(s.id);
+          div.innerHTML = `<img src="${s.logo}" alt="${s.nome}">`; container.appendChild(div);
         });
       }
       renderizarLogosSupermercados();
 
       window.abrirDetalheSupermercado = async function(id) {
-        currentSuperId = id;
-        const superInfo = supermercadosData.find(s => s.id === id);
+        currentSuperId = id; const superInfo = supermercadosData.find(s => s.id === id);
         document.getElementById('detalhe-nome').innerText = superInfo.nome;
-        document.getElementById('detalhe-cartao-img').src = superInfo.cartao;
         document.getElementById('btn-ver-folheto').onclick = () => window.open(superInfo.link, '_blank');
         
-        // Load Obs from Firebase
-        if(userId) {
+        // Limpa visual
+        const imgEl = document.getElementById('detalhe-cartao-img'); const msgEl = document.getElementById('msg-sem-cartao'); const iconeEl = document.getElementById('icone-inserir-cartao');
+        imgEl.style.display = 'none'; imgEl.src = ''; msgEl.style.display = 'block'; iconeEl.style.display = 'block';
+        document.getElementById('detalhe-obs').value = "";
+
+        if(userId && db) {
           const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', id));
-          document.getElementById('detalhe-obs').value = docSnap.exists() ? docSnap.data().notas : "";
+          if(docSnap.exists()) {
+             const data = docSnap.data();
+             if(data.notas) document.getElementById('detalhe-obs').value = data.notas;
+             if(data.cartao_img) { imgEl.src = data.cartao_img; imgEl.style.display = 'block'; msgEl.style.display = 'none'; iconeEl.style.display = 'none';}
+          }
         }
         window.navegarMenu('page-super-detail');
       }
 
       window.guardarObservacaoSuper = async function() {
-        if(!userId || !currentSuperId) return;
-        const text = document.getElementById('detalhe-obs').value;
-        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { notas: text });
+        if(!userId || !currentSuperId || !db) return; const text = document.getElementById('detalhe-obs').value;
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { notas: text }, {merge: true});
       }
 
-      window.abrirModalCartao = function() {
-        document.getElementById('img-fullscreen-cartao').src = document.getElementById('detalhe-cartao-img').src;
-        abrirModal('modal-cartao');
+      window.cliqueCartao = function() {
+        const img = document.getElementById('detalhe-cartao-img');
+        if(img.style.display !== 'none' && img.src) { document.getElementById('img-fullscreen-cartao').src = img.src; window.abrirModal('modal-cartao'); }
+        else document.getElementById('input-foto-cartao').click();
       }
 
+      // MAGIA: Comprimir a foto do Cartão de Desconto (Canvas)
+      window.processarFotoCartao = function(e) {
+        const file = e.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = new Image();
+          img.onload = async function() {
+            const canvas = document.createElement('canvas'); const max_size = 800; let width = img.width; let height = img.height;
+            if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } }
+            else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+            canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Comprime a foto
+            
+            document.getElementById('detalhe-cartao-img').src = dataUrl; document.getElementById('detalhe-cartao-img').style.display = 'block';
+            document.getElementById('msg-sem-cartao').style.display = 'none'; document.getElementById('icone-inserir-cartao').style.display = 'none';
+
+            if(userId && currentSuperId && db) await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { cartao_img: dataUrl }, {merge:true});
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // ==========================================
+      // SINCRONIZAÇÃO EM TEMPO REAL (FIREBASE)
+      // ==========================================
       let unsusbscribes = [];
-
       function iniciarListenersFirebase() {
-        // Limpar antigos
-        unsusbscribes.forEach(unsub => unsubscribe());
-        unsusbscribes = [];
+        if(!db) return;
+        unsusbscribes.forEach(unsub => unsub()); unsusbscribes = [];
 
-        // 1. Tarefas Dashboard
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'tarefas'), (snap) => {
-          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
-          renderList(itens, 'container-tarefas', 'tarefas');
-        }, e => console.log(e)));
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderList(itens, 'container-tarefas', 'tarefas');
+        }));
 
-        // 2. Compras Semanais
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'semanais'), (snap) => {
-          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
-          renderList(itens, 'container-semanais', 'semanais');
-        }, e => console.log(e)));
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderList(itens, 'container-semanais', 'semanais');
+        }));
 
-        // 3. Compras Rápidas
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'rapidas'), (snap) => {
-          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
-          renderList(itens, 'container-rapidas', 'rapidas');
-        }, e => console.log(e)));
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderList(itens, 'container-rapidas', 'rapidas');
+        }));
 
-        // 4. Pedidos de Amizade (Notificações)
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'requests'), (snap) => {
           let requests = []; snap.forEach(d => requests.push({id: d.id, ...d.data()}));
           renderRequests(requests);
-          document.getElementById('badge-notificacoes').style.display = requests.length > 0 ? 'block' : 'none';
-        }, e => console.log(e)));
+          document.getElementById('badge-notificacoes-bottom').style.display = requests.length > 0 ? 'block' : 'none';
+        }));
 
-        // 5. Lista Amigos
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'friends'), (snap) => {
-          let friends = []; snap.forEach(d => friends.push({id: d.id, ...d.data()}));
-          renderFriends(friends);
-        }, e => console.log(e)));
+          let friends = []; snap.forEach(d => friends.push({id: d.id, ...d.data()})); renderFriends(friends);
+        }));
       }
 
-      // List Renderer genérico para Tarefas/Compras
       function renderList(array, containerId, collName) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
-        if(array.length === 0) {
-          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>';
-          return;
-        }
-        
+        const container = document.getElementById(containerId); if(!container) return; container.innerHTML = '';
+        if(array.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>'; return; }
         const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
         
-        array.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'list-item' + (item.feita ? ' feita' : '');
+        array.sort((a,b) => a.timestamp - b.timestamp).forEach(item => {
+          const div = document.createElement('div'); div.className = 'list-item' + (item.feita ? ' feita' : '');
           div.innerHTML = `
             <div class="checkbox-custom" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})"></div>
             <span class="item-texto" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})">${item.texto}</span>
@@ -820,122 +760,73 @@
       }
 
       window.adicionarItemDB = async function(collName) {
-        if(!userId) return;
+        if(!userId || !db) return;
         let inputId = collName === 'tarefas' ? 'input-nova-tarefa' : (collName === 'semanais' ? 'input-semanal' : 'input-rapidas');
-        const input = document.getElementById(inputId);
-        const text = input.value.trim();
-        if(text) {
-          input.value = '';
-          await addDoc(collection(db, 'artifacts', appId, 'users', userId, collName), { texto: text, feita: false, timestamp: Date.now() });
-        }
+        const input = document.getElementById(inputId); const text = input.value.trim();
+        if(text) { input.value = ''; await addDoc(collection(db, 'artifacts', appId, 'users', userId, collName), { texto: text, feita: false, timestamp: Date.now() }); }
       }
+      window.toggleItemDB = async function(collName, id, status) { if(userId && db) await updateDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id), { feita: status }); }
+      window.apagarItemDB = async function(collName, id) { if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id)); }
 
-      window.toggleItemDB = async function(collName, id, status) {
-        if(!userId) return;
-        await updateDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id), { feita: status });
-      }
-
-      window.apagarItemDB = async function(collName, id) {
-        if(!userId) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id));
-      }
-
+      // PESQUISA SOCIAL
       window.pesquisarUtilizadores = async function() {
-        const queryText = document.getElementById('input-search-users').value.toLowerCase();
-        const container = document.getElementById('container-pesquisa-users');
+        if(!db) return; const queryText = document.getElementById('input-search-users').value.toLowerCase(); const container = document.getElementById('container-pesquisa-users');
         if(queryText.length < 2) { container.innerHTML = ''; return; }
         
         container.innerHTML = '<p style="text-align:center;font-size:12px;">A procurar...</p>';
         const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles'));
-        let results = [];
-        querySnapshot.forEach(doc => {
-           let d = doc.data();
-           if(d.uid !== userId && d.searchName && d.searchName.includes(queryText)) results.push(d);
-        });
-
-        container.innerHTML = '';
-        if(results.length === 0) container.innerHTML = '<p style="text-align:center;font-size:12px;">Nenhum utilizador encontrado.</p>';
+        let results = []; querySnapshot.forEach(doc => { let d = doc.data(); if(d.uid !== userId && d.searchName && d.searchName.includes(queryText)) results.push(d); });
         
+        container.innerHTML = ''; if(results.length === 0) container.innerHTML = '<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>';
         results.forEach(u => {
           const div = document.createElement('div'); div.className = 'user-card';
-          div.innerHTML = `
-            <div class="user-info">
-              <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.name.charAt(0).toUpperCase()}</div>
-              <div><p class="user-name" style="font-size:13px;">${u.name}</p></div>
-            </div>
-            <button class="btn-add" style="width:auto; padding: 5px 15px; font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.name}')">Adicionar</button>
-          `;
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.username.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${u.username}</p></div></div><button class="btn-add" style="width:auto; padding: 5px 15px; font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button>`;
           container.appendChild(div);
         });
       }
 
       window.enviarPedido = async function(targetUid, targetName) {
-        if(!userId) return;
-        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'requests', userId), {
-           fromUid: userId,
-           fromName: userName,
-           timestamp: Date.now()
-        });
-        window.mostrarAlerta(`Pedido enviado a ${targetName}!`);
-        document.getElementById('input-search-users').value = '';
-        document.getElementById('container-pesquisa-users').innerHTML = '';
+        if(!userId || !db) return; await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'requests', userId), { fromUid: userId, fromName: userName, timestamp: Date.now() });
+        document.getElementById('mensagem-alerta').innerText = `Pedido enviado a ${targetName}!`; window.abrirModal('modal-alerta');
+        document.getElementById('input-search-users').value = ''; document.getElementById('container-pesquisa-users').innerHTML = '';
       }
 
       function renderRequests(requests) {
-        const container = document.getElementById('container-pedidos');
-        container.innerHTML = '';
-        if(requests.length === 0) {
-          container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>';
-          return;
-        }
+        const container = document.getElementById('container-pedidos'); if(!container) return; container.innerHTML = '';
+        if(requests.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>'; return; }
         requests.forEach(r => {
           const div = document.createElement('div'); div.className = 'user-card';
-          div.innerHTML = `
-            <div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${r.fromName.charAt(0).toUpperCase()}</div>
-            <div><p class="user-name" style="font-size:13px;">${r.fromName}</p><p class="user-email">Pedido de amizade</p></div></div>
-            <div style="display:flex; gap:5px;">
-              <button class="btn-add" style="background-color: var(--accent); width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${r.fromUid}', '${r.fromName}')">✓</button>
-              <button class="btn-add" style="background-color: #ff3b30; width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${r.fromUid}')">X</button>
-            </div>
-          `;
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${r.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${r.fromName}</p><p style="font-size:11px; color:var(--text-muted); margin:0;">Pedido de amizade</p></div></div><div style="display:flex; gap:5px;"><button class="btn-add" style="background-color: var(--accent); width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${r.fromUid}', '${r.fromName}')">✓</button><button class="btn-add" style="background-color: #ff3b30; width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${r.fromUid}')">✕</button></div>`;
           container.appendChild(div);
         });
       }
 
       window.aceitarPedido = async function(targetUid, targetName) {
-        if(!userId) return;
-        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', targetUid), { name: targetName, uid: targetUid });
-        // Simetria (adiciona-me no amigo dele)
-        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'friends', userId), { name: userName, uid: userId });
-        await recusarPedido(targetUid); // Apaga a notificação
+        if(!userId || !db) return; await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', targetUid), { name: targetName, uid: targetUid }); await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'friends', userId), { name: userName, uid: userId }); await window.recusarPedido(targetUid); 
       }
-      
-      window.recusarPedido = async function(targetUid) {
-        if(!userId) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'requests', targetUid));
-      }
+      window.recusarPedido = async function(targetUid) { if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'requests', targetUid)); }
 
       function renderFriends(friends) {
-        const container = document.getElementById('container-amigos');
-        container.innerHTML = '';
-        if(friends.length === 0) {
-           container.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;
-        }
+        const container = document.getElementById('container-amigos'); if(!container) return; container.innerHTML = '';
+        if(friends.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return; }
         friends.forEach(f => {
           const div = document.createElement('div'); div.className = 'user-card';
-          div.innerHTML = `
-            <div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${f.name.charAt(0).toUpperCase()}</div>
-            <p class="user-name">${f.name}</p></div>
-          `;
-          container.appendChild(div);
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${f.name.charAt(0).toUpperCase()}</div><p class="user-name">${f.name}</p></div>`; container.appendChild(div);
         });
       }
 
+      // WIDGETS
+      function atualizarRelogio() {
+        const agora = new Date(); const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]; const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const elD = document.getElementById('data-atual'); const elH = document.getElementById('hora-atual');
+        if(elD) elD.innerText = `${dias[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
+        if(elH) elH.innerText = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
+      }
+      setInterval(atualizarRelogio, 1000); atualizarRelogio();
 
-      // Utilitários Globais
       window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); }
       window.fecharModal = function(id) { document.getElementById(id).classList.remove('active'); }
-      window.mostrarAlerta = function(mensagem) { document.getElementById('mensagem-alerta').innerText = mensagem; window.abrirModal('modal-alerta'); }
+      window.mostrarAlerta = function(msg) { document.getElementById('mensagem-alerta').innerText = msg; window.abrirModal('modal-alerta'); }
     </script>
   </body>
 </html>

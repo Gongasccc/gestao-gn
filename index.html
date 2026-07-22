@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
+      /* --- VARIÁVEIS BASE (DARK MODE DEFAULT) --- */
       :root {
         --bg-color: #191919;       
         --card-bg: #202020;        
@@ -29,6 +30,7 @@
         --bottom-nav-height: 70px; 
       }
 
+      /* --- LIGHT MODE --- */
       body.light-mode {
         --bg-color: #FFFFFF;             
         --card-bg: #F7F7F5;              
@@ -39,122 +41,51 @@
         --border-color: rgba(0, 0, 0, 0.08); 
       }
 
-      * { 
-        box-sizing: border-box; 
-        -webkit-tap-highlight-color: transparent; 
-      }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
       body {
-        font-family: 'Poppins', sans-serif; 
-        background-color: var(--bg-color); 
-        color: var(--text-main);
-        margin: 0; 
-        padding: 0; 
-        display: flex; 
-        min-height: 100vh; 
-        overflow-x: hidden;
+        font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-main);
+        margin: 0; padding: 0; display: flex; min-height: 100vh; overflow-x: hidden;
         transition: background-color 0.3s ease, color 0.3s ease;
       }
 
-      #app-container { 
-        display: flex; 
-        width: 100%; 
-        height: 100vh; 
-      }
+      #app-container { display: flex; width: 100%; height: 100vh; }
 
       .page-container {
         flex: 1; 
         /* Espaço para o Notch em cima e para a barra flutuante em baixo */
         padding: calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 40px) 20px; 
-        width: 100%; 
-        max-width: 500px; 
-        margin: 0 auto; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        overflow-y: auto;
+        width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; overflow-y: auto;
       }
 
       h1 { font-weight: 600; font-size: 26px; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
       h2 { font-weight: 400; font-size: 18px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
-      h3 { font-size: 16px; font-weight: 500; margin: 0 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
+      h3 { font-size: 16px; font-weight: 500; margin: 0 0 15px 0; display: flex; align-items: center; gap: 8px;}
       
-      .page { 
-        display: none; 
-        opacity: 0; 
-        transform: translateY(15px); 
-        transition: opacity 0.3s ease, transform 0.3s ease; 
-        width: 100%; 
-      }
-      .page.active { 
-        display: block; 
-        animation: fadeIn 0.4s forwards; 
-      }
-      
-      @keyframes fadeIn { 
-        to { opacity: 1; transform: translateY(0); } 
-      }
+      .page { display: none; opacity: 0; transform: translateY(15px); transition: opacity 0.3s ease, transform 0.3s ease; width: 100%; }
+      .page.active { display: block; animation: fadeIn 0.4s forwards; }
+      @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-      #auth-overlay {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-        background-color: var(--bg-color); z-index: 9999; 
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        padding: 30px; transition: opacity 0.5s ease;
-      }
-      .auth-box { 
-        background-color: var(--card-bg); padding: 30px; border-radius: 20px; 
-        border: 1px solid var(--border-color); width: 100%; max-width: 350px; 
-        text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
-      }
-      .auth-input { 
-        width: 100%; padding: 15px; margin-bottom: 15px; background-color: var(--bg-color); 
-        border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; 
-        font-family: inherit; transition: border-color 0.3s ease; 
-      }
-      .auth-input:focus { outline: none; border-color: var(--accent); }
-      .auth-btn { 
-        background-color: var(--accent); color: #fff; border: none; padding: 15px; 
-        width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; 
-        margin-bottom: 10px; transition: transform 0.1s;
-      }
-      .auth-btn:active { transform: scale(0.95); }
-      .auth-link { color: var(--accent); font-size: 13px; cursor: pointer; text-decoration: underline; }
-
-      #sidebar-overlay { 
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-        background-color: rgba(0,0,0,0.6); z-index: 1999; opacity: 0; 
-        pointer-events: none; transition: opacity 0.3s ease; 
-      }
+      /* MENU LATERAL (SIDEBAR) */
+      #sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
       #sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 
-      #sidebar { 
-        position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width); 
-        background-color: var(--card-bg); z-index: 2000; transform: translateX(-100%); 
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; 
-        border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.5); 
-        display: flex; flex-direction: column; 
-      }
+      #sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width); background-color: var(--card-bg); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
       #sidebar.open { transform: translateX(0); }
 
-      .sidebar-header { 
-        padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; 
-        border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; 
-        align-items: center; transition: border-color 0.3s ease; 
-      }
+      .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
       
+      /* Logótipos Dinâmicos */
       .sidebar-logo { width: 140px; height: 90px; object-fit: contain; margin: 0 auto; display: block; }
       .light-logo { display: none; }
       body.light-mode .light-logo { display: block; }
       body.light-mode .dark-logo { display: none; }
 
-      .sidebar-item { 
-        padding: 18px 25px; font-size: 15px; font-weight: 500; color: var(--text-main); 
-        display: flex; align-items: center; gap: 15px; cursor: pointer; 
-        border-bottom: 1px solid rgba(255,255,255,0.02); transition: background-color 0.2s, color 0.3s ease; 
-      }
+      .sidebar-item { padding: 18px 25px; font-size: 15px; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02); transition: background-color 0.2s, color 0.3s ease; }
       .sidebar-item:active { background-color: var(--btn-secondary); }
       .sidebar-item.active { border-left: 4px solid var(--accent); background-color: rgba(255,107,0,0.05); color: var(--accent);}
       
+      /* Submenu (Árvore) */
       .sidebar-submenu { display: none; flex-direction: column; background-color: rgba(0,0,0,0.1); }
       body.light-mode .sidebar-submenu { background-color: rgba(0,0,0,0.02); }
       .sidebar-subitem { padding: 12px 25px 12px 55px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.01); }
@@ -162,16 +93,17 @@
       
       .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); }
       
+      /* Ícones SVG */
       .icon-svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 24px; height: 24px; margin-bottom: 4px; }
       .sidebar-icon-svg { width: 20px; height: 20px; flex-shrink: 0; margin-bottom: 0; }
       .btn-icon-svg { width: 20px; height: 20px; margin-bottom: 0; margin-right: 8px; }
 
+      /* BARRA INFERIOR (GLASSMORPHISM, ROUNDED, 4 ÍCONES) */
       #bottom-nav { 
         position: fixed; 
         /* Usar variavel de segurança do iPhone para afastar do fundo */
         bottom: calc(env(safe-area-inset-bottom) + 15px); 
-        left: 20px; 
-        right: 20px; 
+        left: 20px; right: 20px; 
         height: var(--bottom-nav-height); 
         background-color: rgba(35, 35, 35, 0.75); 
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
@@ -182,30 +114,20 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         transition: background-color 0.3s ease, border 0.3s ease; 
       }
-      body.light-mode #bottom-nav { 
-        background-color: rgba(255, 255, 255, 0.75); 
-        border: 1px solid rgba(0, 0, 0, 0.1); 
-      }
+      body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.1); }
 
-      .nav-btn { 
-        position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        width: 70px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; 
-      }
+      .nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
       .nav-btn:active { transform: scale(0.9); }
       .nav-btn.active { color: var(--accent); }
-      .nav-badge { 
-        position: absolute; top: 12px; right: 18px; width: 8px; height: 8px; 
-        background-color: #ff3b30; border-radius: 50%; display: none; 
-      }
+      /* Bolinha Vermelha de Notificação */
+      .nav-badge { position: absolute; top: 12px; right: 18px; width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; display: none; }
 
       @media (min-width: 800px) {
-        #bottom-nav { display: none; } 
-        .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
-        #app-container { flex-direction: row; } 
-        #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } 
-        #sidebar-overlay { display: none !important; }
+        #bottom-nav { display: none; } .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
+        #app-container { flex-direction: row; } #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } #sidebar-overlay { display: none !important; }
       }
 
+      /* WIDGETS DO DASHBOARD (HOME) */
       .dashboard-widget {
         background-color: var(--card-bg); width: 100%; border-radius: 20px; 
         padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color);
@@ -228,6 +150,7 @@
       .frase-autor { font-size: 11px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
       .quote-icon { opacity: 0.2; width: 24px; margin-bottom: 12px; fill: var(--text-main); }
 
+      /* LISTAS & INPUTS */
       .input-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
       .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
       .btn-add { background-color: var(--accent); color: #fff; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
@@ -244,61 +167,45 @@
       .btn-icon-list:active { transform: scale(0.9); color: var(--text-main); }
       .btn-apagar:active { color: #ff4d4d; }
 
+      /* BOTOES GERAIS */
       .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 16px; cursor: pointer; width: 100%; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
       .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
       .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
       .btn-acao:active { background-color: var(--border-color); }
 
+      /* SUPERMERCADOS E CARTÕES */
       .logos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
       .logo-card { background-color: #fff; border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease; height: 100px; }
       .logo-card:active { transform: scale(0.95); }
       .logo-card img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-      /* Cartão de Supermercado */
       .cartao-desconto-container { width: 100%; height: 200px; background-color: var(--card-bg); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; cursor: pointer; border: 1px dashed var(--border-color); transition: border-color 0.3s; position: relative;}
       .cartao-desconto-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: 2;}
       .textarea-obs { width: 100%; height: 100px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 15px; font-family: inherit; resize: none; margin-top: 10px; transition: border-color 0.3s; }
       .textarea-obs:focus { outline:none; border-color: var(--accent); }
 
-      .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
-      .user-info { display: flex; align-items: center; gap: 12px; text-align: left;}
-      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px;}
-      .user-name { font-size: 15px; font-weight: 500; color: var(--text-main); margin:0;}
-      
+      /* DEFINIÇÕES & CORES */
       .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
       .color-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
       .color-circle:active { transform: scale(0.8); }
 
-      /* Modals */
+      /* REDE SOCIAL / FAMILIA */
+      .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
+      .user-info { display: flex; align-items: center; gap: 12px; text-align: left;}
+      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px;}
+      .user-name { font-size: 15px; font-weight: 500; color: var(--text-main); margin:0;}
+
+      /* MODALS */
       .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);}
       .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
-      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background-color 0.3s ease; }
+      .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background-color 0.3s ease; max-height: 90vh; overflow-y: auto;}
       .modal-btn-row { display: flex; gap: 10px; margin-top: 15px; }
       .fullscreen-img { max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain; }
     </style>
   </head>
   <body>
 
-    <div id="auth-overlay">
-      <img src="logopreto_fundobranco.png" alt="Logo" class="sidebar-logo light-logo" style="margin-bottom: 30px; border-radius: 20px;" onerror="this.style.display='none'">
-      <img src="logobranco_semfundo.png" alt="Logo" class="sidebar-logo dark-logo" style="margin-bottom: 30px;" onerror="this.style.display='none'">
-      
-      <div class="auth-box">
-        <h2 style="margin-bottom: 25px; color: var(--text-main);" id="auth-title">Entrar na App</h2>
-        
-        <input type="text" id="auth-username" class="auth-input" placeholder="Nome de Utilizador">
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password Secreta">
-        <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display: none;">
-        
-        <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
-        <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Regista-te aqui.</p>
-        <p id="auth-error" style="color: #ff4d4d; font-size: 12px; margin-top: 15px; display: none;"></p>
-        
-        <p style="font-size: 10px; color: var(--text-muted); margin-top: 20px;">Para partilharem os dados, entrem os dois com a mesma conta!</p>
-      </div>
-    </div>
-
-    <div id="app-container" style="display: none;">
+    <div id="app-container">
       
       <!-- MENU LATERAL (SIDEBAR ACCORDION) -->
       <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
@@ -306,46 +213,46 @@
         <div class="sidebar-header">
           <img src="logobranco_semfundo.png" alt="Logo" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
           <img src="logopreto_semfundo.png" alt="Logo" class="sidebar-logo light-logo" onerror="this.style.display='none'">
-          <span style="font-size: 14px; font-weight: 500; color: var(--text-main); margin-top: 5px; letter-spacing: 0.5px;">Gestão G&N</span>
+          <span style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.5px;">Gestão G&N</span>
         </div>
         
         <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
-          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="handleSidebarClick('menu-principal')">
+          <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             Início
           </div>
 
-          <div class="sidebar-item" id="sidebtn-menu-familia" onclick="handleSidebarClick('menu-familia')">
+          <div class="sidebar-item" id="sidebtn-menu-familia" onclick="navegarMenu('menu-familia')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             Família & Amigos
           </div>
 
-          <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="handleSidebarClick('menu-notificacoes')">
+          <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="navegarMenu('menu-notificacoes')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
             Notificações
           </div>
 
           <!-- Supermercados Accordion -->
-          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="handleSidebarClick('menu-supermercados')">
+          <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="toggleSubmenu('submenu-supermercados', 'menu-supermercados')">
             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
             Supermercados
           </div>
-          <div class="sidebar-submenu" id="submenu-menu-supermercados">
+          <div class="sidebar-submenu" id="submenu-supermercados">
             <div class="sidebar-subitem" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</div>
             <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</div>
             <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</div>
           </div>
 
           <!-- Documentos Accordion -->
-          <div class="sidebar-item" id="sidebtn-menu-documentos-dummy" onclick="handleSidebarClick('menu-documentos-dummy')">
+          <div class="sidebar-item" id="sidebtn-menu-documentos-dummy" onclick="toggleSubmenu('submenu-documentos', null)">
              <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             Documentos Antigos
           </div>
-          <div class="sidebar-submenu" id="submenu-menu-documentos-dummy">
-            <div class="sidebar-subitem" onclick="mostrarAlerta('Funcionalidade na Google Sheet. (Em manutenção)')">Área do Casal</div>
+          <div class="sidebar-submenu" id="submenu-documentos">
+            <div class="sidebar-subitem" onclick="mostrarAlerta('A Área de Documentos está a ser migrada para a nova Base de Dados. Estará pronta em breve!')">Área do Casal</div>
           </div>
 
-          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="handleSidebarClick('menu-carros')">
+          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="navegarMenu('menu-carros')">
              <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
             Garagem
           </div>
@@ -359,6 +266,7 @@
         </div>
       </div>
 
+      <!-- BARRA INFERIOR (GLASSMORPHISM 4 ÍCONES) -->
       <div id="bottom-nav">
         <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
           <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -373,6 +281,7 @@
         </div>
         
         <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
+          <!-- A bolinha vermelha para notificações novas -->
           <div class="nav-badge" id="badge-notificacoes-bottom"></div>
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </div>
@@ -412,8 +321,8 @@
           <div class="dashboard-widget widget-tarefas">
             <h3><svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> A Fazer Hoje</h3>
             <div class="input-row">
-              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarItemDB('tarefas')">
-              <button class="btn-add" onclick="adicionarItemDB('tarefas')">
+              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarTarefaLocal()">
+              <button class="btn-add" onclick="adicionarTarefaLocal()">
                 <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               </button>
             </div>
@@ -425,12 +334,14 @@
         <div id="menu-familia" class="page">
           <h2>Adicionar Pessoas</h2>
           <div class="input-row">
-            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar o username exato..." oninput="pesquisarUtilizadores()">
+            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar o username exato...">
+            <button class="btn-add" onclick="mostrarAlerta('Pesquisa desativada temporariamente enquanto não ligas o Firebase!')">
+               <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
           </div>
-          <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom: 20px;"></div>
           
-          <h3 style="margin-top: 20px; text-align: center;">A Minha Rede</h3>
-          <div class="lista-itens" id="container-amigos"></div>
+          <h3 style="margin-top: 30px; text-align: center;">A Minha Rede</h3>
+          <p style="text-align:center;font-size:12px;color:var(--text-muted);">Sem amigos adicionados.</p>
         </div>
 
         <!-- PÁGINA: NOTIFICAÇÕES -->
@@ -443,20 +354,25 @@
 
         <!-- PÁGINA: SUPERMERCADOS (Main Menu) -->
         <div id="menu-supermercados" class="page">
-          <div class="header-decor"></div>
           <h1>Supermercados</h1>
           
           <button class="btn" onclick="navegarMenu('menu-super-logos')">
-            <svg class="icon-svg btn-icon-svg" style="color:var(--accent);" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            Lojas & Cartões de Desconto
+            <div style="display:flex; align-items:center;">
+              <svg class="icon-svg btn-icon-svg" style="color:var(--accent);" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+              Lojas & Cartões de Desconto
+            </div>
           </button>
           <button class="btn" onclick="navegarMenu('menu-compras-semanais')">
-            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-            Lista de Compras Semanal
+             <div style="display:flex; align-items:center;">
+              <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              Lista de Compras Semanal
+            </div>
           </button>
           <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">
-            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M5 22h14c1.1 0 2-.9 2-2V7.5L14.5 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-            Lista de Compras Rápida
+             <div style="display:flex; align-items:center;">
+              <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M5 22h14c1.1 0 2-.9 2-2V7.5L14.5 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+              Lista de Compras Rápida
+            </div>
           </button>
         </div>
 
@@ -478,9 +394,15 @@
           </div>
           
           <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
-          <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width: 100%; margin-bottom: 15px;">Fotografar / Inserir Cartão</button>
+          <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width: 100%; margin-bottom: 15px;">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Fotografar / Inserir Cartão
+          </button>
           
-          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #fff; width: 100%; padding: 15px; font-weight: 600;">Abrir Folheto da Semana</button>
+          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #fff; width: 100%; padding: 15px; font-weight: 600;">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            Abrir Folheto da Semana
+          </button>
           
           <h3 style="margin-top: 25px;">Notas / Observações</h3>
           <textarea id="detalhe-obs" class="textarea-obs" placeholder="Ex: A fruta é melhor aqui..." onchange="guardarObservacaoSuper()"></textarea>
@@ -490,8 +412,8 @@
         <div id="menu-compras-semanais" class="page">
           <h2>Lista Semanal</h2>
           <div class="input-row">
-            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar à lista semanal..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais')">
-            <button class="btn-add" onclick="adicionarItemDB('semanais')">
+            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar à lista semanal..." onkeypress="if(event.key === 'Enter') adicionarListaLocal('semanais', 'input-semanal')">
+            <button class="btn-add" onclick="adicionarListaLocal('semanais', 'input-semanal')">
               <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
           </div>
@@ -502,8 +424,8 @@
         <div id="menu-compras-rapidas" class="page">
           <h2>Compras Rápidas</h2>
           <div class="input-row">
-            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarItemDB('rapidas')">
-            <button class="btn-add" onclick="adicionarItemDB('rapidas')">
+            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarListaLocal('rapidas', 'input-rapidas')">
+            <button class="btn-add" onclick="adicionarListaLocal('rapidas', 'input-rapidas')">
               <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
           </div>
@@ -520,29 +442,29 @@
     </div>
 
     
-    <!-- MODAL DEFINIÇÕES -->
+    <!-- MODAL DEFINIÇÕES (Com 20 Cores) -->
     <div id="modal-definicoes" class="modal-overlay">
       <div class="modal-content" style="max-width: 400px;">
         <h2 style="margin-bottom: 20px;">Definições</h2>
         
-        <div class="user-card">
+        <div class="user-card" style="margin-bottom: 20px;">
           <div class="user-info">
-            <div class="user-avatar" id="settings-avatar">U</div>
+            <div class="user-avatar">L</div>
             <div>
-              <p class="user-name" id="settings-name">Utilizador</p>
-              <p style="font-size: 11px; color: var(--text-muted); margin:0;" id="settings-username">A carregar...</p>
+              <p class="user-name">Local User</p>
+              <p style="font-size: 11px; color: var(--text-muted); margin:0;">Login Firebase Desativado</p>
             </div>
           </div>
         </div>
 
-        <button class="btn-acao" style="width: 100%; margin: 15px 0; padding: 15px; background-color: var(--bg-color);" onclick="alternarTema()">
+        <button class="btn-acao" style="width: 100%; margin-bottom: 20px; padding: 15px; background-color: var(--bg-color);" onclick="alternarTema()">
           <span id="texto-tema-modal">Mudar para Modo Claro</span>
         </button>
 
-        <h3 style="text-align: left; font-size: 13px; color: var(--text-muted); margin-top: 20px;">COR DE DESTAQUE</h3>
+        <h3 style="text-align: left; font-size: 13px; color: var(--text-muted); margin-top: 10px;">COR DE DESTAQUE</h3>
         <div class="color-grid" id="color-picker-grid"></div>
 
-        <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; margin-top: 20px;" onclick="abrirModalLogout()">Terminar Sessão</button>
+        <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; margin-top: 20px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
         <button class="btn-acao" style="width: 100%; margin-top: 10px; background: transparent; border: none;" onclick="fecharModal('modal-definicoes')">Fechar</button>
       </div>
     </div>
@@ -554,7 +476,7 @@
         <p style="color: var(--text-muted); font-size: 14px; margin: 15px 0;">Tens a certeza que queres sair da tua conta?</p>
         <div class="modal-btn-row">
           <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
-          <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="fazerLogout()">Sair</button>
+          <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="mostrarAlerta('O sistema de contas está desligado para testes. Liga o Firebase para ativar!')">Sair</button>
         </div>
       </div>
     </div>
@@ -573,110 +495,15 @@
       </div>
     </div>
 
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-      import { getAuth, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-      import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-      // Configuração Base de Dados
-      const appId = 'gestao-gn-app';
-      const firebaseConfig = { apiKey: "demo-key", authDomain: "demo.firebaseapp.com", projectId: "demo-project" };
-      
-      let app, db, auth;
-      try { 
-        app = initializeApp(firebaseConfig); 
-        db = getFirestore(app); 
-        auth = getAuth(app); 
-      } catch(e) { 
-        console.error("Firebase Placeholder: Configura as chaves reais.", e); 
-      }
-
-      let userId = null;
-      let userName = "";
-      let isLoginMode = true; 
-      let currentSuperId = null;
-
+    <script>
       // ==========================================
-      // AUTENTICAÇÃO
-      // ==========================================
-      window.toggleAuthMode = function() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
-        document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar';
-        document.getElementById('auth-toggle-mode').innerText = isLoginMode ? 'Não tens conta? Regista-te aqui.' : 'Já tens conta? Entra aqui.';
-        document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
-        document.getElementById('auth-error').style.display = 'none';
-      }
-
-      window.handleAuth = async function() {
-        if(!auth) { alert("Modo Demo. Funcionalidade Cloud requer chaves."); return; }
-        
-        const userTyped = document.getElementById('auth-username').value.trim();
-        const pass = document.getElementById('auth-password').value;
-        const passConfirm = document.getElementById('auth-confirm-password').value;
-        const errEl = document.getElementById('auth-error');
-        
-        if(!userTyped || !pass) { errEl.innerText = "Preenche os campos."; errEl.style.display = 'block'; return; }
-        
-        const cleanUser = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '');
-        if(cleanUser.length < 3) { errEl.innerText = "Nome muito curto/inválido."; errEl.style.display = 'block'; return; }
-        
-        const fakeEmail = cleanUser + "@gestaogn.app";
-
-        try {
-          if (isLoginMode) {
-            await signInWithEmailAndPassword(auth, fakeEmail, pass);
-          } else {
-            if(pass !== passConfirm) throw new Error("As passwords não são iguais.");
-            if(pass.length < 6) throw new Error("A password deve ter 6 ou mais carateres.");
-            
-            const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass);
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
-              uid: cred.user.uid, username: userTyped, searchName: userTyped.toLowerCase()
-            });
-          }
-        } catch (error) {
-          errEl.innerText = "Erro: " + error.message.replace('Firebase:', ''); 
-          errEl.style.display = 'block';
-        }
-      }
-
-      window.abrirModalLogout = function() { window.fecharModal('modal-definicoes'); window.abrirModal('modal-logout'); }
-      window.fazerLogout = async function() { window.fecharModal('modal-logout'); if(auth) await signOut(auth); else window.location.reload(); }
-
-      if(auth) {
-        onAuthStateChanged(auth, async (user) => {
-          if (user && !user.isAnonymous) {
-            userId = user.uid;
-            document.getElementById('auth-overlay').style.opacity = '0';
-            setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
-            document.getElementById('app-container').style.display = 'flex';
-            
-            const profileDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
-            if(profileDoc.exists()) {
-               userName = profileDoc.data().username;
-               document.getElementById('settings-name').innerText = userName;
-               document.getElementById('settings-username').innerText = "@" + userName.toLowerCase();
-               document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase();
-            } else { userName = "User"; }
-            
-            iniciarListenersFirebase();
-          } else {
-            userId = null;
-            document.getElementById('auth-overlay').style.display = 'flex';
-            setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 10);
-            document.getElementById('app-container').style.display = 'none';
-          }
-        });
-      }
-
-      // ==========================================
-      // TEMAS E CORES
+      // TEMAS E 20 CORES (SETTINGS)
       // ==========================================
       const coresDestaque = [
-        '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', '#E5A8F2', '#FFCC00', '#FF2D55',
-        '#5AC8FA', '#00C7BE', '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', '#2ECC71',
-        '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
+        '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', 
+        '#E5A8F2', '#FFCC00', '#FF2D55', '#5AC8FA', '#00C7BE', 
+        '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', 
+        '#2ECC71', '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
       ];
 
       function renderColorPicker() {
@@ -717,40 +544,30 @@
       carregarConfigs();
 
       // ==========================================
-      // NAVEGAÇÃO E ACCORDION
+      // NAVEGAÇÃO E ACCORDION (ÁRVORE)
       // ==========================================
       let clickTimers = {};
-      window.handleSidebarClick = function(idPagina) {
-        if(clickTimers[idPagina]) {
-            clearTimeout(clickTimers[idPagina]); 
-            delete clickTimers[idPagina];
-            window.navegarMenu(idPagina);
+      
+      // Duplo clique vai para o menu principal. Clique simples expande a árvore.
+      window.toggleSubmenu = function(idSubmenu, idPaginaBase) {
+        if(clickTimers[idSubmenu]) {
+            clearTimeout(clickTimers[idSubmenu]); delete clickTimers[idSubmenu];
+            if(idPaginaBase) window.navegarMenu(idPaginaBase);
         } else {
-            clickTimers[idPagina] = setTimeout(() => {
-                delete clickTimers[idPagina];
-                const submenu = document.getElementById('submenu-' + idPagina);
-                if(submenu) {
-                  submenu.style.display = submenu.style.display === 'flex' ? 'none' : 'flex';
-                } else {
-                  window.navegarMenu(idPagina);
-                }
+            clickTimers[idSubmenu] = setTimeout(() => {
+                delete clickTimers[idSubmenu];
+                const sub = document.getElementById(idSubmenu);
+                if(sub) sub.style.display = sub.style.display === 'flex' ? 'none' : 'flex';
             }, 250);
         }
       }
 
-      window.abrirSidebar = function() { 
-        document.getElementById('sidebar').classList.add('open'); 
-        document.getElementById('sidebar-overlay').classList.add('open'); 
-      }
-      window.fecharSidebar = function() { 
-        document.getElementById('sidebar').classList.remove('open'); 
-        document.getElementById('sidebar-overlay').classList.remove('open'); 
-      }
+      window.abrirSidebar = function() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
+      window.fecharSidebar = function() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
       window.navegarMenu = function(idPagina) {
         window.fecharSidebar(); 
         
-        // Atualiza barra inferior
         document.getElementById('nav-btn-home').classList.remove('active');
         document.getElementById('nav-btn-familia').classList.remove('active');
         document.getElementById('nav-btn-notificacoes').classList.remove('active');
@@ -759,7 +576,6 @@
         if (idPagina === 'menu-familia') document.getElementById('nav-btn-familia').classList.add('active');
         if (idPagina === 'menu-notificacoes') document.getElementById('nav-btn-notificacoes').classList.add('active');
         
-        // Atualiza Sidebar lateral
         const sideBtns = document.getElementsByClassName('sidebar-item');
         for (let i = 0; i < sideBtns.length; i++) sideBtns[i].classList.remove('active');
         const sideElement = document.getElementById('sidebtn-' + idPagina);
@@ -768,14 +584,64 @@
         var paginas = document.getElementsByClassName('page');
         for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
         
-        setTimeout(() => { 
-          const ecr = document.getElementById(idPagina); 
-          if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); } 
-        }, 50);
+        setTimeout(() => { const ecr = document.getElementById(idPagina); if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); } }, 50);
       }
 
       // ==========================================
-      // LÓGICA DE SUPERMERCADOS E FOTOS (COMPRESSÃO)
+      // RELÓGIO & METEOROLOGIA & FRASE
+      // ==========================================
+      function atualizarRelogio() {
+        const agora = new Date(); 
+        const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]; 
+        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const elD = document.getElementById('data-atual'); const elH = document.getElementById('hora-atual');
+        if(elD) elD.innerText = `${dias[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
+        if(elH) elH.innerText = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
+      }
+      setInterval(atualizarRelogio, 1000); atualizarRelogio();
+
+      const frases = [
+        { texto: "Entregue o seu caminho ao Senhor; confie nele, e ele o fará.", autor: "Salmos 37:5" },
+        { texto: "Tudo posso naquele que me fortalece.", autor: "Filipenses 4:13" },
+        { texto: "O amor é paciente, o amor é bondoso. Tudo sofre, tudo crê, tudo espera, tudo suporta.", autor: "1 Coríntios 13:4-7" }
+      ];
+      function carregarFraseDoDia() {
+        const hoje = new Date(); const diaDoAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        const indexFrase = diaDoAno % frases.length;
+        document.getElementById('frase-texto').innerText = `"${frases[indexFrase].texto}"`; document.getElementById('frase-autor').innerText = frases[indexFrase].autor;
+      }
+      carregarFraseDoDia();
+
+      window.carregarMeteorologia = async function(forcarAviso = false) {
+        document.getElementById('meteo-desc').innerText = "A procurar...";
+        const buscarClima = async (lat, lon, nomeLocal) => {
+          try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+            const resposta = await fetch(url); const dados = await resposta.json(); const clima = dados.current_weather;
+            document.getElementById('meteo-temp').innerText = Math.round(clima.temperature) + "°";
+            document.getElementById('meteo-desc').innerText = "Atualizado";
+            document.getElementById('nome-cidade-texto').innerText = nomeLocal;
+          } catch(e) { document.getElementById('meteo-desc').innerText = "Sem dados"; }
+        };
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+              const lat = pos.coords.latitude; const lon = pos.coords.longitude;
+              try {
+                const respLocal = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`);
+                const dadosLocal = await respLocal.json(); const nomeCidade = dadosLocal.city || dadosLocal.locality || "Local";
+                buscarClima(lat, lon, nomeCidade);
+              } catch(e) { buscarClima(lat, lon, "Local"); }
+            },
+            (err) => { if(forcarAviso) alert("GPS desativado."); buscarClima(38.5244, -8.8882, "Setúbal"); }
+          );
+        } else { buscarClima(38.5244, -8.8882, "Setúbal"); }
+      }
+      setTimeout(() => window.carregarMeteorologia(false), 500);
+
+      // ==========================================
+      // LÓGICA DE SUPERMERCADOS (FOTOS & NOTAS)
       // ==========================================
       const supermercadosData = [
         { id: 'continente', nome: 'Continente', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg', link: 'https://folhetos.continente.pt/' },
@@ -785,103 +651,68 @@
         { id: 'intermarche', nome: 'Intermarché', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg', link: 'https://www.intermarche.pt/folhetos/' }
       ];
 
+      let currentSuperId = null;
+
       function renderizarLogosSupermercados() {
-        const container = document.getElementById('container-logos'); 
-        if(!container) return; 
-        container.innerHTML = '';
-        
+        const container = document.getElementById('container-logos'); if(!container) return; container.innerHTML = '';
         supermercadosData.forEach(s => {
-          const div = document.createElement('div'); 
-          div.className = 'logo-card'; 
-          div.onclick = () => window.abrirDetalheSupermercado(s.id);
-          div.innerHTML = `<img src="${s.logo}" alt="${s.nome}">`; 
-          container.appendChild(div);
+          const div = document.createElement('div'); div.className = 'logo-card'; div.onclick = () => window.abrirDetalheSupermercado(s.id);
+          div.innerHTML = `<img src="${s.logo}" alt="${s.nome}">`; container.appendChild(div);
         });
       }
       renderizarLogosSupermercados();
 
-      window.abrirDetalheSupermercado = async function(id) {
-        currentSuperId = id; 
-        const superInfo = supermercadosData.find(s => s.id === id);
-        
+      window.abrirDetalheSupermercado = function(id) {
+        currentSuperId = id; const superInfo = supermercadosData.find(s => s.id === id);
         document.getElementById('detalhe-nome').innerText = superInfo.nome;
         document.getElementById('btn-ver-folheto').onclick = () => window.open(superInfo.link, '_blank');
         
-        const imgEl = document.getElementById('detalhe-cartao-img'); 
-        const msgEl = document.getElementById('msg-sem-cartao'); 
-        const iconeEl = document.getElementById('icone-inserir-cartao');
-        
-        imgEl.style.display = 'none'; 
-        imgEl.src = ''; 
-        msgEl.style.display = 'block'; 
-        iconeEl.style.display = 'block';
+        const imgEl = document.getElementById('detalhe-cartao-img'); const msgEl = document.getElementById('msg-sem-cartao'); const iconeEl = document.getElementById('icone-inserir-cartao');
+        imgEl.style.display = 'none'; imgEl.src = ''; msgEl.style.display = 'block'; iconeEl.style.display = 'block';
         document.getElementById('detalhe-obs').value = "";
 
-        if(userId && db) {
-          const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', id));
-          if(docSnap.exists()) {
-             const data = docSnap.data();
-             if(data.notas) document.getElementById('detalhe-obs').value = data.notas;
-             if(data.cartao_img) { 
-               imgEl.src = data.cartao_img; 
-               imgEl.style.display = 'block'; 
-               msgEl.style.display = 'none'; 
-               iconeEl.style.display = 'none';
-             }
-          }
+        // Carrega da memória local do telemóvel para testes
+        const dataSalva = JSON.parse(localStorage.getItem('super_' + id) || '{}');
+        if(dataSalva.notas) document.getElementById('detalhe-obs').value = dataSalva.notas;
+        if(dataSalva.cartao_img) { 
+          imgEl.src = dataSalva.cartao_img; imgEl.style.display = 'block'; msgEl.style.display = 'none'; iconeEl.style.display = 'none';
         }
         window.navegarMenu('page-super-detail');
       }
 
-      window.guardarObservacaoSuper = async function() {
-        if(!userId || !currentSuperId || !db) return; 
+      window.guardarObservacaoSuper = function() {
+        if(!currentSuperId) return; 
         const text = document.getElementById('detalhe-obs').value;
-        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { notas: text }, {merge: true});
+        const dataSalva = JSON.parse(localStorage.getItem('super_' + currentSuperId) || '{}');
+        dataSalva.notas = text;
+        localStorage.setItem('super_' + currentSuperId, JSON.stringify(dataSalva));
       }
 
       window.cliqueCartao = function() {
         const img = document.getElementById('detalhe-cartao-img');
         if(img.style.display !== 'none' && img.src) { 
-          document.getElementById('img-fullscreen-cartao').src = img.src; 
-          window.abrirModal('modal-cartao'); 
-        } else {
-          document.getElementById('input-foto-cartao').click();
-        }
+          document.getElementById('img-fullscreen-cartao').src = img.src; window.abrirModal('modal-cartao'); 
+        } else { document.getElementById('input-foto-cartao').click(); }
       }
 
       window.processarFotoCartao = function(e) {
-        const file = e.target.files[0]; 
-        if(!file) return;
+        const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
-        
         reader.onload = function(event) {
           const img = new Image();
-          img.onload = async function() {
-            const canvas = document.createElement('canvas'); 
-            const max_size = 800; 
-            let width = img.width; 
-            let height = img.height;
-            
-            if (width > height) { 
-              if (width > max_size) { height *= max_size / width; width = max_size; } 
-            } else { 
-              if (height > max_size) { width *= max_size / height; height = max_size; } 
-            }
-            
-            canvas.width = width; 
-            canvas.height = height; 
-            const ctx = canvas.getContext('2d'); 
-            ctx.drawImage(img, 0, 0, width, height);
-            
+          img.onload = function() {
+            const canvas = document.createElement('canvas'); const max_size = 800; let width = img.width; let height = img.height;
+            if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
+            else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+            canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
             const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
             
-            document.getElementById('detalhe-cartao-img').src = dataUrl; 
-            document.getElementById('detalhe-cartao-img').style.display = 'block';
-            document.getElementById('msg-sem-cartao').style.display = 'none'; 
-            document.getElementById('icone-inserir-cartao').style.display = 'none';
+            document.getElementById('detalhe-cartao-img').src = dataUrl; document.getElementById('detalhe-cartao-img').style.display = 'block';
+            document.getElementById('msg-sem-cartao').style.display = 'none'; document.getElementById('icone-inserir-cartao').style.display = 'none';
 
-            if(userId && currentSuperId && db) {
-              await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { cartao_img: dataUrl }, {merge:true});
+            if(currentSuperId) {
+              const dataSalva = JSON.parse(localStorage.getItem('super_' + currentSuperId) || '{}');
+              dataSalva.cartao_img = dataUrl; localStorage.setItem('super_' + currentSuperId, JSON.stringify(dataSalva));
             }
           };
           img.src = event.target.result;
@@ -890,198 +721,56 @@
       }
 
       // ==========================================
-      // WIDGETS DO DASHBOARD
+      // LISTAS LOCAIS (TAREFAS, SEMANAIS E RÁPIDAS)
       // ==========================================
-      function atualizarRelogio() {
-        const agora = new Date(); 
-        const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]; 
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-        const elD = document.getElementById('data-atual'); 
-        const elH = document.getElementById('hora-atual');
-        
-        if(elD) elD.innerText = `${dias[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
-        if(elH) elH.innerText = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
-      }
-      setInterval(atualizarRelogio, 1000); 
-      atualizarRelogio();
+      const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
-      const frasesMotivacionais = [
-        { texto: "Entregue o seu caminho ao Senhor; confie nele, e ele o fará.", autor: "Salmos 37:5" },
-        { texto: "Tudo posso naquele que me fortalece.", autor: "Filipenses 4:13" },
-        { texto: "O amor é paciente, o amor é bondoso. Tudo sofre, tudo crê, tudo espera, tudo suporta.", autor: "1 Coríntios 13:4-7" }
-      ];
+      function gerarId() { return Math.random().toString(36).substr(2, 9); }
 
-      function carregarFraseDoDia() {
-        const hoje = new Date();
-        const diaDoAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-        const indexFrase = diaDoAno % frasesMotivacionais.length;
-        document.getElementById('frase-texto').innerText = `"${frasesMotivacionais[indexFrase].texto}"`;
-        document.getElementById('frase-autor').innerText = frasesMotivacionais[indexFrase].autor;
-      }
-      carregarFraseDoDia();
-
-      window.carregarMeteorologia = async function(forcarAviso = false) {
-        document.getElementById('meteo-desc').innerText = "A procurar...";
-        
-        const buscarClima = async (lat, lon, nomeLocal) => {
-          try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-            const resposta = await fetch(url);
-            const dados = await resposta.json();
-            const clima = dados.current_weather;
-            
-            document.getElementById('meteo-temp').innerText = Math.round(clima.temperature) + "°";
-            document.getElementById('meteo-desc').innerText = "Atualizado";
-            document.getElementById('nome-cidade-texto').innerText = nomeLocal;
-          } catch(e) {
-            document.getElementById('meteo-desc').innerText = "Sem dados";
-          }
-        };
-
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-              const lat = pos.coords.latitude;
-              const lon = pos.coords.longitude;
-              try {
-                const respLocal = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`);
-                const dadosLocal = await respLocal.json();
-                const nomeCidade = dadosLocal.city || dadosLocal.locality || "Localização Atual";
-                buscarClima(lat, lon, nomeCidade);
-              } catch(e) {
-                buscarClima(lat, lon, "Localização Atual");
-              }
-            },
-            (err) => {
-              if(forcarAviso) alert("GPS desativado. A usar Setúbal.");
-              buscarClima(38.5244, -8.8882, "Setúbal");
-            }
-          );
-        } else {
-          buscarClima(38.5244, -8.8882, "Setúbal");
+      // TAREFAS
+      window.adicionarTarefaLocal = function() {
+        const input = document.getElementById('input-nova-tarefa'); const texto = input.value.trim();
+        if(texto) {
+          let lista = JSON.parse(localStorage.getItem('list_tarefas') || '[]'); lista.push({id: gerarId(), texto: texto, feita: false});
+          localStorage.setItem('list_tarefas', JSON.stringify(lista)); input.value = ''; carregarListaLocal('tarefas', 'container-tarefas');
         }
       }
-      setTimeout(() => window.carregarMeteorologia(false), 500);
-
-      // ==========================================
-      // FIREBASE E REDE SOCIAL
-      // ==========================================
-      let unsusbscribes = [];
-      function iniciarListenersFirebase() {
-        if(!db) return;
-        unsusbscribes.forEach(unsub => unsub()); unsusbscribes = [];
-
-        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'tarefas'), (snap) => {
-          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderList(itens, 'container-tarefas', 'tarefas');
-        }));
-
-        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'semanais'), (snap) => {
-          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderList(itens, 'container-semanais', 'semanais');
-        }));
-
-        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'rapidas'), (snap) => {
-          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderList(itens, 'container-rapidas', 'rapidas');
-        }));
-
-        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'requests'), (snap) => {
-          let requests = []; snap.forEach(d => requests.push({id: d.id, ...d.data()}));
-          renderRequests(requests);
-          document.getElementById('badge-notificacoes-bottom').style.display = requests.length > 0 ? 'block' : 'none';
-        }));
-
-        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'friends'), (snap) => {
-          let friends = []; snap.forEach(d => friends.push({id: d.id, ...d.data()})); renderFriends(friends);
-        }));
-      }
-
-      function renderList(array, containerId, collName) {
-        const container = document.getElementById(containerId); if(!container) return; container.innerHTML = '';
-        if(array.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>'; return; }
-        
-        const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-        
-        array.sort((a,b) => a.timestamp - b.timestamp).forEach(item => {
-          const div = document.createElement('div'); div.className = 'list-item' + (item.feita ? ' feita' : '');
-          div.innerHTML = `
-            <div class="checkbox-custom" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})"></div>
-            <span class="item-texto" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})">${item.texto}</span>
-            <button class="btn-icon-list btn-apagar" onclick="apagarItemDB('${collName}', '${item.id}')">${iconTrash}</button>
-          `;
-          container.appendChild(div);
-        });
-      }
-
-      window.adicionarItemDB = async function(collName) {
-        if(!userId || !db) return;
-        let inputId = collName === 'tarefas' ? 'input-nova-tarefa' : (collName === 'semanais' ? 'input-semanal' : 'input-rapidas');
-        const input = document.getElementById(inputId); const text = input.value.trim();
-        if(text) { input.value = ''; await addDoc(collection(db, 'artifacts', appId, 'users', userId, collName), { texto: text, feita: false, timestamp: Date.now() }); }
-      }
-      window.toggleItemDB = async function(collName, id, status) { if(userId && db) await updateDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id), { feita: status }); }
-      window.apagarItemDB = async function(collName, id) { if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id)); }
-
-      window.pesquisarUtilizadores = async function() {
-        if(!db) return; 
-        const queryText = document.getElementById('input-search-users').value.toLowerCase(); 
-        const container = document.getElementById('container-pesquisa-users');
-        if(queryText.length < 2) { container.innerHTML = ''; return; }
-        
-        container.innerHTML = '<p style="text-align:center;font-size:12px;">A procurar...</p>';
-        const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles'));
-        let results = []; 
-        querySnapshot.forEach(doc => { 
-          let d = doc.data(); 
-          if(d.uid !== userId && d.searchName && d.searchName.includes(queryText)) results.push(d); 
-        });
-        
-        container.innerHTML = ''; 
-        if(results.length === 0) container.innerHTML = '<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>';
-        
-        results.forEach(u => {
-          const div = document.createElement('div'); div.className = 'user-card';
-          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.username.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${u.username}</p></div></div><button class="btn-add" style="width:auto; padding: 5px 15px; font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button>`;
-          container.appendChild(div);
-        });
-      }
-
-      window.enviarPedido = async function(targetUid, targetName) {
-        if(!userId || !db) return; 
-        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'requests', userId), { fromUid: userId, fromName: userName, timestamp: Date.now() });
-        document.getElementById('mensagem-alerta').innerText = `Pedido enviado a ${targetName}!`; 
-        window.abrirModal('modal-alerta');
-        document.getElementById('input-search-users').value = ''; 
-        document.getElementById('container-pesquisa-users').innerHTML = '';
-      }
-
-      function renderRequests(requests) {
-        const container = document.getElementById('container-pedidos'); if(!container) return; container.innerHTML = '';
-        if(requests.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>'; return; }
-        requests.forEach(r => {
-          const div = document.createElement('div'); div.className = 'user-card';
-          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${r.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${r.fromName}</p><p style="font-size:11px; color:var(--text-muted); margin:0;">Pedido de amizade</p></div></div><div style="display:flex; gap:5px;"><button class="btn-add" style="background-color: var(--accent); width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${r.fromUid}', '${r.fromName}')">✓</button><button class="btn-add" style="background-color: #ff3b30; width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${r.fromUid}')">✕</button></div>`;
-          container.appendChild(div);
-        });
-      }
-
-      window.aceitarPedido = async function(targetUid, targetName) {
-        if(!userId || !db) return; 
-        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', targetUid), { name: targetName, uid: targetUid }); 
-        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'friends', userId), { name: userName, uid: userId }); 
-        await window.recusarPedido(targetUid); 
-      }
       
-      window.recusarPedido = async function(targetUid) { 
-        if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'requests', targetUid)); 
+      // GERAL
+      window.adicionarListaLocal = function(tipo, inputId) {
+        const input = document.getElementById(inputId); const texto = input.value.trim();
+        if(texto) {
+          let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]'); lista.push({id: gerarId(), texto: texto, feita: false});
+          localStorage.setItem('list_' + tipo, JSON.stringify(lista)); input.value = ''; carregarListaLocal(tipo, 'container-' + tipo);
+        }
       }
 
-      function renderFriends(friends) {
-        const container = document.getElementById('container-amigos'); if(!container) return; container.innerHTML = '';
-        if(friends.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return; }
-        friends.forEach(f => {
-          const div = document.createElement('div'); div.className = 'user-card';
-          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${f.name.charAt(0).toUpperCase()}</div><p class="user-name">${f.name}</p></div>`; container.appendChild(div);
+      window.toggleItemLocal = function(tipo, id) {
+        let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]');
+        const item = lista.find(i => i.id === id); if(item) { item.feita = !item.feita; localStorage.setItem('list_' + tipo, JSON.stringify(lista)); carregarListaLocal(tipo, 'container-' + tipo); }
+      }
+
+      window.apagarItemLocal = function(tipo, id) {
+        let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]');
+        lista = lista.filter(i => i.id !== id); localStorage.setItem('list_' + tipo, JSON.stringify(lista)); carregarListaLocal(tipo, 'container-' + tipo);
+      }
+
+      window.carregarListaLocal = function(tipo, containerId) {
+        const container = document.getElementById(containerId); if(!container) return; container.innerHTML = '';
+        let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]');
+        if(lista.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>'; return; }
+        
+        lista.forEach(item => {
+          const div = document.createElement('div'); div.className = 'list-item' + (item.feita ? ' feita' : '');
+          div.innerHTML = `<div class="checkbox-custom" onclick="toggleItemLocal('${tipo}', '${item.id}')"></div><span class="item-texto" onclick="toggleItemLocal('${tipo}', '${item.id}')">${item.texto}</span><button class="btn-icon-list btn-apagar" onclick="apagarItemLocal('${tipo}', '${item.id}')">${iconTrash}</button>`;
+          container.appendChild(div);
         });
       }
+
+      // Iniciar Listas ao abrir
+      carregarListaLocal('tarefas', 'container-tarefas');
+      carregarListaLocal('semanais', 'container-semanais');
+      carregarListaLocal('rapidas', 'container-rapidas');
 
       // Funcionalidades de Modals
       window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); }

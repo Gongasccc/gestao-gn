@@ -787,7 +787,7 @@
        ========================================= */
     .stats-viagens { 
       display: grid; 
-      grid-template-columns: 1fr 1fr 1fr; 
+      grid-template-columns: 1fr; /* Otimizado para apenas 1 métrica */
       gap: 10px; 
       width: 100%; 
       margin-bottom: 25px; 
@@ -1262,16 +1262,8 @@
         
         <div class="stats-viagens">
           <div class="stat-box">
-            <span class="stat-num">195</span>
-            <span class="stat-lbl">Mundo</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="stat-visitados">0</span>
-            <span class="stat-lbl" style="color:var(--accent);">Visitados</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="stat-faltam">195</span>
-            <span class="stat-lbl">Faltam</span>
+            <span class="stat-num" id="stat-total-viagens">0</span>
+            <span class="stat-lbl" style="color:var(--accent);">Viagens Guardadas</span>
           </div>
         </div>
         
@@ -1408,7 +1400,7 @@
       <div id="menu-compras-semanais" class="page">
         <h2>Lista Semanal</h2>
         <div class="input-row">
-          <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item...">
+          <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais', 'input-semanal')">
           <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">+</button>
         </div>
         <div class="lista-itens" id="container-semanais"></div>
@@ -1418,7 +1410,7 @@
       <div id="menu-compras-rapidas" class="page">
         <h2>Compras Rápidas</h2>
         <div class="input-row">
-          <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente...">
+          <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarItemDB('rapidas', 'input-rapidas')">
           <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">+</button>
         </div>
         <div class="lista-itens" id="container-rapidas"></div>
@@ -1866,9 +1858,11 @@
         
         const paises = ["Afeganistão", "África do Sul", "Albânia", "Alemanha", "Andorra", "Angola", "Antígua e Barbuda", "Arábia Saudita", "Argélia", "Argentina", "Arménia", "Austrália", "Áustria", "Azerbaijão", "Bahamas", "Bangladexe", "Barbados", "Barém", "Bélgica", "Belize", "Benim", "Bielorrússia", "Bolívia", "Bósnia e Herzegovina", "Botsuana", "Brasil", "Brunei", "Bulgária", "Burquina Fasso", "Burúndi", "Butão", "Cabo Verde", "Camarões", "Camboja", "Canadá", "Catar", "Cazaquistão", "Chade", "Chile", "China", "Chipre", "Colômbia", "Comores", "Congo-Brazzaville", "Congo-Kinshasa", "Coreia do Norte", "Coreia do Sul", "Costa do Marfim", "Costa Rica", "Croácia", "Cuaite", "Cuba", "Dinamarca", "Dominica", "Egito", "Emirados Árabes Unidos", "Equador", "Eritreia", "Eslováquia", "Eslovénia", "Espanha", "Estado da Palestina", "Estados Unidos", "Estónia", "Eswatini", "Etiópia", "Fiji", "Filipinas", "Finlândia", "França", "Gabão", "Gâmbia", "Gana", "Geórgia", "Granada", "Grécia", "Guatemala", "Guiana", "Guiné", "Guiné Equatorial", "Guiné-Bissau", "Haiti", "Honduras", "Hungria", "Iémen", "Ilhas Marshall", "Índia", "Indonésia", "Irão", "Iraque", "Irlanda", "Islândia", "Israel", "Itália", "Jamaica", "Japão", "Jibuti", "Jordânia", "Kiribati", "Lesoto", "Letónia", "Líbano", "Libéria", "Líbia", "Listenstaine", "Lituânia", "Luxemburgo", "Macedónia do Norte", "Madagáscar", "Malásia", "Malaúi", "Maldivas", "Mali", "Malta", "Marrocos", "Maurícia", "Mauritânia", "México", "Mianmar", "Micronésia", "Moçambique", "Moldávia", "Mónaco", "Mongólia", "Montenegro", "Namíbia", "Nauru", "Nepal", "Nicarágua", "Níger", "Nigéria", "Noruega", "Nova Zelândia", "Omã", "Países Baixos", "Palau", "Panamá", "Papua Nova Guiné", "Paquistão", "Paraguai", "Peru", "Polónia", "Portugal", "Quénia", "Quirguistão", "Reino Unido", "República Centro-Africana", "República Checa", "República Dominicana", "Roménia", "Ruanda", "Rússia", "Ilhas Salomão", "El Salvador", "Samoa", "Santa Lúcia", "São Cristóvão e Neves", "São Marinho", "São Tomé e Príncipe", "São Vicente e Granadinas", "Seicheles", "Senegal", "Serra Leoa", "Sérvia", "Singapura", "Síria", "Somália", "Sri Lanca", "Sudão", "Sudão do Sul", "Suécia", "Suíça", "Suriname", "Tailândia", "Tajiquistão", "Tanzânia", "Timor-Leste", "Togo", "Tonga", "Trindade e Tobago", "Tunísia", "Turquemenistão", "Turquia", "Tuvalu", "Ucrânia", "Uganda", "Uruguai", "Usbequistão", "Vanuatu", "Vaticano", "Venezuela", "Vietname", "Zâmbia", "Zimbábue"];
         
+        let paisesHtml = '<option value="" disabled selected>Escolhe o Destino (País)...</option>';
         paises.forEach(p => {
-            selectTarget.innerHTML += `<option value="${p}">${p}</option>`;
+            paisesHtml += `<option value="${p}">${p}</option>`;
         });
+        selectTarget.innerHTML = paisesHtml;
     }
     
     function carregarConfigs() {
@@ -2069,11 +2063,12 @@
                 viagensData.push({id: documento.id, ...documento.data()});
             });
             
-            // Segurança Ativada: Ignora campos vazios e conta apenas os países únicos sem falhar
-            const paisesVisitadosUnicos = new Set(viagensData.map(v => v.paisCode).filter(Boolean)).size;
-
-            document.getElementById('stat-visitados').innerText = paisesVisitadosUnicos; 
-            document.getElementById('stat-faltam').innerText = 195 - paisesVisitadosUnicos;
+            // Otimização: Remoção da contagem de países complexa
+            const totalDeViagensGuardadas = viagensData.length;
+            const elementoStatsVis = document.getElementById('stat-total-viagens');
+            if (elementoStatsVis) {
+                elementoStatsVis.innerText = totalDeViagensGuardadas; 
+            }
             
             renderViagensCards(); 
           
@@ -2099,32 +2094,33 @@
         unsusbscribes.push(listenerViagens);
     }
 
-    // Processamento Dinâmico de Listas Gerais (Tarefas, Semanas, Rápidas)
+    // Processamento Dinâmico Otimizado de Listas Gerais (Tarefas, Semanas, Rápidas)
     function renderListDB(arrayItens, idContentorHTML, nomeColecaoDb) { 
         const contentor = document.getElementById(idContentorHTML); 
-        contentor.innerHTML = ''; 
         
         // Ordenar os mais antigos primeiro (segurança: || 0)
         arrayItens.sort(function(a, b) { 
             return (a.timestamp || 0) - (b.timestamp || 0); 
         });
         
+        // Injeção única em string (Super Rápido!)
+        let htmlAcumulado = '';
         arrayItens.forEach(function(item) { 
             let stringClassItem = 'list-item';
             if (item.feita === true) {
                 stringClassItem += ' feita';
             }
             
-            const htmlItem = `
+            htmlAcumulado += `
                 <div class="${stringClassItem}">
                     <div class="checkbox-custom" onclick="toggleItemDB('${nomeColecaoDb}','${item.id}', ${!item.feita})"></div>
                     <span class="item-texto" onclick="toggleItemDB('${nomeColecaoDb}','${item.id}', ${!item.feita})">${item.texto}</span>
                     <button class="btn-icon-list" onclick="apagarItemDB('${nomeColecaoDb}','${item.id}')">${iconTrash}</button>
                 </div>
             `;
-            
-            contentor.innerHTML += htmlItem; 
         }); 
+        
+        contentor.innerHTML = htmlAcumulado;
     }
     
     // API de Adição/Alteração/Apagar Itens Genéricos
@@ -2168,19 +2164,16 @@
         const contentorLogos = document.getElementById('container-logos'); 
         if (!contentorLogos) return; 
         
-        contentorLogos.innerHTML = ''; 
-        
+        let htmlLogos = '';
         informacaoLojas.forEach(function(lojaSupermercado) { 
-            const caixaDiv = document.createElement('div'); 
-            caixaDiv.className = 'logo-card'; 
-            
-            caixaDiv.onclick = function() {
-                window.abrirDetalheSupermercado(lojaSupermercado.id);
-            };
-            
-            caixaDiv.innerHTML = `<img src="${lojaSupermercado.logo}">`; 
-            contentorLogos.appendChild(caixaDiv); 
+            htmlLogos += `
+                <div class="logo-card" onclick="abrirDetalheSupermercado('${lojaSupermercado.id}')">
+                    <img src="${lojaSupermercado.logo}">
+                </div>
+            `;
         }); 
+        
+        contentorLogos.innerHTML = htmlLogos;
     } 
     
     // Iniciar a renderização do menu de supermercados
@@ -2328,12 +2321,12 @@
         
         if (arrayEncontrados.length === 0) {
             contentorDeResultados.innerHTML = '<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>';
-        } else {
-            contentorDeResultados.innerHTML = ''; 
-        }
+            return;
+        } 
         
+        let htmlGeralPesquisa = '';
         arrayEncontrados.forEach(function(utilizadorEncontrado) { 
-            contentorDeResultados.innerHTML += `
+            htmlGeralPesquisa += `
                 <div class="user-card">
                     <div class="user-info">
                         <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
@@ -2347,6 +2340,8 @@
                 </div>
             `; 
         }); 
+        
+        contentorDeResultados.innerHTML = htmlGeralPesquisa;
     }
     
     window.enviarPedido = async function(idDoAlvo, nomeDoAlvo) { 
@@ -2362,15 +2357,15 @@
     
     function renderRequestsDB(listaDePedidos) { 
         const contentorDeNotificacoes = document.getElementById('container-pedidos'); 
-        contentorDeNotificacoes.innerHTML = ''; 
         
         if (listaDePedidos.length === 0) { 
             contentorDeNotificacoes.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Sem notificações de momento.</p>'; 
             return; 
         } 
         
+        let pedidosHTML = '';
         listaDePedidos.forEach(function(pedidoAtual) { 
-            contentorDeNotificacoes.innerHTML += `
+            pedidosHTML += `
                 <div class="user-card">
                     <div class="user-info">
                         <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
@@ -2388,6 +2383,8 @@
                 </div>
             `; 
         }); 
+        
+        contentorDeNotificacoes.innerHTML = pedidosHTML;
     }
     
     window.aceitarPedido = async function(idDoAlvo, nomeDoAlvo) { 
@@ -2402,15 +2399,15 @@
     
     function renderFriendsDB(listaDeAmigos) { 
         const contentorDeAmigos = document.getElementById('container-amigos'); 
-        contentorDeAmigos.innerHTML = ''; 
         
         if (listaDeAmigos.length === 0) { 
             contentorDeAmigos.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; 
             return; 
         } 
         
+        let amizadesHTML = '';
         listaDeAmigos.forEach(function(amigoAtual) { 
-            contentorDeAmigos.innerHTML += `
+            amizadesHTML += `
                 <div class="user-card">
                     <div class="user-info">
                         <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
@@ -2421,28 +2418,29 @@
                 </div>
             `; 
         }); 
+        
+        contentorDeAmigos.innerHTML = amizadesHTML;
     }
 
     // ==========================================
-    // SISTEMA PRINCIPAL DE VIAGENS (S/ MAPA)
+    // SISTEMA PRINCIPAL DE VIAGENS OTIMIZADO
     // ==========================================
     function renderViagensCards() { 
         const contentorViagens = document.getElementById('container-viagens'); 
-        contentorViagens.innerHTML = ''; 
         
         if (viagensData.length === 0) {
             contentorViagens.innerHTML = '<p style="text-align:center;font-size:13px;color:var(--text-muted);">Ainda não há viagens partilhadas na vossa rede.</p>'; 
             return;
         } 
         
-        // Segurança Extra: Garante que os números das antigas viagens não falham
         viagensData.sort(function(a, b) {
             return (b.timestamp || 0) - (a.timestamp || 0);
         });
         
+        let htmlGeralViagens = '';
         viagensData.forEach(function(viagemElement) { 
             const urlBackground = viagemElement.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
-            const htmlDaViagem = `
+            htmlGeralViagens += `
                 <div class="trip-card" onclick="abrirDetalheViagem('${viagemElement.id}')">
                     <img class="trip-cover" src="${urlBackground}">
                     <div class="trip-overlay">
@@ -2451,8 +2449,9 @@
                     </div>
                 </div>
             `;
-            contentorViagens.innerHTML += htmlDaViagem; 
         }); 
+        
+        contentorViagens.innerHTML = htmlGeralViagens; 
     }
     
     window.processarFotoViagem = function(eventoFicheiro) { 
@@ -2616,15 +2615,14 @@
 
     function renderMembrosSettings() {
          const objSeletorSplitwise = document.getElementById('exp-pagador'); 
-         objSeletorSplitwise.innerHTML = ''; 
-         
          const uiListaDeParticipantesAtuais = document.getElementById('trip-membros-list'); 
-         uiListaDeParticipantesAtuais.innerHTML = '';
          
+         let selHtml = '';
+         let listHtml = '';
+
          currentTripDoc.membros_info.forEach(function(participante) { 
-             objSeletorSplitwise.innerHTML += `<option value="${participante.uid}">${participante.nome} pagou o total</option>`; 
-             
-             uiListaDeParticipantesAtuais.innerHTML += `
+             selHtml += `<option value="${participante.uid}">${participante.nome} pagou o total</option>`; 
+             listHtml += `
                 <div class="user-card" style="padding:10px;">
                     <div class="user-info">
                         <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
@@ -2635,21 +2633,25 @@
                 </div>`; 
          });
          
+         objSeletorSplitwise.innerHTML = selHtml;
+         uiListaDeParticipantesAtuais.innerHTML = listHtml;
+         
          const dropdownAmigosConvidaveis = document.getElementById('trip-amigos-disponiveis'); 
-         dropdownAmigosConvidaveis.innerHTML = ''; 
+         let ddAmigos = '';
          let estadoComAmigosParaConvidar = false;
          
          minhaRede.forEach(function(conhecidoDaRedeGeral) { 
-             // Se este meu amigo não estiver já no array da viagem
              if (!currentTripDoc.membros_uids.includes(conhecidoDaRedeGeral.uid)) { 
-                 dropdownAmigosConvidaveis.innerHTML += `<option value="${conhecidoDaRedeGeral.uid}" data-nome="${conhecidoDaRedeGeral.name}">${conhecidoDaRedeGeral.name}</option>`; 
+                 ddAmigos += `<option value="${conhecidoDaRedeGeral.uid}" data-nome="${conhecidoDaRedeGeral.name}">${conhecidoDaRedeGeral.name}</option>`; 
                  estadoComAmigosParaConvidar = true; 
              } 
          });
          
          if (!estadoComAmigosParaConvidar) {
-             dropdownAmigosConvidaveis.innerHTML = '<option value="">Toda a tua rede já cá está!</option>';
+             ddAmigos = '<option value="">Toda a tua rede já cá está!</option>';
          }
+         
+         dropdownAmigosConvidaveis.innerHTML = ddAmigos;
     }
     
     window.adicionarMembroViagem = async function() {
@@ -2683,7 +2685,7 @@
             return individuoMembro.uid === quemPagouUID;
         });
         
-        const nomeQuemPagouRealidade = pessoaQuePagouObjeto.nome;
+        const nomeQuemPagouRealidade = pessoaQuePagouObjeto ? pessoaQuePagouObjeto.nome : "Desconhecido";
         
         await addDoc(
             collection(db, 'artifacts', appId, 'viagens_partilhadas', currentTripId, 'despesas'), 
@@ -2696,7 +2698,6 @@
     
     function renderizarDespesas(listaExpensa) {
         const caixaParaDespesas = document.getElementById('container-despesas'); 
-        caixaParaDespesas.innerHTML = ''; 
         
         let saldosPessoais = {}; 
         let totalFinanceiroViajem = 0;
@@ -2704,6 +2705,8 @@
         currentTripDoc.membros_info.forEach(function(mem) { 
             saldosPessoais[mem.uid] = { nome: mem.nome, pago: 0 }; 
         });
+        
+        let htmlGeralDespesas = '';
         
         listaExpensa.sort(function(anteriorD, recenteD) {
             return recenteD.timestamp - anteriorD.timestamp;
@@ -2714,7 +2717,7 @@
             
             totalFinanceiroViajem += expenseDoLoop.valor;
             
-            caixaParaDespesas.innerHTML += `
+            htmlGeralDespesas += `
                 <div class="expense-item">
                     <div class="exp-info">
                         <span class="exp-title">${expenseDoLoop.desc}</span>
@@ -2727,6 +2730,8 @@
                 </div>
             `; 
         });
+        
+        caixaParaDespesas.innerHTML = htmlGeralDespesas;
         
         document.getElementById('split-total').innerText = totalFinanceiroViajem.toFixed(2) + '€';
         

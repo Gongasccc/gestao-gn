@@ -523,8 +523,40 @@
     setTimeout(() => window.carregarMeteorologia(), 500);
 
     function iniciarListenersFirebase() {
-        if(!db) return; unsusbscribes.forEach(f => f()); unsusbscribes = []; 
-        const mRef = collection(db, 'artifacts', appId, 'users', userId);
+    if(!db) return; unsusbscribes.forEach(f => f()); unsusbscribes = []; 
+    
+    // CORREÇÃO: Para aceder às subcoleções do utilizador, usamos doc() para obter o documento do utilizador (4 partes)
+    const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
+    
+    const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(userDocRef, col), s => {
+        let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderListDB(arr, ui, col);
+    }));
+    attachList('tarefas', 'container-tarefas'); attachList('semanais', 'container-semanais'); attachList('rapidas', 'container-rapidas');
+    
+    unsusbscribes.push(onSnapshot(collection(userDocRef, 'requests'), s => {
+        let reqs = []; s.forEach(d => reqs.push({id:d.id, ...d.data()})); renderRequestsDB(reqs); 
+        document.getElementById('badge-notificacoes-bottom').style.display = reqs.length > 0 ? 'block' : 'none';
+    }));
+    
+    unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
+
+    // VIAGENS
+    const qViagens = collection(db, 'artifacts', appId, 'viagens_partilhadas');
+    unsusbscribes.push(onSnapshot(qViagens, s => {
+        viagensData = []; 
+        s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
+        if(document.getElementById('stat-total-viagens')) document.getElementById('stat-total-viagens').innerText = viagensData.length; 
+        renderViagensCards(); 
+        if(currentTripId){
+            const tripAtual = viagensData.find(v => v.id === currentTripId);
+            if(tripAtual){ currentTripDoc = tripAtual; if(document.activeElement !== document.getElementById('trip-planner-text')) document.getElementById('trip-planner-text').value = tripAtual.planeador || ""; renderMembrosSettings(); }
+            else navegarMenu('menu-viagens');
+        }
+    }, err => {
+        console.error("Erro Viagens:", err);
+        window.mostrarAlerta("Erro a obter viagens: " + err.message);
+    }));
+}
         
         const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(mRef, col), s => {
             let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderListDB(arr, ui, col);

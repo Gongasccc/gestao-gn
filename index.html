@@ -393,11 +393,19 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const app = initializeApp({apiKey:"AIzaSyA0eKe5JypkhtfrssIie0BA5g_2QMzr5d0",authDomain:"gestao-gn.firebaseapp.com",projectId:"gestao-gn",storageBucket:"gestao-gn.firebasestorage.app",appId:"1:443510448711:web:a615ebd9cf2ec549e60762"});
-    const db = getFirestore(app); const auth = getAuth(app);
+    const app = initializeApp({
+      apiKey:"AIzaSyA0eKe5JypkhtfrssIie0BA5g_2QMzr5d0",
+      authDomain:"gestao-gn.firebaseapp.com",
+      projectId:"gestao-gn",
+      storageBucket:"gestao-gn.firebasestorage.app",
+      appId:"1:443510448711:web:a615ebd9cf2ec549e60762"
+    });
+    const db = getFirestore(app); 
+    const auth = getAuth(app);
     const appId = 'gestao-gn-app';
-    let userId=null, userName="", isLoginMode=true, currentSuperId=null, unsusbscribes=[], pageHistory=['menu-principal'];
-    let viagensData=[], currentTripId=null, tempCapaUrl="", minhaRede=[], currentTripDoc=null;
+
+    let userId = null, userName = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
+    let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
     window.toggleAuthMode = () => { 
@@ -405,7 +413,7 @@
         document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
         document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar e Entrar';
         document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
-    }
+    };
 
     window.handleAuth = async () => {
         const userTyped = document.getElementById('auth-username').value.trim(); 
@@ -413,38 +421,56 @@
         const fakeEmail = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '') + "@gestaogn.app";
         if (!userTyped || !pass) return;
         try { 
-            if (isLoginMode) await signInWithEmailAndPassword(auth, fakeEmail, pass);
-            else { 
+            if (isLoginMode) {
+                await signInWithEmailAndPassword(auth, fakeEmail, pass);
+            } else { 
                 const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass); 
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {uid:cred.user.uid, username:userTyped, searchName:userTyped.toLowerCase()}); 
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
+                  uid: cred.user.uid, 
+                  username: userTyped, 
+                  searchName: userTyped.toLowerCase()
+                }); 
             }
-        } catch(e){ document.getElementById('auth-error').innerText="Erro no Login. Verifica os dados."; document.getElementById('auth-error').style.display='block'; }
-    }
+        } catch(e) { 
+            document.getElementById('auth-error').innerText = "Erro no Login. Verifica os dados."; 
+            document.getElementById('auth-error').style.display = 'block'; 
+        }
+    };
 
-    window.fazerLogout = async () => { if(auth) await signOut(auth); else window.location.reload(); }
+    window.fazerLogout = async () => { 
+        if (auth) await signOut(auth); 
+        else window.location.reload(); 
+    };
 
     if (auth) {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid; 
                 document.getElementById('auth-overlay').style.opacity = '0';
-                setTimeout(() => { document.getElementById('auth-overlay').style.display='none'; document.getElementById('app-container').style.display='flex'; }, 500);
+                setTimeout(() => { 
+                    document.getElementById('auth-overlay').style.display = 'none'; 
+                    document.getElementById('app-container').style.display = 'flex'; 
+                }, 500);
                 try {
                     const profile = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
-                    if(profile.exists()){ userName=profile.data().username; document.getElementById('settings-name').innerText=userName; document.getElementById('settings-avatar').innerText=userName.charAt(0).toUpperCase(); }
+                    if (profile.exists()) { 
+                        userName = profile.data().username; 
+                        document.getElementById('settings-name').innerText = userName; 
+                        document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase(); 
+                    }
                 } catch(e){}
                 iniciarListenersFirebase();
             } else { 
                 document.getElementById('auth-overlay').style.display = 'flex';
-                setTimeout(() => { document.getElementById('auth-overlay').style.opacity='1'; }, 100);
+                setTimeout(() => { document.getElementById('auth-overlay').style.opacity = '1'; }, 100);
                 document.getElementById('app-container').style.display = 'none'; 
             }
         });
     }
 
-    window.abrirSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
-    window.fecharSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
-    window.toggleSubmenu = (idSub, idBase) => { const s = document.getElementById(idSub); if(s.style.display==='flex'){s.style.display='none'; if(idBase) navegarMenu(idBase);}else{s.style.display='flex';} }
+    window.abrirSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); };
+    window.fecharSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); };
+    window.toggleSubmenu = (idSub, idBase) => { const s = document.getElementById(idSub); if(s.style.display==='flex'){s.style.display='none'; if(idBase) navegarMenu(idBase);}else{s.style.display='flex';} };
     
     window.navegarMenu = (idPagina, isBack=false) => {
         window.fecharSidebar(); 
@@ -457,7 +483,7 @@
         
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         setTimeout(() => { const np = document.getElementById(idPagina); if(np){np.classList.add('active'); window.scrollTo(0,0);} }, 50);
-    }
+    };
 
     let touchStartX=0, touchStartY=0;
     document.addEventListener('touchstart', e => { touchStartX=e.changedTouches[0].screenX; touchStartY=e.changedTouches[0].screenY; }, {passive:true});
@@ -483,14 +509,14 @@
         });
     }
     
-    window.mudarCorApp = (nc) => { document.documentElement.style.setProperty('--accent', nc); localStorage.setItem('accentColorApp', nc); document.getElementById('cor-atual-bolinha').style.backgroundColor = nc; renderColorPicker(); }
+    window.mudarCorApp = (nc) => { document.documentElement.style.setProperty('--accent', nc); localStorage.setItem('accentColorApp', nc); document.getElementById('cor-atual-bolinha').style.backgroundColor = nc; renderColorPicker(); };
     window.alternarTema = () => {
         const isL = document.body.classList.toggle('light-mode'); 
         document.getElementById('texto-tema-modal').innerText = isL ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro'; 
         document.getElementById('svg-moon').style.display = isL ? 'block' : 'none'; 
         document.getElementById('svg-sun').style.display = isL ? 'none' : 'block'; 
         localStorage.setItem('temaApp', isL ? 'light' : 'dark'); 
-    }
+    };
 
     if(localStorage.getItem('temaApp') === 'light'){ document.body.classList.add('light-mode'); document.getElementById('texto-tema-modal').innerText='Mudar para Modo Escuro'; document.getElementById('svg-moon').style.display='block'; document.getElementById('svg-sun').style.display='none'; }
     const corG = localStorage.getItem('accentColorApp'); if(corG) window.mudarCorApp(corG); else{ document.getElementById('cor-atual-bolinha').style.backgroundColor='#FF6B00'; renderColorPicker(); }
@@ -519,58 +545,30 @@
                 req(pos.coords.latitude, pos.coords.longitude, geo.city || geo.locality || "Local"); 
             } catch(e){ req(pos.coords.latitude, pos.coords.longitude, "Local"); } 
         }, () => req(38.5244, -8.8882, "Setúbal")); else req(38.5244, -8.8882, "Setúbal");
-    }
+    };
     setTimeout(() => window.carregarMeteorologia(), 500);
 
     function iniciarListenersFirebase() {
-    if(!db) return; unsusbscribes.forEach(f => f()); unsusbscribes = []; 
-    
-    // CORREÇÃO: Para aceder às subcoleções do utilizador, usamos doc() para obter o documento do utilizador (4 partes)
-    const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
-    
-    const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(userDocRef, col), s => {
-        let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderListDB(arr, ui, col);
-    }));
-    attachList('tarefas', 'container-tarefas'); attachList('semanais', 'container-semanais'); attachList('rapidas', 'container-rapidas');
-    
-    unsusbscribes.push(onSnapshot(collection(userDocRef, 'requests'), s => {
-        let reqs = []; s.forEach(d => reqs.push({id:d.id, ...d.data()})); renderRequestsDB(reqs); 
-        document.getElementById('badge-notificacoes-bottom').style.display = reqs.length > 0 ? 'block' : 'none';
-    }));
-    
-    unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
-
-    // VIAGENS
-    const qViagens = collection(db, 'artifacts', appId, 'viagens_partilhadas');
-    unsusbscribes.push(onSnapshot(qViagens, s => {
-        viagensData = []; 
-        s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
-        if(document.getElementById('stat-total-viagens')) document.getElementById('stat-total-viagens').innerText = viagensData.length; 
-        renderViagensCards(); 
-        if(currentTripId){
-            const tripAtual = viagensData.find(v => v.id === currentTripId);
-            if(tripAtual){ currentTripDoc = tripAtual; if(document.activeElement !== document.getElementById('trip-planner-text')) document.getElementById('trip-planner-text').value = tripAtual.planeador || ""; renderMembrosSettings(); }
-            else navegarMenu('menu-viagens');
-        }
-    }, err => {
-        console.error("Erro Viagens:", err);
-        window.mostrarAlerta("Erro a obter viagens: " + err.message);
-    }));
-}
+        if(!db || !userId) return; 
+        unsusbscribes.forEach(f => f()); 
+        unsusbscribes = []; 
         
-        const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(mRef, col), s => {
+        const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
+        
+        const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(userDocRef, col), s => {
             let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderListDB(arr, ui, col);
         }));
-        attachList('tarefas', 'container-tarefas'); attachList('semanais', 'container-semanais'); attachList('rapidas', 'container-rapidas');
+        attachList('tarefas', 'container-tarefas'); 
+        attachList('semanais', 'container-semanais'); 
+        attachList('rapidas', 'container-rapidas');
         
-        unsusbscribes.push(onSnapshot(collection(mRef, 'requests'), s => {
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'requests'), s => {
             let reqs = []; s.forEach(d => reqs.push({id:d.id, ...d.data()})); renderRequestsDB(reqs); 
             document.getElementById('badge-notificacoes-bottom').style.display = reqs.length > 0 ? 'block' : 'none';
         }));
         
-        unsusbscribes.push(onSnapshot(collection(mRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
-        // CORREÇÃO FINAL: UTILIZAR O "WHERE" OBRIGATÓRIO PARA O FIREBASE ACEITAR LER
         const qViagens = collection(db, 'artifacts', appId, 'viagens_partilhadas');
         unsusbscribes.push(onSnapshot(qViagens, s => {
             viagensData = []; 
@@ -584,7 +582,7 @@
             }
         }, err => {
             console.error("Erro Viagens:", err);
-            window.mostrarAlerta("Erro a obter viagens. O Firebase bloqueou a leitura: " + err.message);
+            window.mostrarAlerta("Erro a obter viagens: " + err.message);
         }));
     }
 
@@ -594,7 +592,7 @@
         document.getElementById(ui).innerHTML = h;
     }
     
-    window.adicionarItemDB = async (col, idInp) => { const txt = document.getElementById(idInp).value.trim(); if(txt){ await addDoc(collection(db,'artifacts',appId,'users',userId,col), {texto:txt, feita:false, timestamp:Date.now()}); document.getElementById(idInp).value=''; } }
+    window.adicionarItemDB = async (col, idInp) => { const txt = document.getElementById(idInp).value.trim(); if(txt){ await addDoc(collection(db,'artifacts',appId,'users',userId,col), {texto:txt, feita:false, timestamp:Date.now()}); document.getElementById(idInp).value=''; } };
     window.toggleItemDB = async (col, docId, est) => await updateDoc(doc(db,'artifacts',appId,'users',userId,col,docId), {feita:est}); 
     window.apagarItemDB = async (col, docId) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,col,docId));
 
@@ -606,10 +604,10 @@
         const img = document.getElementById('detalhe-cartao-img'), txt = document.getElementById('msg-sem-cartao'); img.style.display='none'; img.src=''; txt.style.display='block'; document.getElementById('detalhe-obs').value="";
         if(userId && db){ try{ const r = await getDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',id)); if(r.exists()){ const d = r.data(); if(d.notas) document.getElementById('detalhe-obs').value=d.notas; if(d.cartao_img){img.src=d.cartao_img; img.style.display='block'; txt.style.display='none';} } }catch(e){} } 
         window.navegarMenu('page-super-detail');
-    }
+    };
     
     window.guardarObservacaoSuperDB = async () => await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {notas:document.getElementById('detalhe-obs').value}, {merge:true});
-    window.cliqueCartao = () => { const i=document.getElementById('detalhe-cartao-img'); if(i.style.display!=='none' && i.src){ document.getElementById('img-fullscreen-cartao').src=i.src; window.abrirModal('modal-cartao'); } else document.getElementById('input-foto-cartao').click(); }
+    window.cliqueCartao = () => { const i=document.getElementById('detalhe-cartao-img'); if(i.style.display!=='none' && i.src){ document.getElementById('img-fullscreen-cartao').src=i.src; window.abrirModal('modal-cartao'); } else document.getElementById('input-foto-cartao').click(); };
     
     window.processarFotoCartao = (ev) => { 
         const file = ev.target.files[0]; if(!file) return; 
@@ -622,7 +620,7 @@
                 await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {cartao_img:b64}, {merge:true}); 
             }; img.src = e.target.result; 
         }; reader.readAsDataURL(file); 
-    }
+    };
 
     window.pesquisarUtilizadores = async () => { 
         const t = document.getElementById('input-search-users').value.toLowerCase(), c = document.getElementById('container-pesquisa-users'); 
@@ -631,12 +629,12 @@
         res.forEach(d => { let p=d.data(); if(p.uid!==userId && p.searchName && p.searchName.includes(t)) arr.push(p); }); 
         if(arr.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>'; return;} 
         let h=''; arr.forEach(u => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.username.charAt(0).toUpperCase()}</div><p class="user-name" style="font-size:13px;">${u.username}</p></div><button class="btn-add" style="width:auto;padding:5px 15px;font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button></div>`); c.innerHTML=h;
-    }
+    };
     
-    window.enviarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',id,'requests',userId), {fromUid:userId, fromName:userName, timestamp:Date.now()}); window.mostrarAlerta(nm+" convidado!"); document.getElementById('input-search-users').value=''; document.getElementById('container-pesquisa-users').innerHTML=''; }
+    window.enviarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',id,'requests',userId), {fromUid:userId, fromName:userName, timestamp:Date.now()}); window.mostrarAlerta(nm+" convidado!"); document.getElementById('input-search-users').value=''; document.getElementById('container-pesquisa-users').innerHTML=''; };
     function renderRequestsDB(reqs) { const c = document.getElementById('container-pedidos'); if(reqs.length===0){c.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>'; return;} let h=''; reqs.forEach(p => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${p.fromName}</p><p style="font-size:11px;color:var(--text-muted);margin:0;">Pedido de amizade</p></div></div><div style="display:flex;gap:5px;"><button class="btn-add" style="width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${p.fromUid}','${p.fromName}')">✓</button><button class="btn-add" style="background-color:#ff3b30;width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${p.fromUid}')">✕</button></div></div>`); c.innerHTML=h; }
-    window.aceitarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',userId,'friends',id), {name:nm,uid:id}); await setDoc(doc(db,'artifacts',appId,'users',id,'friends',userId), {name:userName,uid:userId}); await window.recusarPedido(id); }
-    window.recusarPedido = async (id) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,'requests',id));
+    window.aceitarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',userId,'friends',id), {name:nm,uid:id}); await setDoc(doc(db,'artifacts',appId,'users',id,'friends',userId), {name:userName,uid:userId}); await window.recusarPedido(id); };
+    window.recusarPedido = async (id) => await deleteDoc(doc(doc(db,'artifacts',appId,'users',userId),'requests',id));
     function renderFriendsDB(amigos) { const c = document.getElementById('container-amigos'); if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} let h=''; amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${a.name.charAt(0).toUpperCase()}</div><p class="user-name">${a.name}</p></div></div>`); c.innerHTML=h; }
 
     function renderViagensCards() { 
@@ -653,7 +651,7 @@
             canvas.getContext('2d').drawImage(img,0,0,w,h); tempCapaUrl = canvas.toDataURL('image/jpeg',0.6); 
             document.getElementById('preview-capa-viagem').src=tempCapaUrl; document.getElementById('preview-capa-viagem').style.display='block'; document.getElementById('msg-sem-capa').style.display='none';
         }; img.src = e.target.result; }; reader.readAsDataURL(file); 
-    }
+    };
     
     window.guardarNovaViagem = async () => {
         try {
@@ -666,9 +664,9 @@
             document.getElementById('preview-capa-viagem').style.display='none'; document.getElementById('msg-sem-capa').style.display='block'; tempCapaUrl=""; 
             btn.innerText="Guardar Viagem"; btn.disabled=false; window.navegarMenu('menu-viagens');
         } catch(e){ window.mostrarAlerta("Erro a guardar: " + e.message); const btn = document.getElementById('btn-save-viagem'); if(btn){btn.innerText="Guardar Viagem"; btn.disabled=false;} }
-    }
+    };
 
-    window.switchTripTab = (n) => { document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); document.getElementById('tab-btn-'+n).classList.add('active'); document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); }
+    window.switchTripTab = (n) => { document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); document.getElementById('tab-btn-'+n).classList.add('active'); document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); };
     
     let unsubDespesas = null;
     window.abrirDetalheViagem = async (id) => {
@@ -677,10 +675,10 @@
         renderMembrosSettings(); window.switchTripTab('planeador'); window.navegarMenu('page-viagem-detalhe');
         if(unsubDespesas) unsubDespesas();
         unsubDespesas = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { let arr=[]; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderizarDespesas(arr); });
-    }
+    };
     
-    window.salvarPlaneador = async () => { if(currentTripId) await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), {planeador:document.getElementById('trip-planner-text').value}); }
-    window.apagarViagem = async () => { if(confirm("Apagar esta viagem permanentemente?")) { await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); window.navegarMenu('menu-viagens'); } }
+    window.salvarPlaneador = async () => { if(currentTripId) await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), {planeador:document.getElementById('trip-planner-text').value}); };
+    window.apagarViagem = async () => { if(confirm("Apagar esta viagem permanentemente?")) { await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); window.navegarMenu('menu-viagens'); } };
 
     function renderMembrosSettings() {
          let sel='', list='', dd='';
@@ -694,7 +692,7 @@
          const sel = document.getElementById('trip-amigos-disponiveis'); if(sel.value==="") return;
          const idA = sel.value, nmA = sel.options[sel.selectedIndex].getAttribute('data-nome');
          await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids:[...currentTripDoc.membros_uids, idA], membros_info:[...currentTripDoc.membros_info, {uid:idA, nome:nmA}] }); window.mostrarAlerta(nmA+" inserido na viagem!");
-    }
+    };
     
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim(), val = parseFloat(document.getElementById('exp-valor').value), uidP = document.getElementById('exp-pagador').value; 
@@ -702,7 +700,7 @@
         const pObj = currentTripDoc.membros_info.find(i => i.uid === uidP);
         await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {desc:desc, valor:val, pagadorUid:uidP, pagadorNome:(pObj?pObj.nome:"Desconhecido"), timestamp:Date.now()}); 
         document.getElementById('exp-desc').value=''; document.getElementById('exp-valor').value='';
-    }
+    };
     
     function renderizarDespesas(listaExp) {
         let saldos = {}, tot = 0, htmlD = '', resHtml = '';
@@ -714,10 +712,10 @@
         document.getElementById('split-resultado').innerHTML = resHtml;
     }
     
-    window.apagarDespesa = async (id) => { if(currentTripId) await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas',id)); }
+    window.apagarDespesa = async (id) => { if(currentTripId) await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas',id)); };
     window.abrirModal = (id) => document.getElementById(id).classList.add('active'); 
     window.fecharModal = (id) => document.getElementById(id).classList.remove('active'); 
-    window.mostrarAlerta = (msg) => { document.getElementById('mensagem-alerta').innerText=msg; window.abrirModal('modal-alerta'); }
+    window.mostrarAlerta = (msg) => { document.getElementById('mensagem-alerta').innerText=msg; window.abrirModal('modal-alerta'); };
   </script>
 </body>
 </html>

@@ -49,7 +49,41 @@
         transition: background-color 0.3s ease, color 0.3s ease;
       }
 
-      #app-container { display: flex; width: 100%; height: 100vh; }
+      /* =========================================
+         ECRÃ DE LOGIN (NOVIDADE)
+         ========================================= */
+      #auth-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+        background-color: var(--bg-color); z-index: 9999; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 30px; transition: opacity 0.5s ease;
+      }
+      .auth-box { 
+        background-color: var(--card-bg); padding: 30px; border-radius: 20px; 
+        border: 1px solid var(--border-color); width: 100%; max-width: 350px; 
+        text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+      }
+      .auth-input { 
+        width: 100%; padding: 15px; margin-bottom: 15px; background-color: var(--bg-color); 
+        border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; 
+        font-family: inherit; font-size: 15px; transition: border-color 0.3s ease; 
+      }
+      .auth-input:focus { outline: none; border-color: var(--accent); }
+      .auth-btn { 
+        background-color: var(--accent); color: #121212; border: none; padding: 15px; 
+        width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; 
+        margin-bottom: 10px; transition: transform 0.1s;
+      }
+      .auth-btn:active { transform: scale(0.95); }
+      .auth-link { color: var(--text-muted); font-size: 13px; cursor: pointer; text-decoration: underline; transition: color 0.3s;}
+      .auth-link:active { color: var(--text-main); }
+      .main-auth-logo { width: 120px; margin-bottom: 30px; }
+
+
+      /* =========================================
+         APP PRINCIPAL
+         ========================================= */
+      #app-container { display: none; width: 100%; height: 100vh; }
 
       .page-container {
         flex: 1; 
@@ -75,7 +109,6 @@
 
       .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
       
-      /* Logótipos Dinâmicos */
       .sidebar-logo { width: 140px; height: 90px; object-fit: contain; margin: 0 auto; display: block; }
       .light-logo { display: none; }
       body.light-mode .light-logo { display: block; }
@@ -85,7 +118,6 @@
       .sidebar-item:active { background-color: var(--btn-secondary); }
       .sidebar-item.active { border-left: 4px solid var(--accent); background-color: rgba(255,107,0,0.05); color: var(--accent);}
       
-      /* Submenu (Árvore) */
       .sidebar-submenu { display: none; flex-direction: column; background-color: rgba(0,0,0,0.1); }
       body.light-mode .sidebar-submenu { background-color: rgba(0,0,0,0.02); }
       .sidebar-subitem { padding: 12px 25px 12px 55px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.01); }
@@ -93,22 +125,20 @@
       
       .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); }
       
-      /* Ícones SVG */
       .icon-svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 24px; height: 24px; margin-bottom: 4px; }
       .sidebar-icon-svg { width: 20px; height: 20px; flex-shrink: 0; margin-bottom: 0; }
       .btn-icon-svg { width: 20px; height: 20px; margin-bottom: 0; margin-right: 8px; }
 
-      /* BARRA INFERIOR (GLASSMORPHISM, ROUNDED, 4 ÍCONES) */
+      /* BARRA INFERIOR (GLASSMORPHISM) */
       #bottom-nav { 
         position: fixed; 
-        /* Usar variavel de segurança do iPhone para afastar do fundo */
         bottom: calc(env(safe-area-inset-bottom) + 15px); 
         left: 20px; right: 20px; 
         height: var(--bottom-nav-height); 
         background-color: rgba(35, 35, 35, 0.75); 
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
         border: 1px solid rgba(255, 255, 255, 0.1); 
-        border-radius: 35px; /* Bordas muito arredondadas */
+        border-radius: 35px;
         display: flex; justify-content: space-around; align-items: center; 
         z-index: 1500; 
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
@@ -119,7 +149,6 @@
       .nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
       .nav-btn:active { transform: scale(0.9); }
       .nav-btn.active { color: var(--accent); }
-      /* Bolinha Vermelha de Notificação */
       .nav-badge { position: absolute; top: 12px; right: 18px; width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; display: none; }
 
       @media (min-width: 800px) {
@@ -153,12 +182,12 @@
       /* LISTAS & INPUTS */
       .input-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
       .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
-      .btn-add { background-color: var(--accent); color: #fff; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
+      .btn-add { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
       .btn-add:active { transform: scale(0.9); }
       
       .lista-itens { display: flex; flex-direction: column; gap: 8px; width: 100%;}
       .list-item { display: flex; align-items: center; background-color: var(--card-bg); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color); transition: background-color 0.3s ease;}
-      .item-texto { flex: 1; font-size: 14px; margin-left: 12px; transition: color 0.2s;}
+      .item-texto { flex: 1; font-size: 14px; margin-left: 12px; transition: color 0.2s; word-break: break-word;}
       .list-item.feita .item-texto { text-decoration: line-through; color: var(--text-muted); }
       .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; flex-shrink: 0; position: relative; }
       .list-item.feita .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
@@ -205,6 +234,29 @@
   </head>
   <body>
 
+    <!-- ECRÃ DE LOGIN (FIREBASE) -->
+    <div id="auth-overlay">
+      <img src="logobranco_semfundo.png" alt="Logo Gestão" class="main-auth-logo dark-logo" onerror="this.style.display='none'">
+      <img src="logopreto_semfundo.png" alt="Logo Gestão" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display: none;">
+      
+      <div class="auth-box">
+        <h2 style="margin-bottom: 25px; color: var(--text-main);" id="auth-title">Entrar na App</h2>
+        
+        <input type="text" id="auth-username" class="auth-input" placeholder="Nome de Utilizador (ex: goncalo)">
+        <input type="password" id="auth-password" class="auth-input" placeholder="Password Secreta">
+        <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display: none;">
+        
+        <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
+        <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Cria uma aqui.</p>
+        <p id="auth-error" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none;"></p>
+        
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 20px;">
+          Para partilharem as listas e notas, entrem os dois com o <b>mesmo nome e password</b>!
+        </p>
+      </div>
+    </div>
+
+    <!-- APP PRINCIPAL (SÓ APARECE DEPOIS DO LOGIN) -->
     <div id="app-container">
       
       <!-- MENU LATERAL (SIDEBAR ACCORDION) -->
@@ -266,7 +318,7 @@
         </div>
       </div>
 
-      <!-- BARRA INFERIOR (GLASSMORPHISM 4 ÍCONES) -->
+      <!-- BARRA INFERIOR (GLASSMORPHISM) -->
       <div id="bottom-nav">
         <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
           <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -281,7 +333,7 @@
         </div>
         
         <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
-          <!-- A bolinha vermelha para notificações novas -->
+          <!-- Bolinha Vermelha para notificações novas -->
           <div class="nav-badge" id="badge-notificacoes-bottom"></div>
           <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </div>
@@ -321,12 +373,14 @@
           <div class="dashboard-widget widget-tarefas">
             <h3><svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> A Fazer Hoje</h3>
             <div class="input-row">
-              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarTarefaLocal()">
-              <button class="btn-add" onclick="adicionarTarefaLocal()">
+              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
+              <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')">
                 <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               </button>
             </div>
-            <div class="lista-itens" id="container-tarefas"></div>
+            <div class="lista-itens" id="container-tarefas">
+               <p style="text-align:center; color: var(--text-muted); font-size: 13px;">A carregar nuvem...</p>
+            </div>
           </div>
         </div>
 
@@ -334,14 +388,12 @@
         <div id="menu-familia" class="page">
           <h2>Adicionar Pessoas</h2>
           <div class="input-row">
-            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar o username exato...">
-            <button class="btn-add" onclick="mostrarAlerta('Pesquisa desativada temporariamente enquanto não ligas o Firebase!')">
-               <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </button>
+            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar utilizador..." oninput="pesquisarUtilizadores()">
           </div>
+          <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom: 20px;"></div>
           
           <h3 style="margin-top: 30px; text-align: center;">A Minha Rede</h3>
-          <p style="text-align:center;font-size:12px;color:var(--text-muted);">Sem amigos adicionados.</p>
+          <div class="lista-itens" id="container-amigos"></div>
         </div>
 
         <!-- PÁGINA: NOTIFICAÇÕES -->
@@ -382,7 +434,7 @@
           <div class="logos-grid" id="container-logos"></div>
         </div>
 
-        <!-- PÁGINA: DETALHE DO SUPERMERCADO (Cartões e Fotos) -->
+        <!-- PÁGINA: DETALHE DO SUPERMERCADO (Cartões e Notas na Nuvem) -->
         <div id="page-super-detail" class="page">
           <h1 id="detalhe-nome">Supermercado</h1>
           <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: -20px; margin-bottom: 20px;">Clica no cartão para ecrã inteiro</p>
@@ -399,21 +451,21 @@
             Fotografar / Inserir Cartão
           </button>
           
-          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #fff; width: 100%; padding: 15px; font-weight: 600;">
+          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #121212; width: 100%; padding: 15px; font-weight: 600;">
             <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
             Abrir Folheto da Semana
           </button>
           
           <h3 style="margin-top: 25px;">Notas / Observações</h3>
-          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Ex: A fruta é melhor aqui..." onchange="guardarObservacaoSuper()"></textarea>
+          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Ex: A fruta é melhor aqui..." onchange="guardarObservacaoSuperDB()"></textarea>
         </div>
 
         <!-- PÁGINA: COMPRAS SEMANAIS -->
         <div id="menu-compras-semanais" class="page">
           <h2>Lista Semanal</h2>
           <div class="input-row">
-            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar à lista semanal..." onkeypress="if(event.key === 'Enter') adicionarListaLocal('semanais', 'input-semanal')">
-            <button class="btn-add" onclick="adicionarListaLocal('semanais', 'input-semanal')">
+            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar à lista semanal..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais', 'input-semanal')">
+            <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">
               <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
           </div>
@@ -424,8 +476,8 @@
         <div id="menu-compras-rapidas" class="page">
           <h2>Compras Rápidas</h2>
           <div class="input-row">
-            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarListaLocal('rapidas', 'input-rapidas')">
-            <button class="btn-add" onclick="adicionarListaLocal('rapidas', 'input-rapidas')">
+            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarItemDB('rapidas', 'input-rapidas')">
+            <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">
               <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
           </div>
@@ -435,24 +487,24 @@
         <!-- PÁGINA: GARAGEM -->
         <div id="menu-carros" class="page">
           <h2>Garagem & Combustível</h2>
-          <button class="btn-acao" style="background-color: var(--accent); color: #fff; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
+          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
         </div>
 
       </div>
     </div>
 
     
-    <!-- MODAL DEFINIÇÕES (Com 20 Cores) -->
+    <!-- MODAL DEFINIÇÕES -->
     <div id="modal-definicoes" class="modal-overlay">
       <div class="modal-content" style="max-width: 400px;">
         <h2 style="margin-bottom: 20px;">Definições</h2>
         
         <div class="user-card" style="margin-bottom: 20px;">
           <div class="user-info">
-            <div class="user-avatar">L</div>
+            <div class="user-avatar" id="settings-avatar">?</div>
             <div>
-              <p class="user-name">Local User</p>
-              <p style="font-size: 11px; color: var(--text-muted); margin:0;">Login Firebase Desativado</p>
+              <p class="user-name" id="settings-name">A carregar...</p>
+              <p style="font-size: 11px; color: var(--text-muted); margin:0;" id="settings-username">Firebase Cloud</p>
             </div>
           </div>
         </div>
@@ -476,7 +528,7 @@
         <p style="color: var(--text-muted); font-size: 14px; margin: 15px 0;">Tens a certeza que queres sair da tua conta?</p>
         <div class="modal-btn-row">
           <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
-          <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="mostrarAlerta('O sistema de contas está desligado para testes. Liga o Firebase para ativar!')">Sair</button>
+          <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="fazerLogout()">Sair</button>
         </div>
       </div>
     </div>
@@ -491,37 +543,158 @@
       <div class="modal-content">
         <h2>Aviso</h2>
         <p id="mensagem-alerta" style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;"></p>
-        <button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color: var(--accent); color: #fff; width: 100%;">OK</button>
+        <button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color: var(--accent); color: #121212; width: 100%;">OK</button>
       </div>
     </div>
 
-    <script>
+    <!-- ========================================== -->
+    <!-- MOTORES DA APLICAÇÃO (FIREBASE + JAVASCRIPT) -->
+    <!-- ========================================== -->
+    <script type="module">
+      // Importações oficias do Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // 🔴 COLOCA AQUI A TUA CHAVE DO PASSO 3 DO TUTORIAL (COLA POR CIMA DESTE BLOCO) 🔴
+      const firebaseConfig = {
+        apiKey: "AIzaSyA0eKe5JypkhtfrssIie0BA5g_2QMzr5d0",
+        authDomain: "gestao-gn.firebaseapp.com",
+        projectId: "gestao-gn",
+        storageBucket: "gestao-gn.firebasestorage.app",
+        messagingSenderId: "443510448711",
+        appId: "1:443510448711:web:a615ebd9cf2ec549e60762",
+        measurementId: "G-G55RGRBSWY"
+};
+
+      // Inicialização do Firebase
+      let app, db, auth;
+      try { 
+        app = initializeApp(firebaseConfig); 
+        db = getFirestore(app); 
+        auth = getAuth(app); 
+      } catch(e) { 
+        console.error("Firebase Placeholder: Configura as chaves reais.", e); 
+      }
+
+      // Variáveis Globais de Utilizador
+      const appId = 'gestao-gn-app';
+      let userId = null;
+      let userName = "";
+      let isLoginMode = true; 
+      let currentSuperId = null;
+      let unsusbscribes = [];
+
+      // ==========================================
+      // AUTENTICAÇÃO (LOGIN / REGISTO)
+      // ==========================================
+      window.toggleAuthMode = function() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
+        document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar e Entrar';
+        document.getElementById('auth-toggle-mode').innerText = isLoginMode ? 'Não tens conta? Cria uma aqui.' : 'Já tens conta? Entra aqui.';
+        document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
+        document.getElementById('auth-error').style.display = 'none';
+      }
+
+      window.handleAuth = async function() {
+        if(!auth) { 
+          document.getElementById('auth-error').innerText = "Erro: Chaves do Firebase não configuradas no código."; 
+          document.getElementById('auth-error').style.display = 'block'; return; 
+        }
+        
+        const userTyped = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value;
+        const passConfirm = document.getElementById('auth-confirm-password').value;
+        const errEl = document.getElementById('auth-error');
+        
+        if(!userTyped || !pass) { errEl.innerText = "Preenche o nome e a password."; errEl.style.display = 'block'; return; }
+        
+        // Truque de Segurança: Cria um email falso a partir do nome
+        const cleanUser = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if(cleanUser.length < 3) { errEl.innerText = "Nome deve ter pelo menos 3 letras."; errEl.style.display = 'block'; return; }
+        const fakeEmail = cleanUser + "@gestaogn.app";
+
+        try {
+          if (isLoginMode) {
+            // Fazer Login
+            await signInWithEmailAndPassword(auth, fakeEmail, pass);
+          } else {
+            // Criar Conta
+            if(pass !== passConfirm) throw new Error("As passwords não são iguais.");
+            if(pass.length < 6) throw new Error("A password deve ter 6 ou mais carateres.");
+            
+            const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass);
+            // Guarda o perfil do utilizador na Base de Dados pública para a pesquisa
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
+              uid: cred.user.uid, username: userTyped, searchName: cleanUser
+            });
+          }
+        } catch (error) {
+          errEl.innerText = "Erro: " + error.message.replace('Firebase:', ''); 
+          errEl.style.display = 'block';
+        }
+      }
+
+      window.fazerLogout = async function() { 
+        window.fecharModal('modal-logout'); 
+        window.fecharModal('modal-definicoes');
+        if(auth) await signOut(auth); 
+        else window.location.reload(); 
+      }
+
+      // Deteta automaticamente se o utilizador entrou ou saiu
+      if(auth) {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            // UTILIZADOR ENTROU COM SUCESSO!
+            userId = user.uid;
+            document.getElementById('auth-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
+            document.getElementById('app-container').style.display = 'flex';
+            
+            // Vai buscar o nome dele à DB
+            try {
+              const profileDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
+              if(profileDoc.exists()) {
+                 userName = profileDoc.data().username;
+                 document.getElementById('settings-name').innerText = userName;
+                 document.getElementById('settings-username').innerText = "@" + profileDoc.data().searchName;
+                 document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase();
+              } else { userName = "User"; }
+            } catch(e) {}
+            
+            // Inicia os motores de escuta em tempo real da BD
+            iniciarListenersFirebase();
+          } else {
+            // UTILIZADOR NÃO ESTÁ LOGADO
+            userId = null;
+            document.getElementById('auth-overlay').style.display = 'flex';
+            setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 10);
+            document.getElementById('app-container').style.display = 'none';
+          }
+        });
+      }
+
+
       // ==========================================
       // TEMAS E 20 CORES (SETTINGS)
       // ==========================================
       const coresDestaque = [
-        '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', 
-        '#E5A8F2', '#FFCC00', '#FF2D55', '#5AC8FA', '#00C7BE', 
-        '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', 
-        '#2ECC71', '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
+        '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', '#E5A8F2', '#FFCC00', '#FF2D55', '#5AC8FA', '#00C7BE', 
+        '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', '#2ECC71', '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
       ];
 
       function renderColorPicker() {
         const grid = document.getElementById('color-picker-grid');
         grid.innerHTML = '';
         coresDestaque.forEach(cor => {
-          const c = document.createElement('div'); 
-          c.className = 'color-circle'; 
-          c.style.backgroundColor = cor;
-          c.onclick = () => mudarCorApp(cor); 
-          grid.appendChild(c);
+          const c = document.createElement('div'); c.className = 'color-circle'; c.style.backgroundColor = cor;
+          c.onclick = () => window.mudarCorApp(cor); grid.appendChild(c);
         });
       }
 
-      window.mudarCorApp = function(cor) { 
-        document.documentElement.style.setProperty('--accent', cor); 
-        localStorage.setItem('accentColorApp', cor); 
-      }
+      window.mudarCorApp = function(cor) { document.documentElement.style.setProperty('--accent', cor); localStorage.setItem('accentColorApp', cor); }
 
       window.alternarTema = function() {
         const isLight = document.body.classList.toggle('light-mode');
@@ -532,23 +705,17 @@
 
       function carregarConfigs() {
         const tema = localStorage.getItem('temaApp');
-        if (tema === 'light') { 
-          document.body.classList.add('light-mode'); 
-          const txt = document.getElementById('texto-tema-modal'); 
-          if(txt) txt.innerText = 'Mudar para Modo Escuro'; 
-        }
-        const cor = localStorage.getItem('accentColorApp'); 
-        if (cor) mudarCorApp(cor);
+        if (tema === 'light') { document.body.classList.add('light-mode'); const txt = document.getElementById('texto-tema-modal'); if(txt) txt.innerText = 'Mudar para Modo Escuro'; }
+        const cor = localStorage.getItem('accentColorApp'); if (cor) window.mudarCorApp(cor);
         renderColorPicker();
       }
       carregarConfigs();
+
 
       // ==========================================
       // NAVEGAÇÃO E ACCORDION (ÁRVORE)
       // ==========================================
       let clickTimers = {};
-      
-      // Duplo clique vai para o menu principal. Clique simples expande a árvore.
       window.toggleSubmenu = function(idSubmenu, idPaginaBase) {
         if(clickTimers[idSubmenu]) {
             clearTimeout(clickTimers[idSubmenu]); delete clickTimers[idSubmenu];
@@ -586,6 +753,7 @@
         
         setTimeout(() => { const ecr = document.getElementById(idPagina); if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); } }, 50);
       }
+
 
       // ==========================================
       // RELÓGIO & METEOROLOGIA & FRASE
@@ -640,8 +808,9 @@
       }
       setTimeout(() => window.carregarMeteorologia(false), 500);
 
+
       // ==========================================
-      // LÓGICA DE SUPERMERCADOS (FOTOS & NOTAS)
+      // LÓGICA DE SUPERMERCADOS (FIREBASE FOTOS & NOTAS)
       // ==========================================
       const supermercadosData = [
         { id: 'continente', nome: 'Continente', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg', link: 'https://folhetos.continente.pt/' },
@@ -650,8 +819,6 @@
         { id: 'auchan', nome: 'Auchan', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg', link: 'https://www.auchan.pt/pt/folhetos/' },
         { id: 'intermarche', nome: 'Intermarché', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg', link: 'https://www.intermarche.pt/folhetos/' }
       ];
-
-      let currentSuperId = null;
 
       function renderizarLogosSupermercados() {
         const container = document.getElementById('container-logos'); if(!container) return; container.innerHTML = '';
@@ -662,7 +829,7 @@
       }
       renderizarLogosSupermercados();
 
-      window.abrirDetalheSupermercado = function(id) {
+      window.abrirDetalheSupermercado = async function(id) {
         currentSuperId = id; const superInfo = supermercadosData.find(s => s.id === id);
         document.getElementById('detalhe-nome').innerText = superInfo.nome;
         document.getElementById('btn-ver-folheto').onclick = () => window.open(superInfo.link, '_blank');
@@ -671,48 +838,53 @@
         imgEl.style.display = 'none'; imgEl.src = ''; msgEl.style.display = 'block'; iconeEl.style.display = 'block';
         document.getElementById('detalhe-obs').value = "";
 
-        // Carrega da memória local do telemóvel para testes
-        const dataSalva = JSON.parse(localStorage.getItem('super_' + id) || '{}');
-        if(dataSalva.notas) document.getElementById('detalhe-obs').value = dataSalva.notas;
-        if(dataSalva.cartao_img) { 
-          imgEl.src = dataSalva.cartao_img; imgEl.style.display = 'block'; msgEl.style.display = 'none'; iconeEl.style.display = 'none';
+        // Tenta puxar a informação da Base de Dados da Nuvem
+        if(userId && db) {
+          try {
+            const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', id));
+            if(docSnap.exists()) {
+               const data = docSnap.data();
+               if(data.notas) document.getElementById('detalhe-obs').value = data.notas;
+               if(data.cartao_img) { 
+                 imgEl.src = data.cartao_img; imgEl.style.display = 'block'; msgEl.style.display = 'none'; iconeEl.style.display = 'none';
+               }
+            }
+          } catch(e) {}
         }
         window.navegarMenu('page-super-detail');
       }
 
-      window.guardarObservacaoSuper = function() {
-        if(!currentSuperId) return; 
+      window.guardarObservacaoSuperDB = async function() {
+        if(!userId || !currentSuperId || !db) return; 
         const text = document.getElementById('detalhe-obs').value;
-        const dataSalva = JSON.parse(localStorage.getItem('super_' + currentSuperId) || '{}');
-        dataSalva.notas = text;
-        localStorage.setItem('super_' + currentSuperId, JSON.stringify(dataSalva));
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { notas: text }, {merge: true});
       }
 
       window.cliqueCartao = function() {
         const img = document.getElementById('detalhe-cartao-img');
-        if(img.style.display !== 'none' && img.src) { 
-          document.getElementById('img-fullscreen-cartao').src = img.src; window.abrirModal('modal-cartao'); 
-        } else { document.getElementById('input-foto-cartao').click(); }
+        if(img.style.display !== 'none' && img.src) { document.getElementById('img-fullscreen-cartao').src = img.src; window.abrirModal('modal-cartao'); } 
+        else { document.getElementById('input-foto-cartao').click(); }
       }
 
       window.processarFotoCartao = function(e) {
-        const file = e.target.files[0]; if(!file) return;
-        const reader = new FileReader();
+        const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
         reader.onload = function(event) {
           const img = new Image();
-          img.onload = function() {
+          img.onload = async function() {
+            // Comprime a imagem para não sobrecarregar a Cloud (Máx 800px)
             const canvas = document.createElement('canvas'); const max_size = 800; let width = img.width; let height = img.height;
             if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
             else { if (height > max_size) { width *= max_size / height; height = max_size; } }
             canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% de qualidade
             
             document.getElementById('detalhe-cartao-img').src = dataUrl; document.getElementById('detalhe-cartao-img').style.display = 'block';
             document.getElementById('msg-sem-cartao').style.display = 'none'; document.getElementById('icone-inserir-cartao').style.display = 'none';
 
-            if(currentSuperId) {
-              const dataSalva = JSON.parse(localStorage.getItem('super_' + currentSuperId) || '{}');
-              dataSalva.cartao_img = dataUrl; localStorage.setItem('super_' + currentSuperId, JSON.stringify(dataSalva));
+            // Guarda na Nuvem Firebase
+            if(userId && currentSuperId && db) {
+              await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { cartao_img: dataUrl }, {merge:true});
             }
           };
           img.src = event.target.result;
@@ -720,59 +892,145 @@
         reader.readAsDataURL(file);
       }
 
+
       // ==========================================
-      // LISTAS LOCAIS (TAREFAS, SEMANAIS E RÁPIDAS)
+      // FIREBASE SYNC (TAREFAS, LISTAS, AMIGOS)
       // ==========================================
       const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
-      function gerarId() { return Math.random().toString(36).substr(2, 9); }
+      function iniciarListenersFirebase() {
+        if(!db) return;
+        // Limpa ouvintes antigos se mudar de conta
+        unsusbscribes.forEach(unsub => unsub()); unsusbscribes = [];
 
-      // TAREFAS
-      window.adicionarTarefaLocal = function() {
-        const input = document.getElementById('input-nova-tarefa'); const texto = input.value.trim();
-        if(texto) {
-          let lista = JSON.parse(localStorage.getItem('list_tarefas') || '[]'); lista.push({id: gerarId(), texto: texto, feita: false});
-          localStorage.setItem('list_tarefas', JSON.stringify(lista)); input.value = ''; carregarListaLocal('tarefas', 'container-tarefas');
-        }
-      }
-      
-      // GERAL
-      window.adicionarListaLocal = function(tipo, inputId) {
-        const input = document.getElementById(inputId); const texto = input.value.trim();
-        if(texto) {
-          let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]'); lista.push({id: gerarId(), texto: texto, feita: false});
-          localStorage.setItem('list_' + tipo, JSON.stringify(lista)); input.value = ''; carregarListaLocal(tipo, 'container-' + tipo);
-        }
+        // 1. Ouvir Tarefas Diárias
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'tarefas'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-tarefas', 'tarefas');
+        }));
+
+        // 2. Ouvir Lista Semanal
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'semanais'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-semanais', 'semanais');
+        }));
+
+        // 3. Ouvir Lista Rápida
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'rapidas'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-rapidas', 'rapidas');
+        }));
+
+        // 4. Ouvir Notificações/Pedidos de Amizade
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'requests'), (snap) => {
+          let requests = []; snap.forEach(d => requests.push({id: d.id, ...d.data()}));
+          renderRequestsDB(requests);
+          // Mostra a bolinha vermelha no rodapé se houver pedidos
+          document.getElementById('badge-notificacoes-bottom').style.display = requests.length > 0 ? 'block' : 'none';
+        }));
+
+        // 5. Ouvir Amigos
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'friends'), (snap) => {
+          let friends = []; snap.forEach(d => friends.push({id: d.id, ...d.data()})); renderFriendsDB(friends);
+        }));
       }
 
-      window.toggleItemLocal = function(tipo, id) {
-        let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]');
-        const item = lista.find(i => i.id === id); if(item) { item.feita = !item.feita; localStorage.setItem('list_' + tipo, JSON.stringify(lista)); carregarListaLocal(tipo, 'container-' + tipo); }
-      }
-
-      window.apagarItemLocal = function(tipo, id) {
-        let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]');
-        lista = lista.filter(i => i.id !== id); localStorage.setItem('list_' + tipo, JSON.stringify(lista)); carregarListaLocal(tipo, 'container-' + tipo);
-      }
-
-      window.carregarListaLocal = function(tipo, containerId) {
+      function renderListDB(array, containerId, collName) {
         const container = document.getElementById(containerId); if(!container) return; container.innerHTML = '';
-        let lista = JSON.parse(localStorage.getItem('list_' + tipo) || '[]');
-        if(lista.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>'; return; }
+        if(array.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>'; return; }
         
-        lista.forEach(item => {
+        // Ordenar pela data de criação
+        array.sort((a,b) => a.timestamp - b.timestamp).forEach(item => {
           const div = document.createElement('div'); div.className = 'list-item' + (item.feita ? ' feita' : '');
-          div.innerHTML = `<div class="checkbox-custom" onclick="toggleItemLocal('${tipo}', '${item.id}')"></div><span class="item-texto" onclick="toggleItemLocal('${tipo}', '${item.id}')">${item.texto}</span><button class="btn-icon-list btn-apagar" onclick="apagarItemLocal('${tipo}', '${item.id}')">${iconTrash}</button>`;
+          div.innerHTML = `
+            <div class="checkbox-custom" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})"></div>
+            <span class="item-texto" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})">${item.texto}</span>
+            <button class="btn-icon-list btn-apagar" onclick="apagarItemDB('${collName}', '${item.id}')">${iconTrash}</button>
+          `;
           container.appendChild(div);
         });
       }
 
-      // Iniciar Listas ao abrir
-      carregarListaLocal('tarefas', 'container-tarefas');
-      carregarListaLocal('semanais', 'container-semanais');
-      carregarListaLocal('rapidas', 'container-rapidas');
+      window.adicionarItemDB = async function(collName, inputId) {
+        if(!userId || !db) { window.mostrarAlerta("Sistema de contas offline. Configura as chaves do Firebase."); return; }
+        const input = document.getElementById(inputId); const text = input.value.trim();
+        if(text) { 
+          input.value = ''; 
+          await addDoc(collection(db, 'artifacts', appId, 'users', userId, collName), { texto: text, feita: false, timestamp: Date.now() }); 
+        }
+      }
 
-      // Funcionalidades de Modals
+      window.toggleItemDB = async function(collName, id, status) { 
+        if(userId && db) await updateDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id), { feita: status }); 
+      }
+      
+      window.apagarItemDB = async function(collName, id) { 
+        if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id)); 
+      }
+
+      // REDE SOCIAL: PESQUISA
+      window.pesquisarUtilizadores = async function() {
+        if(!db) return; 
+        const queryText = document.getElementById('input-search-users').value.toLowerCase(); 
+        const container = document.getElementById('container-pesquisa-users');
+        if(queryText.length < 2) { container.innerHTML = ''; return; }
+        
+        container.innerHTML = '<p style="text-align:center;font-size:12px;">A procurar...</p>';
+        const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles'));
+        let results = []; 
+        querySnapshot.forEach(doc => { 
+          let d = doc.data(); 
+          // Não aparecer ele próprio, e o nome tem de conter a pesquisa
+          if(d.uid !== userId && d.searchName && d.searchName.includes(queryText)) results.push(d); 
+        });
+        
+        container.innerHTML = ''; 
+        if(results.length === 0) container.innerHTML = '<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>';
+        
+        results.forEach(u => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.username.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${u.username}</p></div></div><button class="btn-add" style="width:auto; padding: 5px 15px; font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button>`;
+          container.appendChild(div);
+        });
+      }
+
+      window.enviarPedido = async function(targetUid, targetName) {
+        if(!userId || !db) return; 
+        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'requests', userId), { fromUid: userId, fromName: userName, timestamp: Date.now() });
+        window.mostrarAlerta(`Pedido enviado a ${targetName}!`);
+        document.getElementById('input-search-users').value = ''; document.getElementById('container-pesquisa-users').innerHTML = '';
+      }
+
+      function renderRequestsDB(requests) {
+        const container = document.getElementById('container-pedidos'); if(!container) return; container.innerHTML = '';
+        if(requests.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>'; return; }
+        
+        requests.forEach(r => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${r.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${r.fromName}</p><p style="font-size:11px; color:var(--text-muted); margin:0;">Pedido de amizade</p></div></div><div style="display:flex; gap:5px;"><button class="btn-add" style="background-color: var(--accent); width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${r.fromUid}', '${r.fromName}')">✓</button><button class="btn-add" style="background-color: #ff3b30; width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${r.fromUid}')">✕</button></div>`;
+          container.appendChild(div);
+        });
+      }
+
+      window.aceitarPedido = async function(targetUid, targetName) {
+        if(!userId || !db) return; 
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', targetUid), { name: targetName, uid: targetUid }); 
+        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'friends', userId), { name: userName, uid: userId }); 
+        await window.recusarPedido(targetUid); // Apaga a notificação depois de aceitar
+      }
+      
+      window.recusarPedido = async function(targetUid) { 
+        if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'requests', targetUid)); 
+      }
+
+      function renderFriendsDB(friends) {
+        const container = document.getElementById('container-amigos'); if(!container) return; container.innerHTML = '';
+        if(friends.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return; }
+        
+        friends.forEach(f => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${f.name.charAt(0).toUpperCase()}</div><p class="user-name">${f.name}</p></div>`; container.appendChild(div);
+        });
+      }
+
+      // Modals
       window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); }
       window.fecharModal = function(id) { document.getElementById(id).classList.remove('active'); }
       window.mostrarAlerta = function(msg) { document.getElementById('mensagem-alerta').innerText = msg; window.abrirModal('modal-alerta'); }

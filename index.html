@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    /* CSS OTIMIZADO E COMPRIMIDO PARA POUPAR LINHAS */
+    /* CSS OTIMIZADO E EXPANDIDO */
     :root{--bg-color:#191919;--card-bg:#202020;--text-main:rgba(255,255,255,0.9);--text-muted:rgba(255,255,255,0.5);--accent:#FF6B00;--btn-secondary:#2C2C2C;--border-color:rgba(255,255,255,0.05);--sidebar-width:280px;--bottom-nav-height:70px}
     body.light-mode{--bg-color:#FFFFFF;--card-bg:#F7F7F5;--text-main:#37352F;--text-muted:rgba(55,53,47,0.6);--btn-secondary:#EBEBEA;--border-color:rgba(0,0,0,0.08)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -85,14 +85,42 @@
     .color-circle{width:35px;height:35px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto} .color-circle.selected{border:3px solid var(--text-main);transform:scale(1.15)}
     .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px}
     .user-info{display:flex;align-items:center;gap:12px;text-align:left} .user-avatar{width:40px;height:40px;border-radius:50%;background-color:var(--accent);display:flex;align-items:center;justify-content:center;color:#121212;font-weight:bold;font-size:18px} .user-name{font-size:15px;font-weight:500;margin:0}
-    .stats-viagens{display:grid;grid-template-columns:1fr;gap:10px;width:100%;margin-bottom:25px} .stat-box{background-color:var(--card-bg);padding:15px 10px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} .stat-num{font-size:22px;font-weight:600;color:var(--accent);display:block;line-height:1.2} .stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+    
+    /* ESTATÍSTICAS VIAGENS */
+    .stats-viagens{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;margin-bottom:20px} 
+    .stat-box{background-color:var(--card-bg);padding:15px 5px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} 
+    .stat-num{font-size:20px;font-weight:600;color:var(--accent);display:block;line-height:1.2} 
+    .stat-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+    
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
-    .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px} .viagem-header img{width:100%;height:100%;object-fit:cover} .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center} .viagem-header-title{color:white;font-size:28px;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.5);text-align:center}
+    .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px;cursor:pointer} .viagem-header img{width:100%;height:100%;object-fit:cover} .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center} .viagem-header-title{color:white;font-size:26px;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.5);text-align:center;margin:0} .viagem-header-dates{color:#ddd;font-size:13px;margin-top:5px;text-shadow:0 1px 4px rgba(0,0,0,0.6)} .edit-capa-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:5px 10px;border-radius:20px;font-size:11px;backdrop-filter:blur(5px)}
     .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} .trip-tab-content.active{display:block}
-    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} .split-balance{font-size:16px;font-weight:600;margin-top:5px} .split-balance.owe{color:#ff3b30}
+    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} .split-balance{font-size:14px;font-weight:500;margin-top:6px} .split-balance.owe{color:#ff3b30} .split-balance.receive{color:#28CD41}
     .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} .exp-title{font-size:14px;font-weight:500} .exp-payer{font-size:11px;color:var(--text-muted)} .exp-amount{font-size:16px;font-weight:600;color:var(--accent)}
     .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
     .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
+
+    /* PLANEADOR TIMELINE PICOTADO */
+    .timeline-container{position:relative;padding-left:25px;margin-top:15px;margin-bottom:80px;width:100%}
+    .timeline-container::before{content:'';position:absolute;left:8px;top:10px;bottom:10px;width:2px;border-left:2px dashed var(--accent);opacity:0.6}
+    .timeline-item{position:relative;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;gap:5px}
+    .timeline-item::before{content:'';position:absolute;left:-22px;top:18px;width:10px;height:10px;border-radius:50%;background-color:var(--accent);border:2px solid var(--bg-color)}
+    .timeline-header{display:flex;justify-content:space-between;align-items:center}
+    .timeline-time{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase}
+    .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
+    .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
+    
+    /* BOTÃO FLUTUANTE SIMPLES (+ SEM EMOJI COR) */
+    .btn-fab{position:fixed;bottom:calc(var(--bottom-nav-height) + 30px);right:25px;width:52px;height:52px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.4);border:none;cursor:pointer;z-index:1400;transition:transform 0.2s}
+    .btn-fab:active{transform:scale(0.9)}
+    .btn-fab svg{width:24px;height:24px;stroke:currentColor;stroke-width:2.5}
+
+    /* PAÍSES LISTA */
+    .paises-grid{display:flex;flex-direction:column;gap:8px;width:100%;max-height:300px;overflow-y:auto;margin-top:10px}
+    .pais-item{display:flex;align-items:center;justify-content:space-between;background:var(--card-bg);padding:10px 15px;border-radius:10px;border:1px solid var(--border-color)}
+    .pais-badge{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--btn-secondary);color:var(--text-muted)}
+    .pais-badge.visited{background:rgba(40,205,65,0.2);color:#28CD41}
+    .pais-badge.wishlist{background:rgba(255,107,0,0.2);color:var(--accent)}
   </style>
 </head>
 <body>
@@ -202,6 +230,20 @@
             <span id="meteo-local-texto"><svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="nome-cidade-texto">GPS</span></span>
           </div>
         </div>
+
+        <!-- NOVO RESUMO DO PAINEL PRINCIPAL -->
+        <div class="dashboard-widget" style="padding:20px;">
+          <h3><svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Resumo Diário & Finanças</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;background:var(--bg-color);padding:12px;border-radius:12px;border:1px solid var(--border-color);">
+            <span style="font-size:13px;color:var(--text-muted);">Tarefas / Compras Feitas:</span>
+            <b id="home-stat-feitas" style="font-size:16px;color:var(--accent);">0</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;background:var(--bg-color);padding:12px;border-radius:12px;border:1px solid var(--border-color);">
+            <span style="font-size:13px;color:var(--text-muted);">Saldo Global Splitwise:</span>
+            <b id="home-stat-splitwise" style="font-size:16px;">0.00€</b>
+          </div>
+        </div>
+
         <div class="dashboard-widget widget-frase">
           <svg class="icon-svg" style="opacity:0.2;width:24px;margin-bottom:12px;color:var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
           <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
@@ -220,20 +262,27 @@
       <div id="menu-viagens" class="page">
         <h2 style="margin-bottom:10px;">As Nossas Viagens</h2>
         <div class="stats-viagens">
-          <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl" style="color:var(--accent);">Viagens Guardadas</span></div>
+          <div class="stat-box"><span class="stat-num" id="stat-paises-visitados">0</span><span class="stat-lbl">Visitados</span></div>
+          <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens</span></div>
+          <div class="stat-box"><span class="stat-num" id="stat-paises-desejados">0</span><span class="stat-lbl">A Visitar</span></div>
         </div>
-        <button class="btn-acao" style="width:100%;margin-bottom:25px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
+        <button class="btn-acao" style="width:100%;margin-bottom:20px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
           <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
         </button>
+
         <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
-        <div id="container-viagens" style="width:100%;"></div>
+        <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
+
+        <!-- MAPA / LISTA DE PAÍSES -->
+        <h3>Explorar Países do Mundo</h3>
+        <input type="text" id="search-pais" class="auth-input" placeholder="Procurar país..." oninput="filtrarPaises()" style="margin-bottom:10px;">
+        <div class="paises-grid" id="container-paises-lista"></div>
       </div>
 
       <!-- NOVA VIAGEM -->
       <div id="menu-nova-viagem" class="page">
         <h2>Nova Aventura</h2>
         
-        <!-- Adicionar Imagem Tipo Cartão Lojas -->
         <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="document.getElementById('input-viagem-capa').click()">
           <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
           <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
@@ -242,7 +291,12 @@
 
         <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
         <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
-        <input type="date" id="input-viagem-data" class="auth-input" style="color:var(--text-main);">
+        
+        <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data de Início:</label>
+        <input type="date" id="input-viagem-data-inicio" class="auth-input" style="color:var(--text-main);">
+        
+        <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data do Fim:</label>
+        <input type="date" id="input-viagem-data-fim" class="auth-input" style="color:var(--text-main);">
         
         <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
           Guardar Viagem
@@ -250,34 +304,54 @@
       </div>
 
       <!-- DETALHE VIAGEM -->
-      <div id="page-viagem-detalhe" class="page">
-        <div class="viagem-header">
+      <div id="page-viagem-detalhe" class="page" style="position:relative;">
+        <div class="viagem-header" onclick="document.getElementById('input-edit-capa-direct').click()">
           <img id="detalhe-viagem-img" src="">
-          <div class="viagem-header-overlay"><h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1></div>
+          <div class="viagem-header-overlay">
+            <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
+            <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
+          </div>
+          <span class="edit-capa-badge">📷 Alterar Capa</span>
         </div>
+        <input type="file" id="input-edit-capa-direct" accept="image/*" style="display:none;" onchange="alterarCapaDireta(event)">
+
         <div class="trip-tabs">
           <div class="trip-tab active" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeador</div>
           <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Splitwise</div>
           <div class="trip-tab" id="tab-btn-settings" onclick="switchTripTab('settings')">Definições</div>
         </div>
         
-        <div id="tab-planeador" class="trip-tab-content active">
-          <textarea id="trip-planner-text" class="textarea-obs" style="height:350px;font-size:14px;line-height:1.6;" placeholder="Escreve aqui o teu roteiro. Grava automaticamente ao clicares fora." onblur="salvarPlaneador()"></textarea>
+        <!-- PLANEADOR RASTREIO (TIMELINE) -->
+        <div id="tab-planeador" class="trip-tab-content active" style="position:relative;">
+          <div class="timeline-container" id="container-timeline-events"></div>
+
+          <!-- BOTÃO FLUTUANTE DE ADICIONAR NOVO EVENTO DA TIMELINE -->
+          <button class="btn-fab" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
         </div>
         
+        <!-- SPLITWISE AVANÇADO -->
         <div id="tab-splitwise" class="trip-tab-content">
           <div class="splitwise-resumo">
             <p style="font-size:12px;color:var(--text-muted);margin:0;">Total Gasto: <b id="split-total" style="color:var(--text-main);">0.00€</b></p>
             <div id="split-resultado" style="margin-top:15px;display:flex;flex-direction:column;gap:5px;"></div>
           </div>
-          <div style="background-color:var(--card-bg);padding:15px;border-radius:16px;border:1px solid var(--border-color);margin-bottom:20px;">
-            <input type="text" id="exp-desc" class="auth-input" placeholder="O que foi? (ex: Jantar)" style="margin-bottom:10px;padding:10px;">
+          
+          <div style="background-color:var(--card-bg);padding:15px;border-radius:16px;border:1px solid var(--border-color);margin-bottom:20px;text-align:left;">
+            <h4 style="margin:0 0 10px 0;font-weight:600;">Adicionar Despesa</h4>
+            <input type="text" id="exp-desc" class="auth-input" placeholder="Descrição (ex: Jantar, Táxi)" style="margin-bottom:10px;padding:10px;">
             <div style="display:flex;gap:10px;margin-bottom:10px;">
               <input type="number" id="exp-valor" class="auth-input" placeholder="Valor (€)" style="margin-bottom:0;padding:10px;">
               <select id="exp-pagador" class="auth-input" style="margin-bottom:0;padding:10px;"></select>
             </div>
-            <button class="btn-acao" onclick="adicionarDespesa()" style="background-color:var(--accent);color:#121212;width:100%;">+ Adicionar Despesa</button>
+
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">Dividir por quem?</label>
+            <div id="split-participantes-checkboxes" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;"></div>
+
+            <button class="btn-acao" onclick="adicionarDespesa()" style="background-color:var(--accent);color:#121212;width:100%;">+ Registar Despesa</button>
           </div>
+
           <div id="container-despesas"></div>
         </div>
         
@@ -354,6 +428,22 @@
   </div>
 
   <!-- MODALS -->
+  <div id="modal-novo-evento" class="modal-overlay">
+    <div class="modal-content">
+      <h2 id="modal-evento-titulo-header">Novo Passo na Viagem</h2>
+      <input type="hidden" id="edit-event-id">
+      <input type="date" id="input-event-data" class="auth-input">
+      <input type="time" id="input-event-hora" class="auth-input">
+      <input type="text" id="input-event-titulo" class="auth-input" placeholder="Título / Localização (ex: Museu do Louvre)">
+      <textarea id="input-event-notas" class="textarea-obs" placeholder="Notas ou Observações..."></textarea>
+      
+      <div class="modal-btn-row">
+        <button class="btn-acao" onclick="fecharModal('modal-novo-evento')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarEventoTimeline()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-definicoes" class="modal-overlay">
     <div class="modal-content">
       <h2 style="margin-bottom:20px;">Definições</h2>
@@ -387,7 +477,7 @@
   <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')"><img id="img-fullscreen-cartao" class="fullscreen-img" src=""></div>
   <div id="modal-alerta" class="modal-overlay"><div class="modal-content"><h2>Aviso</h2><p id="mensagem-alerta" style="margin-top:15px;margin-bottom:25px;color:var(--text-muted);font-size:14px;"></p><button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color:var(--accent);color:#121212;width:100%;">OK</button></div></div>
 
-  <!-- SCRIPT -->
+  <!-- SCRIPT FIREBASE & LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -406,7 +496,16 @@
 
     let userId = null, userName = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
     let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
+    let timelineEventsData = [], totalItensConcluidosHoje = 0, paisesUserData = { visitados: [], desejados: [] };
+
+    const listaPaisesMundo = [
+      "Espanha", "França", "Itália", "Reino Unido", "Alemanha", "Estados Unidos", "Japão", 
+      "Brasil", "Portugal", "Suíça", "Holanda", "Bélgica", "Grécia", "Áustria", "México", 
+      "Tailândia", "Marrocos", "Egito", "Canadá", "Austrália", "Croácia", "Turquia"
+    ].sort();
+
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+    const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
 
     window.toggleAuthMode = () => { 
         isLoginMode = !isLoginMode; 
@@ -556,7 +655,9 @@
         const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
         
         const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(userDocRef, col), s => {
-            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderListDB(arr, ui, col);
+            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); 
+            renderListDB(arr, ui, col);
+            calcularConcluidosGerais();
         }));
         attachList('tarefas', 'container-tarefas'); 
         attachList('semanais', 'container-semanais'); 
@@ -569,6 +670,14 @@
         
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
+        // Listener Países do Utilizador
+        unsusbscribes.push(onSnapshot(doc(userDocRef, 'meta', 'paises'), s => {
+            if(s.exists()){ paisesUserData = s.data(); }
+            else { paisesUserData = { visitados: [], desejados: [] }; }
+            renderPaises();
+        }));
+
+        // Listener Viagens
         const qViagens = collection(db, 'artifacts', appId, 'viagens_partilhadas');
         unsusbscribes.push(onSnapshot(qViagens, s => {
             viagensData = []; 
@@ -577,13 +686,26 @@
             renderViagensCards(); 
             if(currentTripId){
                 const tripAtual = viagensData.find(v => v.id === currentTripId);
-                if(tripAtual){ currentTripDoc = tripAtual; if(document.activeElement !== document.getElementById('trip-planner-text')) document.getElementById('trip-planner-text').value = tripAtual.planeador || ""; renderMembrosSettings(); }
+                if(tripAtual){ 
+                    currentTripDoc = tripAtual; 
+                    document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome;
+                    document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
+                    document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
+                    renderMembrosSettings(); 
+                }
                 else navegarMenu('menu-viagens');
             }
         }, err => {
             console.error("Erro Viagens:", err);
             window.mostrarAlerta("Erro a obter viagens: " + err.message);
         }));
+    }
+
+    function calcularConcluidosGerais() {
+        let total = 0;
+        document.querySelectorAll('.list-item.feita').forEach(() => total++);
+        totalItensConcluidosHoje = total;
+        if(document.getElementById('home-stat-feitas')) document.getElementById('home-stat-feitas').innerText = total;
     }
 
     function renderListDB(arr, ui, col) { 
@@ -634,13 +756,68 @@
     window.enviarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',id,'requests',userId), {fromUid:userId, fromName:userName, timestamp:Date.now()}); window.mostrarAlerta(nm+" convidado!"); document.getElementById('input-search-users').value=''; document.getElementById('container-pesquisa-users').innerHTML=''; };
     function renderRequestsDB(reqs) { const c = document.getElementById('container-pedidos'); if(reqs.length===0){c.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>'; return;} let h=''; reqs.forEach(p => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${p.fromName}</p><p style="font-size:11px;color:var(--text-muted);margin:0;">Pedido de amizade</p></div></div><div style="display:flex;gap:5px;"><button class="btn-add" style="width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${p.fromUid}','${p.fromName}')">✓</button><button class="btn-add" style="background-color:#ff3b30;width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${p.fromUid}')">✕</button></div></div>`); c.innerHTML=h; }
     window.aceitarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',userId,'friends',id), {name:nm,uid:id}); await setDoc(doc(db,'artifacts',appId,'users',id,'friends',userId), {name:userName,uid:userId}); await window.recusarPedido(id); };
-    window.recusarPedido = async (id) => await deleteDoc(doc(doc(db,'artifacts',appId,'users',userId),'requests',id));
+    window.recusarPedido = async (id) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,'requests',id));
     function renderFriendsDB(amigos) { const c = document.getElementById('container-amigos'); if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} let h=''; amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${a.name.charAt(0).toUpperCase()}</div><p class="user-name">${a.name}</p></div></div>`); c.innerHTML=h; }
 
+    /* LÓGICA DE PAÍSES */
+    function renderPaises() {
+        const v = paisesUserData.visitados || [];
+        const d = paisesUserData.desejados || [];
+        document.getElementById('stat-paises-visitados').innerText = v.length;
+        document.getElementById('stat-paises-desejados').innerText = d.length;
+        filtrarPaises();
+    }
+
+    window.filtrarPaises = () => {
+        const queryTxt = (document.getElementById('search-pais').value || '').toLowerCase();
+        const container = document.getElementById('container-paises-lista');
+        const v = paisesUserData.visitados || [];
+        const d = paisesUserData.desejados || [];
+        let html = '';
+
+        listaPaisesMundo.filter(p => p.toLowerCase().includes(queryTxt)).forEach(pais => {
+            let status = 'Por visitar';
+            let badgeClass = '';
+            if(v.includes(pais)) { status = 'Visitado ✓'; badgeClass = 'visited'; }
+            else if(d.includes(pais)) { status = 'A Visitar ★'; badgeClass = 'wishlist'; }
+
+            html += `<div class="pais-item">
+                <span style="font-size:14px;font-weight:500;">${pais}</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="pais-badge ${badgeClass}">${status}</span>
+                    <button class="btn-icon-list" onclick="toggleEstadoPais('${pais}')" title="Mudar estado">${iconEdit}</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    };
+
+    window.toggleEstadoPais = async (pais) => {
+        let v = [...(paisesUserData.visitados || [])];
+        let d = [...(paisesUserData.desejados || [])];
+
+        if(v.includes(pais)) {
+            v = v.filter(x => x !== pais);
+            d.push(pais);
+        } else if(d.includes(pais)) {
+            d = d.filter(x => x !== pais);
+        } else {
+            v.push(pais);
+        }
+
+        paisesUserData = { visitados: v, desejados: d };
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'meta', 'paises'), paisesUserData);
+    };
+
+    /* VIAGENS */
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
-        viagensData.forEach(v => h+=`<div class="trip-card" onclick="abrirDetalheViagem('${v.id}')"><img class="trip-cover" src="${v.capa||'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'}"><div class="trip-overlay"><h4 class="trip-title">${v.nome||'Sem Título'}</h4><span class="trip-country">${v.paisCode||''} • ${v.data||'Sem data'}</span></div></div>`); c.innerHTML=h; 
+        viagensData.forEach(v => {
+            let datasTxt = (v.dataInicio ? v.dataInicio : '') + (v.dataFim ? ' - ' + v.dataFim : '');
+            h+=`<div class="trip-card" onclick="abrirDetalheViagem('${v.id}')"><img class="trip-cover" src="${v.capa||'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'}"><div class="trip-overlay"><h4 class="trip-title">${v.nome||'Sem Título'}</h4><span class="trip-country">${v.paisCode||''} • ${datasTxt || 'Sem datas'}</span></div></div>`; 
+        });
+        c.innerHTML=h; 
     }
     
     window.processarFotoViagem = (ev) => { 
@@ -652,15 +829,46 @@
             document.getElementById('preview-capa-viagem').src=tempCapaUrl; document.getElementById('preview-capa-viagem').style.display='block'; document.getElementById('msg-sem-capa').style.display='none';
         }; img.src = e.target.result; }; reader.readAsDataURL(file); 
     };
+
+    window.alterarCapaDireta = (ev) => {
+        const file = ev.target.files[0]; if(!file || !currentTripId) return; 
+        const reader = new FileReader(); 
+        reader.onload = (e) => { 
+            const img = new Image(); img.onload = async () => { 
+                const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height; 
+                if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h; 
+                canvas.getContext('2d').drawImage(img,0,0,w,h); 
+                const novaCapa = canvas.toDataURL('image/jpeg',0.6); 
+                document.getElementById('detalhe-viagem-img').src = novaCapa;
+                await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { capa: novaCapa });
+            }; img.src = e.target.result; 
+        }; reader.readAsDataURL(file);
+    };
     
     window.guardarNovaViagem = async () => {
         try {
-            const tit = document.getElementById('input-viagem-nome').value.trim(), dest = document.getElementById('input-viagem-destino').value.trim(), dt = document.getElementById('input-viagem-data').value;
+            const tit = document.getElementById('input-viagem-nome').value.trim();
+            const dest = document.getElementById('input-viagem-destino').value.trim();
+            const dtInicio = document.getElementById('input-viagem-data-inicio').value;
+            const dtFim = document.getElementById('input-viagem-data-fim').value;
+
             if(!tit || !dest) return window.mostrarAlerta("Preenche o título e o destino."); 
             const btn = document.getElementById('btn-save-viagem'); btn.innerText="A guardar..."; btn.disabled=true;
-            await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), { nome:tit, paisCode:dest, data:dt, capa:tempCapaUrl||"", timestamp:Date.now(), planeador:"", membros_uids:[userId], membros_info:[{uid:userId, nome:userName||"Eu"}], dono:userId });
             
-            document.getElementById('input-viagem-nome').value=''; document.getElementById('input-viagem-destino').value=''; document.getElementById('input-viagem-data').value=''; 
+            await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), { 
+                nome: tit, 
+                paisCode: dest, 
+                dataInicio: dtInicio,
+                dataFim: dtFim,
+                capa: tempCapaUrl||"", 
+                timestamp: Date.now(), 
+                membros_uids: [userId], 
+                membros_info: [{uid:userId, nome:userName||"Eu"}], 
+                dono: userId 
+            });
+            
+            document.getElementById('input-viagem-nome').value=''; document.getElementById('input-viagem-destino').value=''; 
+            document.getElementById('input-viagem-data-inicio').value=''; document.getElementById('input-viagem-data-fim').value=''; 
             document.getElementById('preview-capa-viagem').style.display='none'; document.getElementById('msg-sem-capa').style.display='block'; tempCapaUrl=""; 
             btn.innerText="Guardar Viagem"; btn.disabled=false; window.navegarMenu('menu-viagens');
         } catch(e){ window.mostrarAlerta("Erro a guardar: " + e.message); const btn = document.getElementById('btn-save-viagem'); if(btn){btn.innerText="Guardar Viagem"; btn.disabled=false;} }
@@ -669,21 +877,40 @@
     window.switchTripTab = (n) => { document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); document.getElementById('tab-btn-'+n).classList.add('active'); document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); };
     
     let unsubDespesas = null;
+    let unsubTimeline = null;
+
     window.abrirDetalheViagem = async (id) => {
         currentTripId = id; currentTripDoc = viagensData.find(v => v.id === id); if(!currentTripDoc) return;
-        document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome; document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; document.getElementById('trip-planner-text').value = currentTripDoc.planeador || "";
+        document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome; 
+        document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
+        document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
+
         renderMembrosSettings(); window.switchTripTab('planeador'); window.navegarMenu('page-viagem-detalhe');
+        
         if(unsubDespesas) unsubDespesas();
         unsubDespesas = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { let arr=[]; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderizarDespesas(arr); });
+
+        if(unsubTimeline) unsubTimeline();
+        unsubTimeline = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'timeline'), s => { 
+            timelineEventsData = []; 
+            s.forEach(d => timelineEventsData.push({id:d.id, ...d.data()})); 
+            renderizarTimelineEvents(); 
+        });
     };
     
-    window.salvarPlaneador = async () => { if(currentTripId) await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), {planeador:document.getElementById('trip-planner-text').value}); };
     window.apagarViagem = async () => { if(confirm("Apagar esta viagem permanentemente?")) { await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); window.navegarMenu('menu-viagens'); } };
 
     function renderMembrosSettings() {
-         let sel='', list='', dd='';
-         currentTripDoc.membros_info.forEach(p => { sel+=`<option value="${p.uid}">${p.nome}</option>`; list+=`<div class="user-card" style="padding:10px;"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.nome.charAt(0).toUpperCase()}</div><span style="font-size:14px;font-weight:500;">${p.nome}</span></div></div>`; });
-         document.getElementById('exp-pagador').innerHTML = sel; document.getElementById('trip-membros-list').innerHTML = list;
+         let sel='', list='', dd='', checkboxes = '';
+         currentTripDoc.membros_info.forEach(p => { 
+             sel+=`<option value="${p.uid}">${p.nome}</option>`; 
+             list+=`<div class="user-card" style="padding:10px;"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.nome.charAt(0).toUpperCase()}</div><span style="font-size:14px;font-weight:500;">${p.nome}</span></div></div>`; 
+             checkboxes += `<label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" class="chk-split-membro" value="${p.uid}" checked> ${p.nome}</label>`;
+         });
+         document.getElementById('exp-pagador').innerHTML = sel; 
+         document.getElementById('trip-membros-list').innerHTML = list;
+         document.getElementById('split-participantes-checkboxes').innerHTML = checkboxes;
+
          let conv=false; minhaRede.forEach(c => { if(!currentTripDoc.membros_uids.includes(c.uid)){ dd+=`<option value="${c.uid}" data-nome="${c.name}">${c.name}</option>`; conv=true; } });
          document.getElementById('trip-amigos-disponiveis').innerHTML = conv ? dd : '<option value="">Todos já adicionados!</option>';
     }
@@ -693,23 +920,155 @@
          const idA = sel.value, nmA = sel.options[sel.selectedIndex].getAttribute('data-nome');
          await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids:[...currentTripDoc.membros_uids, idA], membros_info:[...currentTripDoc.membros_info, {uid:idA, nome:nmA}] }); window.mostrarAlerta(nmA+" inserido na viagem!");
     };
-    
+
+    /* TIMELINE (PLANEADOR COM RASTREIO PICOTADO) */
+    function renderizarTimelineEvents() {
+        const container = document.getElementById('container-timeline-events');
+        if(timelineEventsData.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades. Clica no botão "+" no canto inferior direito para começar o roteiro!</p>';
+            return;
+        }
+
+        timelineEventsData.sort((a,b) => {
+            let keyA = (a.data || '') + ' ' + (a.hora || '');
+            let keyB = (b.data || '') + ' ' + (b.hora || '');
+            return keyA.localeCompare(keyB);
+        });
+
+        let html = '';
+        timelineEventsData.forEach(ev => {
+            html += `<div class="timeline-item">
+                <div class="timeline-header">
+                    <span class="timeline-time">${ev.data || ''} ${ev.hora ? '• ' + ev.hora : ''}</span>
+                    <div style="display:flex;gap:5px;">
+                        <button class="btn-icon-list" onclick="prepararEditarEvento('${ev.id}')">${iconEdit}</button>
+                        <button class="btn-icon-list" onclick="apagarEventoTimeline('${ev.id}')">${iconTrash}</button>
+                    </div>
+                </div>
+                <div class="timeline-title">${ev.titulo}</div>
+                ${ev.notas ? `<div class="timeline-notes">${ev.notas}</div>` : ''}
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    window.guardarEventoTimeline = async () => {
+        const evId = document.getElementById('edit-event-id').value;
+        const dt = document.getElementById('input-event-data').value;
+        const hr = document.getElementById('input-event-hora').value;
+        const tit = document.getElementById('input-event-titulo').value.trim();
+        const nts = document.getElementById('input-event-notas').value.trim();
+
+        if(!tit) return window.mostrarAlerta("Insere um título ou localização.");
+
+        const payload = { data: dt, hora: hr, titulo: tit, notas: nts, timestamp: Date.now() };
+
+        if(evId) {
+            await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline',evId), payload);
+        } else {
+            await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline'), payload);
+        }
+
+        fecharModal('modal-novo-evento');
+        document.getElementById('edit-event-id').value = '';
+        document.getElementById('input-event-titulo').value = '';
+        document.getElementById('input-event-notas').value = '';
+    };
+
+    window.prepararEditarEvento = (id) => {
+        const ev = timelineEventsData.find(x => x.id === id);
+        if(!ev) return;
+        document.getElementById('edit-event-id').value = ev.id;
+        document.getElementById('input-event-data').value = ev.data || '';
+        document.getElementById('input-event-hora').value = ev.hora || '';
+        document.getElementById('input-event-titulo').value = ev.titulo || '';
+        document.getElementById('input-event-notas').value = ev.notas || '';
+        document.getElementById('modal-evento-titulo-header').innerText = "Editar Passo";
+        abrirModal('modal-novo-evento');
+    };
+
+    window.apagarEventoTimeline = async (id) => {
+        if(confirm("Apagar esta atividade?")) {
+            await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline',id));
+        }
+    };
+
+    /* SPLITWISE COM DIVISÃO SELECCIONADA E RESUMO ATUALIZADO */
     window.adicionarDespesa = async () => {
-        const desc = document.getElementById('exp-desc').value.trim(), val = parseFloat(document.getElementById('exp-valor').value), uidP = document.getElementById('exp-pagador').value; 
-        if(!desc || !val || val<=0) return;
+        const desc = document.getElementById('exp-desc').value.trim();
+        const val = parseFloat(document.getElementById('exp-valor').value);
+        const uidP = document.getElementById('exp-pagador').value; 
+        
+        let divididos = [];
+        document.querySelectorAll('.chk-split-membro:checked').forEach(c => divididos.push(c.value));
+
+        if(!desc || !val || val<=0) return window.mostrarAlerta("Preenche a descrição e um valor válido.");
+        if(divididos.length === 0) return window.mostrarAlerta("Seleciona pelo menos uma pessoa para dividir.");
+
         const pObj = currentTripDoc.membros_info.find(i => i.uid === uidP);
-        await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {desc:desc, valor:val, pagadorUid:uidP, pagadorNome:(pObj?pObj.nome:"Desconhecido"), timestamp:Date.now()}); 
-        document.getElementById('exp-desc').value=''; document.getElementById('exp-valor').value='';
+        
+        await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {
+            desc: desc, 
+            valor: val, 
+            pagadorUid: uidP, 
+            pagadorNome: (pObj?pObj.nome:"Desconhecido"), 
+            divididoPor: divididos,
+            timestamp: Date.now()
+        }); 
+
+        document.getElementById('exp-desc').value=''; 
+        document.getElementById('exp-valor').value='';
     };
     
     function renderizarDespesas(listaExp) {
         let saldos = {}, tot = 0, htmlD = '', resHtml = '';
-        currentTripDoc.membros_info.forEach(m => saldos[m.uid]={nome:m.nome, pago:0});
-        listaExp.sort((a,b) => b.timestamp - a.timestamp).forEach(e => { if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago+=e.valor; tot+=e.valor; htmlD+=`<div class="expense-item"><div class="exp-info"><span class="exp-title">${e.desc}</span><span class="exp-payer">Pago por ${e.pagadorNome}</span></div><div style="display:flex;align-items:center;gap:10px;"><span class="exp-amount">${e.valor.toFixed(2)}€</span><button class="btn-icon-list" onclick="apagarDespesa('${e.id}')">${iconTrash}</button></div></div>`; });
-        document.getElementById('container-despesas').innerHTML = htmlD; document.getElementById('split-total').innerText = tot.toFixed(2)+'€';
-        let totMembros = currentTripDoc.membros_info.length; if(totMembros===0) return; let quota = tot/totMembros; 
-        Object.keys(saldos).forEach(u => { let b = saldos[u].pago - quota; if(b>0.01) resHtml+=`<div class="split-balance">🟢 ${saldos[u].nome} recebe ${b.toFixed(2)}€</div>`; else if(b<-0.01) resHtml+=`<div class="split-balance owe">🔴 ${saldos[u].nome} paga ${Math.abs(b).toFixed(2)}€</div>`; else resHtml+=`<div class="split-balance" style="color:var(--text-muted)">⚪ ${saldos[u].nome} está quite.</div>`; });
+        currentTripDoc.membros_info.forEach(m => saldos[m.uid] = { nome: m.nome, pago: 0, deve: 0 });
+
+        listaExp.sort((a,b) => b.timestamp - a.timestamp).forEach(e => { 
+            tot += e.valor;
+            if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago += e.valor;
+
+            let participantes = e.divididoPor || currentTripDoc.membros_uids;
+            let quota = e.valor / participantes.length;
+
+            participantes.forEach(pUid => {
+                if(saldos[pUid]) saldos[pUid].deve += quota;
+            });
+
+            htmlD += `<div class="expense-item">
+                <div class="exp-info">
+                    <span class="exp-title">${e.desc}</span>
+                    <span class="exp-payer">Pago por ${e.pagadorNome} (${participantes.length} pessoas)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span class="exp-amount">${e.valor.toFixed(2)}€</span>
+                    <button class="btn-icon-list" onclick="apagarDespesa('${e.id}')">${iconTrash}</button>
+                </div>
+            </div>`; 
+        });
+
+        document.getElementById('container-despesas').innerHTML = htmlD; 
+        document.getElementById('split-total').innerText = tot.toFixed(2)+'€';
+        
+        let meuSaldoGlobal = 0;
+
+        Object.keys(saldos).forEach(u => { 
+            let b = saldos[u].pago - saldos[u].deve;
+            if(u === userId) meuSaldoGlobal = b;
+
+            if(b > 0.01) resHtml += `<div class="split-balance receive">🟢 ${saldos[u].nome} recebe ${b.toFixed(2)}€</div>`; 
+            else if(b < -0.01) resHtml += `<div class="split-balance owe">🔴 ${saldos[u].nome} deve ${Math.abs(b).toFixed(2)}€</div>`; 
+            else resHtml += `<div class="split-balance" style="color:var(--text-muted)">⚪ ${saldos[u].nome} está quite.</div>`; 
+        });
+
         document.getElementById('split-resultado').innerHTML = resHtml;
+
+        // Atualiza Home Stat
+        const homeSplitEl = document.getElementById('home-stat-splitwise');
+        if(homeSplitEl) {
+            homeSplitEl.innerText = (meuSaldoGlobal >= 0 ? '+' : '') + meuSaldoGlobal.toFixed(2) + '€';
+            homeSplitEl.style.color = meuSaldoGlobal > 0 ? '#28CD41' : (meuSaldoGlobal < 0 ? '#ff3b30' : 'var(--text-main)');
+        }
     }
     
     window.apagarDespesa = async (id) => { if(currentTripId) await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas',id)); };

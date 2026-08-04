@@ -539,7 +539,7 @@
         unsusbscribes.push(onSnapshot(collection(mRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
         // CORREÇÃO FINAL: UTILIZAR O "WHERE" OBRIGATÓRIO PARA O FIREBASE ACEITAR LER
-        const qViagens = query(collection(db, 'artifacts', appId, 'viagens_partilhadas'), where('membros_uids', 'array-contains', userId));
+        const qViagens = collection(db, 'artifacts', appId, 'viagens_partilhadas');
         unsusbscribes.push(onSnapshot(qViagens, s => {
             viagensData = []; 
             s.forEach(d => viagensData.push({id:d.id, ...d.data()}));

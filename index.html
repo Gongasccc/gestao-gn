@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    /* CSS OTIMIZADO E EXPANDIDO */
     :root{--bg-color:#191919;--card-bg:#202020;--text-main:rgba(255,255,255,0.9);--text-muted:rgba(255,255,255,0.5);--accent:#FF6B00;--btn-secondary:#2C2C2C;--border-color:rgba(255,255,255,0.05);--sidebar-width:280px;--bottom-nav-height:70px}
     body.light-mode{--bg-color:#FFFFFF;--card-bg:#F7F7F5;--text-main:#37352F;--text-muted:rgba(55,53,47,0.6);--btn-secondary:#EBEBEA;--border-color:rgba(0,0,0,0.08)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -86,7 +85,6 @@
     .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px}
     .user-info{display:flex;align-items:center;gap:12px;text-align:left} .user-avatar{width:40px;height:40px;border-radius:50%;background-color:var(--accent);display:flex;align-items:center;justify-content:center;color:#121212;font-weight:bold;font-size:18px} .user-name{font-size:15px;font-weight:500;margin:0}
     
-    /* ESTATÍSTICAS VIAGENS */
     .stats-viagens{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;margin-bottom:20px} 
     .stat-box{background-color:var(--card-bg);padding:15px 5px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} 
     .stat-num{font-size:20px;font-weight:600;color:var(--accent);display:block;line-height:1.2} 
@@ -110,24 +108,27 @@
     .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     
-    /* BOTÃO FLUTUANTE SIMPLES (+ SEM EMOJI COR) */
-    .btn-fab{position:fixed;bottom:calc(var(--bottom-nav-height) + 30px);right:25px;width:52px;height:52px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.4);border:none;cursor:pointer;z-index:1400;transition:transform 0.2s}
+    /* BOTÃO FLUTUANTE SIMPLES CORRIGIDO NO CANTO INFERIOR DIREITO */
+    .btn-fab{position:fixed;bottom:calc(var(--bottom-nav-height) + 25px);right:20px;width:54px;height:54px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 25px rgba(0,0,0,0.5);border:none;cursor:pointer;z-index:2500;transition:transform 0.2s}
     .btn-fab:active{transform:scale(0.9)}
-    .btn-fab svg{width:24px;height:24px;stroke:currentColor;stroke-width:2.5}
+    .btn-fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.5}
 
-    /* PAÍSES LISTA */
     .paises-grid{display:flex;flex-direction:column;gap:8px;width:100%;max-height:300px;overflow-y:auto;margin-top:10px}
     .pais-item{display:flex;align-items:center;justify-content:space-between;background:var(--card-bg);padding:10px 15px;border-radius:10px;border:1px solid var(--border-color)}
     .pais-badge{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--btn-secondary);color:var(--text-muted)}
     .pais-badge.visited{background:rgba(40,205,65,0.2);color:#28CD41}
     .pais-badge.wishlist{background:rgba(255,107,0,0.2);color:var(--accent)}
+    
+    /* WIDGET DE RESUMO DE DENTRO DA VIAGEM */
+    .viagem-stats-summary{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+    .summary-label{color:var(--text-muted)}
+    .summary-val{font-weight:600;color:var(--text-main)}
   </style>
 </head>
 <body>
 
-  <!-- ================================================== -->
   <!-- OVERLAY DE LOGIN / REGISTO -->
-  <!-- ================================================== -->
   <div id="auth-overlay">
     <img src="logobranco_semfundo.png" class="main-auth-logo dark-logo" onerror="this.style.display='none'">
     <img src="logopreto_semfundo.png" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display:none;">
@@ -143,9 +144,7 @@
     </div>
   </div>
 
-  <!-- ================================================== -->
   <!-- CONTAINER PRINCIPAL DA APP -->
-  <!-- ================================================== -->
   <div id="app-container">
     
     <!-- MENU LATERAL (SIDEBAR) -->
@@ -188,9 +187,7 @@
       </div>
     </div>
 
-    <!-- ================================================== -->
-    <!-- BARRA INFERIOR (BOTTOM NAV)                        -->
-    <!-- ================================================== -->
+    <!-- BARRA INFERIOR (BOTTOM NAV) -->
     <div id="bottom-nav">
       <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
         <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -210,9 +207,7 @@
       </div>
     </div>
 
-    <!-- ================================================== -->
-    <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO                      -->
-    <!-- ================================================== -->
+    <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
     <div class="page-container">
       
       <!-- DASHBOARD (INÍCIO) -->
@@ -231,25 +226,21 @@
           </div>
         </div>
 
-        <!-- NOVO RESUMO DO PAINEL PRINCIPAL -->
-        <div class="dashboard-widget" style="padding:20px;">
-          <h3><svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Resumo Diário & Finanças</h3>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;background:var(--bg-color);padding:12px;border-radius:12px;border:1px solid var(--border-color);">
-            <span style="font-size:13px;color:var(--text-muted);">Tarefas / Compras Feitas:</span>
-            <b id="home-stat-feitas" style="font-size:16px;color:var(--accent);">0</b>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;background:var(--bg-color);padding:12px;border-radius:12px;border:1px solid var(--border-color);">
-            <span style="font-size:13px;color:var(--text-muted);">Saldo Global Splitwise:</span>
-            <b id="home-stat-splitwise" style="font-size:16px;">0.00€</b>
-          </div>
-        </div>
-
         <div class="dashboard-widget widget-frase">
           <svg class="icon-svg" style="opacity:0.2;width:24px;margin-bottom:12px;color:var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
           <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
         </div>
+
+        <!-- ÍCONE DE PRANCHETA COM CANETA CORRIGIDO -->
         <div class="dashboard-widget widget-tarefas">
-          <h3><svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path></svg> A Fazer Hoje</h3>
+          <h3>
+            <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              <path d="M18 11.5l-5 5-2 0 0-2 5-5 2 2z"></path>
+            </svg> 
+            A Fazer Hoje
+          </h3>
           <div class="input-row">
             <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
             <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
@@ -273,7 +264,7 @@
         <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
         <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
 
-        <!-- MAPA / LISTA DE PAÍSES -->
+        <!-- PAÍSES -->
         <h3>Explorar Países do Mundo</h3>
         <input type="text" id="search-pais" class="auth-input" placeholder="Procurar país..." oninput="filtrarPaises()" style="margin-bottom:10px;">
         <div class="paises-grid" id="container-paises-lista"></div>
@@ -317,42 +308,52 @@
 
         <div class="trip-tabs">
           <div class="trip-tab active" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeador</div>
-          <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Splitwise</div>
+          <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Dividir Despesas</div>
           <div class="trip-tab" id="tab-btn-settings" onclick="switchTripTab('settings')">Definições</div>
         </div>
         
-        <!-- PLANEADOR RASTREIO (TIMELINE) -->
+        <!-- PLANEADOR RASTREIO -->
         <div id="tab-planeador" class="trip-tab-content active" style="position:relative;">
+          
+          <!-- RESUMO INTERNO DA VIAGEM -->
+          <div class="viagem-stats-summary">
+            <h4 style="margin:0 0 5px 0;font-size:15px;color:var(--accent);">Resumo da Viagem</h4>
+            <div class="summary-row">
+              <span class="summary-label">Duração da Viagem:</span>
+              <span class="summary-val" id="summary-duracao-dias">-- dias</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Locais / Atividades Planeadas:</span>
+              <span class="summary-val" id="summary-total-locais">0 sítios</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Custo Total das Despesas:</span>
+              <span class="summary-val" id="summary-custo-total">0.00€</span>
+            </div>
+            <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
+          </div>
+
           <div class="timeline-container" id="container-timeline-events"></div>
 
-          <!-- BOTÃO FLUTUANTE DE ADICIONAR NOVO EVENTO DA TIMELINE -->
-          <button class="btn-fab" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade">
+          <!-- BOTÃO FLUTUANTE DE ADICIONAR NOVO EVENTO (NO CANTO INFERIOR DIREITO) -->
+          <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </div>
         
-        <!-- SPLITWISE AVANÇADO -->
-        <div id="tab-splitwise" class="trip-tab-content">
+        <!-- DIVIDIR DESPESAS -->
+        <div id="tab-splitwise" class="trip-tab-content" style="position:relative;">
           <div class="splitwise-resumo">
             <p style="font-size:12px;color:var(--text-muted);margin:0;">Total Gasto: <b id="split-total" style="color:var(--text-main);">0.00€</b></p>
             <div id="split-resultado" style="margin-top:15px;display:flex;flex-direction:column;gap:5px;"></div>
           </div>
           
-          <div style="background-color:var(--card-bg);padding:15px;border-radius:16px;border:1px solid var(--border-color);margin-bottom:20px;text-align:left;">
-            <h4 style="margin:0 0 10px 0;font-weight:600;">Adicionar Despesa</h4>
-            <input type="text" id="exp-desc" class="auth-input" placeholder="Descrição (ex: Jantar, Táxi)" style="margin-bottom:10px;padding:10px;">
-            <div style="display:flex;gap:10px;margin-bottom:10px;">
-              <input type="number" id="exp-valor" class="auth-input" placeholder="Valor (€)" style="margin-bottom:0;padding:10px;">
-              <select id="exp-pagador" class="auth-input" style="margin-bottom:0;padding:10px;"></select>
-            </div>
+          <div id="container-despesas" style="margin-bottom:80px;"></div>
 
-            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">Dividir por quem?</label>
-            <div id="split-participantes-checkboxes" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;"></div>
-
-            <button class="btn-acao" onclick="adicionarDespesa()" style="background-color:var(--accent);color:#121212;width:100%;">+ Registar Despesa</button>
-          </div>
-
-          <div id="container-despesas"></div>
+          <!-- BOTÃO FLUTUANTE PARA ADICIONAR DESPESA NO CANTO INFERIOR DIREITO -->
+          <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
         </div>
         
         <div id="tab-settings" class="trip-tab-content">
@@ -444,6 +445,25 @@
     </div>
   </div>
 
+  <div id="modal-nova-despesa" class="modal-overlay">
+    <div class="modal-content" style="text-align:left;">
+      <h2 style="text-align:center;margin-bottom:15px;">Registar Despesa</h2>
+      <input type="text" id="exp-desc" class="auth-input" placeholder="Descrição (ex: Jantar, Táxi)">
+      <input type="number" id="exp-valor" class="auth-input" placeholder="Valor (€)">
+      
+      <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Quem pagou?</label>
+      <select id="exp-pagador" class="auth-input"></select>
+
+      <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">Dividir por quem?</label>
+      <div id="split-participantes-checkboxes" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;"></div>
+
+      <div class="modal-btn-row">
+        <button class="btn-acao" onclick="fecharModal('modal-nova-despesa')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="adicionarDespesa()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-definicoes" class="modal-overlay">
     <div class="modal-content">
       <h2 style="margin-bottom:20px;">Definições</h2>
@@ -477,7 +497,7 @@
   <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')"><img id="img-fullscreen-cartao" class="fullscreen-img" src=""></div>
   <div id="modal-alerta" class="modal-overlay"><div class="modal-content"><h2>Aviso</h2><p id="mensagem-alerta" style="margin-top:15px;margin-bottom:25px;color:var(--text-muted);font-size:14px;"></p><button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color:var(--accent);color:#121212;width:100%;">OK</button></div></div>
 
-  <!-- SCRIPT FIREBASE & LÓGICA -->
+  <!-- SCRIPT FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -496,7 +516,7 @@
 
     let userId = null, userName = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
     let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
-    let timelineEventsData = [], totalItensConcluidosHoje = 0, paisesUserData = { visitados: [], desejados: [] };
+    let timelineEventsData = [], paisesUserData = { visitados: [], desejados: [] };
 
     const listaPaisesMundo = [
       "Espanha", "França", "Itália", "Reino Unido", "Alemanha", "Estados Unidos", "Japão", 
@@ -657,7 +677,6 @@
         const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(userDocRef, col), s => {
             let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); 
             renderListDB(arr, ui, col);
-            calcularConcluidosGerais();
         }));
         attachList('tarefas', 'container-tarefas'); 
         attachList('semanais', 'container-semanais'); 
@@ -670,14 +689,12 @@
         
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
-        // Listener Países do Utilizador
         unsusbscribes.push(onSnapshot(doc(userDocRef, 'meta', 'paises'), s => {
             if(s.exists()){ paisesUserData = s.data(); }
             else { paisesUserData = { visitados: [], desejados: [] }; }
             renderPaises();
         }));
 
-        // Listener Viagens
         const qViagens = collection(db, 'artifacts', appId, 'viagens_partilhadas');
         unsusbscribes.push(onSnapshot(qViagens, s => {
             viagensData = []; 
@@ -692,6 +709,7 @@
                     document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
                     document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
                     renderMembrosSettings(); 
+                    atualizarResumoInternoViagem();
                 }
                 else navegarMenu('menu-viagens');
             }
@@ -699,13 +717,6 @@
             console.error("Erro Viagens:", err);
             window.mostrarAlerta("Erro a obter viagens: " + err.message);
         }));
-    }
-
-    function calcularConcluidosGerais() {
-        let total = 0;
-        document.querySelectorAll('.list-item.feita').forEach(() => total++);
-        totalItensConcluidosHoje = total;
-        if(document.getElementById('home-stat-feitas')) document.getElementById('home-stat-feitas').innerText = total;
     }
 
     function renderListDB(arr, ui, col) { 
@@ -885,16 +896,23 @@
         document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
         document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
 
-        renderMembrosSettings(); window.switchTripTab('planeador'); window.navegarMenu('page-viagem-detalhe');
+        renderMembrosSettings(); 
+        window.switchTripTab('planeador'); 
+        window.navegarMenu('page-viagem-detalhe');
         
         if(unsubDespesas) unsubDespesas();
-        unsubDespesas = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { let arr=[]; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderizarDespesas(arr); });
+        unsubDespesas = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { 
+            let arr=[]; s.forEach(d => arr.push({id:d.id, ...d.data()})); 
+            renderizarDespesas(arr); 
+            atualizarResumoInternoViagem(arr);
+        });
 
         if(unsubTimeline) unsubTimeline();
         unsubTimeline = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'timeline'), s => { 
             timelineEventsData = []; 
             s.forEach(d => timelineEventsData.push({id:d.id, ...d.data()})); 
             renderizarTimelineEvents(); 
+            atualizarResumoInternoViagem();
         });
     };
     
@@ -920,6 +938,48 @@
          const idA = sel.value, nmA = sel.options[sel.selectedIndex].getAttribute('data-nome');
          await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids:[...currentTripDoc.membros_uids, idA], membros_info:[...currentTripDoc.membros_info, {uid:idA, nome:nmA}] }); window.mostrarAlerta(nmA+" inserido na viagem!");
     };
+
+    /* CÁLCULO DO RESUMO DENTRO DA VIAGEM */
+    function atualizarResumoInternoViagem(despesasPassadas) {
+        if(!currentTripDoc) return;
+
+        // 1. Duração em dias
+        let duracaoTxt = "Não definida";
+        if(currentTripDoc.dataInicio && currentTripDoc.dataFim) {
+            let d1 = new Date(currentTripDoc.dataInicio);
+            let d2 = new Date(currentTripDoc.dataFim);
+            let diffTime = Math.abs(d2 - d1);
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            duracaoTxt = diffDays + (diffDays === 1 ? " dia" : " dias");
+        }
+        document.getElementById('summary-duracao-dias').innerText = duracaoTxt;
+
+        // 2. Total de locais visitados/passos
+        document.getElementById('summary-total-locais').innerText = timelineEventsData.length + (timelineEventsData.length === 1 ? " sítio" : " sítios");
+
+        // 3. Totais do Splitwise
+        if(despesasPassadas) {
+            let totalGasto = 0;
+            let pagosPorPessoa = {};
+            currentTripDoc.membros_info.forEach(m => pagosPorPessoa[m.uid] = { nome: m.nome, total: 0 });
+
+            despesasPassadas.forEach(d => {
+                totalGasto += d.valor;
+                if(pagosPorPessoa[d.pagadorUid]) pagosPorPessoa[d.pagadorUid].total += d.valor;
+            });
+
+            document.getElementById('summary-custo-total').innerText = totalGasto.toFixed(2) + '€';
+
+            let htmlMembros = '';
+            Object.keys(pagosPorPessoa).forEach(u => {
+                htmlMembros += `<div class="summary-row">
+                    <span class="summary-label">Pago por ${pagosPorPessoa[u].nome}:</span>
+                    <span class="summary-val">${pagosPorPessoa[u].total.toFixed(2)}€</span>
+                </div>`;
+            });
+            document.getElementById('summary-pagamento-membros').innerHTML = htmlMembros;
+        }
+    }
 
     /* TIMELINE (PLANEADOR COM RASTREIO PICOTADO) */
     function renderizarTimelineEvents() {
@@ -993,7 +1053,7 @@
         }
     };
 
-    /* SPLITWISE COM DIVISÃO SELECCIONADA E RESUMO ATUALIZADO */
+    /* DIVIDIR DESPESAS */
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim();
         const val = parseFloat(document.getElementById('exp-valor').value);
@@ -1018,6 +1078,7 @@
 
         document.getElementById('exp-desc').value=''; 
         document.getElementById('exp-valor').value='';
+        fecharModal('modal-nova-despesa');
     };
     
     function renderizarDespesas(listaExp) {
@@ -1049,12 +1110,9 @@
 
         document.getElementById('container-despesas').innerHTML = htmlD; 
         document.getElementById('split-total').innerText = tot.toFixed(2)+'€';
-        
-        let meuSaldoGlobal = 0;
 
         Object.keys(saldos).forEach(u => { 
             let b = saldos[u].pago - saldos[u].deve;
-            if(u === userId) meuSaldoGlobal = b;
 
             if(b > 0.01) resHtml += `<div class="split-balance receive">🟢 ${saldos[u].nome} recebe ${b.toFixed(2)}€</div>`; 
             else if(b < -0.01) resHtml += `<div class="split-balance owe">🔴 ${saldos[u].nome} deve ${Math.abs(b).toFixed(2)}€</div>`; 
@@ -1062,13 +1120,6 @@
         });
 
         document.getElementById('split-resultado').innerHTML = resHtml;
-
-        // Atualiza Home Stat
-        const homeSplitEl = document.getElementById('home-stat-splitwise');
-        if(homeSplitEl) {
-            homeSplitEl.innerText = (meuSaldoGlobal >= 0 ? '+' : '') + meuSaldoGlobal.toFixed(2) + '€';
-            homeSplitEl.style.color = meuSaldoGlobal > 0 ? '#28CD41' : (meuSaldoGlobal < 0 ? '#ff3b30' : 'var(--text-main)');
-        }
     }
     
     window.apagarDespesa = async (id) => { if(currentTripId) await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas',id)); };

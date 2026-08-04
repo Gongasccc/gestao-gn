@@ -788,19 +788,49 @@
     /* =========================================
        MÓDULO DE VIAGENS E SPLITWISE
        ========================================= */
-    .map-container { 
-      width: 100%; 
-      height: 220px; 
-      border-radius: 16px; 
-      overflow: hidden; 
-      background-color: #87CEEB; 
-      margin-bottom: 15px; 
-      border: 1px solid var(--border-color); 
+    .map-wrapper {
       position: relative;
-    } 
+      width: 100%;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 15px;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+      background-color: var(--card-bg);
+    }
 
-    body.light-mode .map-container { 
-      background-color: #E0F7FA; 
+    .map-wrapper.maximized {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 5000;
+      border-radius: 0;
+      margin: 0;
+      border: none;
+    }
+
+    .map-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    .btn-max-map {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 8px 12px;
+      border-radius: 8px;
+      z-index: 10;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
     }
 
     .stats-viagens { 
@@ -1293,8 +1323,11 @@
           </div>
         </div>
         
-        <div class="map-container" id="regions_div">
-          <p style="text-align:center; margin-top: 100px; color: #fff;">A carregar mapa...</p>
+        <div class="map-wrapper" id="map-wrapper">
+          <div class="map-container" id="regions_div">
+            <p style="text-align:center; margin-top: 100px; color: var(--text-muted);">A carregar mapa...</p>
+          </div>
+          <button class="btn-max-map" onclick="toggleMapSize()" id="btn-toggle-map">Maximizar ⛶</button>
         </div>
         
         <button class="btn-acao" style="width: 100%; margin-bottom: 25px; padding: 15px; background-color: var(--accent); color: #121212; font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
@@ -1314,7 +1347,7 @@
         <h2>Nova Aventura</h2>
         
         <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
-        <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (País ou Cidade, ex: Paris, Japão)">
+        <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (País isolado, ex: Paris, Japão)">
         <input type="date" id="input-viagem-data" class="auth-input" style="color:var(--text-main);">
         
         <input type="file" id="input-viagem-capa" accept="image/*" style="display:none;" onchange="processarFotoViagem(event)">
@@ -2451,6 +2484,21 @@
     // ==========================================
     // SISTEMA PRINCIPAL DE VIAGENS (MAPA, SPLITWISE, PLANEADOR)
     // ==========================================
+    window.toggleMapSize = function() {
+        const wrapper = document.getElementById('map-wrapper');
+        const btn = document.getElementById('btn-toggle-map');
+        wrapper.classList.toggle('maximized');
+        
+        if (wrapper.classList.contains('maximized')) {
+            btn.innerText = "Minimizar ✖";
+        } else {
+            btn.innerText = "Maximizar ⛶";
+        }
+        
+        // Redesenhar mapa após a animação estar concluída
+        setTimeout(window.desenharMapaMundo, 350);
+    }
+
     function renderViagensCards() { 
         const contentorViagens = document.getElementById('container-viagens'); 
         contentorViagens.innerHTML = ''; 
@@ -2483,6 +2531,10 @@
     window.desenharMapaMundo = function() { 
         if (!google || !google.visualization) return; 
         
+        const mapContainer = document.getElementById('regions_div');
+        // Previne falhas do Google Charts se o ecrã do mapa estiver invisível
+        if (mapContainer.offsetWidth === 0) return; 
+
         const objBaseDadosGeo = new google.visualization.DataTable(); 
         objBaseDadosGeo.addColumn('string', 'Country'); 
         objBaseDadosGeo.addColumn('number', 'Visitado'); 
@@ -2503,10 +2555,11 @@
             colorAxis: { colors: [corDeDestaqueCSS, corDeDestaqueCSS] }, 
             legend: 'none', 
             tooltip: { trigger: 'none' }, 
-            keepAspectRatio: true 
+            keepAspectRatio: false // Permite preencher o tamanho maximizado
         }; 
         
-        const contentorGraficoHTML = new google.visualization.GeoChart(document.getElementById('regions_div')); 
+        const contentorGraficoHTML = new google.visualization.GeoChart(mapContainer); 
+        google.visualization.events.removeAllListeners(contentorGraficoHTML);
         
         google.visualization.events.addListener(contentorGraficoHTML, 'regionClick', function(eventoDeClique) { 
             const objViagemSelecionada = viagensData.find(function(viagemDaLista) {
@@ -2514,7 +2567,11 @@
             }); 
             
             if (objViagemSelecionada) {
-                abrirDetalheViagem(objViagemSelecionada.id);
+                // Se o mapa estiver aberto em ecrã inteiro, fecha-o antes de abrir a viagem
+                if(document.getElementById('map-wrapper').classList.contains('maximized')) {
+                    window.toggleMapSize();
+                }
+                setTimeout(() => abrirDetalheViagem(objViagemSelecionada.id), 150);
             } else {
                 window.mostrarAlerta("Ainda não registaram a vossa viagem a " + eventoDeClique.region + ". Adiciona uma nova viagem para pintar o mapa.");
             }
@@ -2574,17 +2631,19 @@
         leitorJavascript.readAsDataURL(objetoFicheiroUpload); 
     }
     
-    // O motor secreto de GEOCODING que lê o nome da cidade/país e vai buscar a sigla
     async function obterCodigoPais(nomeLocalizacao) { 
         try { 
-            const pedidoAOServidorMundial = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(nomeLocalizacao)}&format=json&addressdetails=1&limit=1`); 
+            // Injetámos o email no link para o OpenStreetMap não nos bloquear a ligação
+            const pedidoAOServidorMundial = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(nomeLocalizacao)}&format=json&addressdetails=1&limit=1&email=appgestao@gestaogn.app&accept-language=pt`); 
             const respostaFormatadaJSON = await pedidoAOServidorMundial.json(); 
             
-            if (respostaFormatadaJSON && respostaFormatadaJSON.length > 0 && respostaFormatadaJSON[0].address && respostaFormatadaJSON[0].address.country_code) {
-                return respostaFormatadaJSON[0].address.country_code.toUpperCase();
+            if (respostaFormatadaJSON && respostaFormatadaJSON.length > 0) {
+                if (respostaFormatadaJSON[0].address && respostaFormatadaJSON[0].address.country_code) {
+                    return respostaFormatadaJSON[0].address.country_code.toUpperCase();
+                }
             }
         } catch (e) {
-            console.error("Erro a efetuar o geocoding no Nominatim.");
+            console.error("Erro no OpenStreetMap: ", e);
         } 
         return null; 
     }
@@ -2606,7 +2665,7 @@
         let siglaPaisFinal = await obterCodigoPais(destinoDeTexto);
         
         if (!siglaPaisFinal) { 
-            window.mostrarAlerta(`Desculpa, não consegui identificar "${destinoDeTexto}" no mapa mundial. Tenta escrever o nome do País corretamente.`); 
+            window.mostrarAlerta(`Não encontrei um país válido para "${destinoDeTexto}". Escreve o país isolado (ex: Japão, França, Brasil).`); 
             identificadorBotaoSave.innerText = "Guardar Viagem"; 
             identificadorBotaoSave.disabled = false; 
             return; 
@@ -2624,16 +2683,23 @@
             dono: userId 
         };
         
-        await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), dicionarioDaViagemCompleta);
-        
-        document.getElementById('input-viagem-nome').value = ''; 
-        document.getElementById('input-viagem-destino').value = ''; 
-        document.getElementById('preview-capa-viagem').style.display = 'none'; 
-        tempCapaUrl = ""; 
-        identificadorBotaoSave.innerText = "Guardar Viagem"; 
-        identificadorBotaoSave.disabled = false; 
-        
-        window.navegarMenu('menu-viagens');
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), dicionarioDaViagemCompleta);
+            
+            document.getElementById('input-viagem-nome').value = ''; 
+            document.getElementById('input-viagem-destino').value = ''; 
+            document.getElementById('input-viagem-data').value = ''; 
+            document.getElementById('preview-capa-viagem').style.display = 'none'; 
+            tempCapaUrl = ""; 
+            
+            window.navegarMenu('menu-viagens');
+        } catch (error) {
+            console.error("Erro Firebase: ", error);
+            window.mostrarAlerta("Ocorreu um erro ao guardar na base de dados (Acesso Negado ou Sem Internet).");
+        } finally {
+            identificadorBotaoSave.innerText = "Guardar Viagem"; 
+            identificadorBotaoSave.disabled = false;
+        }
     }
 
     // ALTERNAR AS ABAS DENTRO DE CADA VIAGEM (PLANEADOR, SPLITWISE, DEFS)

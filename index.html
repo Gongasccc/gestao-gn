@@ -766,9 +766,11 @@
       carregarConfigs();
 
       // ==========================================
-      // NAVEGAÇÃO & GESTOS NATURAIS PARA MENU
+      // NAVEGAÇÃO & GESTOS NATURAIS (VOLTAR ATRÁS)
       // ==========================================
       let clickTimers = {};
+      let pageHistory = ['menu-principal']; // Histórico interno de páginas
+
       window.toggleSubmenu = function(idSubmenu, idPaginaBase) {
         if(clickTimers[idSubmenu]) {
             clearTimeout(clickTimers[idSubmenu]); delete clickTimers[idSubmenu];
@@ -785,10 +787,15 @@
       window.abrirSidebar = function() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
       window.fecharSidebar = function() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
-      // Função de navegação limpa (sem forçar o Swipe Back da página)
-      window.navegarMenu = function(idPagina) {
+      // Função de navegação com histórico interno
+      window.navegarMenu = function(idPagina, isBack = false) {
         window.fecharSidebar(); 
         
+        // Regista no histórico se não for uma ação de "voltar"
+        if (!isBack && pageHistory[pageHistory.length - 1] !== idPagina) {
+            pageHistory.push(idPagina);
+        }
+
         document.getElementById('nav-btn-home').classList.remove('active');
         document.getElementById('nav-btn-familia').classList.remove('active');
         document.getElementById('nav-btn-notificacoes').classList.remove('active');
@@ -809,7 +816,7 @@
       }
 
       // ----------------------------------------------------
-      // LÓGICA DE SWIPE FLUIDO PARA O MENU LATERAL (SIDEBAR)
+      // LÓGICA DE SWIPE FLUIDO (VOLTAR ATRÁS)
       // ----------------------------------------------------
       let touchstartX = 0;
       let touchstartY = 0;
@@ -833,18 +840,23 @@
           
           // Verifica se o movimento foi predominantemente na horizontal
           if (Math.abs(diffX) > Math.abs(diffY)) {
-              // Swipe da Esquerda para a Direita (Tentar abrir o menu)
-              // Só permitimos abrir se o swipe começou perto da borda esquerda do telemóvel (ex: primeiros 50px)
+              // Swipe da Esquerda para a Direita (Tentar voltar atrás)
               if (diffX > 60 && touchstartX < 50) {
-                  abrirSidebar();
+                  // Se houver histórico, volta à página anterior
+                  if (pageHistory.length > 1) {
+                      pageHistory.pop(); // Remove a página atual
+                      const prevPage = pageHistory[pageHistory.length - 1];
+                      navegarMenu(prevPage, true); // true = é um retrocesso
+                  } else {
+                      navegarMenu('menu-principal', true); // Vai para o ecrã inicial por segurança
+                  }
               }
-              // Swipe da Direita para a Esquerda (Tentar fechar o menu)
+              // Swipe da Direita para a Esquerda (Tentar fechar o menu lateral se estiver aberto)
               else if (diffX < -60) {
                   fecharSidebar();
               }
           }
       }
-
 
       // ==========================================
       // RELÓGIO & METEOROLOGIA & FRASE

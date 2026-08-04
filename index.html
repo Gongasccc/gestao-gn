@@ -235,7 +235,7 @@
         
         <!-- Adicionar Imagem Tipo Cartão Lojas -->
         <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="document.getElementById('input-viagem-capa').click()">
-          <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa</span>
+          <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
           <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
         </div>
         <input type="file" id="input-viagem-capa" accept="image/*" style="display:none;" onchange="processarFotoViagem(event)">
@@ -391,7 +391,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const app = initializeApp({apiKey:"AIzaSyA0eKe5JypkhtfrssIie0BA5g_2QMzr5d0",authDomain:"gestao-gn.firebaseapp.com",projectId:"gestao-gn",storageBucket:"gestao-gn.firebasestorage.app",appId:"1:443510448711:web:a615ebd9cf2ec549e60762"});
     const db = getFirestore(app); const auth = getAuth(app);
@@ -538,10 +538,11 @@
         
         unsusbscribes.push(onSnapshot(collection(mRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
-        // CORREÇÃO FIREBASE VIAGENS (LADO DO CLIENTE PARA EVITAR ERROS DE REGRAS E ÍNDICES)
-        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'viagens_partilhadas'), s => {
+        // CORREÇÃO FINAL: UTILIZAR O "WHERE" OBRIGATÓRIO PARA O FIREBASE ACEITAR LER
+        const qViagens = query(collection(db, 'artifacts', appId, 'viagens_partilhadas'), where('membros_uids', 'array-contains', userId));
+        unsusbscribes.push(onSnapshot(qViagens, s => {
             viagensData = []; 
-            s.forEach(d => { const data=d.data(); if(data.membros_uids && data.membros_uids.includes(userId)) viagensData.push({id:d.id, ...data}); });
+            s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
             if(document.getElementById('stat-total-viagens')) document.getElementById('stat-total-viagens').innerText = viagensData.length; 
             renderViagensCards(); 
             if(currentTripId){
@@ -549,6 +550,9 @@
                 if(tripAtual){ currentTripDoc = tripAtual; if(document.activeElement !== document.getElementById('trip-planner-text')) document.getElementById('trip-planner-text').value = tripAtual.planeador || ""; renderMembrosSettings(); }
                 else navegarMenu('menu-viagens');
             }
+        }, err => {
+            console.error("Erro Viagens:", err);
+            window.mostrarAlerta("Erro a obter viagens. O Firebase bloqueou a leitura: " + err.message);
         }));
     }
 

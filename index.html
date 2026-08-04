@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- API Mapa Google Charts -->
+    <!-- API Mapa Google Charts para as Viagens -->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <style>
@@ -38,7 +38,7 @@
         --bg-color: #FFFFFF;             
         --card-bg: #F7F7F5;              
         --text-main: #37352F;            
-        --text-muted: rgba(55, 53, 47, 0.6);             
+        --text-muted: rgba(55, 53, 47, 0.6); 
         --btn-secondary: #EBEBEA;        
         --border-color: rgba(0, 0, 0, 0.08); 
       }
@@ -101,13 +101,15 @@
       .page.active { display: block; animation: fadeIn 0.4s forwards; }
       @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-      /* MENU LATERAL */
+      /* MENU LATERAL (SIDEBAR) */
       #sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
       #sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+
       #sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width); background-color: var(--card-bg); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; border-right: 1px solid var(--border-color); box-shadow: 5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
       #sidebar.open { transform: translateX(0); }
 
       .sidebar-header { padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; transition: border-color 0.3s ease; }
+      
       .sidebar-logo { width: 140px; height: 90px; object-fit: contain; margin: 0 auto; display: block; }
       .light-logo { display: none; }
       body.light-mode .light-logo { display: block; }
@@ -116,10 +118,12 @@
       .sidebar-item { padding: 18px 25px; font-size: 15px; font-weight: 500; color: var(--text-main); display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02); transition: background-color 0.2s, color 0.3s ease; }
       .sidebar-item:active { background-color: var(--btn-secondary); }
       .sidebar-item.active { border-left: 4px solid var(--accent); background-color: rgba(255,107,0,0.05); color: var(--accent);}
+      
       .sidebar-submenu { display: none; flex-direction: column; background-color: rgba(0,0,0,0.1); }
       body.light-mode .sidebar-submenu { background-color: rgba(0,0,0,0.02); }
       .sidebar-subitem { padding: 12px 25px 12px 55px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.01); }
       .sidebar-subitem:active { color: var(--text-main); }
+      
       .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); }
       
       .icon-svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 24px; height: 24px; margin-bottom: 4px; }
@@ -128,46 +132,98 @@
 
       /* BARRA INFERIOR */
       #bottom-nav { 
-        position: fixed; bottom: calc(env(safe-area-inset-bottom) + 15px); left: 20px; right: 20px; height: var(--bottom-nav-height); 
-        background-color: rgba(35, 35, 35, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 35px;
-        display: flex; justify-content: space-around; align-items: center; z-index: 1500; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        position: fixed; 
+        bottom: calc(env(safe-area-inset-bottom) + 15px); 
+        left: 20px; right: 20px; 
+        height: var(--bottom-nav-height); 
+        background-color: rgba(35, 35, 35, 0.75); 
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        border-radius: 35px;
+        display: flex; justify-content: space-around; align-items: center; 
+        z-index: 1500; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         transition: background-color 0.3s ease, border 0.3s ease; 
       }
       body.light-mode #bottom-nav { background-color: rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.1); }
 
-      .nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
+      .nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; height: 100%; color: var(--text-muted); cursor: pointer; transition: color 0.2s, transform 0.1s; }
       .nav-btn:active { transform: scale(0.9); }
       .nav-btn.active { color: var(--accent); }
-      .nav-badge { position: absolute; top: 12px; right: 18px; width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; display: none; }
+      .nav-badge { position: absolute; top: 12px; right: 14px; width: 8px; height: 8px; background-color: #ff3b30; border-radius: 50%; display: none; }
 
       @media (min-width: 800px) {
         #bottom-nav { display: none; } .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; }
         #app-container { flex-direction: row; } #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } #sidebar-overlay { display: none !important; }
       }
 
-      /* COMPONENTES GERAIS */
+      /* WIDGETS DO DASHBOARD */
+      .dashboard-widget { background-color: var(--card-bg); width: 100%; border-radius: 20px; padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: background-color 0.3s ease; }
+      .top-widgets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 15px; }
+      .widget-relogio, .widget-meteorologia { margin-bottom: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+      #data-atual { font-size: 11px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; }
+      #hora-atual { font-size: 34px; font-weight: 300; color: var(--text-main); margin: 5px 0 0 0; line-height: 1; }
+      .meteo-top-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+      #meteo-temp { font-size: 28px; font-weight: 300; line-height: 1; color: var(--text-main); }
+      #meteo-desc { font-size: 11px; color: var(--text-muted); margin-top: 5px; display: block; font-weight: 500;}
+      #meteo-local-texto { font-size: 9px; color: var(--accent); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 3px; }
+      .widget-frase { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px;}
+      .frase-texto { font-size: 16px; font-style: italic; color: var(--text-main); font-weight: 300; line-height: 1.5; margin: 0;}
+      .frase-autor { font-size: 11px; color: var(--accent); margin-top: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
+      
+      /* LISTAS & INPUTS GERAIS */
       .input-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
       .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
       .btn-add { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
       .btn-add:active { transform: scale(0.9); }
-      
+      .lista-itens { display: flex; flex-direction: column; gap: 8px; width: 100%;}
+      .list-item { display: flex; align-items: center; background-color: var(--card-bg); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color); transition: background-color 0.3s ease;}
+      .item-texto { flex: 1; font-size: 14px; margin-left: 12px; transition: color 0.2s; word-break: break-word;}
+      .list-item.feita .item-texto { text-decoration: line-through; color: var(--text-muted); }
+      .checkbox-custom { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); cursor: pointer; flex-shrink: 0; position: relative; }
+      .list-item.feita .checkbox-custom { background-color: var(--accent); border-color: var(--accent); }
+      .list-item.feita .checkbox-custom::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: bold; font-size: 12px; }
+      .btn-icon-list { background: none; border: none; color: var(--text-muted); padding: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s, transform 0.1s;}
+      .btn-icon-list:active { transform: scale(0.9); color: var(--text-main); }
+      .btn-apagar:active { color: #ff4d4d; }
+
+      /* BOTOES GERAIS */
       .btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 20px; margin-bottom: 15px; border-radius: 16px; font-size: 16px; cursor: pointer; width: 100%; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
       .btn:active { transform: scale(0.98); background-color: var(--btn-secondary); }
       .btn-acao { flex: 1; background-color: var(--btn-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500;}
       .btn-acao:active { background-color: var(--border-color); }
+
+      /* SUPERMERCADOS E CARTÕES */
+      .logos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 20px; }
+      .logo-card { background-color: #fff; border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); text-align: center; transition: transform 0.2s ease; height: 100px; }
+      .logo-card:active { transform: scale(0.95); }
+      .logo-card img { max-width: 100%; max-height: 100%; object-fit: contain; }
+      .cartao-desconto-container { width: 100%; height: 200px; background-color: var(--card-bg); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; cursor: pointer; border: 1px dashed var(--border-color); transition: border-color 0.3s; position: relative;}
+      .cartao-desconto-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: 2;}
+      .textarea-obs { width: 100%; height: 100px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 15px; font-family: inherit; resize: none; margin-top: 10px; transition: border-color 0.3s; }
+      .textarea-obs:focus { outline:none; border-color: var(--accent); }
+
+      /* DEFINIÇÕES & CORES */
+      .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 15px; background-color: var(--bg-color); border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);}
+      .color-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border 0.15s; margin: auto;}
+      .color-circle:active { transform: scale(0.8); }
+      .color-circle.selected { border: 3px solid var(--text-main); transform: scale(1.15); box-shadow: 0 0 8px rgba(0,0,0,0.3);}
+
+      /* REDE SOCIAL / FAMILIA */
+      .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
+      .user-info { display: flex; align-items: center; gap: 12px; text-align: left;}
+      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #121212; font-weight: bold; font-size: 18px;}
+      .user-name { font-size: 15px; font-weight: 500; color: var(--text-main); margin:0;}
 
       /* =========================================
          MÓDULO DE VIAGENS (MAPA & CARTÕES)
          ========================================= */
       .map-container { width: 100%; height: 220px; border-radius: 16px; overflow: hidden; background-color: #87CEEB; margin-bottom: 15px; border: 1px solid var(--border-color); position: relative;}
       body.light-mode .map-container { background-color: #E0F7FA; }
-      
       .stats-viagens { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 25px; }
       .stat-box { background-color: var(--card-bg); padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
       .stat-num { font-size: 22px; font-weight: 600; color: var(--accent); display: block; line-height: 1.2;}
       .stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
-
       .trip-card { background-color: var(--card-bg); border-radius: 16px; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s; position: relative; height: 160px; width: 100%;}
       .trip-card:active { transform: scale(0.97); }
       .trip-cover { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: 1;}
@@ -180,11 +236,9 @@
       .viagem-header img { width: 100%; height: 100%; object-fit: cover; }
       .viagem-header-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
       .viagem-header-title { color: white; font-size: 28px; font-weight: 600; text-shadow: 0 2px 10px rgba(0,0,0,0.5); text-align: center;}
-      
       .splitwise-resumo { background-color: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); margin-bottom: 20px; text-align: center;}
       .split-balance { font-size: 18px; font-weight: 600; margin-top: 10px; color: #28CD41; }
       .split-balance.owe { color: #ff3b30; }
-      
       .expense-list { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 20px;}
       .expense-item { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);}
       .exp-info { display: flex; flex-direction: column; }
@@ -192,92 +246,165 @@
       .exp-payer { font-size: 11px; color: var(--text-muted); }
       .exp-amount { font-size: 16px; font-weight: 600; color: var(--accent); }
 
-      /* MODALS GERAIS */
+      /* MODALS */
       .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);}
       .modal-overlay.active { display: flex; animation: fadeIn 0.2s forwards; }
       .modal-content { background-color: var(--card-bg); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background-color 0.3s ease; max-height: 90vh; overflow-y: auto;}
       .modal-btn-row { display: flex; gap: 10px; margin-top: 15px; }
+      .fullscreen-img { max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain; }
     </style>
   </head>
   <body>
 
-    <!-- ECRÃ DE LOGIN -->
+    <!-- ECRÃ DE LOGIN (FIREBASE) -->
     <div id="auth-overlay">
       <img src="logobranco_semfundo.png" alt="Logo Gestão" class="main-auth-logo dark-logo" onerror="this.style.display='none'">
       <img src="logopreto_semfundo.png" alt="Logo Gestão" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display: none;">
+      
       <div class="auth-box">
         <h2 style="margin-bottom: 25px; color: var(--text-main);" id="auth-title">Entrar na App</h2>
-        <input type="text" id="auth-username" class="auth-input" placeholder="Nome (ex: goncalo)">
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password">
+        <input type="text" id="auth-username" class="auth-input" placeholder="Nome de Utilizador (ex: goncalo)">
+        <input type="password" id="auth-password" class="auth-input" placeholder="Password Secreta">
         <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display: none;">
+        
         <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
         <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Cria uma aqui.</p>
+        <p class="auth-link" style="margin-top: 5px;" onclick="mostrarAlerta('Se te esqueceste da password, avisa o Gonçalo para ele a redefinir no painel central da Base de Dados.')">Esqueceste-te da password?</p>
         <p id="auth-error" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none;"></p>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 20px;">
+          Para partilharem as listas e notas, entrem os dois com o <b>mesmo nome e password</b>!
+        </p>
       </div>
     </div>
 
+    <!-- APP PRINCIPAL -->
     <div id="app-container">
       
-      <!-- MENU LATERAL -->
+      <!-- MENU LATERAL (SIDEBAR) -->
       <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
       <div id="sidebar">
         <div class="sidebar-header">
           <img src="logobranco_semfundo.png" alt="Logo" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
           <img src="logopreto_semfundo.png" alt="Logo" class="sidebar-logo light-logo" onerror="this.style.display='none'">
-          <span style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-top: 5px;">Gestão G&N</span>
+          <span style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.5px;">Gestão G&N</span>
         </div>
         
         <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
           <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
-            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Início
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Início
           </div>
-
-          <!-- NOVO SEPARADOR VIAGENS -->
+          
           <div class="sidebar-item" id="sidebtn-menu-viagens" onclick="navegarMenu('menu-viagens')">
-            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>Viagens & Finanças
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg> Viagens & Finanças
           </div>
 
+          <div class="sidebar-item" id="sidebtn-menu-familia" onclick="navegarMenu('menu-familia')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Família & Amigos
+          </div>
+
+          <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="navegarMenu('menu-notificacoes')">
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Notificações
+          </div>
+
+          <!-- Supermercados Accordion -->
           <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="toggleSubmenu('submenu-supermercados', 'menu-supermercados')">
-            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Supermercados
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Supermercados
           </div>
           <div class="sidebar-submenu" id="submenu-supermercados">
             <div class="sidebar-subitem" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</div>
             <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</div>
+            <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</div>
+          </div>
+
+          <!-- Documentos -->
+          <div class="sidebar-item" id="sidebtn-menu-documentos-dummy" onclick="toggleSubmenu('submenu-documentos', null)">
+             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Documentos Antigos
+          </div>
+          <div class="sidebar-submenu" id="submenu-documentos">
+            <div class="sidebar-subitem" onclick="mostrarAlerta('A Área de Documentos está a ser migrada para a nova Base de Dados.')">Área do Casal</div>
+          </div>
+
+          <div class="sidebar-item" id="sidebtn-menu-carros" onclick="navegarMenu('menu-carros')">
+             <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg> Garagem
           </div>
         </div>
 
         <div class="sidebar-footer">
           <div class="sidebar-item" onclick="abrirModal('modal-definicoes')" style="border-bottom: none; justify-content: center; margin: 10px;">
-            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Definições
+            <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Definições</span>
           </div>
         </div>
       </div>
 
-      <!-- BARRA INFERIOR -->
+      <!-- BARRA INFERIOR COM 5 ÍCONES -->
       <div id="bottom-nav">
         <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
           <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </div>
         <div class="nav-btn active" id="nav-btn-home" onclick="navegarMenu('menu-principal')">
-          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </div>
+        <!-- Novo Botão Viagens -->
         <div class="nav-btn" id="nav-btn-viagens" onclick="navegarMenu('menu-viagens')">
           <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
         </div>
+        <div class="nav-btn" id="nav-btn-familia" onclick="navegarMenu('menu-familia')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        </div>
+        <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
+          <div class="nav-badge" id="badge-notificacoes-bottom"></div>
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </div>
       </div>
 
+      <!-- CONTAINER DAS PÁGINAS -->
       <div class="page-container">
         
-        <!-- PÁGINA INICIAL (DASHBOARD) -->
+        <!-- ================= PÁGINA: DASHBOARD (HOME) ================= -->
         <div id="menu-principal" class="page active">
-          <h1>Bem-vindo!</h1>
-          <!-- Podes manter aqui os teus widgets de Relógio/Tarefas -->
-          <p style="text-align:center; color: var(--text-muted);">Usa o menu lateral ou a barra inferior para navegares.</p>
+          <div class="top-widgets-grid">
+            <div class="dashboard-widget widget-relogio">
+              <span id="data-atual">A carregar...</span>
+              <h1 id="hora-atual">00:00</h1>
+            </div>
+            
+            <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
+              <div class="meteo-top-row">
+                <div id="meteo-icone" style="color: var(--accent);">
+                  <svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg>
+                </div>
+                <span id="meteo-temp">--°</span>
+              </div>
+              <span id="meteo-desc">A localizar...</span>
+              <span id="meteo-local-texto">
+                <svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span id="nome-cidade-texto">GPS</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="dashboard-widget widget-frase">
+            <svg class="icon-svg" style="opacity: 0.2; width: 24px; margin-bottom: 12px; color: var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.996v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
+            <p class="frase-texto" id="frase-texto">"Carregando inspiração..."</p>
+            <span class="frase-autor" id="frase-autor"></span>
+          </div>
+
+          <div class="dashboard-widget widget-tarefas">
+            <h3><svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> A Fazer Hoje</h3>
+            <div class="input-row">
+              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
+              <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')">
+                <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+            <div class="lista-itens" id="container-tarefas">
+               <p style="text-align:center; color: var(--text-muted); font-size: 13px;">A carregar nuvem...</p>
+            </div>
+          </div>
         </div>
 
-        <!-- ========================================= -->
-        <!-- PÁGINA: VIAGENS (MAPA MUNDO) -->
-        <!-- ========================================= -->
+        <!-- ================= PÁGINA: VIAGENS (MAPA) ================= -->
         <div id="menu-viagens" class="page">
           <h2 style="margin-bottom:10px;">As Nossas Viagens</h2>
           
@@ -301,12 +428,11 @@
           </div>
         </div>
 
-        <!-- PÁGINA: NOVA VIAGEM -->
+        <!-- ================= PÁGINA: NOVA VIAGEM ================= -->
         <div id="menu-nova-viagem" class="page">
           <h2>Nova Aventura</h2>
-          
           <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias Maiorca)">
-          <input type="text" id="input-viagem-pais-code" class="auth-input" placeholder="Código País ISO (ex: ES para Espanha, IT, FR, PT)" style="text-transform: uppercase;">
+          <input type="text" id="input-viagem-pais-code" class="auth-input" placeholder="Código País ISO (ex: ES para Espanha, PT, IT)" style="text-transform: uppercase;">
           <input type="date" id="input-viagem-data" class="auth-input" style="color:var(--text-main);">
           
           <input type="file" id="input-viagem-capa" accept="image/*" style="display:none;" onchange="processarFotoViagem(event)">
@@ -318,7 +444,7 @@
           <button class="btn-acao" onclick="guardarNovaViagem()" style="background-color: var(--accent); color:#121212; width:100%; padding: 15px; margin-top:20px;">Guardar Viagem</button>
         </div>
 
-        <!-- PÁGINA: DETALHE DA VIAGEM E SPLITWISE -->
+        <!-- ================= PÁGINA: DETALHE DA VIAGEM & SPLITWISE ================= -->
         <div id="page-viagem-detalhe" class="page">
           <div class="viagem-header">
             <img id="detalhe-viagem-img" src="">
@@ -327,7 +453,6 @@
             </div>
           </div>
           
-          <!-- RESUMO FINANCEIRO (SPLITWISE) -->
           <h3>Finanças da Viagem</h3>
           <div class="splitwise-resumo">
             <p style="font-size: 12px; color: var(--text-muted); margin:0;">Total Gasto: <b id="split-total" style="color:var(--text-main);">0.00€</b></p>
@@ -335,7 +460,6 @@
             <div class="split-balance" id="split-resultado">Sem dívidas!</div>
           </div>
 
-          <!-- ADICIONAR DESPESA -->
           <div style="background-color: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px;">
             <input type="text" id="exp-desc" class="auth-input" placeholder="O que foi? (ex: Jantar)" style="margin-bottom: 10px; padding: 10px;">
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -348,13 +472,115 @@
             <button class="btn-acao" onclick="adicionarDespesa()" style="background-color: var(--accent); color: #121212; width: 100%;">+ Adicionar Despesa</button>
           </div>
 
-          <!-- LISTA DE DESPESAS -->
-          <div class="expense-list" id="container-despesas">
-            <!-- Gerado via JS -->
+          <div class="expense-list" id="container-despesas"></div>
+        </div>
+
+        <!-- ================= PÁGINA: FAMÍLIA E AMIGOS ================= -->
+        <div id="menu-familia" class="page">
+          <h2>Adicionar Pessoas</h2>
+          <div class="input-row">
+            <input type="text" id="input-search-users" class="input-text" placeholder="Procurar utilizador..." oninput="pesquisarUtilizadores()">
+          </div>
+          <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom: 20px;"></div>
+          
+          <h3 style="margin-top: 30px; text-align: center;">A Minha Rede</h3>
+          <div class="lista-itens" id="container-amigos"></div>
+        </div>
+
+        <!-- ================= PÁGINA: NOTIFICAÇÕES ================= -->
+        <div id="menu-notificacoes" class="page">
+          <h2>Notificações</h2>
+          <div class="lista-itens" id="container-pedidos">
+            <p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>
           </div>
         </div>
 
-        <!-- OUTROS SEPARADORES OMITIDOS AQUI PARA BREVIDADE MAS MANTIDOS NA LÓGICA -->
+        <!-- ================= PÁGINA: SUPERMERCADOS (Main Menu) ================= -->
+        <div id="menu-supermercados" class="page">
+          <h1>Supermercados</h1>
+          <button class="btn" onclick="navegarMenu('menu-super-logos')">
+            <div style="display:flex; align-items:center;">
+              <svg class="icon-svg btn-icon-svg" style="color:var(--accent);" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+              Lojas & Cartões de Desconto
+            </div>
+          </button>
+          <button class="btn" onclick="navegarMenu('menu-compras-semanais')">
+             <div style="display:flex; align-items:center;">
+              <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              Lista de Compras Semanal
+            </div>
+          </button>
+          <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">
+             <div style="display:flex; align-items:center;">
+              <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M5 22h14c1.1 0 2-.9 2-2V7.5L14.5 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+              Lista de Compras Rápida
+            </div>
+          </button>
+        </div>
+
+        <!-- ================= PÁGINA: LOGOS DOS SUPERMERCADOS ================= -->
+        <div id="menu-super-logos" class="page">
+          <h2>Selecione uma Loja</h2>
+          <div class="logos-grid" id="container-logos"></div>
+        </div>
+
+        <!-- ================= PÁGINA: DETALHE DO SUPERMERCADO ================= -->
+        <div id="page-super-detail" class="page">
+          <h1 id="detalhe-nome">Supermercado</h1>
+          <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: -20px; margin-bottom: 20px;">Clica no cartão para ecrã inteiro</p>
+          
+          <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
+            <svg id="icone-inserir-cartao" class="icon-svg" style="width: 32px; height: 32px; color: var(--text-muted); margin-bottom: 10px;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span id="msg-sem-cartao" style="color: var(--text-muted); font-size: 14px;">Inserir cartão de cliente</span>
+            <img id="detalhe-cartao-img" src="" alt="Cartão" style="display:none;">
+          </div>
+          
+          <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
+          <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width: 100%; margin-bottom: 15px;">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Fotografar / Inserir Cartão
+          </button>
+          
+          <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #121212; width: 100%; padding: 15px; font-weight: 600;">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Abrir Folheto da Semana
+          </button>
+          
+          <h3 style="margin-top: 25px;">Notas / Observações</h3>
+          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Ex: A fruta é melhor aqui..." onchange="guardarObservacaoSuperDB()"></textarea>
+        </div>
+
+        <!-- ================= PÁGINA: COMPRAS SEMANAIS ================= -->
+        <div id="menu-compras-semanais" class="page">
+          <h2>Lista Semanal</h2>
+          <div class="input-row">
+            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar à lista semanal..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais', 'input-semanal')">
+            <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">
+              <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+          <div class="lista-itens" id="container-semanais"></div>
+        </div>
+
+        <!-- ================= PÁGINA: COMPRAS RÁPIDAS ================= -->
+        <div id="menu-compras-rapidas" class="page">
+          <h2>Compras Rápidas</h2>
+          <div class="input-row">
+            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarItemDB('rapidas', 'input-rapidas')">
+            <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">
+              <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+          <div class="lista-itens" id="container-rapidas"></div>
+        </div>
+
+        <!-- ================= PÁGINA: GARAGEM ================= -->
+        <div id="menu-carros" class="page">
+          <h2>Garagem & Combustível</h2>
+          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+            Ver postos perto de mim
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -362,13 +588,54 @@
     <div id="modal-definicoes" class="modal-overlay">
       <div class="modal-content" style="max-width: 400px;">
         <h2 style="margin-bottom: 20px;">Definições</h2>
-        <!-- Botão de Modo Claro/Escuro -->
-        <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; justify-content: flex-start;" onclick="alternarTema()">
+        
+        <div class="user-card" style="margin-bottom: 20px;">
+          <div class="user-info">
+            <div class="user-avatar" id="settings-avatar">?</div>
+            <div>
+              <p class="user-name" id="settings-name">A carregar...</p>
+              <p style="font-size: 11px; color: var(--text-muted); margin:0;" id="settings-username">Firebase Cloud</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: flex-start;" onclick="alternarTema()">
+          <div style="display: flex; align-items: center; margin-right: 10px;">
+             <!-- Ícone da Lua e Sol -->
+             <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+             <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display: none; margin-right:0;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </div>
           <span id="texto-tema-modal">Mudar para Modo Claro</span>
         </button>
-        <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px;" onclick="fazerLogout()">Terminar Sessão</button>
+
+        <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: space-between;" onclick="toggleColorGrid()">
+          <div style="display:flex; align-items:center;">
+             <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg> <span>Cor Secundária</span>
+          </div>
+          <div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
+        </button>
+        <div class="color-grid" id="color-picker-grid" style="display:none; margin-top:0;"></div>
+
+        <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; margin-top: 10px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
         <button class="btn-acao" style="width: 100%; margin-top: 10px; background: transparent; border: none;" onclick="fecharModal('modal-definicoes')">Fechar</button>
       </div>
+    </div>
+
+    <!-- MODAL LOGOUT -->
+    <div id="modal-logout" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Terminar Sessão</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin: 15px 0;">Tens a certeza que queres sair da tua conta?</p>
+        <div class="modal-btn-row">
+          <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
+          <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="fazerLogout()">Sair</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CARTÃO FULLSCREEN -->
+    <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')">
+      <img id="img-fullscreen-cartao" class="fullscreen-img" src="" alt="Cartão Grande">
     </div>
 
     <!-- MODAL ALERTA GENÉRICO -->
@@ -394,116 +661,489 @@
         projectId: "gestao-gn",
         storageBucket: "gestao-gn.firebasestorage.app",
         messagingSenderId: "443510448711",
-        appId: "1:443510448711:web:a615ebd9cf2ec549e60762"
+        appId: "1:443510448711:web:a615ebd9cf2ec549e60762",
+        measurementId: "G-G55RGRBSWY"
       };
 
+      // Inicialização do Firebase
       let app, db, auth;
-      try { app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app); } catch(e) {}
+      try { app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app); } 
+      catch(e) { console.error("Erro no Firebase", e); }
 
       const appId = 'gestao-gn-app';
       let userId = null;
       let userName = "";
       let isLoginMode = true; 
+      let currentSuperId = null;
       let unsusbscribes = [];
       let pageHistory = ['menu-principal'];
       
-      let viagensData = []; // Array local para o mapa
+      // Viagens
+      let viagensData = []; 
       let currentTripId = null;
       let tempCapaUrl = "";
 
       // ==========================================
-      // AUTENTICAÇÃO BÁSICA
+      // AUTENTICAÇÃO
       // ==========================================
-      window.handleAuth = async function() {
-        const userTyped = document.getElementById('auth-username').value.trim();
-        const pass = document.getElementById('auth-password').value;
-        const fakeEmail = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '') + "@gestaogn.app";
-        try {
-          if (isLoginMode) await signInWithEmailAndPassword(auth, fakeEmail, pass);
-          else await createUserWithEmailAndPassword(auth, fakeEmail, pass);
-        } catch (error) { alert("Erro de Login!"); }
+      window.toggleAuthMode = function() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
+        document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar e Entrar';
+        document.getElementById('auth-toggle-mode').innerText = isLoginMode ? 'Não tens conta? Cria uma aqui.' : 'Já tens conta? Entra aqui.';
+        document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
+        document.getElementById('auth-error').style.display = 'none';
       }
 
-      window.fazerLogout = async function() { if(auth) await signOut(auth); else window.location.reload(); }
+      window.handleAuth = async function() {
+        if(!auth) return;
+        const userTyped = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value;
+        const passConfirm = document.getElementById('auth-confirm-password').value;
+        const errEl = document.getElementById('auth-error');
+        
+        if(!userTyped || !pass) { errEl.innerText = "Preenche o nome e a password."; errEl.style.display = 'block'; return; }
+        
+        const cleanUser = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if(cleanUser.length < 3) { errEl.innerText = "Nome deve ter pelo menos 3 letras."; errEl.style.display = 'block'; return; }
+        const fakeEmail = cleanUser + "@gestaogn.app";
+
+        try {
+          if (isLoginMode) {
+            await signInWithEmailAndPassword(auth, fakeEmail, pass);
+          } else {
+            if(pass !== passConfirm) throw new Error("As passwords não são iguais.");
+            if(pass.length < 6) throw new Error("A password deve ter 6 ou mais carateres.");
+            
+            const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass);
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
+              uid: cred.user.uid, username: userTyped, searchName: cleanUser
+            });
+          }
+        } catch (error) {
+          errEl.innerText = "Erro: " + error.message.replace('Firebase:', ''); 
+          errEl.style.display = 'block';
+        }
+      }
+
+      window.fazerLogout = async function() { 
+        window.fecharModal('modal-logout'); window.fecharModal('modal-definicoes');
+        if(auth) await signOut(auth); else window.location.reload(); 
+      }
 
       if(auth) {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
             userId = user.uid;
-            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('auth-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
             document.getElementById('app-container').style.display = 'flex';
-            iniciarListenersFirebase();
             
-            // CARREGAR GOOGLE CHARTS DEPOIS DO LOGIN
+            try {
+              const profileDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
+              if(profileDoc.exists()) {
+                 userName = profileDoc.data().username;
+                 document.getElementById('settings-name').innerText = userName;
+                 document.getElementById('settings-username').innerText = "@" + profileDoc.data().searchName;
+                 document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase();
+              } else { userName = "User"; }
+            } catch(e) {}
+            
+            iniciarListenersFirebase();
+
+            // INICIAR GOOGLE CHARTS PARA AS VIAGENS
             google.charts.load('current', {
               'packages':['geochart'],
-              'mapsApiKey': '' // Funciona sem key para uso básico
+              'mapsApiKey': '' // Funciona de forma básica sem API Key
             });
-            google.charts.setOnLoadCallback(desenharMapaMundo);
-            
+            google.charts.setOnLoadCallback(window.desenharMapaMundo);
+
           } else {
+            userId = null;
             document.getElementById('auth-overlay').style.display = 'flex';
+            setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 10);
             document.getElementById('app-container').style.display = 'none';
           }
         });
       }
 
       // ==========================================
-      // GESTÃO DE NAVEGAÇÃO & SWIPE
+      // TEMAS E 20 CORES
       // ==========================================
+      const coresDestaque = [
+        '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', '#E5A8F2', '#FFCC00', '#FF2D55', '#5AC8FA', '#00C7BE', 
+        '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', '#2ECC71', '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
+      ];
+
+      window.toggleColorGrid = function() {
+        const grid = document.getElementById('color-picker-grid');
+        grid.style.display = grid.style.display === 'none' ? 'grid' : 'none';
+      }
+
+      function renderColorPicker() {
+        const grid = document.getElementById('color-picker-grid');
+        grid.innerHTML = '';
+        const savedColor = localStorage.getItem('accentColorApp') || '#FF6B00';
+
+        coresDestaque.forEach(cor => {
+          const c = document.createElement('div'); 
+          c.className = 'color-circle' + (cor.toLowerCase() === savedColor.toLowerCase() ? ' selected' : ''); 
+          c.style.backgroundColor = cor;
+          c.onclick = () => window.mudarCorApp(cor); 
+          grid.appendChild(c);
+        });
+      }
+
+      window.mudarCorApp = function(cor) { 
+        document.documentElement.style.setProperty('--accent', cor); 
+        localStorage.setItem('accentColorApp', cor); 
+        document.getElementById('cor-atual-bolinha').style.backgroundColor = cor;
+        renderColorPicker(); 
+        if(window.desenharMapaMundo) window.desenharMapaMundo(); // Atualiza a cor do mapa
+      }
+
+      window.alternarTema = function() {
+        const isLight = document.body.classList.toggle('light-mode');
+        const txt = document.getElementById('texto-tema-modal');
+        const svgMoon = document.getElementById('svg-moon');
+        const svgSun = document.getElementById('svg-sun');
+        
+        if (isLight) {
+           if(txt) txt.innerText = 'Mudar para Modo Escuro';
+           if(svgMoon) svgMoon.style.display = 'block';
+           if(svgSun) svgSun.style.display = 'none';
+           localStorage.setItem('temaApp', 'light');
+        } else {
+           if(txt) txt.innerText = 'Mudar para Modo Claro';
+           if(svgMoon) svgMoon.style.display = 'none';
+           if(svgSun) svgSun.style.display = 'block';
+           localStorage.setItem('temaApp', 'dark');
+        }
+        if(window.desenharMapaMundo) window.desenharMapaMundo(); // Atualiza mapa claro/escuro
+      }
+
+      function carregarConfigs() {
+        const tema = localStorage.getItem('temaApp');
+        const txt = document.getElementById('texto-tema-modal'); 
+        const svgMoon = document.getElementById('svg-moon');
+        const svgSun = document.getElementById('svg-sun');
+        
+        if (tema === 'light') { 
+          document.body.classList.add('light-mode'); 
+          if(txt) txt.innerText = 'Mudar para Modo Escuro'; 
+          if(svgMoon) svgMoon.style.display = 'block';
+          if(svgSun) svgSun.style.display = 'none';
+        } else {
+          if(txt) txt.innerText = 'Mudar para Modo Claro'; 
+          if(svgMoon) svgMoon.style.display = 'none';
+          if(svgSun) svgSun.style.display = 'block';
+        }
+
+        const cor = localStorage.getItem('accentColorApp'); 
+        if (cor) { window.mudarCorApp(cor); } 
+        else { document.getElementById('cor-atual-bolinha').style.backgroundColor = '#FF6B00'; renderColorPicker(); }
+      }
+      carregarConfigs();
+
+      // ==========================================
+      // NAVEGAÇÃO & GESTOS NATURAIS (VOLTAR ATRÁS)
+      // ==========================================
+      let clickTimers = {};
+      window.toggleSubmenu = function(idSubmenu, idPaginaBase) {
+        if(clickTimers[idSubmenu]) {
+            clearTimeout(clickTimers[idSubmenu]); delete clickTimers[idSubmenu];
+            if(idPaginaBase) window.navegarMenu(idPaginaBase);
+        } else {
+            clickTimers[idSubmenu] = setTimeout(() => {
+                delete clickTimers[idSubmenu];
+                const sub = document.getElementById(idSubmenu);
+                if(sub) sub.style.display = sub.style.display === 'flex' ? 'none' : 'flex';
+            }, 250);
+        }
+      }
+
       window.abrirSidebar = function() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
       window.fecharSidebar = function() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
       window.navegarMenu = function(idPagina, isBack = false) {
         window.fecharSidebar(); 
-        if (!isBack && pageHistory[pageHistory.length - 1] !== idPagina) pageHistory.push(idPagina);
+        
+        if (!isBack && pageHistory[pageHistory.length - 1] !== idPagina) {
+            pageHistory.push(idPagina);
+        }
 
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        // Remove active da Navbar de Baixo
+        document.getElementById('nav-btn-home').classList.remove('active');
+        document.getElementById('nav-btn-viagens').classList.remove('active');
+        document.getElementById('nav-btn-familia').classList.remove('active');
+        document.getElementById('nav-btn-notificacoes').classList.remove('active');
+        
+        // Adiciona active
         if (idPagina === 'menu-principal') document.getElementById('nav-btn-home').classList.add('active');
         if (idPagina === 'menu-viagens') document.getElementById('nav-btn-viagens').classList.add('active');
+        if (idPagina === 'menu-familia') document.getElementById('nav-btn-familia').classList.add('active');
+        if (idPagina === 'menu-notificacoes') document.getElementById('nav-btn-notificacoes').classList.add('active');
         
-        document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+        // Menu Lateral Active
+        const sideBtns = document.getElementsByClassName('sidebar-item');
+        for (let i = 0; i < sideBtns.length; i++) sideBtns[i].classList.remove('active');
         const sideElement = document.getElementById('sidebtn-' + idPagina);
         if(sideElement) sideElement.classList.add('active');
 
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        // Mostra a Página
+        var paginas = document.getElementsByClassName('page');
+        for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
+        
         setTimeout(() => { const ecr = document.getElementById(idPagina); if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); } }, 50);
 
-        if(idPagina === 'menu-viagens') setTimeout(desenharMapaMundo, 100); // Redesenhar o mapa ao abrir a aba
+        if(idPagina === 'menu-viagens' && window.desenharMapaMundo) setTimeout(window.desenharMapaMundo, 100);
       }
 
+      // LÓGICA DE SWIPE FLUIDO (VOLTAR ATRÁS)
       let touchstartX = 0; let touchstartY = 0; let touchendX = 0; let touchendY = 0;
-      document.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY; }, {passive: true});
+
+      document.addEventListener('touchstart', e => {
+          touchstartX = e.changedTouches[0].screenX;
+          touchstartY = e.changedTouches[0].screenY;
+      }, {passive: true});
+
       document.addEventListener('touchend', e => {
-          touchendX = e.changedTouches[0].screenX; touchendY = e.changedTouches[0].screenY;
-          const diffX = touchendX - touchstartX; const diffY = touchendY - touchstartY;
+          touchendX = e.changedTouches[0].screenX;
+          touchendY = e.changedTouches[0].screenY;
+          const diffX = touchendX - touchstartX;
+          const diffY = touchendY - touchstartY;
+          
           if (Math.abs(diffX) > Math.abs(diffY)) {
               if (diffX > 60 && touchstartX < 50) {
-                  if (pageHistory.length > 1) { pageHistory.pop(); navegarMenu(pageHistory[pageHistory.length - 1], true); } 
-                  else { navegarMenu('menu-principal', true); }
-              } else if (diffX < -60) { fecharSidebar(); }
+                  if (pageHistory.length > 1) {
+                      pageHistory.pop();
+                      const prevPage = pageHistory[pageHistory.length - 1];
+                      navegarMenu(prevPage, true); 
+                  } else {
+                      navegarMenu('menu-principal', true); 
+                  }
+              }
+              else if (diffX < -60) {
+                  fecharSidebar();
+              }
           }
       }, {passive: true});
 
+
       // ==========================================
-      // LÓGICA DE VIAGENS (MAPA & LISTA)
+      // RELÓGIO & METEOROLOGIA & FRASE
       // ==========================================
+      function atualizarRelogio() {
+        const agora = new Date(); 
+        const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]; 
+        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const elD = document.getElementById('data-atual'); const elH = document.getElementById('hora-atual');
+        if(elD) elD.innerText = `${dias[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]}`;
+        if(elH) elH.innerText = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
+      }
+      setInterval(atualizarRelogio, 1000); atualizarRelogio();
+
+      const frases = [
+        { texto: "Entregue o seu caminho ao Senhor; confie nele, e ele o fará.", autor: "Salmos 37:5" },
+        { texto: "Tudo posso naquele que me fortalece.", autor: "Filipenses 4:13" },
+        { texto: "O amor é paciente, o amor é bondoso. Tudo sofre, tudo crê, tudo espera, tudo suporta.", autor: "1 Coríntios 13:4-7" }
+      ];
+      function carregarFraseDoDia() {
+        const hoje = new Date(); const diaDoAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        const indexFrase = diaDoAno % frases.length;
+        document.getElementById('frase-texto').innerText = `"${frases[indexFrase].texto}"`; document.getElementById('frase-autor').innerText = frases[indexFrase].autor;
+      }
+      carregarFraseDoDia();
+
+      window.carregarMeteorologia = async function(forcarAviso = false) {
+        document.getElementById('meteo-desc').innerText = "A procurar...";
+        const buscarClima = async (lat, lon, nomeLocal) => {
+          try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+            const resposta = await fetch(url); const dados = await resposta.json(); const clima = dados.current_weather;
+            document.getElementById('meteo-temp').innerText = Math.round(clima.temperature) + "°";
+            document.getElementById('meteo-desc').innerText = "Atualizado";
+            document.getElementById('nome-cidade-texto').innerText = nomeLocal;
+          } catch(e) { document.getElementById('meteo-desc').innerText = "Sem dados"; }
+        };
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+              const lat = pos.coords.latitude; const lon = pos.coords.longitude;
+              try {
+                const respLocal = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`);
+                const dadosLocal = await respLocal.json(); const nomeCidade = dadosLocal.city || dadosLocal.locality || "Local";
+                buscarClima(lat, lon, nomeCidade);
+              } catch(e) { buscarClima(lat, lon, "Local"); }
+            },
+            (err) => { if(forcarAviso) alert("GPS desativado."); buscarClima(38.5244, -8.8882, "Setúbal"); }
+          );
+        } else { buscarClima(38.5244, -8.8882, "Setúbal"); }
+      }
+      setTimeout(() => window.carregarMeteorologia(false), 500);
+
+
+      // ==========================================
+      // LÓGICA DE SUPERMERCADOS (FIREBASE FOTOS & NOTAS)
+      // ==========================================
+      const supermercadosData = [
+        { id: 'continente', nome: 'Continente', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg', link: 'https://folhetos.continente.pt/' },
+        { id: 'pingodoce', nome: 'Pingo Doce', logo: 'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg', link: 'https://www.pingodoce.pt/folhetos/' },
+        { id: 'lidl', nome: 'Lidl', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png', link: 'https://www.lidl.pt/folhetos' },
+        { id: 'auchan', nome: 'Auchan', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg', link: 'https://www.auchan.pt/pt/folhetos/' },
+        { id: 'intermarche', nome: 'Intermarché', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg', link: 'https://www.intermarche.pt/folhetos/' }
+      ];
+
+      function renderizarLogosSupermercados() {
+        const container = document.getElementById('container-logos'); if(!container) return; container.innerHTML = '';
+        supermercadosData.forEach(s => {
+          const div = document.createElement('div'); div.className = 'logo-card'; div.onclick = () => window.abrirDetalheSupermercado(s.id);
+          div.innerHTML = `<img src="${s.logo}" alt="${s.nome}">`; container.appendChild(div);
+        });
+      }
+      renderizarLogosSupermercados();
+
+      window.abrirDetalheSupermercado = async function(id) {
+        currentSuperId = id; const superInfo = supermercadosData.find(s => s.id === id);
+        document.getElementById('detalhe-nome').innerText = superInfo.nome;
+        document.getElementById('btn-ver-folheto').onclick = () => window.open(superInfo.link, '_blank');
+        
+        const imgEl = document.getElementById('detalhe-cartao-img'); const msgEl = document.getElementById('msg-sem-cartao'); const iconeEl = document.getElementById('icone-inserir-cartao');
+        imgEl.style.display = 'none'; imgEl.src = ''; msgEl.style.display = 'block'; iconeEl.style.display = 'block';
+        document.getElementById('detalhe-obs').value = "";
+
+        if(userId && db) {
+          try {
+            const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', id));
+            if(docSnap.exists()) {
+               const data = docSnap.data();
+               if(data.notas) document.getElementById('detalhe-obs').value = data.notas;
+               if(data.cartao_img) { 
+                 imgEl.src = data.cartao_img; imgEl.style.display = 'block'; msgEl.style.display = 'none'; iconeEl.style.display = 'none';
+               }
+            }
+          } catch(e) {}
+        }
+        window.navegarMenu('page-super-detail');
+      }
+
+      window.guardarObservacaoSuperDB = async function() {
+        if(!userId || !currentSuperId || !db) return; 
+        const text = document.getElementById('detalhe-obs').value;
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { notas: text }, {merge: true});
+      }
+
+      window.cliqueCartao = function() {
+        const img = document.getElementById('detalhe-cartao-img');
+        if(img.style.display !== 'none' && img.src) { document.getElementById('img-fullscreen-cartao').src = img.src; window.abrirModal('modal-cartao'); } 
+        else { document.getElementById('input-foto-cartao').click(); }
+      }
+
+      window.processarFotoCartao = function(e) {
+        const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = new Image();
+          img.onload = async function() {
+            const canvas = document.createElement('canvas'); const max_size = 800; let width = img.width; let height = img.height;
+            if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
+            else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+            canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+            
+            document.getElementById('detalhe-cartao-img').src = dataUrl; document.getElementById('detalhe-cartao-img').style.display = 'block';
+            document.getElementById('msg-sem-cartao').style.display = 'none'; document.getElementById('icone-inserir-cartao').style.display = 'none';
+
+            if(userId && currentSuperId && db) {
+              await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { cartao_img: dataUrl }, {merge:true});
+            }
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+
+      // ==========================================
+      // FIREBASE SYNC (TAREFAS, LISTAS, AMIGOS, VIAGENS)
+      // ==========================================
+      const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+
       function iniciarListenersFirebase() {
         if(!db) return;
-        
-        // Listener Viagens
-        onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'viagens'), (snap) => {
+        unsusbscribes.forEach(unsub => unsub()); unsusbscribes = [];
+
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'tarefas'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-tarefas', 'tarefas');
+        }));
+
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'semanais'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-semanais', 'semanais');
+        }));
+
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'rapidas'), (snap) => {
+          let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-rapidas', 'rapidas');
+        }));
+
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'requests'), (snap) => {
+          let requests = []; snap.forEach(d => requests.push({id: d.id, ...d.data()}));
+          renderRequestsDB(requests);
+          document.getElementById('badge-notificacoes-bottom').style.display = requests.length > 0 ? 'block' : 'none';
+        }));
+
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'friends'), (snap) => {
+          let friends = []; snap.forEach(d => friends.push({id: d.id, ...d.data()})); renderFriendsDB(friends);
+        }));
+
+        // LISTENER DE VIAGENS
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'viagens'), (snap) => {
           viagensData = []; snap.forEach(d => viagensData.push({id: d.id, ...d.data()}));
           
-          // Atualiza Interface
-          document.getElementById('stat-visitados').innerText = viagensData.length;
-          document.getElementById('stat-faltam').innerText = 195 - viagensData.length;
+          const visitados = viagensData.length;
+          document.getElementById('stat-visitados').innerText = visitados;
+          document.getElementById('stat-faltam').innerText = 195 - visitados;
           
           renderViagensCards();
-          desenharMapaMundo(); // Pinta os novos países
+          if(window.desenharMapaMundo) window.desenharMapaMundo(); 
+        }));
+      }
+
+      function renderListDB(array, containerId, collName) {
+        const container = document.getElementById(containerId); if(!container) return; container.innerHTML = '';
+        if(array.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>'; return; }
+        
+        array.sort((a,b) => a.timestamp - b.timestamp).forEach(item => {
+          const div = document.createElement('div'); div.className = 'list-item' + (item.feita ? ' feita' : '');
+          div.innerHTML = `
+            <div class="checkbox-custom" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})"></div>
+            <span class="item-texto" onclick="toggleItemDB('${collName}', '${item.id}', ${!item.feita})">${item.texto}</span>
+            <button class="btn-icon-list btn-apagar" onclick="apagarItemDB('${collName}', '${item.id}')">${iconTrash}</button>
+          `;
+          container.appendChild(div);
         });
       }
 
+      window.adicionarItemDB = async function(collName, inputId) {
+        if(!userId || !db) { window.mostrarAlerta("Sistema de contas offline. Configura as chaves do Firebase."); return; }
+        const input = document.getElementById(inputId); const text = input.value.trim();
+        if(text) { 
+          input.value = ''; 
+          await addDoc(collection(db, 'artifacts', appId, 'users', userId, collName), { texto: text, feita: false, timestamp: Date.now() }); 
+        }
+      }
+
+      window.toggleItemDB = async function(collName, id, status) { 
+        if(userId && db) await updateDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id), { feita: status }); 
+      }
+      
+      window.apagarItemDB = async function(collName, id) { 
+        if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id)); 
+      }
+
+      // ==========================================
+      // LÓGICA DE MAPA E VIAGENS
+      // ==========================================
       function renderViagensCards() {
         const cont = document.getElementById('container-viagens'); cont.innerHTML = '';
         if(viagensData.length === 0) { cont.innerHTML = '<p style="text-align:center;font-size:13px;color:var(--text-muted);">Ainda não há viagens registadas.</p>'; return;}
@@ -523,15 +1163,13 @@
         });
       }
 
-      // Mapa Mundo Google
       window.desenharMapaMundo = function() {
-        if (!google.visualization) return;
+        if (!google || !google.visualization) return;
         
         const data = new google.visualization.DataTable();
         data.addColumn('string', 'Country');
         data.addColumn('number', 'Visitado');
         
-        // Formatar para o Google Charts [['PT', 1], ['ES', 1]]
         viagensData.forEach(v => {
            if(v.paisCode) data.addRow([v.paisCode.toUpperCase(), 1]);
         });
@@ -545,15 +1183,14 @@
           defaultColor: themeAccent,
           colorAxis: {colors: [themeAccent, themeAccent]},
           legend: 'none',
-          tooltip: {trigger: 'none'}, // Desativa a tooltip feia padrão
+          tooltip: {trigger: 'none'}, 
           keepAspectRatio: true
         };
 
         const chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
         
-        // Listener de Cliques no Mapa
         google.visualization.events.addListener(chart, 'regionClick', function(eventData) {
-          const code = eventData.region; // ex: 'ES', 'PT'
+          const code = eventData.region; 
           const viagem = viagensData.find(v => v.paisCode.toUpperCase() === code);
           if (viagem) abrirDetalheViagem(viagem.id);
           else window.mostrarAlerta("Ainda não viajaram para " + code + ". Adiciona uma nova viagem!");
@@ -561,10 +1198,8 @@
 
         chart.draw(data, options);
       }
-      // Redesenha mapa no resize do telemóvel
-      window.addEventListener('resize', desenharMapaMundo);
+      window.addEventListener('resize', () => { if(window.desenharMapaMundo) window.desenharMapaMundo(); });
 
-      // Nova Viagem - Foto
       window.processarFotoViagem = function(e) {
         const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
         reader.onload = function(event) {
@@ -598,10 +1233,7 @@
         window.navegarMenu('menu-viagens');
       }
 
-
-      // ==========================================
-      // GESTOR DE DESPESAS (O SPLITWISE)
-      // ==========================================
+      // LÓGICA SPLITWISE (DESPESAS DA VIAGEM)
       let unsubDespesas = null;
       
       window.abrirDetalheViagem = async function(id) {
@@ -613,7 +1245,6 @@
         
         window.navegarMenu('page-viagem-detalhe');
         
-        // Listener Despesas da viagem específica
         if(unsubDespesas) unsubDespesas();
         unsubDespesas = onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'viagens', id, 'despesas'), (snap) => {
           let exps = []; snap.forEach(d => exps.push({id: d.id, ...d.data()}));
@@ -624,7 +1255,7 @@
       window.adicionarDespesa = async function() {
         const desc = document.getElementById('exp-desc').value.trim();
         const valor = parseFloat(document.getElementById('exp-valor').value);
-        const pagador = document.getElementById('exp-pagador').value; // 'A' ou 'B'
+        const pagador = document.getElementById('exp-pagador').value; 
         
         if(!desc || !valor || valor <= 0) return;
         
@@ -638,8 +1269,7 @@
       function renderizarDespesas(exps) {
         const cont = document.getElementById('container-despesas'); cont.innerHTML = '';
         
-        let totalA = 0; // Total gasto por mim
-        let totalB = 0; // Total gasto pelo parceiro
+        let totalA = 0; let totalB = 0; 
         
         exps.sort((a,b) => b.timestamp - a.timestamp).forEach(exp => {
           if(exp.pagador === 'A') totalA += exp.valor;
@@ -652,7 +1282,10 @@
               <span class="exp-title">${exp.desc}</span>
               <span class="exp-payer">${pagName}</span>
             </div>
-            <span class="exp-amount">${exp.valor.toFixed(2)}€</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="exp-amount">${exp.valor.toFixed(2)}€</span>
+              <button class="btn-icon-list btn-apagar" onclick="apagarDespesa('${exp.id}')">${iconTrash}</button>
+            </div>
           `;
           cont.appendChild(div);
         });
@@ -660,7 +1293,6 @@
         const totalViagem = totalA + totalB;
         document.getElementById('split-total').innerText = totalViagem.toFixed(2) + '€';
         
-        // LÓGICA SPLITWISE (Dividir por 2)
         const idealPorPessoa = totalViagem / 2;
         const respLbl = document.getElementById('split-resultado');
         const detLbl = document.getElementById('split-quem-pagou-mais');
@@ -670,21 +1302,92 @@
         if (totalA > idealPorPessoa) {
           const owe = totalA - idealPorPessoa;
           respLbl.innerText = `Parceiro(a) deve-me ${owe.toFixed(2)}€`;
-          respLbl.className = 'split-balance'; // Verde
+          respLbl.className = 'split-balance'; 
         } else if (totalB > idealPorPessoa) {
           const owe = totalB - idealPorPessoa;
           respLbl.innerText = `Eu devo ${owe.toFixed(2)}€ ao Parceiro(a)`;
-          respLbl.className = 'split-balance owe'; // Vermelho
+          respLbl.className = 'split-balance owe'; 
         } else {
           respLbl.innerText = "Contas certas! ✅";
           respLbl.className = 'split-balance';
         }
       }
 
+      window.apagarDespesa = async function(expId) {
+        if(userId && currentTripId && db) {
+          await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'viagens', currentTripId, 'despesas', expId));
+        }
+      }
+
+      // ==========================================
+      // LÓGICA DE AMIGOS E PEDIDOS
+      // ==========================================
+      window.pesquisarUtilizadores = async function() {
+        if(!db) return; 
+        const queryText = document.getElementById('input-search-users').value.toLowerCase(); 
+        const container = document.getElementById('container-pesquisa-users');
+        if(queryText.length < 2) { container.innerHTML = ''; return; }
+        
+        container.innerHTML = '<p style="text-align:center;font-size:12px;">A procurar...</p>';
+        const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles'));
+        let results = []; 
+        querySnapshot.forEach(doc => { 
+          let d = doc.data(); 
+          if(d.uid !== userId && d.searchName && d.searchName.includes(queryText)) results.push(d); 
+        });
+        
+        container.innerHTML = ''; 
+        if(results.length === 0) container.innerHTML = '<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>';
+        
+        results.forEach(u => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.username.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${u.username}</p></div></div><button class="btn-add" style="width:auto; padding: 5px 15px; font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button>`;
+          container.appendChild(div);
+        });
+      }
+
+      window.enviarPedido = async function(targetUid, targetName) {
+        if(!userId || !db) return; 
+        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'requests', userId), { fromUid: userId, fromName: userName, timestamp: Date.now() });
+        window.mostrarAlerta(`Pedido enviado a ${targetName}!`);
+        document.getElementById('input-search-users').value = ''; document.getElementById('container-pesquisa-users').innerHTML = '';
+      }
+
+      function renderRequestsDB(requests) {
+        const container = document.getElementById('container-pedidos'); if(!container) return; container.innerHTML = '';
+        if(requests.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px; margin: 10px 0;">Sem notificações novas.</p>'; return; }
+        
+        requests.forEach(r => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${r.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${r.fromName}</p><p style="font-size:11px; color:var(--text-muted); margin:0;">Pedido de amizade</p></div></div><div style="display:flex; gap:5px;"><button class="btn-add" style="background-color: var(--accent); width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${r.fromUid}', '${r.fromName}')">✓</button><button class="btn-add" style="background-color: #ff3b30; width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${r.fromUid}')">✕</button></div>`;
+          container.appendChild(div);
+        });
+      }
+
+      window.aceitarPedido = async function(targetUid, targetName) {
+        if(!userId || !db) return; 
+        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', targetUid), { name: targetName, uid: targetUid }); 
+        await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'friends', userId), { name: userName, uid: userId }); 
+        await window.recusarPedido(targetUid); 
+      }
+      
+      window.recusarPedido = async function(targetUid) { 
+        if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'requests', targetUid)); 
+      }
+
+      function renderFriendsDB(friends) {
+        const container = document.getElementById('container-amigos'); if(!container) return; container.innerHTML = '';
+        if(friends.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return; }
+        
+        friends.forEach(f => {
+          const div = document.createElement('div'); div.className = 'user-card';
+          div.innerHTML = `<div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${f.name.charAt(0).toUpperCase()}</div><p class="user-name">${f.name}</p></div>`; container.appendChild(div);
+        });
+      }
+
       // Modals
       window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); }
       window.fecharModal = function(id) { document.getElementById(id).classList.remove('active'); }
-      window.alternarTema = function() { document.body.classList.toggle('light-mode'); desenharMapaMundo(); }
       window.mostrarAlerta = function(msg) { document.getElementById('mensagem-alerta').innerText = msg; window.abrirModal('modal-alerta'); }
     </script>
   </body>

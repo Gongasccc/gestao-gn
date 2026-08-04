@@ -80,26 +80,34 @@
     .logo-card{background-color:#fff;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border-color);height:100px} .logo-card img{max-width:100%;max-height:100%;object-fit:contain}
     .cartao-desconto-container{width:100%;height:200px;background-color:var(--card-bg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;margin-bottom:15px;cursor:pointer;border:1px dashed var(--border-color);position:relative} .cartao-desconto-container img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2}
     .textarea-obs{width:100%;height:100px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:none;margin-top:10px} .textarea-obs:focus{outline:none;border-color:var(--accent)}
-    .color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:15px;background-color:var(--bg-color);border-radius:12px;margin-bottom:15px;border:1px solid var(--border-color)}
-    .color-circle{width:35px;height:35px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto} .color-circle.selected{border:3px solid var(--text-main);transform:scale(1.15)}
-    .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px}
-    .user-info{display:flex;align-items:center;gap:12px;text-align:left} .user-avatar{width:40px;height:40px;border-radius:50%;background-color:var(--accent);display:flex;align-items:center;justify-content:center;color:#121212;font-weight:bold;font-size:18px} .user-name{font-size:15px;font-weight:500;margin:0}
-    
+
     .stats-viagens{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;margin-bottom:20px} 
     .stat-box{background-color:var(--card-bg);padding:15px 5px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} 
     .stat-num{font-size:20px;font-weight:600;color:var(--accent);display:block;line-height:1.2} 
     .stat-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
     
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
-    .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px;cursor:pointer} .viagem-header img{width:100%;height:100%;object-fit:cover} .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center} .viagem-header-title{color:white;font-size:26px;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.5);text-align:center;margin:0} .viagem-header-dates{color:#ddd;font-size:13px;margin-top:5px;text-shadow:0 1px 4px rgba(0,0,0,0.6)} .edit-capa-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:5px 10px;border-radius:20px;font-size:11px;backdrop-filter:blur(5px)}
-    .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} .trip-tab-content.active{display:block}
+    
+    .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px} 
+    .viagem-header img{width:100%;height:100%;object-fit:cover} 
+    .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer} 
+    .viagem-header-title{color:white;font-size:26px;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.5);text-align:center;margin:0} 
+    .viagem-header-dates{color:#ddd;font-size:13px;margin-top:5px;text-shadow:0 1px 4px rgba(0,0,0,0.6)} 
+    .edit-capa-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:6px 12px;border-radius:20px;font-size:11px;backdrop-filter:blur(5px);cursor:pointer;z-index:10}
+    
+    .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} 
+    .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} 
+    .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} 
+    .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
+    .trip-tab-content.active{display:block}
+
     .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} .split-balance{font-size:14px;font-weight:500;margin-top:6px} .split-balance.owe{color:#ff3b30} .split-balance.receive{color:#28CD41}
     .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} .exp-title{font-size:14px;font-weight:500} .exp-payer{font-size:11px;color:var(--text-muted)} .exp-amount{font-size:16px;font-weight:600;color:var(--accent)}
     .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
     .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
 
-    /* PLANEADOR TIMELINE PICOTADO */
-    .timeline-container{position:relative;padding-left:25px;margin-top:15px;margin-bottom:80px;width:100%}
+    /* TIMELINE PICOTADA */
+    .timeline-container{position:relative;padding-left:25px;margin-top:15px;margin-bottom:100px;width:100%}
     .timeline-container::before{content:'';position:absolute;left:8px;top:10px;bottom:10px;width:2px;border-left:2px dashed var(--accent);opacity:0.6}
     .timeline-item{position:relative;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;gap:5px}
     .timeline-item::before{content:'';position:absolute;left:-22px;top:18px;width:10px;height:10px;border-radius:50%;background-color:var(--accent);border:2px solid var(--bg-color)}
@@ -108,9 +116,26 @@
     .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     
-    /* BOTÃO FLUTUANTE SIMPLES CORRIGIDO NO CANTO INFERIOR DIREITO */
-    .btn-fab{position:fixed;bottom:calc(var(--bottom-nav-height) + 25px);right:20px;width:54px;height:54px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 25px rgba(0,0,0,0.5);border:none;cursor:pointer;z-index:2500;transition:transform 0.2s}
-    .btn-fab:active{transform:scale(0.9)}
+    /* BOTÃO FLUTUANTE SIMPLES FIXO NO CANTO INFERIOR DIREITO DO TELEMÓVEL */
+    .btn-fab{
+      position:fixed !important;
+      bottom:calc(var(--bottom-nav-height) + 20px) !important;
+      right:20px !important;
+      width:56px !important;
+      height:56px !important;
+      border-radius:50% !important;
+      background-color:var(--accent) !important;
+      color:#121212 !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      box-shadow:0 8px 25px rgba(0,0,0,0.6) !important;
+      border:none !important;
+      cursor:pointer !important;
+      z-index:9999 !important;
+      transition:transform 0.2s;
+    }
+    .btn-fab:active{transform:scale(0.92)}
     .btn-fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.5}
 
     .paises-grid{display:flex;flex-direction:column;gap:8px;width:100%;max-height:300px;overflow-y:auto;margin-top:10px}
@@ -119,7 +144,6 @@
     .pais-badge.visited{background:rgba(40,205,65,0.2);color:#28CD41}
     .pais-badge.wishlist{background:rgba(255,107,0,0.2);color:var(--accent)}
     
-    /* WIDGET DE RESUMO DE DENTRO DA VIAGEM */
     .viagem-stats-summary{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
     .summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
     .summary-label{color:var(--text-muted)}
@@ -231,7 +255,6 @@
           <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
         </div>
 
-        <!-- ÍCONE DE PRANCHETA COM CANETA CORRIGIDO -->
         <div class="dashboard-widget widget-tarefas">
           <h3>
             <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24">
@@ -264,7 +287,6 @@
         <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
         <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
 
-        <!-- PAÍSES -->
         <h3>Explorar Países do Mundo</h3>
         <input type="text" id="search-pais" class="auth-input" placeholder="Procurar país..." oninput="filtrarPaises()" style="margin-bottom:10px;">
         <div class="paises-grid" id="container-paises-lista"></div>
@@ -296,26 +318,29 @@
 
       <!-- DETALHE VIAGEM -->
       <div id="page-viagem-detalhe" class="page" style="position:relative;">
-        <div class="viagem-header" onclick="document.getElementById('input-edit-capa-direct').click()">
+        <div class="viagem-header">
           <img id="detalhe-viagem-img" src="">
-          <div class="viagem-header-overlay">
+          
+          <!-- AO CLICAR NO TEXTO ABRE OS DETALHES DA VIAGEM -->
+          <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')" title="Abrir Definições & Membros">
             <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
             <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px;">⚙️ Ver Detalhes e Pessoas</span>
           </div>
-          <span class="edit-capa-badge">📷 Alterar Capa</span>
+
+          <!-- AO CLICAR NO BADGE DA CAPA MUDA A FOTO -->
+          <span class="edit-capa-badge" onclick="document.getElementById('input-edit-capa-direct').click()">📷 Alterar Capa</span>
         </div>
         <input type="file" id="input-edit-capa-direct" accept="image/*" style="display:none;" onchange="alterarCapaDireta(event)">
 
         <div class="trip-tabs">
           <div class="trip-tab active" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeador</div>
-          <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Dividir Despesas</div>
-          <div class="trip-tab" id="tab-btn-settings" onclick="switchTripTab('settings')">Definições</div>
+          <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Dívidas</div>
         </div>
         
-        <!-- PLANEADOR RASTREIO -->
-        <div id="tab-planeador" class="trip-tab-content active" style="position:relative;">
+        <!-- PLANEADOR -->
+        <div id="tab-planeador" class="trip-tab-content active">
           
-          <!-- RESUMO INTERNO DA VIAGEM -->
           <div class="viagem-stats-summary">
             <h4 style="margin:0 0 5px 0;font-size:15px;color:var(--accent);">Resumo da Viagem</h4>
             <div class="summary-row">
@@ -335,35 +360,25 @@
 
           <div class="timeline-container" id="container-timeline-events"></div>
 
-          <!-- BOTÃO FLUTUANTE DE ADICIONAR NOVO EVENTO (NO CANTO INFERIOR DIREITO) -->
+          <!-- BOTÃO FLUTUANTE DO PLANEADOR NO CANTO INFERIOR DIREITO -->
           <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </div>
         
-        <!-- DIVIDIR DESPESAS -->
-        <div id="tab-splitwise" class="trip-tab-content" style="position:relative;">
+        <!-- DÍVIDAS -->
+        <div id="tab-splitwise" class="trip-tab-content">
           <div class="splitwise-resumo">
             <p style="font-size:12px;color:var(--text-muted);margin:0;">Total Gasto: <b id="split-total" style="color:var(--text-main);">0.00€</b></p>
             <div id="split-resultado" style="margin-top:15px;display:flex;flex-direction:column;gap:5px;"></div>
           </div>
           
-          <div id="container-despesas" style="margin-bottom:80px;"></div>
+          <div id="container-despesas" style="margin-bottom:100px;"></div>
 
-          <!-- BOTÃO FLUTUANTE PARA ADICIONAR DESPESA NO CANTO INFERIOR DIREITO -->
-          <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa">
+          <!-- BOTÃO FLUTUANTE DAS DÍVIDAS NO CANTO INFERIOR DIREITO -->
+          <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa" style="display:none;">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
-        </div>
-        
-        <div id="tab-settings" class="trip-tab-content">
-          <h3>Pessoas nesta Viagem</h3><div id="trip-membros-list" style="margin-bottom:25px;"></div>
-          <h3>Convidar Amigo</h3>
-          <div style="display:flex;gap:10px;margin-bottom:30px;">
-            <select id="trip-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
-            <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
-          </div>
-          <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:15px;font-weight:600;">🗑️ Apagar Viagem</button>
         </div>
       </div>
 
@@ -428,7 +443,27 @@
     </div>
   </div>
 
-  <!-- MODALS -->
+  <!-- MODALS DA APLICAÇÃO -->
+  
+  <!-- MODAL DE DEFINIÇÕES DA VIAGEM (ABRE AO CLICAR NA CAPA) -->
+  <div id="modal-detalhes-viagem" class="modal-overlay">
+    <div class="modal-content" style="text-align:left;">
+      <h2 style="text-align:center;margin-bottom:15px;">Detalhes da Viagem</h2>
+      
+      <h3>Pessoas nesta Viagem</h3>
+      <div id="trip-membros-list" style="margin-bottom:20px;"></div>
+      
+      <h3>Convidar Amigo</h3>
+      <div style="display:flex;gap:10px;margin-bottom:25px;">
+        <select id="trip-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
+        <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
+      </div>
+
+      <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">🗑️ Apagar Viagem</button>
+      <button class="btn-acao" onclick="fecharModal('modal-detalhes-viagem')" style="width:100%;">Fechar</button>
+    </div>
+  </div>
+
   <div id="modal-novo-evento" class="modal-overlay">
     <div class="modal-content">
       <h2 id="modal-evento-titulo-header">Novo Passo na Viagem</h2>
@@ -447,7 +482,7 @@
 
   <div id="modal-nova-despesa" class="modal-overlay">
     <div class="modal-content" style="text-align:left;">
-      <h2 style="text-align:center;margin-bottom:15px;">Registar Despesa</h2>
+      <h2 style="text-align:center;margin-bottom:15px;">Registar Dívida / Despesa</h2>
       <input type="text" id="exp-desc" class="auth-input" placeholder="Descrição (ex: Jantar, Táxi)">
       <input type="number" id="exp-valor" class="auth-input" placeholder="Valor (€)">
       
@@ -885,7 +920,16 @@
         } catch(e){ window.mostrarAlerta("Erro a guardar: " + e.message); const btn = document.getElementById('btn-save-viagem'); if(btn){btn.innerText="Guardar Viagem"; btn.disabled=false;} }
     };
 
-    window.switchTripTab = (n) => { document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); document.getElementById('tab-btn-'+n).classList.add('active'); document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); };
+    window.switchTripTab = (n) => { 
+        document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); 
+        document.getElementById('tab-btn-'+n).classList.add('active'); 
+        document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
+        document.getElementById('tab-'+n).classList.add('active'); 
+
+        // Alterna a visibilidade dos botões flutuantes (+)
+        document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'flex' : 'none';
+        document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'flex' : 'none';
+    };
     
     let unsubDespesas = null;
     let unsubTimeline = null;
@@ -916,7 +960,13 @@
         });
     };
     
-    window.apagarViagem = async () => { if(confirm("Apagar esta viagem permanentemente?")) { await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); window.navegarMenu('menu-viagens'); } };
+    window.apagarViagem = async () => { 
+        if(confirm("Apagar esta viagem permanentemente?")) { 
+            await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); 
+            fecharModal('modal-detalhes-viagem');
+            window.navegarMenu('menu-viagens'); 
+        } 
+    };
 
     function renderMembrosSettings() {
          let sel='', list='', dd='', checkboxes = '';
@@ -939,11 +989,9 @@
          await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids:[...currentTripDoc.membros_uids, idA], membros_info:[...currentTripDoc.membros_info, {uid:idA, nome:nmA}] }); window.mostrarAlerta(nmA+" inserido na viagem!");
     };
 
-    /* CÁLCULO DO RESUMO DENTRO DA VIAGEM */
     function atualizarResumoInternoViagem(despesasPassadas) {
         if(!currentTripDoc) return;
 
-        // 1. Duração em dias
         let duracaoTxt = "Não definida";
         if(currentTripDoc.dataInicio && currentTripDoc.dataFim) {
             let d1 = new Date(currentTripDoc.dataInicio);
@@ -953,11 +1001,8 @@
             duracaoTxt = diffDays + (diffDays === 1 ? " dia" : " dias");
         }
         document.getElementById('summary-duracao-dias').innerText = duracaoTxt;
-
-        // 2. Total de locais visitados/passos
         document.getElementById('summary-total-locais').innerText = timelineEventsData.length + (timelineEventsData.length === 1 ? " sítio" : " sítios");
 
-        // 3. Totais do Splitwise
         if(despesasPassadas) {
             let totalGasto = 0;
             let pagosPorPessoa = {};
@@ -981,11 +1026,11 @@
         }
     }
 
-    /* TIMELINE (PLANEADOR COM RASTREIO PICOTADO) */
+    /* TIMELINE */
     function renderizarTimelineEvents() {
         const container = document.getElementById('container-timeline-events');
         if(timelineEventsData.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades. Clica no botão "+" no canto inferior direito para começar o roteiro!</p>';
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades. Clica no botão "+" no canto inferior direito para começar!</p>';
             return;
         }
 
@@ -1053,7 +1098,7 @@
         }
     };
 
-    /* DIVIDIR DESPESAS */
+    /* DÍVIDAS */
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim();
         const val = parseFloat(document.getElementById('exp-valor').value);

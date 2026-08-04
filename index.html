@@ -14,9 +14,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   
-  <!-- API Google Charts (Para o Mapa Mundo) -->
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
   <style>
     /* =========================================
        VARIÁVEIS DE TEMA (DARK / LIGHT)
@@ -788,51 +785,6 @@
     /* =========================================
        MÓDULO DE VIAGENS E SPLITWISE
        ========================================= */
-    .map-wrapper {
-      position: relative;
-      width: 100%;
-      height: 220px;
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 15px;
-      border: 1px solid var(--border-color);
-      transition: all 0.3s ease;
-      background-color: var(--card-bg);
-    }
-
-    .map-wrapper.maximized {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 5000;
-      border-radius: 0;
-      margin: 0;
-      border: none;
-    }
-
-    .map-container {
-      width: 100%;
-      height: 100%;
-    }
-
-    .btn-max-map {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.2);
-      padding: 8px 12px;
-      border-radius: 8px;
-      z-index: 10;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-    }
-
     .stats-viagens { 
       display: grid; 
       grid-template-columns: 1fr 1fr 1fr; 
@@ -1304,7 +1256,7 @@
         </div>
       </div>
 
-      <!-- VIAGENS MAIN (MAPA MUNDO) -->
+      <!-- VIAGENS MAIN -->
       <div id="menu-viagens" class="page">
         <h2 style="margin-bottom:10px;">As Nossas Viagens</h2>
         
@@ -1321,13 +1273,6 @@
             <span class="stat-num" id="stat-faltam">195</span>
             <span class="stat-lbl">Faltam</span>
           </div>
-        </div>
-        
-        <div class="map-wrapper" id="map-wrapper">
-          <div class="map-container" id="regions_div">
-            <p style="text-align:center; margin-top: 100px; color: var(--text-muted);">A carregar mapa...</p>
-          </div>
-          <button class="btn-max-map" onclick="toggleMapSize()" id="btn-toggle-map">Maximizar ⛶</button>
         </div>
         
         <button class="btn-acao" style="width: 100%; margin-bottom: 25px; padding: 15px; background-color: var(--accent); color: #121212; font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
@@ -1347,7 +1292,11 @@
         <h2>Nova Aventura</h2>
         
         <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
-        <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (País isolado, ex: Paris, Japão)">
+        
+        <select id="input-viagem-destino" class="auth-input">
+          <!-- Gerado automaticamente via JavaScript -->
+        </select>
+        
         <input type="date" id="input-viagem-data" class="auth-input" style="color:var(--text-main);">
         
         <input type="file" id="input-viagem-capa" accept="image/*" style="display:none;" onchange="processarFotoViagem(event)">
@@ -1731,10 +1680,6 @@
                 // Iniciar a busca dos dados (Listas, Supermercados, Viagens)
                 iniciarListenersFirebase();
                 
-                // Carregar Google Charts em background
-                google.charts.load('current', {'packages':['geochart']}); 
-                google.charts.setOnLoadCallback(window.desenharMapaMundo);
-                
             } else { 
                 // Se a sessão expirar ou for feito logout
                 document.getElementById('auth-overlay').style.display = 'flex';
@@ -1803,11 +1748,6 @@
                 window.scrollTo(0,0);
             } 
         }, 50);
-
-        // Se a página for a das viagens, precisamos de renderizar novamente o mapa para ele assumir o tamanho
-        if (idPagina === 'menu-viagens') {
-            setTimeout(window.desenharMapaMundo, 100);
-        }
     }
 
     // Variáveis de controlo do Gesto de Deslizar (Swipe)
@@ -1898,11 +1838,6 @@
         document.getElementById('cor-atual-bolinha').style.backgroundColor = newColor; 
         
         renderColorPicker(); 
-        
-        // Se mudarmos a cor de destaque, o mapa deve assumir a nova cor
-        if (window.desenharMapaMundo) {
-            window.desenharMapaMundo(); 
-        }
     }
     
     window.alternarTema = function() {
@@ -1923,11 +1858,17 @@
             svgSun.style.display = 'block'; 
             localStorage.setItem('temaApp', 'dark'); 
         }
+    }
+
+    function carregarListaPaises() {
+        const selectTarget = document.getElementById('input-viagem-destino');
+        selectTarget.innerHTML = '<option value="" disabled selected>Escolhe o Destino (País)...</option>';
         
-        // O fundo do mapa muda consoante o tema
-        if (window.desenharMapaMundo) {
-            window.desenharMapaMundo();
-        }
+        const paises = ["Afeganistão", "África do Sul", "Albânia", "Alemanha", "Andorra", "Angola", "Antígua e Barbuda", "Arábia Saudita", "Argélia", "Argentina", "Arménia", "Austrália", "Áustria", "Azerbaijão", "Bahamas", "Bangladexe", "Barbados", "Barém", "Bélgica", "Belize", "Benim", "Bielorrússia", "Bolívia", "Bósnia e Herzegovina", "Botsuana", "Brasil", "Brunei", "Bulgária", "Burquina Fasso", "Burúndi", "Butão", "Cabo Verde", "Camarões", "Camboja", "Canadá", "Catar", "Cazaquistão", "Chade", "Chile", "China", "Chipre", "Colômbia", "Comores", "Congo-Brazzaville", "Congo-Kinshasa", "Coreia do Norte", "Coreia do Sul", "Costa do Marfim", "Costa Rica", "Croácia", "Cuaite", "Cuba", "Dinamarca", "Dominica", "Egito", "Emirados Árabes Unidos", "Equador", "Eritreia", "Eslováquia", "Eslovénia", "Espanha", "Estado da Palestina", "Estados Unidos", "Estónia", "Eswatini", "Etiópia", "Fiji", "Filipinas", "Finlândia", "França", "Gabão", "Gâmbia", "Gana", "Geórgia", "Granada", "Grécia", "Guatemala", "Guiana", "Guiné", "Guiné Equatorial", "Guiné-Bissau", "Haiti", "Honduras", "Hungria", "Iémen", "Ilhas Marshall", "Índia", "Indonésia", "Irão", "Iraque", "Irlanda", "Islândia", "Israel", "Itália", "Jamaica", "Japão", "Jibuti", "Jordânia", "Kiribati", "Lesoto", "Letónia", "Líbano", "Libéria", "Líbia", "Listenstaine", "Lituânia", "Luxemburgo", "Macedónia do Norte", "Madagáscar", "Malásia", "Malaúi", "Maldivas", "Mali", "Malta", "Marrocos", "Maurícia", "Mauritânia", "México", "Mianmar", "Micronésia", "Moçambique", "Moldávia", "Mónaco", "Mongólia", "Montenegro", "Namíbia", "Nauru", "Nepal", "Nicarágua", "Níger", "Nigéria", "Noruega", "Nova Zelândia", "Omã", "Países Baixos", "Palau", "Panamá", "Papua Nova Guiné", "Paquistão", "Paraguai", "Peru", "Polónia", "Portugal", "Quénia", "Quirguistão", "Reino Unido", "República Centro-Africana", "República Checa", "República Dominicana", "Roménia", "Ruanda", "Rússia", "Ilhas Salomão", "El Salvador", "Samoa", "Santa Lúcia", "São Cristóvão e Neves", "São Marinho", "São Tomé e Príncipe", "São Vicente e Granadinas", "Seicheles", "Senegal", "Serra Leoa", "Sérvia", "Singapura", "Síria", "Somália", "Sri Lanca", "Sudão", "Sudão do Sul", "Suécia", "Suíça", "Suriname", "Tailândia", "Tajiquistão", "Tanzânia", "Timor-Leste", "Togo", "Tonga", "Trindade e Tobago", "Tunísia", "Turquemenistão", "Turquia", "Tuvalu", "Ucrânia", "Uganda", "Uruguai", "Usbequistão", "Vanuatu", "Vaticano", "Venezuela", "Vietname", "Zâmbia", "Zimbábue"];
+        
+        paises.forEach(p => {
+            selectTarget.innerHTML += `<option value="${p}">${p}</option>`;
+        });
     }
     
     function carregarConfigs() {
@@ -1945,6 +1886,8 @@
             document.getElementById('cor-atual-bolinha').style.backgroundColor = '#FF6B00'; 
             renderColorPicker(); 
         }
+
+        carregarListaPaises();
     } 
     
     // Executa ao arrancar
@@ -2126,14 +2069,13 @@
                 viagensData.push({id: documento.id, ...documento.data()});
             });
             
-            document.getElementById('stat-visitados').innerText = viagensData.length; 
-            document.getElementById('stat-faltam').innerText = 195 - viagensData.length;
+            // Calcula apenas os países únicos que visitaste (ex: ir a Espanha 2 vezes conta como 1 país visitado no globo)
+            const paisesVisitadosUnicos = new Set(viagensData.map(v => v.paisCode)).size;
+
+            document.getElementById('stat-visitados').innerText = paisesVisitadosUnicos; 
+            document.getElementById('stat-faltam').innerText = 195 - paisesVisitadosUnicos;
             
             renderViagensCards(); 
-            
-            if (window.desenharMapaMundo) {
-                window.desenharMapaMundo();
-            }
           
             // Se houver uma viagem aberta, verifica as atualizações
             if (currentTripId) {
@@ -2482,23 +2424,8 @@
     }
 
     // ==========================================
-    // SISTEMA PRINCIPAL DE VIAGENS (MAPA, SPLITWISE, PLANEADOR)
+    // SISTEMA PRINCIPAL DE VIAGENS (S/ MAPA)
     // ==========================================
-    window.toggleMapSize = function() {
-        const wrapper = document.getElementById('map-wrapper');
-        const btn = document.getElementById('btn-toggle-map');
-        wrapper.classList.toggle('maximized');
-        
-        if (wrapper.classList.contains('maximized')) {
-            btn.innerText = "Minimizar ✖";
-        } else {
-            btn.innerText = "Maximizar ⛶";
-        }
-        
-        // Redesenhar mapa após a animação estar concluída
-        setTimeout(window.desenharMapaMundo, 350);
-    }
-
     function renderViagensCards() { 
         const contentorViagens = document.getElementById('container-viagens'); 
         contentorViagens.innerHTML = ''; 
@@ -2520,72 +2447,13 @@
                     <img class="trip-cover" src="${urlBackground}">
                     <div class="trip-overlay">
                         <h4 class="trip-title">${viagemElement.nome}</h4>
-                        <span class="trip-country">${viagemElement.paisCode.toUpperCase()} • ${viagemElement.data || 'Sem data'}</span>
+                        <span class="trip-country">${viagemElement.paisCode} • ${viagemElement.data || 'Sem data'}</span>
                     </div>
                 </div>
             `;
             contentorViagens.innerHTML += htmlDaViagem; 
         }); 
     }
-
-    window.desenharMapaMundo = function() { 
-        if (!google || !google.visualization) return; 
-        
-        const mapContainer = document.getElementById('regions_div');
-        // Previne falhas do Google Charts se o ecrã do mapa estiver invisível
-        if (mapContainer.offsetWidth === 0) return; 
-
-        const objBaseDadosGeo = new google.visualization.DataTable(); 
-        objBaseDadosGeo.addColumn('string', 'Country'); 
-        objBaseDadosGeo.addColumn('number', 'Visitado'); 
-        
-        viagensData.forEach(function(viagemIndividual) { 
-            if (viagemIndividual.paisCode) {
-                objBaseDadosGeo.addRow([viagemIndividual.paisCode.toUpperCase(), 1]);
-            }
-        }); 
-        
-        const corDeDestaqueCSS = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF6B00'; 
-        const verificarModoClaro = document.body.classList.contains('light-mode'); 
-        
-        const configuracoesGrafico = { 
-            backgroundColor: 'transparent', 
-            datalessRegionColor: verificarModoClaro ? '#EBEBEA' : '#2C2C2C', 
-            defaultColor: corDeDestaqueCSS, 
-            colorAxis: { colors: [corDeDestaqueCSS, corDeDestaqueCSS] }, 
-            legend: 'none', 
-            tooltip: { trigger: 'none' }, 
-            keepAspectRatio: false // Permite preencher o tamanho maximizado
-        }; 
-        
-        const contentorGraficoHTML = new google.visualization.GeoChart(mapContainer); 
-        google.visualization.events.removeAllListeners(contentorGraficoHTML);
-        
-        google.visualization.events.addListener(contentorGraficoHTML, 'regionClick', function(eventoDeClique) { 
-            const objViagemSelecionada = viagensData.find(function(viagemDaLista) {
-                return viagemDaLista.paisCode.toUpperCase() === eventoDeClique.region;
-            }); 
-            
-            if (objViagemSelecionada) {
-                // Se o mapa estiver aberto em ecrã inteiro, fecha-o antes de abrir a viagem
-                if(document.getElementById('map-wrapper').classList.contains('maximized')) {
-                    window.toggleMapSize();
-                }
-                setTimeout(() => abrirDetalheViagem(objViagemSelecionada.id), 150);
-            } else {
-                window.mostrarAlerta("Ainda não registaram a vossa viagem a " + eventoDeClique.region + ". Adiciona uma nova viagem para pintar o mapa.");
-            }
-        }); 
-        
-        contentorGraficoHTML.draw(objBaseDadosGeo, configuracoesGrafico); 
-    }
-    
-    // Assegura que o mapa não fica desformatado quando o utilizador muda o tamanho ou roda o telemóvel
-    window.addEventListener('resize', function() { 
-        if (window.desenharMapaMundo) {
-            window.desenharMapaMundo(); 
-        }
-    });
     
     window.processarFotoViagem = function(eventoFicheiro) { 
         const objetoFicheiroUpload = eventoFicheiro.target.files[0]; 
@@ -2631,49 +2499,23 @@
         leitorJavascript.readAsDataURL(objetoFicheiroUpload); 
     }
     
-    async function obterCodigoPais(nomeLocalizacao) { 
-        try { 
-            // Injetámos o email no link para o OpenStreetMap não nos bloquear a ligação
-            const pedidoAOServidorMundial = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(nomeLocalizacao)}&format=json&addressdetails=1&limit=1&email=appgestao@gestaogn.app&accept-language=pt`); 
-            const respostaFormatadaJSON = await pedidoAOServidorMundial.json(); 
-            
-            if (respostaFormatadaJSON && respostaFormatadaJSON.length > 0) {
-                if (respostaFormatadaJSON[0].address && respostaFormatadaJSON[0].address.country_code) {
-                    return respostaFormatadaJSON[0].address.country_code.toUpperCase();
-                }
-            }
-        } catch (e) {
-            console.error("Erro no OpenStreetMap: ", e);
-        } 
-        return null; 
-    }
-    
     window.guardarNovaViagem = async function() {
         const tituloGuardado = document.getElementById('input-viagem-nome').value.trim(); 
-        const destinoDeTexto = document.getElementById('input-viagem-destino').value.trim(); 
+        const destinoSelecionado = document.getElementById('input-viagem-destino').value; 
         const dtGuardado = document.getElementById('input-viagem-data').value;
         
-        if (!tituloGuardado || !destinoDeTexto) { 
-            window.mostrarAlerta("É necessário preencher obrigatoriamente o título da aventura e o destino para desenhar no mapa."); 
+        if (!tituloGuardado || !destinoSelecionado) { 
+            window.mostrarAlerta("É necessário preencher obrigatoriamente o título da aventura e escolher o destino da lista."); 
             return; 
         }
         
         const identificadorBotaoSave = document.getElementById('btn-save-viagem'); 
-        identificadorBotaoSave.innerText = "A procurar o destino no mapa global..."; 
+        identificadorBotaoSave.innerText = "A guardar viagem..."; 
         identificadorBotaoSave.disabled = true;
-        
-        let siglaPaisFinal = await obterCodigoPais(destinoDeTexto);
-        
-        if (!siglaPaisFinal) { 
-            window.mostrarAlerta(`Não encontrei um país válido para "${destinoDeTexto}". Escreve o país isolado (ex: Japão, França, Brasil).`); 
-            identificadorBotaoSave.innerText = "Guardar Viagem"; 
-            identificadorBotaoSave.disabled = false; 
-            return; 
-        }
         
         const dicionarioDaViagemCompleta = { 
             nome: tituloGuardado, 
-            paisCode: siglaPaisFinal, 
+            paisCode: destinoSelecionado, // Guardamos logo o nome do País que foi selecionado
             data: dtGuardado, 
             capa: tempCapaUrl, 
             timestamp: Date.now(), 
@@ -2760,8 +2602,9 @@
     }
     
     window.apagarViagem = async function() { 
-        if (confirm("Alerta: Tens a certeza absoluta que queres eliminar esta viagem do mapa, os textos e as finanças nela incluída? A ação não pode ser desfeita.")) {
+        if (confirm("Alerta: Tens a certeza absoluta que queres eliminar esta viagem do diário, os textos e as finanças nela incluídas? A ação não pode ser desfeita.")) {
             await deleteDoc(doc(db, 'artifacts', appId, 'viagens_partilhadas', currentTripId));
+            window.navegarMenu('menu-viagens');
         }
     }
 

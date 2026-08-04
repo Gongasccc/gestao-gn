@@ -2069,8 +2069,8 @@
                 viagensData.push({id: documento.id, ...documento.data()});
             });
             
-            // Calcula apenas os países únicos que visitaste (ex: ir a Espanha 2 vezes conta como 1 país visitado no globo)
-            const paisesVisitadosUnicos = new Set(viagensData.map(v => v.paisCode)).size;
+            // Segurança Ativada: Ignora campos vazios e conta apenas os países únicos sem falhar
+            const paisesVisitadosUnicos = new Set(viagensData.map(v => v.paisCode).filter(Boolean)).size;
 
             document.getElementById('stat-visitados').innerText = paisesVisitadosUnicos; 
             document.getElementById('stat-faltam').innerText = 195 - paisesVisitadosUnicos;
@@ -2104,9 +2104,9 @@
         const contentor = document.getElementById(idContentorHTML); 
         contentor.innerHTML = ''; 
         
-        // Ordenar os mais antigos primeiro
+        // Ordenar os mais antigos primeiro (segurança: || 0)
         arrayItens.sort(function(a, b) { 
-            return a.timestamp - b.timestamp; 
+            return (a.timestamp || 0) - (b.timestamp || 0); 
         });
         
         arrayItens.forEach(function(item) { 
@@ -2435,9 +2435,9 @@
             return;
         } 
         
-        // Ordena por datas recentes
+        // Segurança Extra: Garante que os números das antigas viagens não falham
         viagensData.sort(function(a, b) {
-            return b.timestamp - a.timestamp;
+            return (b.timestamp || 0) - (a.timestamp || 0);
         });
         
         viagensData.forEach(function(viagemElement) { 
@@ -2446,8 +2446,8 @@
                 <div class="trip-card" onclick="abrirDetalheViagem('${viagemElement.id}')">
                     <img class="trip-cover" src="${urlBackground}">
                     <div class="trip-overlay">
-                        <h4 class="trip-title">${viagemElement.nome}</h4>
-                        <span class="trip-country">${viagemElement.paisCode} • ${viagemElement.data || 'Sem data'}</span>
+                        <h4 class="trip-title">${viagemElement.nome || 'Sem Título'}</h4>
+                        <span class="trip-country">${viagemElement.paisCode || ''} • ${viagemElement.data || 'Sem data'}</span>
                     </div>
                 </div>
             `;
@@ -2500,32 +2500,32 @@
     }
     
     window.guardarNovaViagem = async function() {
-        const tituloGuardado = document.getElementById('input-viagem-nome').value.trim(); 
-        const destinoSelecionado = document.getElementById('input-viagem-destino').value; 
-        const dtGuardado = document.getElementById('input-viagem-data').value;
-        
-        if (!tituloGuardado || !destinoSelecionado) { 
-            window.mostrarAlerta("É necessário preencher obrigatoriamente o título da aventura e escolher o destino da lista."); 
-            return; 
-        }
-        
-        const identificadorBotaoSave = document.getElementById('btn-save-viagem'); 
-        identificadorBotaoSave.innerText = "A guardar viagem..."; 
-        identificadorBotaoSave.disabled = true;
-        
-        const dicionarioDaViagemCompleta = { 
-            nome: tituloGuardado, 
-            paisCode: destinoSelecionado, // Guardamos logo o nome do País que foi selecionado
-            data: dtGuardado, 
-            capa: tempCapaUrl, 
-            timestamp: Date.now(), 
-            planeador: "", 
-            membros_uids: [userId], 
-            membros_info: [{ uid: userId, nome: userName }], 
-            dono: userId 
-        };
-        
         try {
+            const tituloGuardado = document.getElementById('input-viagem-nome').value.trim(); 
+            const destinoSelecionado = document.getElementById('input-viagem-destino').value; 
+            const dtGuardado = document.getElementById('input-viagem-data').value;
+            
+            if (!tituloGuardado || !destinoSelecionado) { 
+                window.mostrarAlerta("É necessário preencher obrigatoriamente o título da aventura e escolher o destino da lista."); 
+                return; 
+            }
+            
+            const identificadorBotaoSave = document.getElementById('btn-save-viagem'); 
+            identificadorBotaoSave.innerText = "A guardar viagem..."; 
+            identificadorBotaoSave.disabled = true;
+            
+            const dicionarioDaViagemCompleta = { 
+                nome: tituloGuardado, 
+                paisCode: destinoSelecionado,
+                data: dtGuardado, 
+                capa: tempCapaUrl || "", 
+                timestamp: Date.now(), 
+                planeador: "", 
+                membros_uids: [userId], 
+                membros_info: [{ uid: userId, nome: userName || "Utilizador" }], 
+                dono: userId 
+            };
+            
             await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), dicionarioDaViagemCompleta);
             
             document.getElementById('input-viagem-nome').value = ''; 
@@ -2534,13 +2534,19 @@
             document.getElementById('preview-capa-viagem').style.display = 'none'; 
             tempCapaUrl = ""; 
             
-            window.navegarMenu('menu-viagens');
-        } catch (error) {
-            console.error("Erro Firebase: ", error);
-            window.mostrarAlerta("Ocorreu um erro ao guardar na base de dados (Acesso Negado ou Sem Internet).");
-        } finally {
             identificadorBotaoSave.innerText = "Guardar Viagem"; 
             identificadorBotaoSave.disabled = false;
+            
+            window.navegarMenu('menu-viagens');
+
+        } catch (error) {
+            console.error("Erro Firebase: ", error);
+            window.mostrarAlerta("Ocorreu um erro ao guardar na base de dados: " + error.message);
+            const identificadorBotaoSave = document.getElementById('btn-save-viagem'); 
+            if (identificadorBotaoSave) {
+                identificadorBotaoSave.innerText = "Guardar Viagem"; 
+                identificadorBotaoSave.disabled = false;
+            }
         }
     }
 

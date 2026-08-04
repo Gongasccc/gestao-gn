@@ -2,1037 +2,97 @@
 <html lang="pt-PT">
 <head>
   <base target="_top">
-  <!-- Viewport adaptado para o Notch do iPhone e PWA -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="App Casal">
   <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
-  
-  <!-- Fontes -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    /* =========================================
-       VARIÁVEIS DE TEMA (DARK / LIGHT)
-       ========================================= */
-    :root { 
-      --bg-color: #191919;       
-      --card-bg: #202020;        
-      --text-main: rgba(255, 255, 255, 0.9);  
-      --text-muted: rgba(255, 255, 255, 0.5); 
-      --accent: #FF6B00;         
-      --btn-secondary: #2C2C2C;  
-      --border-color: rgba(255, 255, 255, 0.05); 
-      --sidebar-width: 280px;
-      --bottom-nav-height: 70px; 
-    }
-
-    body.light-mode { 
-      --bg-color: #FFFFFF;             
-      --card-bg: #F7F7F5;              
-      --text-main: #37352F;            
-      --text-muted: rgba(55, 53, 47, 0.6); 
-      --btn-secondary: #EBEBEA;        
-      --border-color: rgba(0, 0, 0, 0.08); 
-    }
-
-    * { 
-      box-sizing: border-box; 
-      -webkit-tap-highlight-color: transparent; 
-    }
-
-    body { 
-      font-family: 'Poppins', sans-serif; 
-      background-color: var(--bg-color); 
-      color: var(--text-main); 
-      margin: 0; 
-      padding: 0; 
-      display: flex; 
-      min-height: 100vh; 
-      overflow-x: hidden; 
-      transition: background-color 0.3s ease, color 0.3s ease; 
-    }
-
-    /* =========================================
-       ECRÃ DE LOGIN
-       ========================================= */
-    #auth-overlay { 
-      position: fixed; 
-      inset: 0; 
-      background-color: var(--bg-color); 
-      z-index: 9999; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      padding: 30px; 
-      transition: opacity 0.5s ease; 
-    }
-
-    .auth-box { 
-      background-color: var(--card-bg); 
-      padding: 30px; 
-      border-radius: 20px; 
-      border: 1px solid var(--border-color); 
-      width: 100%; 
-      max-width: 350px; 
-      text-align: center; 
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
-    }
-
-    .auth-input { 
-      width: 100%; 
-      padding: 15px; 
-      margin-bottom: 15px; 
-      background-color: var(--bg-color); 
-      border: 1px solid var(--border-color); 
-      color: var(--text-main); 
-      border-radius: 12px; 
-      font-family: inherit; 
-      font-size: 15px; 
-      transition: border-color 0.3s ease; 
-    }
-
-    .auth-input:focus { 
-      outline: none; 
-      border-color: var(--accent); 
-    }
-
-    .auth-btn { 
-      background-color: var(--accent); 
-      color: #121212; 
-      border: none; 
-      padding: 15px; 
-      width: 100%; 
-      border-radius: 12px; 
-      font-size: 16px; 
-      font-weight: 600; 
-      cursor: pointer; 
-      margin-bottom: 10px; 
-      transition: transform 0.1s ease;
-    }
-
-    .auth-btn:active { 
-      transform: scale(0.95); 
-    }
-
-    .auth-link { 
-      color: var(--text-muted); 
-      font-size: 13px; 
-      cursor: pointer; 
-      text-decoration: underline; 
-      transition: color 0.3s ease;
-    }
-
-    .auth-link:active { 
-      color: var(--text-main); 
-    }
-
-    .main-auth-logo { 
-      width: 120px; 
-      margin-bottom: 30px; 
-    }
-
-    /* =========================================
-       ESTRUTURA BASE DA APP
-       ========================================= */
-    #app-container { 
-      display: none; 
-      width: 100%; 
-      height: 100vh; 
-    }
-
-    .page-container { 
-      flex: 1; 
-      padding: calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 40px) 20px; 
-      width: 100%; 
-      max-width: 500px; 
-      margin: 0 auto; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      overflow-y: auto; 
-    }
-
-    h1 { 
-      font-weight: 600; 
-      font-size: 26px; 
-      margin-bottom: 30px; 
-      text-align: center; 
-      letter-spacing: 1px; 
-    }
-
-    h2 { 
-      font-weight: 400; 
-      font-size: 18px; 
-      color: var(--text-muted); 
-      text-align: center; 
-      margin-bottom: 20px; 
-    }
-
-    h3 { 
-      font-size: 16px; 
-      font-weight: 500; 
-      margin: 0 0 15px 0; 
-      display: flex; 
-      align-items: center; 
-      gap: 8px;
-    }
-
-    .page { 
-      display: none; 
-      opacity: 0; 
-      transform: translateY(15px); 
-      transition: opacity 0.3s ease, transform 0.3s ease; 
-      width: 100%; 
-    }
-
-    .page.active { 
-      display: block; 
-      animation: fadeIn 0.4s forwards; 
-    }
-
-    @keyframes fadeIn { 
-      to { 
-        opacity: 1; 
-        transform: translateY(0); 
-      } 
-    }
-
-    /* =========================================
-       SIDEBAR / MENU LATERAL
-       ========================================= */
-    #sidebar-overlay { 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(0,0,0,0.6); 
-      z-index: 1999; 
-      opacity: 0; 
-      pointer-events: none; 
-      transition: opacity 0.3s ease; 
-    }
-
-    #sidebar-overlay.open { 
-      opacity: 1; 
-      pointer-events: auto; 
-    }
-
-    #sidebar { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      bottom: 0; 
-      width: var(--sidebar-width); 
-      background-color: var(--card-bg); 
-      z-index: 2000; 
-      transform: translateX(-100%); 
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; 
-      border-right: 1px solid var(--border-color); 
-      box-shadow: 5px 0 15px rgba(0,0,0,0.5); 
-      display: flex; 
-      flex-direction: column; 
-    }
-
-    #sidebar.open { 
-      transform: translateX(0); 
-    }
-
-    .sidebar-header { 
-      padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px; 
-      border-bottom: 1px solid var(--border-color); 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-    }
-
-    .sidebar-logo { 
-      width: 140px; 
-      height: 90px; 
-      object-fit: contain; 
-      margin: 0 auto; 
-      display: block; 
-    }
-
-    .light-logo { display: none; } 
-    body.light-mode .light-logo { display: block; } 
-    body.light-mode .dark-logo { display: none; }
-
-    .sidebar-item { 
-      padding: 18px 25px; 
-      font-size: 15px; 
-      font-weight: 500; 
-      color: var(--text-main); 
-      display: flex; 
-      align-items: center; 
-      gap: 15px; 
-      cursor: pointer; 
-      border-bottom: 1px solid rgba(255,255,255,0.02); 
-      transition: background-color 0.2s, color 0.3s; 
-    }
-
-    .sidebar-item:active { 
-      background-color: var(--btn-secondary); 
-    }
-
-    .sidebar-item.active { 
-      border-left: 4px solid var(--accent); 
-      background-color: rgba(255,107,0,0.05); 
-      color: var(--accent);
-    }
-
-    .sidebar-submenu { 
-      display: none; 
-      flex-direction: column; 
-      background-color: rgba(0,0,0,0.1); 
-    } 
-
-    body.light-mode .sidebar-submenu { 
-      background-color: rgba(0,0,0,0.02); 
-    }
-
-    .sidebar-subitem { 
-      padding: 12px 25px 12px 55px; 
-      font-size: 13px; 
-      color: var(--text-muted); 
-      cursor: pointer; 
-      border-bottom: 1px solid rgba(255,255,255,0.01); 
-    }
-
-    .sidebar-subitem:active { 
-      color: var(--text-main); 
-    }
-
-    .sidebar-footer { 
-      margin-top: auto; 
-      border-top: 1px solid var(--border-color); 
-    }
-
-    .icon-svg { 
-      fill: none; 
-      stroke: currentColor; 
-      stroke-width: 2; 
-      stroke-linecap: round; 
-      stroke-linejoin: round; 
-      width: 24px; 
-      height: 24px; 
-      margin-bottom: 4px; 
-    }
-
-    .sidebar-icon-svg { 
-      width: 20px; 
-      height: 20px; 
-      flex-shrink: 0; 
-      margin-bottom: 0; 
-    }
-    
-    /* =========================================
-       BARRA DE NAVEGAÇÃO INFERIOR
-       ========================================= */
-    #bottom-nav { 
-      position: fixed; 
-      bottom: calc(env(safe-area-inset-bottom) + 15px); 
-      left: 20px; 
-      right: 20px; 
-      height: var(--bottom-nav-height); 
-      background-color: rgba(35, 35, 35, 0.75); 
-      backdrop-filter: blur(20px); 
-      -webkit-backdrop-filter: blur(20px); 
-      border: 1px solid rgba(255, 255, 255, 0.1); 
-      border-radius: 35px; 
-      display: flex; 
-      justify-content: space-around; 
-      align-items: center; 
-      z-index: 1500; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-      transition: background-color 0.3s, border 0.3s; 
-    }
-
-    body.light-mode #bottom-nav { 
-      background-color: rgba(255, 255, 255, 0.75); 
-      border: 1px solid rgba(0, 0, 0, 0.1); 
-    }
-
-    .nav-btn { 
-      position: relative; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      width: 60px; 
-      height: 100%; 
-      color: var(--text-muted); 
-      cursor: pointer; 
-      transition: color 0.2s, transform 0.1s; 
-    }
-
-    .nav-btn:active { 
-      transform: scale(0.9); 
-    } 
-
-    .nav-btn.active { 
-      color: var(--accent); 
-    }
-
-    .nav-badge { 
-      position: absolute; 
-      top: 12px; 
-      right: 14px; 
-      width: 8px; 
-      height: 8px; 
-      background-color: #ff3b30; 
-      border-radius: 50%; 
-      display: none; 
-    }
-
-    @media (min-width: 800px) { 
-      #bottom-nav { display: none; } 
-      .page-container { max-width: 800px; padding-bottom: 40px; margin: 0; } 
-      #app-container { flex-direction: row; } 
-      #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } 
-      #sidebar-overlay { display: none !important; } 
-    }
-
-    /* =========================================
-       WIDGETS GERAIS E COMPONENTES UI
-       ========================================= */
-    .dashboard-widget { 
-      background-color: var(--card-bg); 
-      width: 100%; 
-      border-radius: 20px; 
-      padding: 25px; 
-      margin-bottom: 15px; 
-      border: 1px solid var(--border-color); 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-    }
-
-    .top-widgets-grid { 
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 15px; 
-      width: 100%; 
-      margin-bottom: 15px; 
-    }
-
-    .widget-relogio, .widget-meteorologia { 
-      margin-bottom: 0; 
-      padding: 20px 10px; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      text-align: center; 
-    }
-
-    #data-atual { 
-      font-size: 11px; 
-      font-weight: 500; 
-      color: var(--accent); 
-      text-transform: uppercase; 
-      letter-spacing: 1px; 
-    }
-
-    #hora-atual { 
-      font-size: 34px; 
-      font-weight: 300; 
-      color: var(--text-main); 
-      margin: 5px 0 0 0; 
-      line-height: 1; 
-    }
-
-    .meteo-top-row { 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      gap: 8px; 
-    } 
-
-    #meteo-temp { 
-      font-size: 28px; 
-      font-weight: 300; 
-      line-height: 1; 
-      color: var(--text-main); 
-    } 
-
-    #meteo-desc { 
-      font-size: 11px; 
-      color: var(--text-muted); 
-      margin-top: 5px; 
-      font-weight: 500;
-    } 
-
-    #meteo-local-texto { 
-      font-size: 9px; 
-      color: var(--accent); 
-      margin-top: 4px; 
-      text-transform: uppercase; 
-      letter-spacing: 0.5px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      gap: 3px; 
-    }
-
-    .widget-frase { 
-      text-align: center; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      padding: 30px 20px;
-    } 
-
-    .frase-texto { 
-      font-size: 16px; 
-      font-style: italic; 
-      font-weight: 300; 
-      line-height: 1.5; 
-      margin: 0;
-    } 
-
-    .frase-autor { 
-      font-size: 11px; 
-      color: var(--accent); 
-      margin-top: 15px; 
-      font-weight: 500; 
-      text-transform: uppercase; 
-      letter-spacing: 1px;
-    }
-    
-    .input-row { 
-      display: flex; 
-      gap: 10px; 
-      margin-bottom: 15px; 
-      width: 100%; 
-    }
-
-    .input-text { 
-      flex: 1; 
-      background-color: var(--bg-color); 
-      border: 1px solid var(--border-color); 
-      color: var(--text-main); 
-      padding: 12px 15px; 
-      border-radius: 12px; 
-      font-family: inherit; 
-      font-size: 14px; 
-    }
-
-    .btn-add { 
-      background-color: var(--accent); 
-      color: #121212; 
-      border: none; 
-      border-radius: 12px; 
-      width: 45px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      cursor: pointer; 
-      transition: transform 0.1s;
-    } 
-
-    .btn-add:active { 
-      transform: scale(0.9); 
-    }
-
-    .lista-itens { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 8px; 
-      width: 100%;
-    }
-
-    .list-item { 
-      display: flex; 
-      align-items: center; 
-      background-color: var(--card-bg); 
-      padding: 12px 15px; 
-      border-radius: 12px; 
-      border: 1px solid var(--border-color); 
-    }
-
-    .item-texto { 
-      flex: 1; 
-      font-size: 14px; 
-      margin-left: 12px; 
-      word-break: break-word;
-    } 
-
-    .list-item.feita .item-texto { 
-      text-decoration: line-through; 
-      color: var(--text-muted); 
-    }
-
-    .checkbox-custom { 
-      width: 24px; 
-      height: 24px; 
-      border-radius: 50%; 
-      border: 2px solid var(--accent); 
-      cursor: pointer; 
-      flex-shrink: 0; 
-      position: relative; 
-    } 
-
-    .list-item.feita .checkbox-custom { 
-      background-color: var(--accent); 
-      border-color: var(--accent); 
-    } 
-
-    .list-item.feita .checkbox-custom::after { 
-      content: '✓'; 
-      position: absolute; 
-      top: 50%; 
-      left: 50%; 
-      transform: translate(-50%, -50%); 
-      color: #fff; 
-      font-weight: bold; 
-      font-size: 12px; 
-    }
-
-    .btn-icon-list { 
-      background: none; 
-      border: none; 
-      color: var(--text-muted); 
-      padding: 5px; 
-      cursor: pointer; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-    } 
-
-    .btn-icon-list:active { 
-      transform: scale(0.9); 
-      color: var(--text-main); 
-    }
-    
-    .btn { 
-      background-color: var(--card-bg); 
-      color: var(--text-main); 
-      border: 1px solid var(--border-color); 
-      padding: 20px; 
-      margin-bottom: 15px; 
-      border-radius: 16px; 
-      font-size: 16px; 
-      cursor: pointer; 
-      width: 100%; 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-    } 
-
-    .btn:active { 
-      transform: scale(0.98); 
-      background-color: var(--btn-secondary); 
-    }
-
-    .btn-acao { 
-      flex: 1; 
-      background-color: var(--btn-secondary); 
-      color: var(--text-main); 
-      border: 1px solid var(--border-color); 
-      padding: 12px; 
-      border-radius: 10px; 
-      cursor: pointer; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      gap: 8px; 
-      font-weight: 500;
-    } 
-
-    .btn-acao:active { 
-      background-color: var(--border-color); 
-    }
-
-    /* =========================================
-       SUPERMERCADOS
-       ========================================= */
-    .logos-grid { 
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 15px; 
-      width: 100%; 
-      margin-bottom: 20px; 
-    }
-
-    .logo-card { 
-      background-color: #fff; 
-      border-radius: 16px; 
-      padding: 20px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      cursor: pointer; 
-      border: 1px solid var(--border-color); 
-      height: 100px; 
-    } 
-
-    .logo-card img { 
-      max-width: 100%; 
-      max-height: 100%; 
-      object-fit: contain; 
-    }
-
-    .cartao-desconto-container { 
-      width: 100%; 
-      height: 200px; 
-      background-color: var(--card-bg); 
-      border-radius: 16px; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      overflow: hidden; 
-      margin-bottom: 15px; 
-      cursor: pointer; 
-      border: 1px dashed var(--border-color); 
-      position: relative;
-    } 
-
-    .cartao-desconto-container img { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: cover; 
-      position: absolute; 
-      inset: 0; 
-      z-index: 2;
-    }
-
-    .textarea-obs { 
-      width: 100%; 
-      height: 100px; 
-      background-color: var(--bg-color); 
-      border: 1px solid var(--border-color); 
-      color: var(--text-main); 
-      border-radius: 12px; 
-      padding: 15px; 
-      font-family: inherit; 
-      resize: none; 
-      margin-top: 10px; 
-    } 
-
-    .textarea-obs:focus { 
-      outline: none; 
-      border-color: var(--accent); 
-    }
-
-    /* =========================================
-       DEFINIÇÕES, CORES E FAMÍLIA
-       ========================================= */
-    .color-grid { 
-      display: grid; 
-      grid-template-columns: repeat(5, 1fr); 
-      gap: 10px; 
-      padding: 15px; 
-      background-color: var(--bg-color); 
-      border-radius: 12px; 
-      margin-bottom: 15px; 
-      border: 1px solid var(--border-color);
-    }
-
-    .color-circle { 
-      width: 35px; 
-      height: 35px; 
-      border-radius: 50%; 
-      cursor: pointer; 
-      border: 2px solid transparent; 
-      margin: auto;
-    } 
-
-    .color-circle.selected { 
-      border: 3px solid var(--text-main); 
-      transform: scale(1.15);
-    }
-
-    .user-card { 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      background-color: var(--card-bg); 
-      padding: 15px; 
-      border-radius: 12px; 
-      border: 1px solid var(--border-color); 
-      margin-bottom: 10px;
-    }
-
-    .user-info { 
-      display: flex; 
-      align-items: center; 
-      gap: 12px; 
-      text-align: left;
-    } 
-
-    .user-avatar { 
-      width: 40px; 
-      height: 40px; 
-      border-radius: 50%; 
-      background-color: var(--accent); 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      color: #121212; 
-      font-weight: bold; 
-      font-size: 18px;
-    } 
-
-    .user-name { 
-      font-size: 15px; 
-      font-weight: 500; 
-      margin: 0;
-    }
-
-    /* =========================================
-       MÓDULO DE VIAGENS E SPLITWISE
-       ========================================= */
-    .stats-viagens { 
-      display: grid; 
-      grid-template-columns: 1fr; 
-      gap: 10px; 
-      width: 100%; 
-      margin-bottom: 25px; 
-    } 
-
-    .stat-box { 
-      background-color: var(--card-bg); 
-      padding: 15px 10px; 
-      border-radius: 12px; 
-      text-align: center; 
-      border: 1px solid var(--border-color); 
-    } 
-
-    .stat-num { 
-      font-size: 22px; 
-      font-weight: 600; 
-      color: var(--accent); 
-      display: block; 
-      line-height: 1.2;
-    } 
-
-    .stat-lbl { 
-      font-size: 10px; 
-      color: var(--text-muted); 
-      text-transform: uppercase; 
-      letter-spacing: 0.5px;
-    }
-
-    .trip-card { 
-      background-color: var(--card-bg); 
-      border-radius: 16px; 
-      overflow: hidden; 
-      margin-bottom: 15px; 
-      border: 1px solid var(--border-color); 
-      cursor: pointer; 
-      transition: transform 0.2s; 
-      position: relative; 
-      height: 160px; 
-      width: 100%;
-    } 
-
-    .trip-card:active { 
-      transform: scale(0.97); 
-    } 
-
-    .trip-cover { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: cover; 
-      position: absolute; 
-      top: 0; 
-      left: 0; 
-      z-index: 1;
-    } 
-
-    .trip-overlay { 
-      position: absolute; 
-      bottom: 0; 
-      left: 0; 
-      right: 0; 
-      padding: 30px 15px 15px 15px; 
-      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); 
-      z-index: 2; 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: flex-end;
-    } 
-
-    .trip-title { 
-      color: white; 
-      font-size: 18px; 
-      font-weight: 600; 
-      margin: 0; 
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    } 
-
-    .trip-country { 
-      color: #ddd; 
-      font-size: 12px; 
-      font-weight: 400; 
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    }
-
-    .viagem-header { 
-      width: 100%; 
-      height: 200px; 
-      border-radius: 16px; 
-      overflow: hidden; 
-      position: relative; 
-      margin-bottom: 15px;
-    } 
-
-    .viagem-header img { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: cover; 
-    } 
-
-    .viagem-header-overlay { 
-      position: absolute; 
-      inset: 0; 
-      background: rgba(0,0,0,0.3); 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-    } 
-
-    .viagem-header-title { 
-      color: white; 
-      font-size: 28px; 
-      font-weight: 600; 
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5); 
-      text-align: center;
-    }
-    
-    .trip-tabs { 
-      display: flex; 
-      background-color: var(--card-bg); 
-      border-radius: 12px; 
-      padding: 5px; 
-      margin-bottom: 20px; 
-      border: 1px solid var(--border-color); 
-      width: 100%; 
-    }
-
-    .trip-tab { 
-      flex: 1; 
-      text-align: center; 
-      padding: 10px; 
-      font-size: 13px; 
-      font-weight: 500; 
-      color: var(--text-muted); 
-      cursor: pointer; 
-      border-radius: 8px; 
-      transition: 0.2s;
-    } 
-
-    .trip-tab.active { 
-      background-color: var(--btn-secondary); 
-      color: var(--accent); 
-    }
-
-    .trip-tab-content { 
-      display: none; 
-      width: 100%; 
-      animation: fadeIn 0.3s forwards; 
-    } 
-
-    .trip-tab-content.active { 
-      display: block; 
-    }
-
-    .splitwise-resumo { 
-      background-color: var(--card-bg); 
-      border-radius: 16px; 
-      padding: 20px; 
-      border: 1px solid var(--border-color); 
-      margin-bottom: 20px; 
-      text-align: center;
-    } 
-
-    .split-balance { 
-      font-size: 16px; 
-      font-weight: 600; 
-      margin-top: 5px;
-    } 
-
-    .split-balance.owe { 
-      color: #ff3b30; 
-    }
-
-    .expense-item { 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      background-color: var(--card-bg); 
-      padding: 15px; 
-      border-radius: 12px; 
-      border: 1px solid var(--border-color); 
-      margin-bottom: 10px;
-    } 
-
-    .exp-title { 
-      font-size: 14px; 
-      font-weight: 500;
-    } 
-
-    .exp-payer { 
-      font-size: 11px; 
-      color: var(--text-muted); 
-    } 
-
-    .exp-amount { 
-      font-size: 16px; 
-      font-weight: 600; 
-      color: var(--accent); 
-    }
-
-    /* =========================================
-       MODALS DE SISTEMA
-       ========================================= */
-    .modal-overlay { 
-      display: none; 
-      position: fixed; 
-      inset: 0; 
-      background-color: rgba(0, 0, 0, 0.8); 
-      z-index: 3000; 
-      align-items: center; 
-      justify-content: center; 
-      padding: 20px; 
-      backdrop-filter: blur(5px); 
-      -webkit-backdrop-filter: blur(5px);
-    } 
-
-    .modal-overlay.active { 
-      display: flex; 
-      animation: fadeIn 0.2s forwards; 
-    }
-
-    .modal-content { 
-      background-color: var(--card-bg); 
-      width: 100%; 
-      max-width: 350px; 
-      padding: 25px; 
-      border-radius: 20px; 
-      text-align: center; 
-      border: 1px solid var(--border-color); 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-      max-height: 90vh; 
-      overflow-y: auto;
-    }
-
-    .modal-btn-row { 
-      display: flex; 
-      gap: 10px; 
-      margin-top: 15px; 
-    } 
-
-    .fullscreen-img { 
-      max-width: 100%; 
-      max-height: 80vh; 
-      border-radius: 12px; 
-      object-fit: contain; 
-    }
-
+    /* CSS OTIMIZADO E COMPRIMIDO PARA POUPAR LINHAS */
+    :root{--bg-color:#191919;--card-bg:#202020;--text-main:rgba(255,255,255,0.9);--text-muted:rgba(255,255,255,0.5);--accent:#FF6B00;--btn-secondary:#2C2C2C;--border-color:rgba(255,255,255,0.05);--sidebar-width:280px;--bottom-nav-height:70px}
+    body.light-mode{--bg-color:#FFFFFF;--card-bg:#F7F7F5;--text-main:#37352F;--text-muted:rgba(55,53,47,0.6);--btn-secondary:#EBEBEA;--border-color:rgba(0,0,0,0.08)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{font-family:'Poppins',sans-serif;background-color:var(--bg-color);color:var(--text-main);margin:0;padding:0;display:flex;min-height:100vh;overflow-x:hidden;transition:background-color 0.3s,color 0.3s}
+    #auth-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;transition:opacity 0.5s}
+    .auth-box{background-color:var(--card-bg);padding:30px;border-radius:20px;border:1px solid var(--border-color);width:100%;max-width:350px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
+    .auth-input{width:100%;padding:15px;margin-bottom:15px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;font-family:inherit;font-size:15px;transition:border-color 0.3s}
+    .auth-input:focus{outline:none;border-color:var(--accent)}
+    .auth-btn{background-color:var(--accent);color:#121212;border:none;padding:15px;width:100%;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;transition:transform 0.1s}
+    .auth-btn:active{transform:scale(0.95)}
+    .auth-link{color:var(--text-muted);font-size:13px;cursor:pointer;text-decoration:underline;transition:color 0.3s}
+    .auth-link:active{color:var(--text-main)}
+    .main-auth-logo{width:120px;margin-bottom:30px}
+    #app-container{display:none;width:100%;height:100vh}
+    .page-container{flex:1;padding:calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 40px) 20px;width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto}
+    h1{font-weight:600;font-size:26px;margin-bottom:30px;text-align:center;letter-spacing:1px}
+    h2{font-weight:400;font-size:18px;color:var(--text-muted);text-align:center;margin-bottom:20px}
+    h3{font-size:16px;font-weight:500;margin:0 0 15px 0;display:flex;align-items:center;gap:8px}
+    .page{display:none;opacity:0;transform:translateY(15px);transition:opacity 0.3s,transform 0.3s;width:100%}
+    .page.active{display:block;animation:fadeIn 0.4s forwards}
+    @keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
+    #sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1999;opacity:0;pointer-events:none;transition:opacity 0.3s}
+    #sidebar-overlay.open{opacity:1;pointer-events:auto}
+    #sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-width);background-color:var(--card-bg);z-index:2000;transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),background-color 0.3s;border-right:1px solid var(--border-color);box-shadow:5px 0 15px rgba(0,0,0,0.5);display:flex;flex-direction:column}
+    #sidebar.open{transform:translateX(0)}
+    .sidebar-header{padding:calc(env(safe-area-inset-top) + 20px) 20px 20px 20px;border-bottom:1px solid var(--border-color);display:flex;flex-direction:column;align-items:center}
+    .sidebar-logo{width:140px;height:90px;object-fit:contain;margin:0 auto;display:block}
+    .light-logo{display:none} body.light-mode .light-logo{display:block} body.light-mode .dark-logo{display:none}
+    .sidebar-item{padding:18px 25px;font-size:15px;font-weight:500;color:var(--text-main);display:flex;align-items:center;gap:15px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02);transition:background-color 0.2s,color 0.3s}
+    .sidebar-item:active{background-color:var(--btn-secondary)}
+    .sidebar-item.active{border-left:4px solid var(--accent);background-color:rgba(255,107,0,0.05);color:var(--accent)}
+    .sidebar-submenu{display:none;flex-direction:column;background-color:rgba(0,0,0,0.1)} 
+    body.light-mode .sidebar-submenu{background-color:rgba(0,0,0,0.02)}
+    .sidebar-subitem{padding:12px 25px 12px 55px;font-size:13px;color:var(--text-muted);cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.01)}
+    .sidebar-subitem:active{color:var(--text-main)}
+    .sidebar-footer{margin-top:auto;border-top:1px solid var(--border-color)}
+    .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px;margin-bottom:4px}
+    .sidebar-icon-svg{width:20px;height:20px;flex-shrink:0;margin-bottom:0}
+    #bottom-nav{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 15px);left:20px;right:20px;height:var(--bottom-nav-height);background-color:rgba(35,35,35,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:35px;display:flex;justify-content:space-around;align-items:center;z-index:1500;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:background-color 0.3s,border 0.3s}
+    body.light-mode #bottom-nav{background-color:rgba(255,255,255,0.75);border:1px solid rgba(0,0,0,0.1)}
+    .nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:100%;color:var(--text-muted);cursor:pointer;transition:color 0.2s,transform 0.1s}
+    .nav-btn:active{transform:scale(0.9)} .nav-btn.active{color:var(--accent)}
+    .nav-badge{position:absolute;top:12px;right:14px;width:8px;height:8px;background-color:#ff3b30;border-radius:50%;display:none}
+    @media (min-width:800px){#bottom-nav{display:none} .page-container{max-width:800px;padding-bottom:40px;margin:0} #app-container{flex-direction:row} #sidebar{position:static;transform:translateX(0);box-shadow:none;z-index:10} #sidebar-overlay{display:none !important}}
+    .dashboard-widget{background-color:var(--card-bg);width:100%;border-radius:20px;padding:25px;margin-bottom:15px;border:1px solid var(--border-color);box-shadow:0 4px 15px rgba(0,0,0,0.05)}
+    .top-widgets-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:15px}
+    .widget-relogio, .widget-meteorologia{margin-bottom:0;padding:20px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+    #data-atual{font-size:11px;font-weight:500;color:var(--accent);text-transform:uppercase;letter-spacing:1px}
+    #hora-atual{font-size:34px;font-weight:300;color:var(--text-main);margin:5px 0 0 0;line-height:1}
+    .meteo-top-row{display:flex;align-items:center;justify-content:center;gap:8px}
+    #meteo-temp{font-size:28px;font-weight:300;line-height:1;color:var(--text-main)}
+    #meteo-desc{font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:500}
+    #meteo-local-texto{font-size:9px;color:var(--accent);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:3px}
+    .widget-frase{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px}
+    .frase-texto{font-size:16px;font-style:italic;font-weight:300;line-height:1.5;margin:0}
+    .frase-autor{font-size:11px;color:var(--accent);margin-top:15px;font-weight:500;text-transform:uppercase;letter-spacing:1px}
+    .input-row{display:flex;gap:10px;margin-bottom:15px;width:100%}
+    .input-text{flex:1;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);padding:12px 15px;border-radius:12px;font-family:inherit;font-size:14px}
+    .btn-add{background-color:var(--accent);color:#121212;border:none;border-radius:12px;width:45px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.1s} .btn-add:active{transform:scale(0.9)}
+    .lista-itens{display:flex;flex-direction:column;gap:8px;width:100%}
+    .list-item{display:flex;align-items:center;background-color:var(--card-bg);padding:12px 15px;border-radius:12px;border:1px solid var(--border-color)}
+    .item-texto{flex:1;font-size:14px;margin-left:12px;word-break:break-word} .list-item.feita .item-texto{text-decoration:line-through;color:var(--text-muted)}
+    .checkbox-custom{width:24px;height:24px;border-radius:50%;border:2px solid var(--accent);cursor:pointer;flex-shrink:0;position:relative} .list-item.feita .checkbox-custom{background-color:var(--accent);border-color:var(--accent)} .list-item.feita .checkbox-custom::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-weight:bold;font-size:12px}
+    .btn-icon-list{background:none;border:none;color:var(--text-muted);padding:5px;cursor:pointer;display:flex;align-items:center;justify-content:center} .btn-icon-list:active{transform:scale(0.9);color:var(--text-main)}
+    .btn{background-color:var(--card-bg);color:var(--text-main);border:1px solid var(--border-color);padding:20px;margin-bottom:15px;border-radius:16px;font-size:16px;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:space-between} .btn:active{transform:scale(0.98);background-color:var(--btn-secondary)}
+    .btn-acao{flex:1;background-color:var(--btn-secondary);color:var(--text-main);border:1px solid var(--border-color);padding:12px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:500} .btn-acao:active{background-color:var(--border-color)}
+    .logos-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:20px}
+    .logo-card{background-color:#fff;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border-color);height:100px} .logo-card img{max-width:100%;max-height:100%;object-fit:contain}
+    .cartao-desconto-container{width:100%;height:200px;background-color:var(--card-bg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;margin-bottom:15px;cursor:pointer;border:1px dashed var(--border-color);position:relative} .cartao-desconto-container img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2}
+    .textarea-obs{width:100%;height:100px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:none;margin-top:10px} .textarea-obs:focus{outline:none;border-color:var(--accent)}
+    .color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:15px;background-color:var(--bg-color);border-radius:12px;margin-bottom:15px;border:1px solid var(--border-color)}
+    .color-circle{width:35px;height:35px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto} .color-circle.selected{border:3px solid var(--text-main);transform:scale(1.15)}
+    .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px}
+    .user-info{display:flex;align-items:center;gap:12px;text-align:left} .user-avatar{width:40px;height:40px;border-radius:50%;background-color:var(--accent);display:flex;align-items:center;justify-content:center;color:#121212;font-weight:bold;font-size:18px} .user-name{font-size:15px;font-weight:500;margin:0}
+    .stats-viagens{display:grid;grid-template-columns:1fr;gap:10px;width:100%;margin-bottom:25px} .stat-box{background-color:var(--card-bg);padding:15px 10px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} .stat-num{font-size:22px;font-weight:600;color:var(--accent);display:block;line-height:1.2} .stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+    .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
+    .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px} .viagem-header img{width:100%;height:100%;object-fit:cover} .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center} .viagem-header-title{color:white;font-size:28px;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.5);text-align:center}
+    .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} .trip-tab-content.active{display:block}
+    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} .split-balance{font-size:16px;font-weight:600;margin-top:5px} .split-balance.owe{color:#ff3b30}
+    .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} .exp-title{font-size:14px;font-weight:500} .exp-payer{font-size:11px;color:var(--text-muted)} .exp-amount{font-size:16px;font-weight:600;color:var(--accent)}
+    .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
+    .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
   </style>
 </head>
 <body>
@@ -1042,20 +102,16 @@
   <!-- ================================================== -->
   <div id="auth-overlay">
     <img src="logobranco_semfundo.png" class="main-auth-logo dark-logo" onerror="this.style.display='none'">
-    <img src="logopreto_semfundo.png" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display: none;">
+    <img src="logopreto_semfundo.png" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display:none;">
     <div class="auth-box">
-      <h2 style="margin-bottom: 25px; color: var(--text-main);" id="auth-title">Entrar na App</h2>
-      
+      <h2 style="margin-bottom:25px;color:var(--text-main);" id="auth-title">Entrar na App</h2>
       <input type="text" id="auth-username" class="auth-input" placeholder="Nome de Utilizador">
       <input type="password" id="auth-password" class="auth-input" placeholder="Password Secreta">
-      <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display: none;">
-      
+      <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display:none;">
       <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
-      
       <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Cria uma aqui.</p>
-      <p class="auth-link" style="margin-top: 5px;" onclick="mostrarAlerta('Se te esqueceste da password, avisa o admin da base de dados.')">Esqueceste-te da password?</p>
-      
-      <p id="auth-error" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none;"></p>
+      <p class="auth-link" style="margin-top:5px;" onclick="mostrarAlerta('Se te esqueceste da password, avisa o admin.')">Esqueceste-te da password?</p>
+      <p id="auth-error" style="color:#ff4d4d;font-size:13px;margin-top:15px;display:none;"></p>
     </div>
   </div>
 
@@ -1070,77 +126,36 @@
       <div class="sidebar-header">
         <img src="logobranco_semfundo.png" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
         <img src="logopreto_semfundo.png" class="sidebar-logo light-logo" onerror="this.style.display='none'">
-        <span style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-top: 5px;">Gestão G&N</span>
+        <span style="font-size:14px;font-weight:500;color:var(--text-muted);margin-top:5px;">Gestão G&N</span>
       </div>
-      
-      <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
-        
+      <div style="flex:1;overflow-y:auto;padding-top:10px;">
         <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg> 
-          Início
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Início
         </div>
-        
         <div class="sidebar-item" id="sidebtn-menu-viagens" onclick="navegarMenu('menu-viagens')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24">
-            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
-            <line x1="9" y1="3" x2="9" y2="18"></line>
-            <line x1="15" y1="6" x2="15" y2="21"></line>
-          </svg> 
-          Viagens & Finanças
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg> Viagens & Finanças
         </div>
-        
         <div class="sidebar-item" id="sidebtn-menu-familia" onclick="navegarMenu('menu-familia')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-          </svg> 
-          Família & Amigos
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Família & Amigos
         </div>
-        
         <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="navegarMenu('menu-notificacoes')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg> 
-          Notificações
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Notificações
         </div>
-        
         <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="toggleSubmenu('submenu-supermercados', 'menu-supermercados')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg> 
-          Supermercados
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Supermercados
         </div>
-        
         <div class="sidebar-submenu" id="submenu-supermercados">
           <div class="sidebar-subitem" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</div>
           <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</div>
           <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</div>
         </div>
-        
         <div class="sidebar-item" id="sidebtn-menu-carros" onclick="navegarMenu('menu-carros')">
-           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24">
-             <circle cx="7" cy="17" r="2"></circle>
-             <circle cx="17" cy="17" r="2"></circle>
-             <path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path>
-           </svg> 
-           Garagem
+           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg> Garagem
         </div>
-        
       </div>
-      
       <div class="sidebar-footer">
-        <div class="sidebar-item" onclick="abrirModal('modal-definicoes')" style="border-bottom: none; justify-content: center; margin: 10px;">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg> 
-          Definições
+        <div class="sidebar-item" onclick="abrirModal('modal-definicoes')" style="border-bottom:none;justify-content:center;margin:10px;">
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Definições
         </div>
       </div>
     </div>
@@ -1149,44 +164,22 @@
     <!-- BARRA INFERIOR (BOTTOM NAV)                        -->
     <!-- ================================================== -->
     <div id="bottom-nav">
-      
       <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
-        <svg class="icon-svg" viewBox="0 0 24 24">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
+        <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </div>
-      
-      <!-- ID CORRIGIDO AQUI PARA FAZER MATCH COM O NOME DA PÁGINA (menu-principal) -->
       <div class="nav-btn active" id="nav-btn-principal" onclick="navegarMenu('menu-principal')">
-        <svg class="icon-svg" viewBox="0 0 24 24">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
       </div>
-      
       <div class="nav-btn" id="nav-btn-viagens" onclick="navegarMenu('menu-viagens')">
-        <svg class="icon-svg" viewBox="0 0 24 24">
-          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
-        </svg>
+        <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
       </div>
-      
       <div class="nav-btn" id="nav-btn-familia" onclick="navegarMenu('menu-familia')">
-        <svg class="icon-svg" viewBox="0 0 24 24">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-        </svg>
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
       </div>
-      
       <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
         <div class="nav-badge" id="badge-notificacoes-bottom"></div>
-        <svg class="icon-svg" viewBox="0 0 24 24">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
       </div>
-      
     </div>
 
     <!-- ================================================== -->
@@ -1196,62 +189,28 @@
       
       <!-- DASHBOARD (INÍCIO) -->
       <div id="menu-principal" class="page active">
-        
         <div class="top-widgets-grid">
-          
-          <!-- Widget Relógio -->
           <div class="dashboard-widget widget-relogio">
-            <span id="data-atual">A carregar...</span>
-            <h1 id="hora-atual">00:00</h1>
+            <span id="data-atual">A carregar...</span><h1 id="hora-atual">00:00</h1>
           </div>
-          
-          <!-- Widget Meteorologia -->
           <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
             <div class="meteo-top-row">
-              <div id="meteo-icone" style="color: var(--accent);">
-                <svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="5"></circle>
-                </svg>
-              </div>
+              <div id="meteo-icone" style="color:var(--accent);"><svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg></div>
               <span id="meteo-temp">--°</span>
             </div>
             <span id="meteo-desc">A localizar...</span>
-            <span id="meteo-local-texto">
-              <svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg> 
-              <span id="nome-cidade-texto">GPS</span>
-            </span>
+            <span id="meteo-local-texto"><svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="nome-cidade-texto">GPS</span></span>
           </div>
-          
         </div>
-        
-        <!-- Widget Frase -->
         <div class="dashboard-widget widget-frase">
-          <svg class="icon-svg" style="opacity: 0.2; width: 24px; margin-bottom: 12px; color: var(--text-main);" viewBox="0 0 24 24">
-            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path>
-          </svg>
-          <p class="frase-texto" id="frase-texto">"Carregando..."</p> 
-          <span class="frase-autor" id="frase-autor"></span>
+          <svg class="icon-svg" style="opacity:0.2;width:24px;margin-bottom:12px;color:var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
+          <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
         </div>
-        
-        <!-- Widget Tarefas -->
         <div class="dashboard-widget widget-tarefas">
-          <h3>
-            <svg class="icon-svg" style="width: 20px; height: 20px; margin-bottom:0;" viewBox="0 0 24 24">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            </svg> 
-            A Fazer Hoje
-          </h3>
+          <h3><svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path></svg> A Fazer Hoje</h3>
           <div class="input-row">
-            <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key === 'Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
-            <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')">
-              <svg class="icon-svg" style="margin:auto; display:block; width:18px; height:18px;" viewBox="0 0 24 24">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
+            <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
+            <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
           </div>
           <div class="lista-itens" id="container-tarefas"></div>
         </div>
@@ -1260,239 +219,158 @@
       <!-- VIAGENS MAIN -->
       <div id="menu-viagens" class="page">
         <h2 style="margin-bottom:10px;">As Nossas Viagens</h2>
-        
         <div class="stats-viagens">
-          <div class="stat-box">
-            <span class="stat-num" id="stat-total-viagens">0</span>
-            <span class="stat-lbl" style="color:var(--accent);">Viagens Guardadas</span>
-          </div>
+          <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl" style="color:var(--accent);">Viagens Guardadas</span></div>
         </div>
-        
-        <button class="btn-acao" style="width: 100%; margin-bottom: 25px; padding: 15px; background-color: var(--accent); color: #121212; font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
-          <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg> 
-          Adicionar Nova Viagem
+        <button class="btn-acao" style="width:100%;margin-bottom:25px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
+          <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
         </button>
-        
-        <h3 style="margin-bottom: 10px;">Diário de Bordo</h3>
-        <div id="container-viagens" style="width: 100%;"></div>
+        <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
+        <div id="container-viagens" style="width:100%;"></div>
       </div>
 
       <!-- NOVA VIAGEM -->
       <div id="menu-nova-viagem" class="page">
         <h2>Nova Aventura</h2>
         
+        <!-- Adicionar Imagem Tipo Cartão Lojas -->
+        <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="document.getElementById('input-viagem-capa').click()">
+          <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa</span>
+          <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
+        </div>
+        <input type="file" id="input-viagem-capa" accept="image/*" style="display:none;" onchange="processarFotoViagem(event)">
+
         <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
-        
-        <select id="input-viagem-destino" class="auth-input">
-          <!-- Gerado automaticamente via JavaScript -->
-        </select>
-        
+        <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
         <input type="date" id="input-viagem-data" class="auth-input" style="color:var(--text-main);">
         
-        <input type="file" id="input-viagem-capa" accept="image/*" style="display:none;" onchange="processarFotoViagem(event)">
-        <button class="btn-acao" onclick="document.getElementById('input-viagem-capa').click()" style="width: 100%; margin-bottom: 15px;">
-          📸 Escolher Foto de Capa
-        </button>
-        <img id="preview-capa-viagem" src="" style="width:100%; height:120px; object-fit:cover; border-radius:12px; margin-bottom:15px; display:none;">
-        
-        <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color: var(--accent); color:#121212; width:100%; padding: 15px; margin-top:20px;">
+        <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
           Guardar Viagem
         </button>
       </div>
 
-      <!-- DETALHE VIAGEM E TABS (PLANEADOR E SPLITWISE) -->
+      <!-- DETALHE VIAGEM -->
       <div id="page-viagem-detalhe" class="page">
-        
         <div class="viagem-header">
           <img id="detalhe-viagem-img" src="">
-          <div class="viagem-header-overlay">
-            <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
-          </div>
+          <div class="viagem-header-overlay"><h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1></div>
         </div>
-        
         <div class="trip-tabs">
           <div class="trip-tab active" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeador</div>
           <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Splitwise</div>
           <div class="trip-tab" id="tab-btn-settings" onclick="switchTripTab('settings')">Definições</div>
         </div>
         
-        <!-- Tab: Planeador -->
         <div id="tab-planeador" class="trip-tab-content active">
-          <textarea id="trip-planner-text" class="textarea-obs" style="height: 350px; font-size:14px; line-height: 1.6;" placeholder="Escreve aqui o teu roteiro. Grava automaticamente ao clicares fora." onblur="salvarPlaneador()"></textarea>
+          <textarea id="trip-planner-text" class="textarea-obs" style="height:350px;font-size:14px;line-height:1.6;" placeholder="Escreve aqui o teu roteiro. Grava automaticamente ao clicares fora." onblur="salvarPlaneador()"></textarea>
         </div>
         
-        <!-- Tab: Splitwise -->
         <div id="tab-splitwise" class="trip-tab-content">
           <div class="splitwise-resumo">
-            <p style="font-size: 12px; color: var(--text-muted); margin:0;">Total Gasto pela Equipa: <b id="split-total" style="color:var(--text-main);">0.00€</b></p>
-            <div id="split-resultado" style="margin-top: 15px; display:flex; flex-direction:column; gap:5px;"></div>
+            <p style="font-size:12px;color:var(--text-muted);margin:0;">Total Gasto: <b id="split-total" style="color:var(--text-main);">0.00€</b></p>
+            <div id="split-resultado" style="margin-top:15px;display:flex;flex-direction:column;gap:5px;"></div>
           </div>
-          
-          <div style="background-color: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px;">
-            <input type="text" id="exp-desc" class="auth-input" placeholder="O que foi? (ex: Jantar)" style="margin-bottom: 10px; padding: 10px;">
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-              <input type="number" id="exp-valor" class="auth-input" placeholder="Valor (€)" style="margin-bottom: 0; padding: 10px;">
-              <select id="exp-pagador" class="auth-input" style="margin-bottom: 0; padding: 10px;"></select>
+          <div style="background-color:var(--card-bg);padding:15px;border-radius:16px;border:1px solid var(--border-color);margin-bottom:20px;">
+            <input type="text" id="exp-desc" class="auth-input" placeholder="O que foi? (ex: Jantar)" style="margin-bottom:10px;padding:10px;">
+            <div style="display:flex;gap:10px;margin-bottom:10px;">
+              <input type="number" id="exp-valor" class="auth-input" placeholder="Valor (€)" style="margin-bottom:0;padding:10px;">
+              <select id="exp-pagador" class="auth-input" style="margin-bottom:0;padding:10px;"></select>
             </div>
-            <button class="btn-acao" onclick="adicionarDespesa()" style="background-color: var(--accent); color: #121212; width: 100%;">
-              + Adicionar Despesa
-            </button>
+            <button class="btn-acao" onclick="adicionarDespesa()" style="background-color:var(--accent);color:#121212;width:100%;">+ Adicionar Despesa</button>
           </div>
           <div id="container-despesas"></div>
         </div>
         
-        <!-- Tab: Definições da Viagem -->
         <div id="tab-settings" class="trip-tab-content">
-          <h3>Pessoas nesta Viagem</h3>
-          <div id="trip-membros-list" style="margin-bottom: 25px;"></div>
-          
+          <h3>Pessoas nesta Viagem</h3><div id="trip-membros-list" style="margin-bottom:25px;"></div>
           <h3>Convidar Amigo</h3>
-          <div style="display:flex; gap:10px; margin-bottom:30px;">
+          <div style="display:flex;gap:10px;margin-bottom:30px;">
             <select id="trip-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
             <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
           </div>
-          
-          <button class="btn-acao" onclick="apagarViagem()" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; font-weight:600;">
-            🗑️ Apagar Viagem
-          </button>
+          <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:15px;font-weight:600;">🗑️ Apagar Viagem</button>
         </div>
       </div>
 
-      <!-- SUPERMERCADOS MAIN -->
+      <!-- SUPERMERCADOS -->
       <div id="menu-supermercados" class="page">
         <h1>Supermercados</h1>
-        <button class="btn" onclick="navegarMenu('menu-super-logos')"> Lojas & Cartões </button>
-        <button class="btn" onclick="navegarMenu('menu-compras-semanais')"> Lista Semanal </button>
-        <button class="btn" onclick="navegarMenu('menu-compras-rapidas')"> Lista Rápida </button>
+        <button class="btn" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</button>
+        <button class="btn" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</button>
+        <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</button>
       </div>
 
-      <!-- LOGOS DOS SUPERMERCADOS -->
       <div id="menu-super-logos" class="page">
-        <h2>Selecione uma Loja</h2>
-        <div class="logos-grid" id="container-logos"></div>
+        <h2>Selecione uma Loja</h2><div class="logos-grid" id="container-logos"></div>
       </div>
       
-      <!-- DETALHE DO SUPERMERCADO -->
       <div id="page-super-detail" class="page">
         <h1 id="detalhe-nome">Supermercado</h1>
-        
         <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
-          <span id="msg-sem-cartao" style="color: var(--text-muted); font-size: 14px;">Inserir cartão de cliente</span>
+          <span id="msg-sem-cartao" style="color:var(--text-muted);font-size:14px;">Inserir cartão de cliente</span>
           <img id="detalhe-cartao-img" src="" style="display:none;">
         </div>
-        
         <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
-        
-        <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width: 100%; margin-bottom: 15px;">
-          Fotografar / Inserir Cartão
-        </button>
-        
-        <button class="btn-acao" id="btn-ver-folheto" style="background-color: var(--accent); color: #121212; width: 100%; padding: 15px;">
-          Abrir Folheto da Semana
-        </button>
-        
+        <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width:100%;margin-bottom:15px;">Fotografar / Inserir Cartão</button>
+        <button class="btn-acao" id="btn-ver-folheto" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;">Abrir Folheto da Semana</button>
         <textarea id="detalhe-obs" class="textarea-obs" placeholder="Notas e Observações..." onchange="guardarObservacaoSuperDB()"></textarea>
       </div>
       
-      <!-- LISTA SEMANAL -->
       <div id="menu-compras-semanais" class="page">
         <h2>Lista Semanal</h2>
         <div class="input-row">
-          <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key === 'Enter') adicionarItemDB('semanais', 'input-semanal')">
+          <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key==='Enter') adicionarItemDB('semanais', 'input-semanal')">
           <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">+</button>
         </div>
         <div class="lista-itens" id="container-semanais"></div>
       </div>
       
-      <!-- COMPRAS RÁPIDAS -->
       <div id="menu-compras-rapidas" class="page">
         <h2>Compras Rápidas</h2>
         <div class="input-row">
-          <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key === 'Enter') adicionarItemDB('rapidas', 'input-rapidas')">
+          <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key==='Enter') adicionarItemDB('rapidas', 'input-rapidas')">
           <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">+</button>
         </div>
         <div class="lista-itens" id="container-rapidas"></div>
       </div>
 
-      <!-- GARAGEM -->
       <div id="menu-carros" class="page">
         <h2>Garagem & Combustível</h2>
-        <button class="btn-acao" style="background-color: var(--accent); color: #121212; padding: 15px; width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
-          Ver postos perto de mim
-        </button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;padding:15px;width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
       </div>
 
-      <!-- SOCIAL (FAMÍLIA) -->
       <div id="menu-familia" class="page">
         <h2>Procurar Pessoas</h2>
         <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
-        <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom: 20px;"></div>
-        
-        <h3 style="margin-top: 30px; text-align: center;">A Minha Rede</h3>
+        <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom:20px;"></div>
+        <h3 style="margin-top:30px;text-align:center;">A Minha Rede</h3>
         <div class="lista-itens" id="container-amigos"></div>
       </div>
       
-      <!-- NOTIFICAÇÕES -->
       <div id="menu-notificacoes" class="page">
-        <h2>Notificações</h2>
-        <div class="lista-itens" id="container-pedidos"></div>
+        <h2>Notificações</h2><div class="lista-itens" id="container-pedidos"></div>
       </div>
-      
     </div>
   </div>
 
-  <!-- ================================================== -->
-  <!-- MODALS GLOBAIS DA APLICAÇÃO                        -->
-  <!-- ================================================== -->
+  <!-- MODALS -->
   <div id="modal-definicoes" class="modal-overlay">
     <div class="modal-content">
-      <h2 style="margin-bottom: 20px;">Definições</h2>
-      
-      <div class="user-card" style="margin-bottom: 20px;">
-        <div class="user-info">
-          <div class="user-avatar" id="settings-avatar">?</div>
-          <div>
-            <p class="user-name" id="settings-name">A carregar...</p>
-            <p style="font-size: 11px; color: var(--text-muted); margin:0;" id="settings-username">Firebase Cloud</p>
-          </div>
-        </div>
+      <h2 style="margin-bottom:20px;">Definições</h2>
+      <div class="user-card" style="margin-bottom:20px;">
+        <div class="user-info"><div class="user-avatar" id="settings-avatar">?</div><div><p class="user-name" id="settings-name">A carregar...</p><p style="font-size:11px;color:var(--text-muted);margin:0;" id="settings-username">Firebase Cloud</p></div></div>
       </div>
-      
-      <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: flex-start;" onclick="alternarTema()">
-        <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-        <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display: none; margin-right:10px;">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
+      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:flex-start;" onclick="alternarTema()">
+        <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display:none;margin-right:10px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         <span id="texto-tema-modal">Mudar para Modo Claro</span>
       </button>
-      
-      <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: space-between;" onclick="toggleColorGrid()">
-        <span>Cor Secundária</span>
-        <div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
+      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:space-between;" onclick="document.getElementById('color-picker-grid').style.display=document.getElementById('color-picker-grid').style.display==='none'?'grid':'none'">
+        <span>Cor Secundária</span><div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
       </button>
-      
-      <div class="color-grid" id="color-picker-grid" style="display:none; margin-top:0;"></div>
-      
-      <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; margin-top: 10px;" onclick="abrirModal('modal-logout')">
-        Terminar Sessão
-      </button>
-      
-      <button class="btn-acao" style="width: 100%; margin-top: 10px; background: transparent; border: none;" onclick="fecharModal('modal-definicoes')">
-        Fechar
-      </button>
+      <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
+      <button class="btn-acao" style="background-color:#ff3b30;color:white;width:100%;padding:15px;margin-top:10px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
+      <button class="btn-acao" style="width:100%;margin-top:10px;background:transparent;border:none;" onclick="fecharModal('modal-definicoes')">Fechar</button>
     </div>
   </div>
 
@@ -1501,1290 +379,309 @@
       <h2>Sair?</h2>
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
-        <button class="btn-acao" style="background-color: #ff3b30; color: white;" onclick="fazerLogout()">Sair</button>
+        <button class="btn-acao" style="background-color:#ff3b30;color:white;" onclick="fazerLogout()">Sair</button>
       </div>
     </div>
   </div>
 
-  <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')">
-    <img id="img-fullscreen-cartao" class="fullscreen-img" src="">
-  </div>
+  <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')"><img id="img-fullscreen-cartao" class="fullscreen-img" src=""></div>
+  <div id="modal-alerta" class="modal-overlay"><div class="modal-content"><h2>Aviso</h2><p id="mensagem-alerta" style="margin-top:15px;margin-bottom:25px;color:var(--text-muted);font-size:14px;"></p><button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color:var(--accent);color:#121212;width:100%;">OK</button></div></div>
 
-  <div id="modal-alerta" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Aviso</h2>
-      <p id="mensagem-alerta" style="margin-top: 15px; margin-bottom: 25px; color: var(--text-muted); font-size: 14px;"></p>
-      <button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color: var(--accent); color: #121212; width: 100%;">OK</button>
-    </div>
-  </div>
-
-  <!-- ================================================== -->
-  <!-- MOTORES JAVASCRIPT & LIGAÇÃO AO FIREBASE           -->
-  <!-- ================================================== -->
+  <!-- SCRIPT -->
   <script type="module">
-    // Imports Módulos do Firebase (Versão 11.6.1)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { 
-        getAuth, 
-        signInWithEmailAndPassword, 
-        createUserWithEmailAndPassword, 
-        signOut, 
-        onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { 
-        getFirestore, 
-        doc, 
-        getDoc, 
-        setDoc, 
-        updateDoc, 
-        deleteDoc, 
-        onSnapshot, 
-        collection, 
-        addDoc, 
-        getDocs, 
-        query, 
-        where 
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Credenciais de configuração da BD Gestão GN
-    const firebaseConfig = { 
-        apiKey: "AIzaSyA0eKe5JypkhtfrssIie0BA5g_2QMzr5d0", 
-        authDomain: "gestao-gn.firebaseapp.com", 
-        projectId: "gestao-gn", 
-        storageBucket: "gestao-gn.firebasestorage.app", 
-        appId: "1:443510448711:web:a615ebd9cf2ec549e60762" 
-    };
-
-    // Variáveis Globais de Instância
-    let app, db, auth; 
-    
-    try { 
-        app = initializeApp(firebaseConfig); 
-        db = getFirestore(app); 
-        auth = getAuth(app); 
-    } catch(e) {
-        console.error("Erro a inicializar o Firebase.", e);
-    }
-
-    // Variáveis Globais de Controlo
+    const app = initializeApp({apiKey:"AIzaSyA0eKe5JypkhtfrssIie0BA5g_2QMzr5d0",authDomain:"gestao-gn.firebaseapp.com",projectId:"gestao-gn",storageBucket:"gestao-gn.firebasestorage.app",appId:"1:443510448711:web:a615ebd9cf2ec549e60762"});
+    const db = getFirestore(app); const auth = getAuth(app);
     const appId = 'gestao-gn-app';
-    let userId = null; 
-    let userName = ""; 
-    let isLoginMode = true; 
-    let currentSuperId = null; 
-    let unsusbscribes = []; 
-    let pageHistory = ['menu-principal'];
-    
-    // Variáveis do Módulo de Viagens
-    let viagensData = []; 
-    let currentTripId = null; 
-    let tempCapaUrl = ""; 
-    let minhaRede = []; 
-    let currentTripDoc = null;
+    let userId=null, userName="", isLoginMode=true, currentSuperId=null, unsusbscribes=[], pageHistory=['menu-principal'];
+    let viagensData=[], currentTripId=null, tempCapaUrl="", minhaRede=[], currentTripDoc=null;
+    const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
-    // Ícone global SVG do Lixo
-    const iconTrash = `
-        <svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-    `;
-
-    // ==========================================
-    // SISTEMA DE AUTENTICAÇÃO (LOGIN / REGISTO)
-    // ==========================================
-    window.toggleAuthMode = function() { 
+    window.toggleAuthMode = () => { 
         isLoginMode = !isLoginMode; 
-        
-        if (isLoginMode) {
-            document.getElementById('auth-title').innerText = 'Entrar na App';
-            document.getElementById('btn-login-submit').innerText = 'Entrar';
-            document.getElementById('auth-confirm-password').style.display = 'none';
-        } else {
-            document.getElementById('auth-title').innerText = 'Criar Conta';
-            document.getElementById('btn-login-submit').innerText = 'Registar e Entrar';
-            document.getElementById('auth-confirm-password').style.display = 'block';
-        }
+        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
+        document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar e Entrar';
+        document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
     }
 
-    window.handleAuth = async function() {
+    window.handleAuth = async () => {
         const userTyped = document.getElementById('auth-username').value.trim(); 
         const pass = document.getElementById('auth-password').value; 
-        
-        // Criar um email falso válido para o Firebase aceitar
         const fakeEmail = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '') + "@gestaogn.app";
-        
-        if (!userTyped || !pass) {
-            return;
-        }
-
+        if (!userTyped || !pass) return;
         try { 
-            if (isLoginMode) {
-                await signInWithEmailAndPassword(auth, fakeEmail, pass);
-            } else { 
+            if (isLoginMode) await signInWithEmailAndPassword(auth, fakeEmail, pass);
+            else { 
                 const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass); 
-                
-                // Gravar perfil público
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), { 
-                    uid: cred.user.uid, 
-                    username: userTyped, 
-                    searchName: userTyped.toLowerCase() 
-                }); 
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {uid:cred.user.uid, username:userTyped, searchName:userTyped.toLowerCase()}); 
             }
-        } catch (e) { 
-            document.getElementById('auth-error').innerText = "Erro ao efetuar o Login. Verifica os dados."; 
-            document.getElementById('auth-error').style.display = 'block'; 
-        }
+        } catch(e){ document.getElementById('auth-error').innerText="Erro no Login. Verifica os dados."; document.getElementById('auth-error').style.display='block'; }
     }
 
-    window.fazerLogout = async function() { 
-        if (auth) {
-            await signOut(auth); 
-        } else {
-            window.location.reload(); 
-        }
-    }
+    window.fazerLogout = async () => { if(auth) await signOut(auth); else window.location.reload(); }
 
-    // Listener de Estado de Autenticação (Fica sempre a correr em background)
     if (auth) {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid; 
-                
-                // Esconder o menu de Login com suavidade
                 document.getElementById('auth-overlay').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('auth-overlay').style.display = 'none'; 
-                    document.getElementById('app-container').style.display = 'flex';
-                }, 500);
-                
-                // Procurar os dados do perfil logado
+                setTimeout(() => { document.getElementById('auth-overlay').style.display='none'; document.getElementById('app-container').style.display='flex'; }, 500);
                 try {
                     const profile = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
-                    if (profile.exists()) { 
-                        userName = profile.data().username; 
-                        document.getElementById('settings-name').innerText = userName; 
-                        document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase(); 
-                    }
-                } catch(e) {
-                    console.log("Perfil ainda não criado ou sem acesso.");
-                }
-
-                // Iniciar a busca dos dados (Listas, Supermercados, Viagens)
+                    if(profile.exists()){ userName=profile.data().username; document.getElementById('settings-name').innerText=userName; document.getElementById('settings-avatar').innerText=userName.charAt(0).toUpperCase(); }
+                } catch(e){}
                 iniciarListenersFirebase();
-                
             } else { 
-                // Se a sessão expirar ou for feito logout
                 document.getElementById('auth-overlay').style.display = 'flex';
-                setTimeout(() => {
-                    document.getElementById('auth-overlay').style.opacity = '1';
-                }, 100);
+                setTimeout(() => { document.getElementById('auth-overlay').style.opacity='1'; }, 100);
                 document.getElementById('app-container').style.display = 'none'; 
             }
         });
     }
 
-    // ==========================================
-    // SISTEMA DE NAVEGAÇÃO E SWIPE (GESTOS)
-    // ==========================================
-    window.abrirSidebar = function() { 
-        document.getElementById('sidebar').classList.add('open'); 
-        document.getElementById('sidebar-overlay').classList.add('open'); 
-    }
+    window.abrirSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
+    window.fecharSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
+    window.toggleSubmenu = (idSub, idBase) => { const s = document.getElementById(idSub); if(s.style.display==='flex'){s.style.display='none'; if(idBase) navegarMenu(idBase);}else{s.style.display='flex';} }
     
-    window.fecharSidebar = function() { 
-        document.getElementById('sidebar').classList.remove('open'); 
-        document.getElementById('sidebar-overlay').classList.remove('open'); 
-    }
-    
-    window.toggleSubmenu = function(idSubmenu, idBase) { 
-        const s = document.getElementById(idSubmenu); 
-        if (s.style.display === 'flex') {
-            s.style.display = 'none'; 
-            if (idBase) {
-                navegarMenu(idBase);
-            }
-        } else {
-            s.style.display = 'flex';
-        } 
-    }
-    
-    window.navegarMenu = function(idPagina, isBack = false) {
+    window.navegarMenu = (idPagina, isBack=false) => {
         window.fecharSidebar(); 
-        
-        // Regista a página no histórico apenas se não estivermos a voltar atrás
-        if (!isBack && pageHistory[pageHistory.length - 1] !== idPagina) {
-            pageHistory.push(idPagina);
-        }
-
-        // Remove estado ativo de todos os botões e itens de menu
+        if(!isBack && pageHistory[pageHistory.length-1] !== idPagina) pageHistory.push(idPagina);
         document.querySelectorAll('.nav-btn, .sidebar-item').forEach(b => b.classList.remove('active'));
         
-        // Adiciona estado ativo aos novos botões correspondentes
-        const bottomNavBtn = document.getElementById('nav-btn-' + idPagina.replace('menu-',''));
-        if (bottomNavBtn) {
-            bottomNavBtn.classList.add('active');
-        }
+        let bottomId = 'nav-btn-' + idPagina.replace('menu-','');
+        if(document.getElementById(bottomId)) document.getElementById(bottomId).classList.add('active');
+        if(document.getElementById('sidebtn-'+idPagina)) document.getElementById('sidebtn-'+idPagina).classList.add('active');
         
-        const sidebarBtn = document.getElementById('sidebtn-' + idPagina);
-        if (sidebarBtn) {
-            sidebarBtn.classList.add('active');
-        }
-        
-        // Esconde todas as páginas e mostra apenas a requisitada
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        
-        setTimeout(() => { 
-            const novaPagina = document.getElementById(idPagina); 
-            if (novaPagina) {
-                novaPagina.classList.add('active'); 
-                window.scrollTo(0,0);
-            } 
-        }, 50);
+        setTimeout(() => { const np = document.getElementById(idPagina); if(np){np.classList.add('active'); window.scrollTo(0,0);} }, 50);
     }
 
-    // Variáveis de controlo do Gesto de Deslizar (Swipe)
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchEndX = 0;
-    let touchEndY = 0;
-    
-    document.addEventListener('touchstart', function(event) { 
-        touchStartX = event.changedTouches[0].screenX; 
-        touchStartY = event.changedTouches[0].screenY; 
-    }, {passive: true});
-    
-    document.addEventListener('touchend', function(event) {
-        touchEndX = event.changedTouches[0].screenX; 
-        touchEndY = event.changedTouches[0].screenY; 
-        
-        const diffX = touchEndX - touchStartX; 
-        const diffY = touchEndY - touchStartY;
-        
-        // Verifica se o movimento foi predominantemente horizontal
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-            
-            // Swipe Esquerda para a Direita (Voltar Atrás Inteligente)
-            if (diffX > 60 && touchStartX < 50) { 
-                if (pageHistory.length > 1) { 
-                    pageHistory.pop(); // Remove a página atual
-                    const previousPage = pageHistory[pageHistory.length - 1];
-                    navegarMenu(previousPage, true); 
-                } else {
-                    navegarMenu('menu-principal', true); 
-                } 
-            }
-            // Swipe Direita para a Esquerda (Fechar o Menu Lateral se estiver aberto)
-            else if (diffX < -60) { 
-                fecharSidebar(); 
-            }
+    let touchStartX=0, touchStartY=0;
+    document.addEventListener('touchstart', e => { touchStartX=e.changedTouches[0].screenX; touchStartY=e.changedTouches[0].screenY; }, {passive:true});
+    document.addEventListener('touchend', e => {
+        let diffX = e.changedTouches[0].screenX - touchStartX;
+        if(Math.abs(diffX) > Math.abs(e.changedTouches[0].screenY - touchStartY)) {
+            if(diffX > 60 && touchStartX < 50) { if(pageHistory.length>1){ pageHistory.pop(); navegarMenu(pageHistory[pageHistory.length-1], true); }else navegarMenu('menu-principal',true); }
+            else if(diffX < -60) fecharSidebar();
         }
-    }, {passive: true});
+    }, {passive:true});
 
-
-    // ==========================================
-    // CORES DINÂMICAS E TEMA DA APP (DEFINIÇÕES)
-    // ==========================================
-    const palette = [
-        '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', 
-        '#E5A8F2', '#FFCC00', '#FF2D55', '#5AC8FA', '#00C7BE', 
-        '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', 
-        '#2ECC71', '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
-    ];
-    
-    window.toggleColorGrid = function() { 
-        const grid = document.getElementById('color-picker-grid'); 
-        if (grid.style.display === 'none') {
-            grid.style.display = 'grid';
-        } else {
-            grid.style.display = 'none';
-        }
-    }
+    const palette = ['#FF6B00','#FF3B30','#28CD41','#007AFF','#AF52DE','#E5A8F2','#FFCC00','#FF2D55','#5AC8FA','#00C7BE','#32ADE6','#5856D6','#A2845E','#D4AF37','#FF8A65','#2ECC71','#0F52BA','#9966CC','#FA8072','#C0C0C0'];
     
     function renderColorPicker() {
-        const grid = document.getElementById('color-picker-grid'); 
-        grid.innerHTML = ''; 
-        
-        const savedColor = localStorage.getItem('accentColorApp') || '#FF6B00';
-        
-        palette.forEach(color => { 
-            const circle = document.createElement('div'); 
-            circle.className = 'color-circle';
-            
-            if (color.toLowerCase() === savedColor.toLowerCase()) {
-                circle.classList.add('selected');
-            }
-            
-            circle.style.backgroundColor = color; 
-            
-            circle.onclick = function() {
-                window.mudarCorApp(color);
-            };
-            
+        const grid = document.getElementById('color-picker-grid'); grid.innerHTML = ''; 
+        const sColor = localStorage.getItem('accentColorApp') || '#FF6B00';
+        palette.forEach(c => { 
+            const circle = document.createElement('div'); circle.className = 'color-circle';
+            if(c.toLowerCase() === sColor.toLowerCase()) circle.classList.add('selected');
+            circle.style.backgroundColor = c; 
+            circle.onclick = () => window.mudarCorApp(c);
             grid.appendChild(circle); 
         });
     }
     
-    window.mudarCorApp = function(newColor) { 
-        document.documentElement.style.setProperty('--accent', newColor); 
-        localStorage.setItem('accentColorApp', newColor); 
-        document.getElementById('cor-atual-bolinha').style.backgroundColor = newColor; 
-        
-        renderColorPicker(); 
-    }
-    
-    window.alternarTema = function() {
-        const isLightMode = document.body.classList.toggle('light-mode'); 
-        
-        const svgMoon = document.getElementById('svg-moon'); 
-        const svgSun = document.getElementById('svg-sun');
-        const themeText = document.getElementById('texto-tema-modal');
-        
-        if (isLightMode) { 
-            themeText.innerText = 'Mudar para Modo Escuro'; 
-            svgMoon.style.display = 'block'; 
-            svgSun.style.display = 'none'; 
-            localStorage.setItem('temaApp', 'light'); 
-        } else { 
-            themeText.innerText = 'Mudar para Modo Claro'; 
-            svgMoon.style.display = 'none'; 
-            svgSun.style.display = 'block'; 
-            localStorage.setItem('temaApp', 'dark'); 
-        }
+    window.mudarCorApp = (nc) => { document.documentElement.style.setProperty('--accent', nc); localStorage.setItem('accentColorApp', nc); document.getElementById('cor-atual-bolinha').style.backgroundColor = nc; renderColorPicker(); }
+    window.alternarTema = () => {
+        const isL = document.body.classList.toggle('light-mode'); 
+        document.getElementById('texto-tema-modal').innerText = isL ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro'; 
+        document.getElementById('svg-moon').style.display = isL ? 'block' : 'none'; 
+        document.getElementById('svg-sun').style.display = isL ? 'none' : 'block'; 
+        localStorage.setItem('temaApp', isL ? 'light' : 'dark'); 
     }
 
-    function carregarListaPaises() {
-        const selectTarget = document.getElementById('input-viagem-destino');
-        selectTarget.innerHTML = '<option value="" disabled selected>Escolhe o Destino (País)...</option>';
-        
-        const paises = ["Afeganistão", "África do Sul", "Albânia", "Alemanha", "Andorra", "Angola", "Antígua e Barbuda", "Arábia Saudita", "Argélia", "Argentina", "Arménia", "Austrália", "Áustria", "Azerbaijão", "Bahamas", "Bangladexe", "Barbados", "Barém", "Bélgica", "Belize", "Benim", "Bielorrússia", "Bolívia", "Bósnia e Herzegovina", "Botsuana", "Brasil", "Brunei", "Bulgária", "Burquina Fasso", "Burúndi", "Butão", "Cabo Verde", "Camarões", "Camboja", "Canadá", "Catar", "Cazaquistão", "Chade", "Chile", "China", "Chipre", "Colômbia", "Comores", "Congo-Brazzaville", "Congo-Kinshasa", "Coreia do Norte", "Coreia do Sul", "Costa do Marfim", "Costa Rica", "Croácia", "Cuaite", "Cuba", "Dinamarca", "Dominica", "Egito", "Emirados Árabes Unidos", "Equador", "Eritreia", "Eslováquia", "Eslovénia", "Espanha", "Estado da Palestina", "Estados Unidos", "Estónia", "Eswatini", "Etiópia", "Fiji", "Filipinas", "Finlândia", "França", "Gabão", "Gâmbia", "Gana", "Geórgia", "Granada", "Grécia", "Guatemala", "Guiana", "Guiné", "Guiné Equatorial", "Guiné-Bissau", "Haiti", "Honduras", "Hungria", "Iémen", "Ilhas Marshall", "Índia", "Indonésia", "Irão", "Iraque", "Irlanda", "Islândia", "Israel", "Itália", "Jamaica", "Japão", "Jibuti", "Jordânia", "Kiribati", "Lesoto", "Letónia", "Líbano", "Libéria", "Líbia", "Listenstaine", "Lituânia", "Luxemburgo", "Macedónia do Norte", "Madagáscar", "Malásia", "Malaúi", "Maldivas", "Mali", "Malta", "Marrocos", "Maurícia", "Mauritânia", "México", "Mianmar", "Micronésia", "Moçambique", "Moldávia", "Mónaco", "Mongólia", "Montenegro", "Namíbia", "Nauru", "Nepal", "Nicarágua", "Níger", "Nigéria", "Noruega", "Nova Zelândia", "Omã", "Países Baixos", "Palau", "Panamá", "Papua Nova Guiné", "Paquistão", "Paraguai", "Peru", "Polónia", "Portugal", "Quénia", "Quirguistão", "Reino Unido", "República Centro-Africana", "República Checa", "República Dominicana", "Roménia", "Ruanda", "Rússia", "Ilhas Salomão", "El Salvador", "Samoa", "Santa Lúcia", "São Cristóvão e Neves", "São Marinho", "São Tomé e Príncipe", "São Vicente e Granadinas", "Seicheles", "Senegal", "Serra Leoa", "Sérvia", "Singapura", "Síria", "Somália", "Sri Lanca", "Sudão", "Sudão do Sul", "Suécia", "Suíça", "Suriname", "Tailândia", "Tajiquistão", "Tanzânia", "Timor-Leste", "Togo", "Tonga", "Trindade e Tobago", "Tunísia", "Turquemenistão", "Turquia", "Tuvalu", "Ucrânia", "Uganda", "Uruguai", "Usbequistão", "Vanuatu", "Vaticano", "Venezuela", "Vietname", "Zâmbia", "Zimbábue"];
-        
-        let paisesHtml = '<option value="" disabled selected>Escolhe o Destino (País)...</option>';
-        paises.forEach(p => {
-            paisesHtml += `<option value="${p}">${p}</option>`;
-        });
-        selectTarget.innerHTML = paisesHtml;
-    }
-    
-    function carregarConfigs() {
-        if (localStorage.getItem('temaApp') === 'light') { 
-            document.body.classList.add('light-mode'); 
-            document.getElementById('texto-tema-modal').innerText = 'Mudar para Modo Escuro'; 
-            document.getElementById('svg-moon').style.display = 'block'; 
-            document.getElementById('svg-sun').style.display = 'none'; 
-        }
-        
-        const corGuardada = localStorage.getItem('accentColorApp'); 
-        if (corGuardada) { 
-            window.mudarCorApp(corGuardada); 
-        } else { 
-            document.getElementById('cor-atual-bolinha').style.backgroundColor = '#FF6B00'; 
-            renderColorPicker(); 
-        }
+    if(localStorage.getItem('temaApp') === 'light'){ document.body.classList.add('light-mode'); document.getElementById('texto-tema-modal').innerText='Mudar para Modo Escuro'; document.getElementById('svg-moon').style.display='block'; document.getElementById('svg-sun').style.display='none'; }
+    const corG = localStorage.getItem('accentColorApp'); if(corG) window.mudarCorApp(corG); else{ document.getElementById('cor-atual-bolinha').style.backgroundColor='#FF6B00'; renderColorPicker(); }
 
-        carregarListaPaises();
-    } 
-    
-    // Executa ao arrancar
-    carregarConfigs();
-
-
-    // ==========================================
-    // WIDGETS DO DASHBOARD (TEMPO, RELÓGIO, FRASE)
-    // ==========================================
     function atualizarRelogio() { 
-        const agora = new Date(); 
-        const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]; 
-        const nomesMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]; 
-        
-        const elementoData = document.getElementById('data-atual'); 
-        const elementoHora = document.getElementById('hora-atual'); 
-        
-        if (elementoData) {
-            elementoData.innerText = `${diasSemana[agora.getDay()]}, ${agora.getDate()} ${nomesMeses[agora.getMonth()]}`; 
-        }
-        if (elementoHora) {
-            elementoHora.innerText = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`; 
-        }
+        const d = new Date(), ds = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"], nm = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; 
+        if(document.getElementById('data-atual')) document.getElementById('data-atual').innerText = `${ds[d.getDay()]}, ${d.getDate()} ${nm[d.getMonth()]}`; 
+        if(document.getElementById('hora-atual')) document.getElementById('hora-atual').innerText = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; 
     } 
+    setInterval(atualizarRelogio, 1000); atualizarRelogio();
     
-    setInterval(atualizarRelogio, 1000); 
-    atualizarRelogio();
+    const frases = [{t:"Entregue o seu caminho ao Senhor...",a:"Salmos 37:5"}, {t:"Tudo posso naquele que me fortalece.",a:"Filipenses 4:13"}, {t:"O amor é paciente, o amor é bondoso.",a:"1 Coríntios 13:4-7"}];
+    const ind = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0))/1000/60/60/24) % frases.length;
+    document.getElementById('frase-texto').innerText = `"${frases[ind].t}"`; document.getElementById('frase-autor').innerText = frases[ind].a; 
     
-    const frasesMotivacionais = [
-        { t: "Entregue o seu caminho ao Senhor; confie nele, e ele o fará.", a: "Salmos 37:5" }, 
-        { t: "Tudo posso naquele que me fortalece.", a: "Filipenses 4:13" }, 
-        { t: "O amor é paciente, o amor é bondoso. Tudo sofre, tudo crê, tudo espera, tudo suporta.", a: "1 Coríntios 13:4-7" }
-    ];
-    
-    function carregarFraseDoDia() { 
-        const dataHoje = new Date(); 
-        const diaDoAno = Math.floor((dataHoje - new Date(dataHoje.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24); 
-        
-        const indiceFrase = diaDoAno % frasesMotivacionais.length;
-        
-        document.getElementById('frase-texto').innerText = `"${frasesMotivacionais[indiceFrase].t}"`; 
-        document.getElementById('frase-autor').innerText = frasesMotivacionais[indiceFrase].a; 
-    } 
-    
-    carregarFraseDoDia();
-    
-    window.carregarMeteorologia = async function(forcarAviso = false) {
-        document.getElementById('meteo-desc').innerText = "A procurar...";
-        
-        const requestMeteorologia = async function(latitude, longitude, nomeDoLocal) { 
+    window.carregarMeteorologia = async (forcar) => {
+        const req = async (lat, lon, nome) => { 
             try { 
-                const urlMeteo = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`; 
-                const respostaAPI = await fetch(urlMeteo); 
-                const dadosMeteo = await respostaAPI.json(); 
-                
-                document.getElementById('meteo-temp').innerText = Math.round(dadosMeteo.current_weather.temperature) + "°"; 
-                document.getElementById('meteo-desc').innerText = "Atualizado"; 
-                document.getElementById('nome-cidade-texto').innerText = nomeDoLocal; 
-            } catch(e) { 
-                document.getElementById('meteo-desc').innerText = "Sem dados"; 
-            } 
+                const res = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)).json(); 
+                document.getElementById('meteo-temp').innerText = Math.round(res.current_weather.temperature)+"°"; document.getElementById('meteo-desc').innerText="Atualizado"; document.getElementById('nome-cidade-texto').innerText=nome; 
+            } catch(e){ document.getElementById('meteo-desc').innerText="Sem dados"; } 
         };
-        
-        if (navigator.geolocation) { 
-            navigator.geolocation.getCurrentPosition( 
-                async function(posicaoLocal) { 
-                    const latitudeGPS = posicaoLocal.coords.latitude; 
-                    const longitudeGPS = posicaoLocal.coords.longitude; 
-                    
-                    try { 
-                        const urlGeocoding = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitudeGPS}&longitude=${longitudeGPS}&localityLanguage=pt`;
-                        const resGeocode = await fetch(urlGeocoding); 
-                        const dadGeocode = await resGeocode.json(); 
-                        
-                        requestMeteorologia(latitudeGPS, longitudeGPS, dadGeocode.city || dadGeocode.locality || "Local"); 
-                    } catch(e) {
-                        requestMeteorologia(latitudeGPS, longitudeGPS, "Local");
-                    } 
-                }, 
-                function(erroGPS) { 
-                    if (forcarAviso) {
-                        alert("Serviço de GPS desativado no dispositivo."); 
-                    }
-                    // Localização por defeito: Setúbal
-                    requestMeteorologia(38.5244, -8.8882, "Setúbal"); 
-                } 
-            ); 
-        } else {
-            // Navegador não suporta GPS
-            requestMeteorologia(38.5244, -8.8882, "Setúbal");
-        }
+        if(navigator.geolocation) navigator.geolocation.getCurrentPosition(async (pos) => { 
+            try { 
+                const geo = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=pt`)).json(); 
+                req(pos.coords.latitude, pos.coords.longitude, geo.city || geo.locality || "Local"); 
+            } catch(e){ req(pos.coords.latitude, pos.coords.longitude, "Local"); } 
+        }, () => req(38.5244, -8.8882, "Setúbal")); else req(38.5244, -8.8882, "Setúbal");
     }
-    
-    // Aguardar meio segundo para não atrasar a renderização da interface
-    setTimeout(function() { window.carregarMeteorologia(false); }, 500);
+    setTimeout(() => window.carregarMeteorologia(), 500);
 
-
-    // ==========================================
-    // SISTEMA FIREBASE: LISTAS, PEDIDOS E VIAGENS
-    // ==========================================
     function iniciarListenersFirebase() {
-        if (!db) return; 
+        if(!db) return; unsusbscribes.forEach(f => f()); unsusbscribes = []; 
+        const mRef = collection(db, 'artifacts', appId, 'users', userId);
         
-        // Limpar os event listeners antigos caso o utilizador reinicie sessão
-        unsusbscribes.forEach(function(funcaoRemover) { 
-            funcaoRemover(); 
-        }); 
-        unsusbscribes = []; 
+        const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(mRef, col), s => {
+            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderListDB(arr, ui, col);
+        }));
+        attachList('tarefas', 'container-tarefas'); attachList('semanais', 'container-semanais'); attachList('rapidas', 'container-rapidas');
         
-        const meuPerfilRef = collection(db, 'artifacts', appId, 'users', userId);
+        unsusbscribes.push(onSnapshot(collection(mRef, 'requests'), s => {
+            let reqs = []; s.forEach(d => reqs.push({id:d.id, ...d.data()})); renderRequestsDB(reqs); 
+            document.getElementById('badge-notificacoes-bottom').style.display = reqs.length > 0 ? 'block' : 'none';
+        }));
         
-        // 1. Ouvir Tarefas Diárias
-        const listenerTarefas = onSnapshot(collection(meuPerfilRef, 'tarefas'), function(snapshotQuery) { 
-            let arrayTemporario = []; 
-            snapshotQuery.forEach(function(documento) {
-                arrayTemporario.push({id: documento.id, ...documento.data()});
-            }); 
-            renderListDB(arrayTemporario, 'container-tarefas', 'tarefas'); 
-        });
-        unsusbscribes.push(listenerTarefas);
-        
-        // 2. Ouvir Compras Semanais
-        const listenerSemanais = onSnapshot(collection(meuPerfilRef, 'semanais'), function(snapshotQuery) { 
-            let arrayTemporario = []; 
-            snapshotQuery.forEach(function(documento) {
-                arrayTemporario.push({id: documento.id, ...documento.data()});
-            }); 
-            renderListDB(arrayTemporario, 'container-semanais', 'semanais'); 
-        });
-        unsusbscribes.push(listenerSemanais);
-        
-        // 3. Ouvir Compras Rápidas
-        const listenerRapidas = onSnapshot(collection(meuPerfilRef, 'rapidas'), function(snapshotQuery) { 
-            let arrayTemporario = []; 
-            snapshotQuery.forEach(function(documento) {
-                arrayTemporario.push({id: documento.id, ...documento.data()});
-            }); 
-            renderListDB(arrayTemporario, 'container-rapidas', 'rapidas'); 
-        });
-        unsusbscribes.push(listenerRapidas);
-        
-        // 4. Ouvir Pedidos de Amizade
-        const listenerRequests = onSnapshot(collection(meuPerfilRef, 'requests'), function(snapshotQuery) { 
-            let arrayRequests = []; 
-            snapshotQuery.forEach(function(documento) {
-                arrayRequests.push({id: documento.id, ...documento.data()});
-            }); 
-            renderRequestsDB(arrayRequests); 
-            
-            // Exibe a bolinha vermelha se existirem pedidos novos
-            if (arrayRequests.length > 0) {
-                document.getElementById('badge-notificacoes-bottom').style.display = 'block';
-            } else {
-                document.getElementById('badge-notificacoes-bottom').style.display = 'none';
-            }
-        });
-        unsusbscribes.push(listenerRequests);
-        
-        // 5. Ouvir Amigos Aceites
-        const listenerFriends = onSnapshot(collection(meuPerfilRef, 'friends'), function(snapshotQuery) { 
-            minhaRede = []; 
-            snapshotQuery.forEach(function(documento) {
-                minhaRede.push({id: documento.id, ...documento.data()});
-            }); 
-            renderFriendsDB(minhaRede); 
-        });
-        unsusbscribes.push(listenerFriends);
+        unsusbscribes.push(onSnapshot(collection(mRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
-        // 6. Ouvir Viagens Partilhadas (Onde o meu ID faz parte dos membros)
-        const queryMinhasViagens = query(
-            collection(db, 'artifacts', appId, 'viagens_partilhadas'), 
-            where('membros_uids', 'array-contains', userId)
-        );
-        
-        const listenerViagens = onSnapshot(queryMinhasViagens, function(snapshotQuery) {
+        // CORREÇÃO FIREBASE VIAGENS (LADO DO CLIENTE PARA EVITAR ERROS DE REGRAS E ÍNDICES)
+        unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'viagens_partilhadas'), s => {
             viagensData = []; 
-            
-            snapshotQuery.forEach(function(documento) {
-                viagensData.push({id: documento.id, ...documento.data()});
-            });
-            
-            const totalDeViagensGuardadas = viagensData.length;
-            const elementoStatsVis = document.getElementById('stat-total-viagens');
-            if (elementoStatsVis) {
-                elementoStatsVis.innerText = totalDeViagensGuardadas; 
-            }
-            
+            s.forEach(d => { const data=d.data(); if(data.membros_uids && data.membros_uids.includes(userId)) viagensData.push({id:d.id, ...data}); });
+            if(document.getElementById('stat-total-viagens')) document.getElementById('stat-total-viagens').innerText = viagensData.length; 
             renderViagensCards(); 
-          
-            // Se houver uma viagem aberta, verifica as atualizações
-            if (currentTripId) {
-                const tripAtualizada = viagensData.find(function(v) { return v.id === currentTripId; });
-                
-                if (tripAtualizada) {
-                    currentTripDoc = tripAtualizada;
-                    
-                    // Só atualiza o planeador se eu não estiver a escrever nele
-                    if (document.activeElement !== document.getElementById('trip-planner-text')) {
-                        document.getElementById('trip-planner-text').value = tripAtualizada.planeador || "";
-                    }
-                    
-                    renderMembrosSettings();
-                } else {
-                    // Viagem apagada no servidor
-                    navegarMenu('menu-viagens');
-                }
+            if(currentTripId){
+                const tripAtual = viagensData.find(v => v.id === currentTripId);
+                if(tripAtual){ currentTripDoc = tripAtual; if(document.activeElement !== document.getElementById('trip-planner-text')) document.getElementById('trip-planner-text').value = tripAtual.planeador || ""; renderMembrosSettings(); }
+                else navegarMenu('menu-viagens');
             }
-        }, function(error) {
-            // Se as regras de segurança do Firebase bloquearem a leitura, este erro aparece
-            console.error("Erro no Listener de Viagens (Possível bloqueio de permissões):", error);
-            window.mostrarAlerta("Erro a ler as viagens do Firebase: " + error.message + ". Verifica as Regras de Segurança ou Índices na tua consola do Firebase.");
-        });
-        unsusbscribes.push(listenerViagens);
+        }));
     }
 
-    // Processamento Dinâmico Otimizado de Listas Gerais (Tarefas, Semanas, Rápidas)
-    function renderListDB(arrayItens, idContentorHTML, nomeColecaoDb) { 
-        const contentor = document.getElementById(idContentorHTML); 
-        
-        // Ordenar os mais antigos primeiro (segurança: || 0)
-        arrayItens.sort(function(a, b) { 
-            return (a.timestamp || 0) - (b.timestamp || 0); 
-        });
-        
-        // Injeção única em string (Super Rápido!)
-        let htmlAcumulado = '';
-        arrayItens.forEach(function(item) { 
-            let stringClassItem = 'list-item';
-            if (item.feita === true) {
-                stringClassItem += ' feita';
-            }
-            
-            htmlAcumulado += `
-                <div class="${stringClassItem}">
-                    <div class="checkbox-custom" onclick="toggleItemDB('${nomeColecaoDb}','${item.id}', ${!item.feita})"></div>
-                    <span class="item-texto" onclick="toggleItemDB('${nomeColecaoDb}','${item.id}', ${!item.feita})">${item.texto}</span>
-                    <button class="btn-icon-list" onclick="apagarItemDB('${nomeColecaoDb}','${item.id}')">${iconTrash}</button>
-                </div>
-            `;
-        }); 
-        
-        contentor.innerHTML = htmlAcumulado;
+    function renderListDB(arr, ui, col) { 
+        arr.sort((a,b) => (a.timestamp||0)-(b.timestamp||0)); let h='';
+        arr.forEach(i => h+=`<div class="list-item ${i.feita?'feita':''}"><div class="checkbox-custom" onclick="toggleItemDB('${col}','${i.id}',${!i.feita})"></div><span class="item-texto" onclick="toggleItemDB('${col}','${i.id}',${!i.feita})">${i.texto}</span><button class="btn-icon-list" onclick="apagarItemDB('${col}','${i.id}')">${iconTrash}</button></div>`); 
+        document.getElementById(ui).innerHTML = h;
     }
     
-    // API de Adição/Alteração/Apagar Itens Genéricos
-    window.adicionarItemDB = async function(nomeColecaoDb, idCaixaInput) { 
-        const textoAInserir = document.getElementById(idCaixaInput).value.trim(); 
-        
-        if (textoAInserir !== "") { 
-            await addDoc(
-                collection(db, 'artifacts', appId, 'users', userId, nomeColecaoDb), 
-                { texto: textoAInserir, feita: false, timestamp: Date.now() }
-            ); 
-            
-            document.getElementById(idCaixaInput).value = ''; 
-        } 
-    }
-    
-    window.toggleItemDB = async function(nomeColecaoDb, documentoId, novoEstado) { 
-        await updateDoc(
-            doc(db, 'artifacts', appId, 'users', userId, nomeColecaoDb, documentoId), 
-            { feita: novoEstado }
-        ); 
-    }
-    
-    window.apagarItemDB = async function(nomeColecaoDb, documentoId) { 
-        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, nomeColecaoDb, documentoId)); 
-    }
+    window.adicionarItemDB = async (col, idInp) => { const txt = document.getElementById(idInp).value.trim(); if(txt){ await addDoc(collection(db,'artifacts',appId,'users',userId,col), {texto:txt, feita:false, timestamp:Date.now()}); document.getElementById(idInp).value=''; } }
+    window.toggleItemDB = async (col, docId, est) => await updateDoc(doc(db,'artifacts',appId,'users',userId,col,docId), {feita:est}); 
+    window.apagarItemDB = async (col, docId) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,col,docId));
 
-
-    // ==========================================
-    // SISTEMA DOS SUPERMERCADOS E CARTÕES
-    // ==========================================
-    const informacaoLojas = [ 
-        { id: 'continente', nome: 'Continente', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg', link: 'https://folhetos.continente.pt/' }, 
-        { id: 'pingodoce', nome: 'Pingo Doce', logo: 'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg', link: 'https://www.pingodoce.pt/folhetos/' }, 
-        { id: 'lidl', nome: 'Lidl', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png', link: 'https://www.lidl.pt/folhetos' }, 
-        { id: 'auchan', nome: 'Auchan', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg', link: 'https://www.auchan.pt/pt/folhetos/' }, 
-        { id: 'intermarche', nome: 'Intermarché', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg', link: 'https://www.intermarche.pt/folhetos/' } 
-    ];
+    const lojas = [ {id:'continente',nome:'Continente',logo:'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg',link:'https://folhetos.continente.pt/'}, {id:'pingodoce',nome:'Pingo Doce',logo:'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg',link:'https://www.pingodoce.pt/folhetos/'}, {id:'lidl',nome:'Lidl',logo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png',link:'https://www.lidl.pt/folhetos'}, {id:'auchan',nome:'Auchan',logo:'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg',link:'https://www.auchan.pt/pt/folhetos/'}, {id:'intermarche',nome:'Intermarché',logo:'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg',link:'https://www.intermarche.pt/folhetos/'} ];
+    let hl=''; lojas.forEach(l => hl+=`<div class="logo-card" onclick="abrirDetalheSupermercado('${l.id}')"><img src="${l.logo}"></div>`); document.getElementById('container-logos').innerHTML=hl;
     
-    function renderizarLogosSupermercados() { 
-        const contentorLogos = document.getElementById('container-logos'); 
-        if (!contentorLogos) return; 
-        
-        let htmlLogos = '';
-        informacaoLojas.forEach(function(lojaSupermercado) { 
-            htmlLogos += `
-                <div class="logo-card" onclick="abrirDetalheSupermercado('${lojaSupermercado.id}')">
-                    <img src="${lojaSupermercado.logo}">
-                </div>
-            `;
-        }); 
-        
-        contentorLogos.innerHTML = htmlLogos;
-    } 
-    
-    // Iniciar a renderização do menu de supermercados
-    renderizarLogosSupermercados();
-    
-    window.abrirDetalheSupermercado = async function(idDoSupermercado) {
-        currentSuperId = idDoSupermercado; 
-        
-        const lojaEncontrada = informacaoLojas.find(function(lojaAtual) { 
-            return lojaAtual.id === idDoSupermercado; 
-        });
-        
-        document.getElementById('detalhe-nome').innerText = lojaEncontrada.nome; 
-        
-        document.getElementById('btn-ver-folheto').onclick = function() {
-            window.open(lojaEncontrada.link, '_blank');
-        };
-        
-        // Limpar o estado antigo
-        const objImagem = document.getElementById('detalhe-cartao-img'); 
-        const objTextoAviso = document.getElementById('msg-sem-cartao'); 
-        objImagem.style.display = 'none'; 
-        objImagem.src = ''; 
-        objTextoAviso.style.display = 'block'; 
-        document.getElementById('detalhe-obs').value = "";
-        
-        if (userId && db) { 
-            try { 
-                const respostaBD = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', idDoSupermercado)); 
-                
-                if (respostaBD.exists()) { 
-                    const dadosLoja = respostaBD.data(); 
-                    
-                    if (dadosLoja.notas) {
-                        document.getElementById('detalhe-obs').value = dadosLoja.notas; 
-                    }
-                    if (dadosLoja.cartao_img) { 
-                        objImagem.src = dadosLoja.cartao_img; 
-                        objImagem.style.display = 'block'; 
-                        objTextoAviso.style.display = 'none'; 
-                    } 
-                } 
-            } catch(e) {
-                console.error("Falha ao abrir detalhes do supermercado");
-            } 
-        } 
+    window.abrirDetalheSupermercado = async (id) => {
+        currentSuperId = id; const l = lojas.find(x => x.id === id); document.getElementById('detalhe-nome').innerText = l.nome; document.getElementById('btn-ver-folheto').onclick = () => window.open(l.link, '_blank');
+        const img = document.getElementById('detalhe-cartao-img'), txt = document.getElementById('msg-sem-cartao'); img.style.display='none'; img.src=''; txt.style.display='block'; document.getElementById('detalhe-obs').value="";
+        if(userId && db){ try{ const r = await getDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',id)); if(r.exists()){ const d = r.data(); if(d.notas) document.getElementById('detalhe-obs').value=d.notas; if(d.cartao_img){img.src=d.cartao_img; img.style.display='block'; txt.style.display='none';} } }catch(e){} } 
         window.navegarMenu('page-super-detail');
     }
     
-    window.guardarObservacaoSuperDB = async function() { 
-        const textoEscrito = document.getElementById('detalhe-obs').value; 
-        await setDoc(
-            doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), 
-            { notas: textoEscrito }, 
-            { merge: true }
-        ); 
-    }
+    window.guardarObservacaoSuperDB = async () => await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {notas:document.getElementById('detalhe-obs').value}, {merge:true});
+    window.cliqueCartao = () => { const i=document.getElementById('detalhe-cartao-img'); if(i.style.display!=='none' && i.src){ document.getElementById('img-fullscreen-cartao').src=i.src; window.abrirModal('modal-cartao'); } else document.getElementById('input-foto-cartao').click(); }
     
-    window.cliqueCartao = function() { 
-        const referenciaImagem = document.getElementById('detalhe-cartao-img'); 
-        if (referenciaImagem.style.display !== 'none' && referenciaImagem.src) { 
-            document.getElementById('img-fullscreen-cartao').src = referenciaImagem.src; 
-            window.abrirModal('modal-cartao'); 
-        } else {
-            document.getElementById('input-foto-cartao').click(); 
-        }
-    }
-    
-    window.processarFotoCartao = function(eventoInputFile) { 
-        const ficheiroImagem = eventoInputFile.target.files[0]; 
-        if (!ficheiroImagem) return; 
-        
-        const objLeitor = new FileReader(); 
-        
-        objLeitor.onload = function(resultadoLeitura) { 
-            const objImagemHtml = new Image(); 
-            
-            objImagemHtml.onload = async function() { 
-                const canvasProcessamento = document.createElement('canvas'); 
-                const tamanhoMaximoPixels = 800; 
-                let largura = objImagemHtml.width; 
-                let altura = objImagemHtml.height; 
-                
-                if (largura > altura) {
-                    if (largura > tamanhoMaximoPixels) {
-                        altura *= tamanhoMaximoPixels / largura;
-                        largura = tamanhoMaximoPixels;
-                    }
-                } else {
-                    if (altura > tamanhoMaximoPixels) {
-                        largura *= tamanhoMaximoPixels / altura;
-                        altura = tamanhoMaximoPixels;
-                    }
-                } 
-                
-                canvasProcessamento.width = largura; 
-                canvasProcessamento.height = altura; 
-                const contextoGrafico = canvasProcessamento.getContext('2d'); 
-                contextoGrafico.drawImage(objImagemHtml, 0, 0, largura, altura); 
-                
-                const imagemCodificada = canvasProcessamento.toDataURL('image/jpeg', 0.6); 
-                
-                document.getElementById('detalhe-cartao-img').src = imagemCodificada; 
-                document.getElementById('detalhe-cartao-img').style.display = 'block'; 
-                document.getElementById('msg-sem-cartao').style.display = 'none'; 
-                
-                await setDoc(
-                    doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), 
-                    { cartao_img: imagemCodificada }, 
-                    { merge: true }
-                ); 
-            }; 
-            
-            objImagemHtml.src = resultadoLeitura.target.result; 
-        }; 
-        
-        objLeitor.readAsDataURL(ficheiroImagem); 
+    window.processarFotoCartao = (ev) => { 
+        const file = ev.target.files[0]; if(!file) return; 
+        const reader = new FileReader(); reader.onload = (e) => { 
+            const img = new Image(); img.onload = async () => { 
+                const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height; 
+                if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h; 
+                canvas.getContext('2d').drawImage(img,0,0,w,h); const b64 = canvas.toDataURL('image/jpeg',0.6); 
+                document.getElementById('detalhe-cartao-img').src=b64; document.getElementById('detalhe-cartao-img').style.display='block'; document.getElementById('msg-sem-cartao').style.display='none'; 
+                await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {cartao_img:b64}, {merge:true}); 
+            }; img.src = e.target.result; 
+        }; reader.readAsDataURL(file); 
     }
 
+    window.pesquisarUtilizadores = async () => { 
+        const t = document.getElementById('input-search-users').value.toLowerCase(), c = document.getElementById('container-pesquisa-users'); 
+        if(t.length < 2) { c.innerHTML=''; return; } c.innerHTML='<p style="text-align:center;font-size:12px;">A procurar...</p>'; 
+        const res = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles')); let arr=[]; 
+        res.forEach(d => { let p=d.data(); if(p.uid!==userId && p.searchName && p.searchName.includes(t)) arr.push(p); }); 
+        if(arr.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>'; return;} 
+        let h=''; arr.forEach(u => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.username.charAt(0).toUpperCase()}</div><p class="user-name" style="font-size:13px;">${u.username}</p></div><button class="btn-add" style="width:auto;padding:5px 15px;font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button></div>`); c.innerHTML=h;
+    }
+    
+    window.enviarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',id,'requests',userId), {fromUid:userId, fromName:userName, timestamp:Date.now()}); window.mostrarAlerta(nm+" convidado!"); document.getElementById('input-search-users').value=''; document.getElementById('container-pesquisa-users').innerHTML=''; }
+    function renderRequestsDB(reqs) { const c = document.getElementById('container-pedidos'); if(reqs.length===0){c.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>'; return;} let h=''; reqs.forEach(p => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${p.fromName}</p><p style="font-size:11px;color:var(--text-muted);margin:0;">Pedido de amizade</p></div></div><div style="display:flex;gap:5px;"><button class="btn-add" style="width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${p.fromUid}','${p.fromName}')">✓</button><button class="btn-add" style="background-color:#ff3b30;width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${p.fromUid}')">✕</button></div></div>`); c.innerHTML=h; }
+    window.aceitarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',userId,'friends',id), {name:nm,uid:id}); await setDoc(doc(db,'artifacts',appId,'users',id,'friends',userId), {name:userName,uid:userId}); await window.recusarPedido(id); }
+    window.recusarPedido = async (id) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,'requests',id));
+    function renderFriendsDB(amigos) { const c = document.getElementById('container-amigos'); if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} let h=''; amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${a.name.charAt(0).toUpperCase()}</div><p class="user-name">${a.name}</p></div></div>`); c.innerHTML=h; }
 
-    // ==========================================
-    // SISTEMA SOCIAL (AMIGOS E PEDIDOS)
-    // ==========================================
-    window.pesquisarUtilizadores = async function() { 
-        const textoDePesquisa = document.getElementById('input-search-users').value.toLowerCase(); 
-        const contentorDeResultados = document.getElementById('container-pesquisa-users'); 
-        
-        if (textoDePesquisa.length < 2) { 
-            contentorDeResultados.innerHTML = ''; 
-            return; 
-        } 
-        
-        contentorDeResultados.innerHTML = '<p style="text-align:center;font-size:12px;">A procurar na base de dados global...</p>'; 
-        
-        const respostaBaseDados = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles')); 
-        let arrayEncontrados = []; 
-        
-        respostaBaseDados.forEach(function(documentoPerfil) { 
-            let objetoPerfil = documentoPerfil.data(); 
-            
-            if (objetoPerfil.uid !== userId && objetoPerfil.searchName && objetoPerfil.searchName.includes(textoDePesquisa)) {
-                arrayEncontrados.push(objetoPerfil); 
-            }
-        }); 
-        
-        if (arrayEncontrados.length === 0) {
-            contentorDeResultados.innerHTML = '<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>';
-            return;
-        } 
-        
-        let htmlGeralPesquisa = '';
-        arrayEncontrados.forEach(function(utilizadorEncontrado) { 
-            htmlGeralPesquisa += `
-                <div class="user-card">
-                    <div class="user-info">
-                        <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
-                            ${utilizadorEncontrado.username.charAt(0).toUpperCase()}
-                        </div>
-                        <p class="user-name" style="font-size:13px;">${utilizadorEncontrado.username}</p>
-                    </div>
-                    <button class="btn-add" style="width:auto; padding: 5px 15px; font-size:12px;" onclick="enviarPedido('${utilizadorEncontrado.uid}', '${utilizadorEncontrado.username}')">
-                        Adicionar
-                    </button>
-                </div>
-            `; 
-        }); 
-        
-        contentorDeResultados.innerHTML = htmlGeralPesquisa;
-    }
-    
-    window.enviarPedido = async function(idDoAlvo, nomeDoAlvo) { 
-        await setDoc(
-            doc(db, 'artifacts', appId, 'users', idDoAlvo, 'requests', userId), 
-            { fromUid: userId, fromName: userName, timestamp: Date.now() }
-        ); 
-        
-        window.mostrarAlerta(nomeDoAlvo + " convidado com sucesso!"); 
-        document.getElementById('input-search-users').value = ''; 
-        document.getElementById('container-pesquisa-users').innerHTML = ''; 
-    }
-    
-    function renderRequestsDB(listaDePedidos) { 
-        const contentorDeNotificacoes = document.getElementById('container-pedidos'); 
-        
-        if (listaDePedidos.length === 0) { 
-            contentorDeNotificacoes.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Sem notificações de momento.</p>'; 
-            return; 
-        } 
-        
-        let pedidosHTML = '';
-        listaDePedidos.forEach(function(pedidoAtual) { 
-            pedidosHTML += `
-                <div class="user-card">
-                    <div class="user-info">
-                        <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
-                            ${pedidoAtual.fromName.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                            <p class="user-name" style="font-size:13px;">${pedidoAtual.fromName}</p>
-                            <p style="font-size:11px; color:var(--text-muted); margin:0;">Pedido de amizade</p>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-add" style="width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${pedidoAtual.fromUid}', '${pedidoAtual.fromName}')">✓</button>
-                        <button class="btn-add" style="background-color: #ff3b30; width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${pedidoAtual.fromUid}')">✕</button>
-                    </div>
-                </div>
-            `; 
-        }); 
-        
-        contentorDeNotificacoes.innerHTML = pedidosHTML;
-    }
-    
-    window.aceitarPedido = async function(idDoAlvo, nomeDoAlvo) { 
-        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', idDoAlvo), { name: nomeDoAlvo, uid: idDoAlvo }); 
-        await setDoc(doc(db, 'artifacts', appId, 'users', idDoAlvo, 'friends', userId), { name: userName, uid: userId }); 
-        await window.recusarPedido(idDoAlvo); 
-    }
-    
-    window.recusarPedido = async function(idDoAlvo) { 
-        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'requests', idDoAlvo)); 
-    }
-    
-    function renderFriendsDB(listaDeAmigos) { 
-        const contentorDeAmigos = document.getElementById('container-amigos'); 
-        
-        if (listaDeAmigos.length === 0) { 
-            contentorDeAmigos.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; 
-            return; 
-        } 
-        
-        let amizadesHTML = '';
-        listaDeAmigos.forEach(function(amigoAtual) { 
-            amizadesHTML += `
-                <div class="user-card">
-                    <div class="user-info">
-                        <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
-                            ${amigoAtual.name.charAt(0).toUpperCase()}
-                        </div>
-                        <p class="user-name">${amigoAtual.name}</p>
-                    </div>
-                </div>
-            `; 
-        }); 
-        
-        contentorDeAmigos.innerHTML = amizadesHTML;
-    }
-
-    // ==========================================
-    // SISTEMA PRINCIPAL DE VIAGENS OTIMIZADO
-    // ==========================================
     function renderViagensCards() { 
-        const contentorViagens = document.getElementById('container-viagens'); 
-        
-        if (viagensData.length === 0) {
-            contentorViagens.innerHTML = '<p style="text-align:center;font-size:13px;color:var(--text-muted);">Ainda não há viagens partilhadas na vossa rede.</p>'; 
-            return;
-        } 
-        
-        viagensData.sort(function(a, b) {
-            return (b.timestamp || 0) - (a.timestamp || 0);
-        });
-        
-        let htmlGeralViagens = '';
-        viagensData.forEach(function(viagemElement) { 
-            const urlBackground = viagemElement.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
-            htmlGeralViagens += `
-                <div class="trip-card" onclick="abrirDetalheViagem('${viagemElement.id}')">
-                    <img class="trip-cover" src="${urlBackground}">
-                    <div class="trip-overlay">
-                        <h4 class="trip-title">${viagemElement.nome || 'Sem Título'}</h4>
-                        <span class="trip-country">${viagemElement.paisCode || ''} • ${viagemElement.data || 'Sem data'}</span>
-                    </div>
-                </div>
-            `;
-        }); 
-        
-        contentorViagens.innerHTML = htmlGeralViagens; 
+        const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
+        viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
+        viagensData.forEach(v => h+=`<div class="trip-card" onclick="abrirDetalheViagem('${v.id}')"><img class="trip-cover" src="${v.capa||'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'}"><div class="trip-overlay"><h4 class="trip-title">${v.nome||'Sem Título'}</h4><span class="trip-country">${v.paisCode||''} • ${v.data||'Sem data'}</span></div></div>`); c.innerHTML=h; 
     }
     
-    window.processarFotoViagem = function(eventoFicheiro) { 
-        const objetoFicheiroUpload = eventoFicheiro.target.files[0]; 
-        
-        if (!objetoFicheiroUpload) return; 
-        
-        const leitorJavascript = new FileReader(); 
-        
-        leitorJavascript.onload = function(resultadoEv) { 
-            const htmlDaImagemTemporaria = new Image(); 
-            
-            htmlDaImagemTemporaria.onload = function() { 
-                const canvaHTML5 = document.createElement('canvas'); 
-                const escalaMax = 800; 
-                let l = htmlDaImagemTemporaria.width; 
-                let a = htmlDaImagemTemporaria.height; 
-                
-                if (l > a) {
-                    if (l > escalaMax) {
-                        a *= escalaMax / l;
-                        l = escalaMax;
-                    }
-                } else {
-                    if (a > escalaMax) {
-                        l *= escalaMax / a;
-                        a = escalaMax;
-                    }
-                } 
-                
-                canvaHTML5.width = l; 
-                canvaHTML5.height = a; 
-                
-                const ferramentasDeDesenho = canvaHTML5.getContext('2d'); 
-                ferramentasDeDesenho.drawImage(htmlDaImagemTemporaria, 0, 0, l, a); 
-                
-                tempCapaUrl = canvaHTML5.toDataURL('image/jpeg', 0.6); 
-                
-                document.getElementById('preview-capa-viagem').src = tempCapaUrl; 
-                document.getElementById('preview-capa-viagem').style.display = 'block'; 
-            }; 
-            htmlDaImagemTemporaria.src = resultadoEv.target.result; 
-        }; 
-        leitorJavascript.readAsDataURL(objetoFicheiroUpload); 
+    window.processarFotoViagem = (ev) => { 
+        const file = ev.target.files[0]; if(!file) return; const reader = new FileReader(); 
+        reader.onload = (e) => { const img = new Image(); img.onload = () => { 
+            const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height; 
+            if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h; 
+            canvas.getContext('2d').drawImage(img,0,0,w,h); tempCapaUrl = canvas.toDataURL('image/jpeg',0.6); 
+            document.getElementById('preview-capa-viagem').src=tempCapaUrl; document.getElementById('preview-capa-viagem').style.display='block'; document.getElementById('msg-sem-capa').style.display='none';
+        }; img.src = e.target.result; }; reader.readAsDataURL(file); 
     }
     
-    window.guardarNovaViagem = async function() {
+    window.guardarNovaViagem = async () => {
         try {
-            const tituloGuardado = document.getElementById('input-viagem-nome').value.trim(); 
-            const destinoSelecionado = document.getElementById('input-viagem-destino').value; 
-            const dtGuardado = document.getElementById('input-viagem-data').value;
+            const tit = document.getElementById('input-viagem-nome').value.trim(), dest = document.getElementById('input-viagem-destino').value.trim(), dt = document.getElementById('input-viagem-data').value;
+            if(!tit || !dest) return window.mostrarAlerta("Preenche o título e o destino."); 
+            const btn = document.getElementById('btn-save-viagem'); btn.innerText="A guardar..."; btn.disabled=true;
+            await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), { nome:tit, paisCode:dest, data:dt, capa:tempCapaUrl||"", timestamp:Date.now(), planeador:"", membros_uids:[userId], membros_info:[{uid:userId, nome:userName||"Eu"}], dono:userId });
             
-            if (!tituloGuardado || !destinoSelecionado) { 
-                window.mostrarAlerta("É necessário preencher obrigatoriamente o título da aventura e escolher o destino da lista."); 
-                return; 
-            }
-            
-            const identificadorBotaoSave = document.getElementById('btn-save-viagem'); 
-            identificadorBotaoSave.innerText = "A guardar viagem..."; 
-            identificadorBotaoSave.disabled = true;
-            
-            const dicionarioDaViagemCompleta = { 
-                nome: tituloGuardado, 
-                paisCode: destinoSelecionado,
-                data: dtGuardado, 
-                capa: tempCapaUrl || "", 
-                timestamp: Date.now(), 
-                planeador: "", 
-                membros_uids: [userId], 
-                membros_info: [{ uid: userId, nome: userName || "Utilizador" }], 
-                dono: userId 
-            };
-            
-            await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), dicionarioDaViagemCompleta);
-            
-            document.getElementById('input-viagem-nome').value = ''; 
-            document.getElementById('input-viagem-destino').value = ''; 
-            document.getElementById('input-viagem-data').value = ''; 
-            document.getElementById('preview-capa-viagem').style.display = 'none'; 
-            tempCapaUrl = ""; 
-            
-            identificadorBotaoSave.innerText = "Guardar Viagem"; 
-            identificadorBotaoSave.disabled = false;
-            
-            window.navegarMenu('menu-viagens');
-
-        } catch (error) {
-            console.error("Erro Firebase: ", error);
-            window.mostrarAlerta("Ocorreu um erro ao guardar na base de dados: " + error.message);
-            const identificadorBotaoSave = document.getElementById('btn-save-viagem'); 
-            if (identificadorBotaoSave) {
-                identificadorBotaoSave.innerText = "Guardar Viagem"; 
-                identificadorBotaoSave.disabled = false;
-            }
-        }
+            document.getElementById('input-viagem-nome').value=''; document.getElementById('input-viagem-destino').value=''; document.getElementById('input-viagem-data').value=''; 
+            document.getElementById('preview-capa-viagem').style.display='none'; document.getElementById('msg-sem-capa').style.display='block'; tempCapaUrl=""; 
+            btn.innerText="Guardar Viagem"; btn.disabled=false; window.navegarMenu('menu-viagens');
+        } catch(e){ window.mostrarAlerta("Erro a guardar: " + e.message); const btn = document.getElementById('btn-save-viagem'); if(btn){btn.innerText="Guardar Viagem"; btn.disabled=false;} }
     }
 
-    // ALTERNAR AS ABAS DENTRO DE CADA VIAGEM (PLANEADOR, SPLITWISE, DEFS)
-    window.switchTripTab = function(nomeDoTabParaAtivar) { 
-        document.querySelectorAll('.trip-tab').forEach(function(elementoSeparadorSuperior) {
-            elementoSeparadorSuperior.classList.remove('active');
-        }); 
-        document.getElementById('tab-btn-' + nomeDoTabParaAtivar).classList.add('active'); 
-        
-        document.querySelectorAll('.trip-tab-content').forEach(function(elementoContentorInferior) {
-            elementoContentorInferior.classList.remove('active');
-        }); 
-        document.getElementById('tab-' + nomeDoTabParaAtivar).classList.add('active'); 
-    }
+    window.switchTripTab = (n) => { document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); document.getElementById('tab-btn-'+n).classList.add('active'); document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); }
     
     let unsubDespesas = null;
-    
-    window.abrirDetalheViagem = async function(idDoDocumentoViagem) {
-        currentTripId = idDoDocumentoViagem; 
-        
-        currentTripDoc = viagensData.find(function(verificadorTrip) {
-            return verificadorTrip.id === idDoDocumentoViagem;
-        }); 
-        
-        if (!currentTripDoc) return;
-        
-        document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome; 
-        document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
-        document.getElementById('trip-planner-text').value = currentTripDoc.planeador || "";
-        
-        renderMembrosSettings(); 
-        
-        // Ativa o Planeador como página central de aterragem (Default)
-        window.switchTripTab('planeador'); 
-        window.navegarMenu('page-viagem-detalhe');
-        
-        if (unsubDespesas) {
-            unsubDespesas();
-        }
-        
-        // Ouvir as despesas exclusivamente da viagem aberta
-        unsubDespesas = onSnapshot(collection(db, 'artifacts', appId, 'viagens_partilhadas', idDoDocumentoViagem, 'despesas'), function(sDespesas) { 
-            let arrayDespesas = []; 
-            sDespesas.forEach(function(documentoSplit) {
-                arrayDespesas.push({id: documentoSplit.id, ...documentoSplit.data()});
-            }); 
-            renderizarDespesas(arrayDespesas); 
-        });
+    window.abrirDetalheViagem = async (id) => {
+        currentTripId = id; currentTripDoc = viagensData.find(v => v.id === id); if(!currentTripDoc) return;
+        document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome; document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; document.getElementById('trip-planner-text').value = currentTripDoc.planeador || "";
+        renderMembrosSettings(); window.switchTripTab('planeador'); window.navegarMenu('page-viagem-detalhe');
+        if(unsubDespesas) unsubDespesas();
+        unsubDespesas = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { let arr=[]; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderizarDespesas(arr); });
     }
     
-    window.salvarPlaneador = async function() { 
-        if (currentTripId) {
-            await updateDoc(
-                doc(db, 'artifacts', appId, 'viagens_partilhadas', currentTripId), 
-                { planeador: document.getElementById('trip-planner-text').value }
-            ); 
-        }
-    }
-    
-    window.apagarViagem = async function() { 
-        if (confirm("Alerta: Tens a certeza absoluta que queres eliminar esta viagem do diário, os textos e as finanças nela incluídas? A ação não pode ser desfeita.")) {
-            await deleteDoc(doc(db, 'artifacts', appId, 'viagens_partilhadas', currentTripId));
-            window.navegarMenu('menu-viagens');
-        }
-    }
+    window.salvarPlaneador = async () => { if(currentTripId) await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), {planeador:document.getElementById('trip-planner-text').value}); }
+    window.apagarViagem = async () => { if(confirm("Apagar esta viagem permanentemente?")) { await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); window.navegarMenu('menu-viagens'); } }
 
     function renderMembrosSettings() {
-         const objSeletorSplitwise = document.getElementById('exp-pagador'); 
-         const uiListaDeParticipantesAtuais = document.getElementById('trip-membros-list'); 
-         
-         let selHtml = '';
-         let listHtml = '';
-
-         currentTripDoc.membros_info.forEach(function(participante) { 
-             selHtml += `<option value="${participante.uid}">${participante.nome} pagou o total</option>`; 
-             listHtml += `
-                <div class="user-card" style="padding:10px;">
-                    <div class="user-info">
-                        <div class="user-avatar" style="width:30px;height:30px;font-size:14px;">
-                            ${participante.nome.charAt(0).toUpperCase()}
-                        </div>
-                        <span style="font-size:14px; font-weight:500;">${participante.nome}</span>
-                    </div>
-                </div>`; 
-         });
-         
-         objSeletorSplitwise.innerHTML = selHtml;
-         uiListaDeParticipantesAtuais.innerHTML = listHtml;
-         
-         const dropdownAmigosConvidaveis = document.getElementById('trip-amigos-disponiveis'); 
-         let ddAmigos = '';
-         let estadoComAmigosParaConvidar = false;
-         
-         minhaRede.forEach(function(conhecidoDaRedeGeral) { 
-             if (!currentTripDoc.membros_uids.includes(conhecidoDaRedeGeral.uid)) { 
-                 ddAmigos += `<option value="${conhecidoDaRedeGeral.uid}" data-nome="${conhecidoDaRedeGeral.name}">${conhecidoDaRedeGeral.name}</option>`; 
-                 estadoComAmigosParaConvidar = true; 
-             } 
-         });
-         
-         if (!estadoComAmigosParaConvidar) {
-             ddAmigos = '<option value="">Toda a tua rede já cá está!</option>';
-         }
-         
-         dropdownAmigosConvidaveis.innerHTML = ddAmigos;
+         let sel='', list='', dd='';
+         currentTripDoc.membros_info.forEach(p => { sel+=`<option value="${p.uid}">${p.nome}</option>`; list+=`<div class="user-card" style="padding:10px;"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.nome.charAt(0).toUpperCase()}</div><span style="font-size:14px;font-weight:500;">${p.nome}</span></div></div>`; });
+         document.getElementById('exp-pagador').innerHTML = sel; document.getElementById('trip-membros-list').innerHTML = list;
+         let conv=false; minhaRede.forEach(c => { if(!currentTripDoc.membros_uids.includes(c.uid)){ dd+=`<option value="${c.uid}" data-nome="${c.name}">${c.name}</option>`; conv=true; } });
+         document.getElementById('trip-amigos-disponiveis').innerHTML = conv ? dd : '<option value="">Todos já adicionados!</option>';
     }
     
-    window.adicionarMembroViagem = async function() {
-         const ponteiroSelectAmigos = document.getElementById('trip-amigos-disponiveis'); 
-         
-         if (ponteiroSelectAmigos.value === "") {
-             return;
-         }
-         
-         const identificadorUIDAmigo = ponteiroSelectAmigos.value; 
-         const nomeFormatadoParaViagem = ponteiroSelectAmigos.options[ponteiroSelectAmigos.selectedIndex].getAttribute('data-nome');
-         
-         await updateDoc(doc(db, 'artifacts', appId, 'viagens_partilhadas', currentTripId), { 
-             membros_uids: [...currentTripDoc.membros_uids, identificadorUIDAmigo], 
-             membros_info: [...currentTripDoc.membros_info, {uid: identificadorUIDAmigo, nome: nomeFormatadoParaViagem}] 
-         }); 
-         
-         window.mostrarAlerta(nomeFormatadoParaViagem + " foi inserido e convidado para a viagem com sucesso! A aventura está agora no ecrã dele também.");
+    window.adicionarMembroViagem = async () => {
+         const sel = document.getElementById('trip-amigos-disponiveis'); if(sel.value==="") return;
+         const idA = sel.value, nmA = sel.options[sel.selectedIndex].getAttribute('data-nome');
+         await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids:[...currentTripDoc.membros_uids, idA], membros_info:[...currentTripDoc.membros_info, {uid:idA, nome:nmA}] }); window.mostrarAlerta(nmA+" inserido na viagem!");
     }
     
-    window.adicionarDespesa = async function() {
-        const descricaoComercial = document.getElementById('exp-desc').value.trim(); 
-        const custoRealPago = parseFloat(document.getElementById('exp-valor').value); 
-        const quemPagouUID = document.getElementById('exp-pagador').value; 
-        
-        if (!descricaoComercial || !custoRealPago || custoRealPago <= 0) {
-            return;
-        }
-        
-        const pessoaQuePagouObjeto = currentTripDoc.membros_info.find(function(individuoMembro) {
-            return individuoMembro.uid === quemPagouUID;
-        });
-        
-        const nomeQuemPagouRealidade = pessoaQuePagouObjeto ? pessoaQuePagouObjeto.nome : "Desconhecido";
-        
-        await addDoc(
-            collection(db, 'artifacts', appId, 'viagens_partilhadas', currentTripId, 'despesas'), 
-            { desc: descricaoComercial, valor: custoRealPago, pagadorUid: quemPagouUID, pagadorNome: nomeQuemPagouRealidade, timestamp: Date.now() }
-        ); 
-        
-        document.getElementById('exp-desc').value = ''; 
-        document.getElementById('exp-valor').value = '';
+    window.adicionarDespesa = async () => {
+        const desc = document.getElementById('exp-desc').value.trim(), val = parseFloat(document.getElementById('exp-valor').value), uidP = document.getElementById('exp-pagador').value; 
+        if(!desc || !val || val<=0) return;
+        const pObj = currentTripDoc.membros_info.find(i => i.uid === uidP);
+        await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {desc:desc, valor:val, pagadorUid:uidP, pagadorNome:(pObj?pObj.nome:"Desconhecido"), timestamp:Date.now()}); 
+        document.getElementById('exp-desc').value=''; document.getElementById('exp-valor').value='';
     }
     
-    function renderizarDespesas(listaExpensa) {
-        const caixaParaDespesas = document.getElementById('container-despesas'); 
-        
-        let saldosPessoais = {}; 
-        let totalFinanceiroViajem = 0;
-        
-        currentTripDoc.membros_info.forEach(function(mem) { 
-            saldosPessoais[mem.uid] = { nome: mem.nome, pago: 0 }; 
-        });
-        
-        let htmlGeralDespesas = '';
-        
-        listaExpensa.sort(function(anteriorD, recenteD) {
-            return recenteD.timestamp - anteriorD.timestamp;
-        }).forEach(function(expenseDoLoop) { 
-            if (saldosPessoais[expenseDoLoop.pagadorUid]) {
-                saldosPessoais[expenseDoLoop.pagadorUid].pago += expenseDoLoop.valor;
-            }
-            
-            totalFinanceiroViajem += expenseDoLoop.valor;
-            
-            htmlGeralDespesas += `
-                <div class="expense-item">
-                    <div class="exp-info">
-                        <span class="exp-title">${expenseDoLoop.desc}</span>
-                        <span class="exp-payer">Pago por ${expenseDoLoop.pagadorNome}</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span class="exp-amount">${expenseDoLoop.valor.toFixed(2)}€</span>
-                        <button class="btn-icon-list btn-apagar" onclick="apagarDespesa('${expenseDoLoop.id}')">${iconTrash}</button>
-                    </div>
-                </div>
-            `; 
-        });
-        
-        caixaParaDespesas.innerHTML = htmlGeralDespesas;
-        
-        document.getElementById('split-total').innerText = totalFinanceiroViajem.toFixed(2) + '€';
-        
-        // MATEMÁTICA PURA SPLITWISE
-        let totalDeIndividuos = currentTripDoc.membros_info.length; 
-        if (totalDeIndividuos === 0) return; 
-        
-        let quotaResponsabilidadeEquitativa = totalFinanceiroViajem / totalDeIndividuos; 
-        let injecaoStringHTMLSaldos = "";
-        
-        Object.keys(saldosPessoais).forEach(function(uidIndividualDaTabela) { 
-            let referencialDoObjetoDaLista = saldosPessoais[uidIndividualDaTabela]; 
-            let saldoFinalApuradoMatematico = referencialDoObjetoDaLista.pago - quotaResponsabilidadeEquitativa; 
-            
-            if (saldoFinalApuradoMatematico > 0.01) {
-                injecaoStringHTMLSaldos += `<div class="split-balance">🟢 ${referencialDoObjetoDaLista.nome} merece e deve receber ${saldoFinalApuradoMatematico.toFixed(2)}€</div>`; 
-            }
-            else if (saldoFinalApuradoMatematico < -0.01) {
-                injecaoStringHTMLSaldos += `<div class="split-balance owe">🔴 ${referencialDoObjetoDaLista.nome} deve pagar aos outros o total de ${Math.abs(saldoFinalApuradoMatematico).toFixed(2)}€</div>`; 
-            }
-            else {
-                injecaoStringHTMLSaldos += `<div class="split-balance" style="color:var(--text-muted)">⚪ Contas equilibradas para o(a) ${referencialDoObjetoDaLista.nome}. Tudo quite.</div>`; 
-            }
-        });
-        
-        document.getElementById('split-resultado').innerHTML = injecaoStringHTMLSaldos;
+    function renderizarDespesas(listaExp) {
+        let saldos = {}, tot = 0, htmlD = '', resHtml = '';
+        currentTripDoc.membros_info.forEach(m => saldos[m.uid]={nome:m.nome, pago:0});
+        listaExp.sort((a,b) => b.timestamp - a.timestamp).forEach(e => { if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago+=e.valor; tot+=e.valor; htmlD+=`<div class="expense-item"><div class="exp-info"><span class="exp-title">${e.desc}</span><span class="exp-payer">Pago por ${e.pagadorNome}</span></div><div style="display:flex;align-items:center;gap:10px;"><span class="exp-amount">${e.valor.toFixed(2)}€</span><button class="btn-icon-list" onclick="apagarDespesa('${e.id}')">${iconTrash}</button></div></div>`; });
+        document.getElementById('container-despesas').innerHTML = htmlD; document.getElementById('split-total').innerText = tot.toFixed(2)+'€';
+        let totMembros = currentTripDoc.membros_info.length; if(totMembros===0) return; let quota = tot/totMembros; 
+        Object.keys(saldos).forEach(u => { let b = saldos[u].pago - quota; if(b>0.01) resHtml+=`<div class="split-balance">🟢 ${saldos[u].nome} recebe ${b.toFixed(2)}€</div>`; else if(b<-0.01) resHtml+=`<div class="split-balance owe">🔴 ${saldos[u].nome} paga ${Math.abs(b).toFixed(2)}€</div>`; else resHtml+=`<div class="split-balance" style="color:var(--text-muted)">⚪ ${saldos[u].nome} está quite.</div>`; });
+        document.getElementById('split-resultado').innerHTML = resHtml;
     }
     
-    window.apagarDespesa = async function(idIdentificadorDaDespesa) { 
-        if (currentTripId) {
-            await deleteDoc(doc(db, 'artifacts', appId, 'viagens_partilhadas', currentTripId, 'despesas', idIdentificadorDaDespesa)); 
-        }
-    }
-
-    // ==========================================
-    // UTILITÁRIOS GLOBAIS DE ECRÃ E MODALS
-    // ==========================================
-    window.abrirModal = function(idAlvoHtml) { 
-        document.getElementById(idAlvoHtml).classList.add('active'); 
-    }
-    
-    window.fecharModal = function(idAlvoHtml) { 
-        document.getElementById(idAlvoHtml).classList.remove('active'); 
-    }
-    
-    window.mostrarAlerta = function(mensagemDescritiva) { 
-        document.getElementById('mensagem-alerta').innerText = mensagemDescritiva; 
-        window.abrirModal('modal-alerta'); 
-    }
+    window.apagarDespesa = async (id) => { if(currentTripId) await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas',id)); }
+    window.abrirModal = (id) => document.getElementById(id).classList.add('active'); 
+    window.fecharModal = (id) => document.getElementById(id).classList.remove('active'); 
+    window.mostrarAlerta = (msg) => { document.getElementById('mensagem-alerta').innerText=msg; window.abrirModal('modal-alerta'); }
   </script>
 </body>
 </html>

@@ -36,7 +36,7 @@
         --card-bg: #F7F7F5;              
         --text-main: #37352F;            
         --text-muted: rgba(55, 53, 47, 0.6); 
-        /* Mantém a cor de destaque dinâmica */               
+        /* Mantém a cor de destaque dinâmica */                
         --btn-secondary: #EBEBEA;        
         --border-color: rgba(0, 0, 0, 0.08); 
       }
@@ -210,7 +210,7 @@
 
       .cartao-desconto-container { width: 100%; height: 200px; background-color: var(--card-bg); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; cursor: pointer; border: 1px dashed var(--border-color); transition: border-color 0.3s; position: relative;}
       .cartao-desconto-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: 2;}
-      .textarea-obs { width: 100%; height: 100px; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 15px; font-family: inherit; resize: none; margin-top: 10px; transition: border-color 0.3s; }
+      .textarea-obs { width: 100%; height: 100px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 15px; font-family: inherit; resize: none; margin-top: 10px; transition: border-color 0.3s; }
       .textarea-obs:focus { outline:none; border-color: var(--accent); }
 
       /* DEFINIÇÕES & CORES */
@@ -516,16 +516,21 @@
           </div>
         </div>
 
-        <!-- Botão de Modo Claro/Escuro -->
+        <!-- Botão de Modo Claro/Escuro (Agora com Ícones Minimalistas) -->
         <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: flex-start;" onclick="alternarTema()">
-          <span id="icone-tema-modal" style="margin-right: 10px; font-size: 18px;">☀️</span>
+          <div style="display: flex; align-items: center; margin-right: 10px;">
+             <!-- Ícone da Lua -->
+             <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+             <!-- Ícone do Sol -->
+             <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display: none; margin-right:0;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </div>
           <span id="texto-tema-modal">Mudar para Modo Claro</span>
         </button>
 
-        <!-- Botão para Abrir as Cores -->
+        <!-- Botão para Abrir as Cores (Com Ícone de Gota de Tinta) -->
         <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: space-between;" onclick="toggleColorGrid()">
           <div style="display:flex; align-items:center;">
-             <span style="margin-right: 10px; font-size: 18px;">🎨</span>
+             <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
              <span>Cor Secundária</span>
           </div>
           <div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
@@ -717,15 +722,18 @@
       window.alternarTema = function() {
         const isLight = document.body.classList.toggle('light-mode');
         const txt = document.getElementById('texto-tema-modal');
-        const icone = document.getElementById('icone-tema-modal');
+        const svgMoon = document.getElementById('svg-moon');
+        const svgSun = document.getElementById('svg-sun');
         
         if (isLight) {
            if(txt) txt.innerText = 'Mudar para Modo Escuro';
-           if(icone) icone.innerText = '🌙';
+           if(svgMoon) svgMoon.style.display = 'block';
+           if(svgSun) svgSun.style.display = 'none';
            localStorage.setItem('temaApp', 'light');
         } else {
            if(txt) txt.innerText = 'Mudar para Modo Claro';
-           if(icone) icone.innerText = '☀️';
+           if(svgMoon) svgMoon.style.display = 'none';
+           if(svgSun) svgSun.style.display = 'block';
            localStorage.setItem('temaApp', 'dark');
         }
       }
@@ -733,15 +741,18 @@
       function carregarConfigs() {
         const tema = localStorage.getItem('temaApp');
         const txt = document.getElementById('texto-tema-modal'); 
-        const icone = document.getElementById('icone-tema-modal');
+        const svgMoon = document.getElementById('svg-moon');
+        const svgSun = document.getElementById('svg-sun');
         
         if (tema === 'light') { 
           document.body.classList.add('light-mode'); 
           if(txt) txt.innerText = 'Mudar para Modo Escuro'; 
-          if(icone) icone.innerText = '🌙';
+          if(svgMoon) svgMoon.style.display = 'block';
+          if(svgSun) svgSun.style.display = 'none';
         } else {
           if(txt) txt.innerText = 'Mudar para Modo Claro'; 
-          if(icone) icone.innerText = '☀️';
+          if(svgMoon) svgMoon.style.display = 'none';
+          if(svgSun) svgSun.style.display = 'block';
         }
 
         const cor = localStorage.getItem('accentColorApp'); 
@@ -755,7 +766,7 @@
       carregarConfigs();
 
       // ==========================================
-      // NAVEGAÇÃO & HISTORY API (SWIPE TO BACK CORRIGIDO)
+      // NAVEGAÇÃO & GESTOS NATURAIS PARA MENU
       // ==========================================
       let clickTimers = {};
       window.toggleSubmenu = function(idSubmenu, idPaginaBase) {
@@ -774,8 +785,8 @@
       window.abrirSidebar = function() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
       window.fecharSidebar = function() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
-      // Modificado para suportar voltar atrás nativo no iPhone
-      window.navegarMenu = function(idPagina, fromHistory = false) {
+      // Função de navegação limpa (sem forçar o Swipe Back da página)
+      window.navegarMenu = function(idPagina) {
         window.fecharSidebar(); 
         
         document.getElementById('nav-btn-home').classList.remove('active');
@@ -795,24 +806,44 @@
         for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
         
         setTimeout(() => { const ecr = document.getElementById(idPagina); if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); } }, 50);
-
-        // Adiciona ao histórico do telemóvel para o Swipe funcionar
-        if (!fromHistory) {
-          history.pushState({page: idPagina}, "", "?menu=" + idPagina);
-        }
       }
 
-      // Regista o ecrã inicial
-      history.replaceState({page: 'menu-principal'}, "", "?menu=menu-principal");
+      // ----------------------------------------------------
+      // LÓGICA DE SWIPE FLUIDO PARA O MENU LATERAL (SIDEBAR)
+      // ----------------------------------------------------
+      let touchstartX = 0;
+      let touchstartY = 0;
+      let touchendX = 0;
+      let touchendY = 0;
 
-      // Deteta o gesto de deslizar para a direita (voltar atrás)
-      window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.page) {
-          window.navegarMenu(e.state.page, true);
-        } else {
-          window.navegarMenu('menu-principal', true);
-        }
-      });
+      document.addEventListener('touchstart', e => {
+          touchstartX = e.changedTouches[0].screenX;
+          touchstartY = e.changedTouches[0].screenY;
+      }, {passive: true});
+
+      document.addEventListener('touchend', e => {
+          touchendX = e.changedTouches[0].screenX;
+          touchendY = e.changedTouches[0].screenY;
+          handleGesture();
+      }, {passive: true});
+
+      function handleGesture() {
+          const diffX = touchendX - touchstartX;
+          const diffY = touchendY - touchstartY;
+          
+          // Verifica se o movimento foi predominantemente na horizontal
+          if (Math.abs(diffX) > Math.abs(diffY)) {
+              // Swipe da Esquerda para a Direita (Tentar abrir o menu)
+              // Só permitimos abrir se o swipe começou perto da borda esquerda do telemóvel (ex: primeiros 50px)
+              if (diffX > 60 && touchstartX < 50) {
+                  abrirSidebar();
+              }
+              // Swipe da Direita para a Esquerda (Tentar fechar o menu)
+              else if (diffX < -60) {
+                  fecharSidebar();
+              }
+          }
+      }
 
 
       // ==========================================

@@ -36,7 +36,7 @@
         --card-bg: #F7F7F5;              
         --text-main: #37352F;            
         --text-muted: rgba(55, 53, 47, 0.6); 
-        --accent: #FF6B00;               
+        /* Removido o --accent fixo daqui para herdar a cor escolhida pelo utilizador! */             
         --btn-secondary: #EBEBEA;        
         --border-color: rgba(0, 0, 0, 0.08); 
       }
@@ -50,7 +50,7 @@
       }
 
       /* =========================================
-         ECRÃ DE LOGIN (NOVIDADE)
+         ECRÃ DE LOGIN
          ========================================= */
       #auth-overlay {
         position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
@@ -156,7 +156,7 @@
         #app-container { flex-direction: row; } #sidebar { position: static; transform: translateX(0); box-shadow: none; z-index: 10; } #sidebar-overlay { display: none !important; }
       }
 
-      /* WIDGETS DO DASHBOARD (HOME) */
+      /* WIDGETS DO DASHBOARD */
       .dashboard-widget {
         background-color: var(--card-bg); width: 100%; border-radius: 20px; 
         padding: 25px; margin-bottom: 15px; border: 1px solid var(--border-color);
@@ -182,7 +182,7 @@
       /* LISTAS & INPUTS */
       .input-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
       .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
-      .btn-add { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
+      .btn-add { background-color: var(--accent); color: #fff; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
       .btn-add:active { transform: scale(0.9); }
       
       .lista-itens { display: flex; flex-direction: column; gap: 8px; width: 100%;}
@@ -214,9 +214,10 @@
       .textarea-obs:focus { outline:none; border-color: var(--accent); }
 
       /* DEFINIÇÕES & CORES */
-      .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
-      .color-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+      .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 15px; background-color: var(--bg-color); border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);}
+      .color-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border 0.15s; margin: auto;}
       .color-circle:active { transform: scale(0.8); }
+      .color-circle.selected { border: 3px solid var(--text-main); transform: scale(1.15); box-shadow: 0 0 8px rgba(0,0,0,0.3);}
 
       /* REDE SOCIAL / FAMILIA */
       .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
@@ -247,7 +248,10 @@
         <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display: none;">
         
         <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
+        
         <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Cria uma aqui.</p>
+        <p class="auth-link" style="margin-top: 5px;" onclick="mostrarAlerta('Se te esqueceste da password, avisa o Gonçalo para ele a redefinir no painel central da Base de Dados.')">Esqueceste-te da password?</p>
+        
         <p id="auth-error" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none;"></p>
         
         <p style="font-size: 11px; color: var(--text-muted); margin-top: 20px;">
@@ -434,7 +438,7 @@
           <div class="logos-grid" id="container-logos"></div>
         </div>
 
-        <!-- PÁGINA: DETALHE DO SUPERMERCADO (Cartões e Notas na Nuvem) -->
+        <!-- PÁGINA: DETALHE DO SUPERMERCADO -->
         <div id="page-super-detail" class="page">
           <h1 id="detalhe-nome">Supermercado</h1>
           <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: -20px; margin-bottom: 20px;">Clica no cartão para ecrã inteiro</p>
@@ -509,14 +513,26 @@
           </div>
         </div>
 
-        <button class="btn-acao" style="width: 100%; margin-bottom: 20px; padding: 15px; background-color: var(--bg-color);" onclick="alternarTema()">
+        <!-- Botão de Modo Claro/Escuro -->
+        <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: flex-start;" onclick="alternarTema()">
+          <span id="icone-tema-modal" style="margin-right: 10px; font-size: 18px;">☀️</span>
           <span id="texto-tema-modal">Mudar para Modo Claro</span>
         </button>
 
-        <h3 style="text-align: left; font-size: 13px; color: var(--text-muted); margin-top: 10px;">COR DE DESTAQUE</h3>
-        <div class="color-grid" id="color-picker-grid"></div>
+        <!-- Botão para Abrir as Cores -->
+        <button class="btn-acao" style="width: 100%; margin-bottom: 15px; padding: 15px; background-color: var(--bg-color); justify-content: space-between;" onclick="toggleColorGrid()">
+          <div style="display:flex; align-items:center;">
+             <span style="margin-right: 10px; font-size: 18px;">🎨</span>
+             <span>Cor Secundária</span>
+          </div>
+          <div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
+        </button>
 
-        <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; margin-top: 20px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
+        <!-- A Grelha de Cores que fica escondida inicialmente -->
+        <div class="color-grid" id="color-picker-grid" style="display:none; margin-top:0;"></div>
+
+        <!-- Botões Finais -->
+        <button class="btn-acao" style="background-color: #ff3b30; color: white; width: 100%; padding: 15px; margin-top: 10px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
         <button class="btn-acao" style="width: 100%; margin-top: 10px; background: transparent; border: none;" onclick="fecharModal('modal-definicoes')">Fechar</button>
       </div>
     </div>
@@ -556,7 +572,6 @@
       import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
       import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-      // 🔴 COLOCA AQUI A TUA CHAVE DO PASSO 3 DO TUTORIAL (COLA POR CIMA DESTE BLOCO) 🔴
       const firebaseConfig = {
         apiKey: "AIzaSyA0eKe5JypkhtfrssIie0BA5g_2QMzr5d0",
         authDomain: "gestao-gn.firebaseapp.com",
@@ -565,7 +580,7 @@
         messagingSenderId: "443510448711",
         appId: "1:443510448711:web:a615ebd9cf2ec549e60762",
         measurementId: "G-G55RGRBSWY"
-};
+      };
 
       // Inicialização do Firebase
       let app, db, auth;
@@ -685,29 +700,70 @@
         '#32ADE6', '#5856D6', '#A2845E', '#D4AF37', '#FF8A65', '#2ECC71', '#0F52BA', '#9966CC', '#FA8072', '#C0C0C0'
       ];
 
+      window.toggleColorGrid = function() {
+        const grid = document.getElementById('color-picker-grid');
+        grid.style.display = grid.style.display === 'none' ? 'grid' : 'none';
+      }
+
       function renderColorPicker() {
         const grid = document.getElementById('color-picker-grid');
         grid.innerHTML = '';
+        const savedColor = localStorage.getItem('accentColorApp') || '#FF6B00';
+
         coresDestaque.forEach(cor => {
-          const c = document.createElement('div'); c.className = 'color-circle'; c.style.backgroundColor = cor;
-          c.onclick = () => window.mudarCorApp(cor); grid.appendChild(c);
+          const c = document.createElement('div'); 
+          // Adiciona a classe 'selected' se for a cor guardada
+          c.className = 'color-circle' + (cor.toLowerCase() === savedColor.toLowerCase() ? ' selected' : ''); 
+          c.style.backgroundColor = cor;
+          c.onclick = () => window.mudarCorApp(cor); 
+          grid.appendChild(c);
         });
       }
 
-      window.mudarCorApp = function(cor) { document.documentElement.style.setProperty('--accent', cor); localStorage.setItem('accentColorApp', cor); }
+      window.mudarCorApp = function(cor) { 
+        document.documentElement.style.setProperty('--accent', cor); 
+        localStorage.setItem('accentColorApp', cor); 
+        document.getElementById('cor-atual-bolinha').style.backgroundColor = cor;
+        renderColorPicker(); // Atualiza as bolinhas para colocar o contorno na certa
+      }
 
       window.alternarTema = function() {
         const isLight = document.body.classList.toggle('light-mode');
         const txt = document.getElementById('texto-tema-modal');
-        if(txt) txt.innerText = isLight ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro';
-        localStorage.setItem('temaApp', isLight ? 'light' : 'dark');
+        const icone = document.getElementById('icone-tema-modal');
+        
+        if (isLight) {
+           if(txt) txt.innerText = 'Mudar para Modo Escuro';
+           if(icone) icone.innerText = '🌙';
+           localStorage.setItem('temaApp', 'light');
+        } else {
+           if(txt) txt.innerText = 'Mudar para Modo Claro';
+           if(icone) icone.innerText = '☀️';
+           localStorage.setItem('temaApp', 'dark');
+        }
       }
 
       function carregarConfigs() {
         const tema = localStorage.getItem('temaApp');
-        if (tema === 'light') { document.body.classList.add('light-mode'); const txt = document.getElementById('texto-tema-modal'); if(txt) txt.innerText = 'Mudar para Modo Escuro'; }
-        const cor = localStorage.getItem('accentColorApp'); if (cor) window.mudarCorApp(cor);
-        renderColorPicker();
+        const txt = document.getElementById('texto-tema-modal'); 
+        const icone = document.getElementById('icone-tema-modal');
+        
+        if (tema === 'light') { 
+          document.body.classList.add('light-mode'); 
+          if(txt) txt.innerText = 'Mudar para Modo Escuro'; 
+          if(icone) icone.innerText = '🌙';
+        } else {
+          if(txt) txt.innerText = 'Mudar para Modo Claro'; 
+          if(icone) icone.innerText = '☀️';
+        }
+
+        const cor = localStorage.getItem('accentColorApp'); 
+        if (cor) {
+            window.mudarCorApp(cor);
+        } else {
+            document.getElementById('cor-atual-bolinha').style.backgroundColor = '#FF6B00';
+            renderColorPicker();
+        }
       }
       carregarConfigs();
 

@@ -36,7 +36,7 @@
         --card-bg: #F7F7F5;              
         --text-main: #37352F;            
         --text-muted: rgba(55, 53, 47, 0.6); 
-        /* Removido o --accent fixo daqui para herdar a cor escolhida pelo utilizador! */             
+        /* Mantém a cor de destaque dinâmica */               
         --btn-secondary: #EBEBEA;        
         --border-color: rgba(0, 0, 0, 0.08); 
       }
@@ -182,7 +182,7 @@
       /* LISTAS & INPUTS */
       .input-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
       .input-text { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-size: 14px; transition: background-color 0.3s ease; }
-      .btn-add { background-color: var(--accent); color: #fff; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
+      .btn-add { background-color: var(--accent); color: #121212; border: none; border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s;}
       .btn-add:active { transform: scale(0.9); }
       
       .lista-itens { display: flex; flex-direction: column; gap: 8px; width: 100%;}
@@ -222,7 +222,7 @@
       /* REDE SOCIAL / FAMILIA */
       .user-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px;}
       .user-info { display: flex; align-items: center; gap: 12px; text-align: left;}
-      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px;}
+      .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #121212; font-weight: bold; font-size: 18px;}
       .user-name { font-size: 15px; font-weight: 500; color: var(--text-main); margin:0;}
 
       /* MODALS */
@@ -369,7 +369,7 @@
           </div>
 
           <div class="dashboard-widget widget-frase">
-            <svg class="quote-icon" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+            <svg class="icon-svg" style="opacity: 0.2; width: 24px; margin-bottom: 12px; color: var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.996v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
             <p class="frase-texto" id="frase-texto">"Carregando inspiração..."</p>
             <span class="frase-autor" id="frase-autor"></span>
           </div>
@@ -491,7 +491,10 @@
         <!-- PÁGINA: GARAGEM -->
         <div id="menu-carros" class="page">
           <h2>Garagem & Combustível</h2>
-          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
+          <button class="btn-acao" style="background-color: var(--accent); color: #121212; font-weight: 600; width: 100%; margin-bottom: 15px; padding: 15px;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+            Ver postos perto de mim
+          </button>
         </div>
 
       </div>
@@ -567,7 +570,6 @@
     <!-- MOTORES DA APLICAÇÃO (FIREBASE + JAVASCRIPT) -->
     <!-- ========================================== -->
     <script type="module">
-      // Importações oficias do Firebase
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
       import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -589,10 +591,9 @@
         db = getFirestore(app); 
         auth = getAuth(app); 
       } catch(e) { 
-        console.error("Firebase Placeholder: Configura as chaves reais.", e); 
+        console.error("Erro no Firebase", e); 
       }
 
-      // Variáveis Globais de Utilizador
       const appId = 'gestao-gn-app';
       let userId = null;
       let userName = "";
@@ -601,7 +602,7 @@
       let unsusbscribes = [];
 
       // ==========================================
-      // AUTENTICAÇÃO (LOGIN / REGISTO)
+      // AUTENTICAÇÃO
       // ==========================================
       window.toggleAuthMode = function() {
         isLoginMode = !isLoginMode;
@@ -613,10 +614,7 @@
       }
 
       window.handleAuth = async function() {
-        if(!auth) { 
-          document.getElementById('auth-error').innerText = "Erro: Chaves do Firebase não configuradas no código."; 
-          document.getElementById('auth-error').style.display = 'block'; return; 
-        }
+        if(!auth) return;
         
         const userTyped = document.getElementById('auth-username').value.trim();
         const pass = document.getElementById('auth-password').value;
@@ -625,22 +623,18 @@
         
         if(!userTyped || !pass) { errEl.innerText = "Preenche o nome e a password."; errEl.style.display = 'block'; return; }
         
-        // Truque de Segurança: Cria um email falso a partir do nome
         const cleanUser = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '');
         if(cleanUser.length < 3) { errEl.innerText = "Nome deve ter pelo menos 3 letras."; errEl.style.display = 'block'; return; }
         const fakeEmail = cleanUser + "@gestaogn.app";
 
         try {
           if (isLoginMode) {
-            // Fazer Login
             await signInWithEmailAndPassword(auth, fakeEmail, pass);
           } else {
-            // Criar Conta
             if(pass !== passConfirm) throw new Error("As passwords não são iguais.");
             if(pass.length < 6) throw new Error("A password deve ter 6 ou mais carateres.");
             
             const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass);
-            // Guarda o perfil do utilizador na Base de Dados pública para a pesquisa
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
               uid: cred.user.uid, username: userTyped, searchName: cleanUser
             });
@@ -658,17 +652,14 @@
         else window.location.reload(); 
       }
 
-      // Deteta automaticamente se o utilizador entrou ou saiu
       if(auth) {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
-            // UTILIZADOR ENTROU COM SUCESSO!
             userId = user.uid;
             document.getElementById('auth-overlay').style.opacity = '0';
             setTimeout(() => document.getElementById('auth-overlay').style.display = 'none', 500);
             document.getElementById('app-container').style.display = 'flex';
             
-            // Vai buscar o nome dele à DB
             try {
               const profileDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
               if(profileDoc.exists()) {
@@ -679,10 +670,8 @@
               } else { userName = "User"; }
             } catch(e) {}
             
-            // Inicia os motores de escuta em tempo real da BD
             iniciarListenersFirebase();
           } else {
-            // UTILIZADOR NÃO ESTÁ LOGADO
             userId = null;
             document.getElementById('auth-overlay').style.display = 'flex';
             setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 10);
@@ -691,9 +680,8 @@
         });
       }
 
-
       // ==========================================
-      // TEMAS E 20 CORES (SETTINGS)
+      // TEMAS E 20 CORES
       // ==========================================
       const coresDestaque = [
         '#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', '#E5A8F2', '#FFCC00', '#FF2D55', '#5AC8FA', '#00C7BE', 
@@ -712,7 +700,6 @@
 
         coresDestaque.forEach(cor => {
           const c = document.createElement('div'); 
-          // Adiciona a classe 'selected' se for a cor guardada
           c.className = 'color-circle' + (cor.toLowerCase() === savedColor.toLowerCase() ? ' selected' : ''); 
           c.style.backgroundColor = cor;
           c.onclick = () => window.mudarCorApp(cor); 
@@ -724,7 +711,7 @@
         document.documentElement.style.setProperty('--accent', cor); 
         localStorage.setItem('accentColorApp', cor); 
         document.getElementById('cor-atual-bolinha').style.backgroundColor = cor;
-        renderColorPicker(); // Atualiza as bolinhas para colocar o contorno na certa
+        renderColorPicker(); 
       }
 
       window.alternarTema = function() {
@@ -767,9 +754,8 @@
       }
       carregarConfigs();
 
-
       // ==========================================
-      // NAVEGAÇÃO E ACCORDION (ÁRVORE)
+      // NAVEGAÇÃO & HISTORY API (SWIPE TO BACK CORRIGIDO)
       // ==========================================
       let clickTimers = {};
       window.toggleSubmenu = function(idSubmenu, idPaginaBase) {
@@ -788,7 +774,8 @@
       window.abrirSidebar = function() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
       window.fecharSidebar = function() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
-      window.navegarMenu = function(idPagina) {
+      // Modificado para suportar voltar atrás nativo no iPhone
+      window.navegarMenu = function(idPagina, fromHistory = false) {
         window.fecharSidebar(); 
         
         document.getElementById('nav-btn-home').classList.remove('active');
@@ -808,7 +795,24 @@
         for (var i = 0; i < paginas.length; i++) paginas[i].classList.remove('active');
         
         setTimeout(() => { const ecr = document.getElementById(idPagina); if (ecr) { ecr.classList.add('active'); window.scrollTo(0, 0); } }, 50);
+
+        // Adiciona ao histórico do telemóvel para o Swipe funcionar
+        if (!fromHistory) {
+          history.pushState({page: idPagina}, "", "?menu=" + idPagina);
+        }
       }
+
+      // Regista o ecrã inicial
+      history.replaceState({page: 'menu-principal'}, "", "?menu=menu-principal");
+
+      // Deteta o gesto de deslizar para a direita (voltar atrás)
+      window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.page) {
+          window.navegarMenu(e.state.page, true);
+        } else {
+          window.navegarMenu('menu-principal', true);
+        }
+      });
 
 
       // ==========================================
@@ -894,7 +898,6 @@
         imgEl.style.display = 'none'; imgEl.src = ''; msgEl.style.display = 'block'; iconeEl.style.display = 'block';
         document.getElementById('detalhe-obs').value = "";
 
-        // Tenta puxar a informação da Base de Dados da Nuvem
         if(userId && db) {
           try {
             const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', id));
@@ -927,18 +930,16 @@
         reader.onload = function(event) {
           const img = new Image();
           img.onload = async function() {
-            // Comprime a imagem para não sobrecarregar a Cloud (Máx 800px)
             const canvas = document.createElement('canvas'); const max_size = 800; let width = img.width; let height = img.height;
             if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
             else { if (height > max_size) { width *= max_size / height; height = max_size; } }
             canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
             
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% de qualidade
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
             
             document.getElementById('detalhe-cartao-img').src = dataUrl; document.getElementById('detalhe-cartao-img').style.display = 'block';
             document.getElementById('msg-sem-cartao').style.display = 'none'; document.getElementById('icone-inserir-cartao').style.display = 'none';
 
-            // Guarda na Nuvem Firebase
             if(userId && currentSuperId && db) {
               await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'supermercados', currentSuperId), { cartao_img: dataUrl }, {merge:true});
             }
@@ -956,33 +957,26 @@
 
       function iniciarListenersFirebase() {
         if(!db) return;
-        // Limpa ouvintes antigos se mudar de conta
         unsusbscribes.forEach(unsub => unsub()); unsusbscribes = [];
 
-        // 1. Ouvir Tarefas Diárias
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'tarefas'), (snap) => {
           let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-tarefas', 'tarefas');
         }));
 
-        // 2. Ouvir Lista Semanal
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'semanais'), (snap) => {
           let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-semanais', 'semanais');
         }));
 
-        // 3. Ouvir Lista Rápida
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'rapidas'), (snap) => {
           let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()})); renderListDB(itens, 'container-rapidas', 'rapidas');
         }));
 
-        // 4. Ouvir Notificações/Pedidos de Amizade
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'requests'), (snap) => {
           let requests = []; snap.forEach(d => requests.push({id: d.id, ...d.data()}));
           renderRequestsDB(requests);
-          // Mostra a bolinha vermelha no rodapé se houver pedidos
           document.getElementById('badge-notificacoes-bottom').style.display = requests.length > 0 ? 'block' : 'none';
         }));
 
-        // 5. Ouvir Amigos
         unsusbscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'friends'), (snap) => {
           let friends = []; snap.forEach(d => friends.push({id: d.id, ...d.data()})); renderFriendsDB(friends);
         }));
@@ -992,7 +986,6 @@
         const container = document.getElementById(containerId); if(!container) return; container.innerHTML = '';
         if(array.length === 0) { container.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size: 13px;">Lista vazia.</p>'; return; }
         
-        // Ordenar pela data de criação
         array.sort((a,b) => a.timestamp - b.timestamp).forEach(item => {
           const div = document.createElement('div'); div.className = 'list-item' + (item.feita ? ' feita' : '');
           div.innerHTML = `
@@ -1021,7 +1014,6 @@
         if(userId && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, collName, id)); 
       }
 
-      // REDE SOCIAL: PESQUISA
       window.pesquisarUtilizadores = async function() {
         if(!db) return; 
         const queryText = document.getElementById('input-search-users').value.toLowerCase(); 
@@ -1033,7 +1025,6 @@
         let results = []; 
         querySnapshot.forEach(doc => { 
           let d = doc.data(); 
-          // Não aparecer ele próprio, e o nome tem de conter a pesquisa
           if(d.uid !== userId && d.searchName && d.searchName.includes(queryText)) results.push(d); 
         });
         
@@ -1069,7 +1060,7 @@
         if(!userId || !db) return; 
         await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'friends', targetUid), { name: targetName, uid: targetUid }); 
         await setDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'friends', userId), { name: userName, uid: userId }); 
-        await window.recusarPedido(targetUid); // Apaga a notificação depois de aceitar
+        await window.recusarPedido(targetUid); 
       }
       
       window.recusarPedido = async function(targetUid) { 

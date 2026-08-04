@@ -787,7 +787,7 @@
        ========================================= */
     .stats-viagens { 
       display: grid; 
-      grid-template-columns: 1fr; /* Otimizado para apenas 1 métrica */
+      grid-template-columns: 1fr; 
       gap: 10px; 
       width: 100%; 
       margin-bottom: 25px; 
@@ -1158,7 +1158,8 @@
         </svg>
       </div>
       
-      <div class="nav-btn active" id="nav-btn-home" onclick="navegarMenu('menu-principal')">
+      <!-- ID CORRIGIDO AQUI PARA FAZER MATCH COM O NOME DA PÁGINA (menu-principal) -->
+      <div class="nav-btn active" id="nav-btn-principal" onclick="navegarMenu('menu-principal')">
         <svg class="icon-svg" viewBox="0 0 24 24">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
           <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -2063,7 +2064,6 @@
                 viagensData.push({id: documento.id, ...documento.data()});
             });
             
-            // Otimização: Remoção da contagem de países complexa
             const totalDeViagensGuardadas = viagensData.length;
             const elementoStatsVis = document.getElementById('stat-total-viagens');
             if (elementoStatsVis) {
@@ -2090,6 +2090,10 @@
                     navegarMenu('menu-viagens');
                 }
             }
+        }, function(error) {
+            // Se as regras de segurança do Firebase bloquearem a leitura, este erro aparece
+            console.error("Erro no Listener de Viagens (Possível bloqueio de permissões):", error);
+            window.mostrarAlerta("Erro a ler as viagens do Firebase: " + error.message + ". Verifica as Regras de Segurança ou Índices na tua consola do Firebase.");
         });
         unsusbscribes.push(listenerViagens);
     }

@@ -15,7 +15,7 @@
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{font-family:'Poppins',sans-serif;background-color:var(--bg-color);color:var(--text-main);margin:0;padding:0;display:flex;min-height:100vh;overflow-x:hidden;transition:background-color 0.3s,color 0.3s}
     
-    #auth-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;transition:opacity 0.5s}
+    #auth-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;transition:opacity 0.5s}
     .auth-box{background-color:var(--card-bg);padding:30px;border-radius:20px;border:1px solid var(--border-color);width:100%;max-width:350px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
     .auth-input{width:100%;padding:15px;margin-bottom:15px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;font-family:inherit;font-size:15px;transition:border-color 0.3s}
     .auth-input:focus{outline:none;border-color:var(--accent)}
@@ -29,7 +29,7 @@
     @keyframes spin{to{transform:rotate(360deg)}}
 
     #app-container{display:none;width:100%;height:100vh}
-    .page-container{flex:1;padding:calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 40px) 20px;width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto}
+    .page-container{flex:1;padding:calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 40px) 20px;width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
     h1{font-weight:600;font-size:26px;margin-bottom:30px;text-align:center;letter-spacing:1px}
     h2{font-weight:400;font-size:18px;color:var(--text-muted);text-align:center;margin-bottom:20px}
     h3{font-size:16px;font-weight:500;margin:0 0 15px 0;display:flex;align-items:center;gap:8px}
@@ -55,7 +55,7 @@
     .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px;margin-bottom:4px}
     .sidebar-icon-svg{width:20px;height:20px;flex-shrink:0;margin-bottom:0}
     
-    #bottom-nav{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 15px);left:20px;right:20px;height:var(--bottom-nav-height);background-color:rgba(35,35,35,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:35px;display:flex;justify-content:space-around;align-items:center;z-index:1500;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:background-color 0.3s,border 0.3s}
+    #bottom-nav{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 15px);left:20px;right:20px;height:var(--bottom-nav-height);background-color:rgba(35,35,35,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:35px;display:flex;justify-content:space-around;align-items:center;z-index:9000;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:background-color 0.3s,border 0.3s}
     body.light-mode #bottom-nav{background-color:rgba(255,255,255,0.75);border:1px solid rgba(0,0,0,0.1)}
     .nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:100%;color:var(--text-muted);cursor:pointer;transition:color 0.2s,transform 0.1s}
     .nav-btn:active{transform:scale(0.9)} .nav-btn.active{color:var(--accent)}
@@ -111,7 +111,7 @@
 
     .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} .split-balance{font-size:14px;font-weight:500;margin-top:6px} .split-balance.owe{color:#ff3b30} .split-balance.receive{color:#28CD41}
     .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} .exp-title{font-size:14px;font-weight:500} .exp-payer{font-size:11px;color:var(--text-muted)} .exp-amount{font-size:16px;font-weight:600;color:var(--accent)}
-    .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
+    .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
     .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
 
     /* TIMELINE PICOTADA */
@@ -124,11 +124,11 @@
     .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     
-    /* BOTÃO FLUTUANTE SIMPLES FIXO NO CANTO INFERIOR DIREITO DO TELEMÓVEL */
+    /* BOTÃO FLUTUANTE SIMPLES FIXO NO CANTO INFERIOR DIREITO DO ECRÃ */
     .btn-fab{
       position:fixed !important;
-      bottom:calc(var(--bottom-nav-height) + 20px) !important;
-      right:20px !important;
+      bottom:calc(var(--bottom-nav-height) + 30px) !important;
+      right:25px !important;
       width:56px !important;
       height:56px !important;
       border-radius:50% !important;
@@ -140,17 +140,11 @@
       box-shadow:0 8px 25px rgba(0,0,0,0.6) !important;
       border:none !important;
       cursor:pointer !important;
-      z-index:9999 !important;
+      z-index:9500 !important;
       transition:transform 0.2s;
     }
     .btn-fab:active{transform:scale(0.92)}
     .btn-fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.5}
-
-    .paises-grid{display:flex;flex-direction:column;gap:8px;width:100%;max-height:300px;overflow-y:auto;margin-top:10px}
-    .pais-item{display:flex;align-items:center;justify-content:space-between;background:var(--card-bg);padding:10px 15px;border-radius:10px;border:1px solid var(--border-color)}
-    .pais-badge{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--btn-secondary);color:var(--text-muted)}
-    .pais-badge.visited{background:rgba(40,205,65,0.2);color:#28CD41}
-    .pais-badge.wishlist{background:rgba(255,107,0,0.2);color:var(--accent)}
     
     .viagem-stats-summary{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
     .summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
@@ -161,6 +155,10 @@
     .color-circle{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto;transition:transform 0.2s}
     .color-circle:active{transform:scale(0.85)}
     .color-circle.selected{border-color:var(--text-main)}
+
+    .user-avatar-custom{width:36px;height:36px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;}
+    .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:12px 15px;border-radius:14px;border:1px solid var(--border-color);margin-bottom:8px}
+    .user-info{display:flex;align-items:center;gap:12px}
   </style>
 </head>
 <body>
@@ -295,10 +293,9 @@
       <!-- VIAGENS MAIN -->
       <div id="menu-viagens" class="page">
         <h2 style="margin-bottom:10px;">As Nossas Viagens</h2>
-        <div class="stats-viagens">
-          <div class="stat-box"><span class="stat-num" id="stat-paises-visitados">0</span><span class="stat-lbl">Visitados</span></div>
-          <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens</span></div>
-          <div class="stat-box"><span class="stat-num" id="stat-paises-desejados">0</span><span class="stat-lbl">A Visitar</span></div>
+        <div class="stats-viagens" style="grid-template-columns:1fr 1fr;">
+          <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens Registadas</span></div>
+          <div class="stat-box"><span class="stat-num" id="stat-proxima-viagem">--</span><span class="stat-lbl">Próxima Aventura</span></div>
         </div>
         <button class="btn-acao" style="width:100%;margin-bottom:20px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
           <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
@@ -306,10 +303,6 @@
 
         <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
         <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
-
-        <h3>Explorar Países do Mundo</h3>
-        <input type="text" id="search-pais" class="auth-input" placeholder="Procurar país..." oninput="filtrarPaises()" style="margin-bottom:10px;">
-        <div class="paises-grid" id="container-paises-lista"></div>
       </div>
 
       <!-- NOVA VIAGEM -->
@@ -341,10 +334,9 @@
         <div class="viagem-header">
           <img id="detalhe-viagem-img" src="">
           
-          <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')" title="Abrir Definições & Membros">
+          <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')">
             <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
             <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
-            <span style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px;">⚙️ Ver Detalhes e Pessoas</span>
           </div>
 
           <span class="edit-capa-badge" onclick="document.getElementById('input-edit-capa-direct').click()">📷 Alterar Capa</span>
@@ -352,13 +344,13 @@
         <input type="file" id="input-edit-capa-direct" accept="image/*" style="display:none;" onchange="alterarCapaDireta(event)">
 
         <div class="trip-tabs">
-          <div class="trip-tab active" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeador</div>
+          <div class="trip-tab active" id="tab-btn-resumo" onclick="switchTripTab('resumo')">Resumo</div>
+          <div class="trip-tab" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeador</div>
           <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Dívidas</div>
         </div>
         
-        <!-- PLANEADOR -->
-        <div id="tab-planeador" class="trip-tab-content active">
-          
+        <!-- RESUMO -->
+        <div id="tab-resumo" class="trip-tab-content active">
           <div class="viagem-stats-summary">
             <h4 style="margin:0 0 5px 0;font-size:15px;color:var(--accent);">Resumo da Viagem</h4>
             <div class="summary-row">
@@ -375,12 +367,11 @@
             </div>
             <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
           </div>
+        </div>
 
+        <!-- PLANEADOR -->
+        <div id="tab-planeador" class="trip-tab-content">
           <div class="timeline-container" id="container-timeline-events"></div>
-
-          <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
         </div>
         
         <!-- DÍVIDAS -->
@@ -391,11 +382,16 @@
           </div>
           
           <div id="container-despesas" style="margin-bottom:100px;"></div>
-
-          <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa" style="display:none;">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
         </div>
+
+        <!-- BOTÕES FLUTUANTES SUSPENSOS NO CANTO INFERIOR DIREITO DO ECRÃ -->
+        <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade" style="display:none;">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+
+        <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa" style="display:none;">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
       </div>
 
       <!-- SUPERMERCADOS -->
@@ -486,7 +482,9 @@
         <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
       </div>
 
-      <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">🗑️ Apagar Viagem</button>
+      <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">
+        <svg class="icon-svg" style="width:16px;height:16px;margin-bottom:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Apagar Viagem
+      </button>
       <button class="btn-acao" onclick="fecharModal('modal-detalhes-viagem')" style="width:100%;">Fechar</button>
     </div>
   </div>
@@ -530,14 +528,24 @@
     <div class="modal-content">
       <h2 style="margin-bottom:20px;">Definições</h2>
       <div class="user-card" style="margin-bottom:20px;">
-        <div class="user-info"><div class="user-avatar" id="settings-avatar">?</div><div><p class="user-name" id="settings-name">A carregar...</p><p style="font-size:11px;color:var(--text-muted);margin:0;" id="settings-username">Firebase Cloud</p></div></div>
+        <div class="user-info">
+          <div id="settings-avatar-container" onclick="document.getElementById('input-user-avatar').click()" style="cursor:pointer;" title="Mudar Foto de Perfil">
+            <div class="user-avatar-custom" id="settings-avatar">?</div>
+          </div>
+          <div>
+            <p class="user-name" id="settings-name">A carregar...</p>
+            <p style="font-size:11px;color:var(--text-muted);margin:0;" id="settings-username">Firebase Cloud</p>
+          </div>
+        </div>
       </div>
+      <input type="file" id="input-user-avatar" accept="image/*" style="display:none;" onchange="processarFotoPerfil(event)">
+
       <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:flex-start;" onclick="alternarTema()">
         <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display:none;margin-right:10px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         <span id="texto-tema-modal">Mudar para Modo Claro</span>
       </button>
-      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:space-between;" onclick="document.getElementById('color-picker-grid').style.display=document.getElementById('color-picker-grid').style.display==='none'?'grid':'none'">
+      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:space-between;" onclick="toggleGrelhaCores()">
         <span>Cor Secundária</span><div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
       </button>
       <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
@@ -576,15 +584,9 @@
     const auth = getAuth(app);
     const appId = 'gestao-gn-app';
 
-    let userId = null, userName = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
+    let userId = null, userName = "", userAvatarUrl = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
     let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
-    let timelineEventsData = [], paisesUserData = { visitados: [], desejados: [] };
-
-    const listaPaisesMundo = [
-      "Espanha", "França", "Itália", "Reino Unido", "Alemanha", "Estados Unidos", "Japão", 
-      "Brasil", "Portugal", "Suíça", "Holanda", "Bélgica", "Grécia", "Áustria", "México", 
-      "Tailândia", "Marrocos", "Egito", "Canadá", "Austrália", "Croácia", "Turquia"
-    ].sort();
+    let timelineEventsData = [];
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
@@ -595,6 +597,13 @@
         document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar e Entrar';
         document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
     };
+
+    function obterIniciaisNome(nomeCompleto) {
+        if(!nomeCompleto) return "?";
+        const partes = nomeCompleto.trim().split(/\s+/);
+        if(partes.length === 1) return partes[0].charAt(0).toUpperCase();
+        return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
+    }
 
     window.handleAuth = async () => {
         const userTyped = document.getElementById('auth-username').value.trim(); 
@@ -611,7 +620,8 @@
                   username: userTyped, 
                   searchName: userTyped.toLowerCase(),
                   theme: 'dark',
-                  accentColor: '#FF6B00'
+                  accentColor: '#FF6B00',
+                  avatarUrl: ''
                 }); 
             }
         } catch(e) { 
@@ -623,6 +633,8 @@
     window.fazerLogout = async () => { 
         unsusbscribes.forEach(f => f());
         unsusbscribes = [];
+        fecharModal('modal-definicoes');
+        fecharModal('modal-logout');
         if (auth) await signOut(auth); 
         else window.location.reload(); 
     };
@@ -637,10 +649,11 @@
                     if (profileSnap.exists()) { 
                         const pData = profileSnap.data();
                         userName = pData.username || ""; 
+                        userAvatarUrl = pData.avatarUrl || "";
                         document.getElementById('settings-name').innerText = userName; 
-                        document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase(); 
                         
-                        // Aplica preferências do utilizador vindas da BD
+                        renderAvatarElement(document.getElementById('settings-avatar'), userName, userAvatarUrl);
+
                         if(pData.theme) aplicarTemaInterface(pData.theme);
                         if(pData.accentColor) aplicarCorInterface(pData.accentColor);
                     }
@@ -650,6 +663,7 @@
                 setTimeout(() => { 
                     document.getElementById('auth-overlay').style.display = 'none'; 
                     document.getElementById('app-container').style.display = 'flex'; 
+                    navegarMenu('menu-principal'); 
                 }, 400);
 
                 iniciarListenersFirebase();
@@ -662,6 +676,31 @@
             }
         });
     }
+
+    function renderAvatarElement(elem, nome, urlFoto) {
+        if(!elem) return;
+        if(urlFoto) {
+            elem.innerHTML = `<img src="${urlFoto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        } else {
+            elem.innerHTML = obterIniciaisNome(nome);
+        }
+    }
+
+    window.processarFotoPerfil = (ev) => {
+        const file = ev.target.files[0]; if(!file || !userId) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image(); img.onload = async () => {
+                const canvas = document.createElement('canvas'); const max = 400; let w=img.width, h=img.height;
+                if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h;
+                canvas.getContext('2d').drawImage(img,0,0,w,h);
+                const b64 = canvas.toDataURL('image/jpeg',0.7);
+                userAvatarUrl = b64;
+                renderAvatarElement(document.getElementById('settings-avatar'), userName, userAvatarUrl);
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: b64 }, { merge: true });
+            }; img.src = e.target.result;
+        }; reader.readAsDataURL(file);
+    };
 
     window.abrirSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); };
     window.fecharSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); };
@@ -690,12 +729,13 @@
         }
     }, {passive:true});
 
-    const palette = ['#FF6B00','#FF3B30','#28CD41','#007AFF','#AF52DE','#E5A8F2','#FFCC00','#FF2D55','#5AC8FA','#00C7BE','#32ADE6','#5856D6','#A2845E','#D4AF37','#FF8A65','#2ECC71','#0F52BA','#9966CC','#FA8072','#C0C0C0'];
+    // EXACTAMENTE 10 CORES PARA SELEÇÃO
+    const palette10 = ['#FF6B00','#FF3B30','#28CD41','#007AFF','#AF52DE','#FF2D55','#5AC8FA','#FFCC00','#5856D6','#2ECC71'];
     
     function renderColorPicker() {
         const grid = document.getElementById('color-picker-grid'); grid.innerHTML = ''; 
         const sColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-        palette.forEach(c => { 
+        palette10.forEach(c => { 
             const circle = document.createElement('div'); circle.className = 'color-circle';
             if(c.toLowerCase() === sColor.toLowerCase()) circle.classList.add('selected');
             circle.style.backgroundColor = c; 
@@ -703,6 +743,16 @@
             grid.appendChild(circle); 
         });
     }
+
+    window.toggleGrelhaCores = () => {
+        const g = document.getElementById('color-picker-grid');
+        if(g.style.display === 'none' || g.style.display === '') {
+            renderColorPicker();
+            g.style.display = 'grid';
+        } else {
+            g.style.display = 'none';
+        }
+    };
 
     function aplicarCorInterface(nc) {
         document.documentElement.style.setProperty('--accent', nc);
@@ -789,13 +839,6 @@
         
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
-        unsusbscribes.push(onSnapshot(doc(userDocRef, 'meta', 'paises'), s => {
-            if(s.exists()){ paisesUserData = s.data(); }
-            else { paisesUserData = { visitados: [], desejados: [] }; }
-            renderPaises();
-        }));
-
-        // Consulta filtrada apenas para as viagens onde o utilizador participa
         const qViagens = query(
             collection(db, 'artifacts', appId, 'viagens_partilhadas'), 
             where("membros_uids", "array-contains", userId)
@@ -804,6 +847,14 @@
             viagensData = []; 
             s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
             if(document.getElementById('stat-total-viagens')) document.getElementById('stat-total-viagens').innerText = viagensData.length; 
+            
+            // Calcula próxima viagem
+            const hoje = new Date().toISOString().split('T')[0];
+            const proximas = viagensData.filter(v => v.dataInicio && v.dataInicio >= hoje).sort((a,b) => a.dataInicio.localeCompare(b.dataInicio));
+            if(document.getElementById('stat-proxima-viagem')) {
+                document.getElementById('stat-proxima-viagem').innerText = proximas.length > 0 ? proximas[0].nome : '--';
+            }
+
             renderViagensCards(); 
             if(currentTripId){
                 const tripAtual = viagensData.find(v => v.id === currentTripId);
@@ -897,64 +948,14 @@
         const res = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles')); let arr=[]; 
         res.forEach(d => { let p=d.data(); if(p.uid!==userId && p.searchName && p.searchName.includes(t)) arr.push(p); }); 
         if(arr.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>'; return;} 
-        let h=''; arr.forEach(u => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${u.username.charAt(0).toUpperCase()}</div><p class="user-name" style="font-size:13px;">${u.username}</p></div><button class="btn-add" style="width:auto;padding:5px 15px;font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button></div>`); c.innerHTML=h;
+        let h=''; arr.forEach(u => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(u.username)}</div><p class="user-name" style="font-size:13px;">${u.username}</p></div><button class="btn-add" style="width:auto;padding:5px 15px;font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button></div>`); c.innerHTML=h;
     };
     
     window.enviarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',id,'requests',userId), {fromUid:userId, fromName:userName, timestamp:Date.now()}); window.mostrarAlerta(nm+" convidado!"); document.getElementById('input-search-users').value=''; document.getElementById('container-pesquisa-users').innerHTML=''; };
-    function renderRequestsDB(reqs) { const c = document.getElementById('container-pedidos'); if(reqs.length===0){c.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>'; return;} let h=''; reqs.forEach(p => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.fromName.charAt(0).toUpperCase()}</div><div><p class="user-name" style="font-size:13px;">${p.fromName}</p><p style="font-size:11px;color:var(--text-muted);margin:0;">Pedido de amizade</p></div></div><div style="display:flex;gap:5px;"><button class="btn-add" style="width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${p.fromUid}','${p.fromName}')">✓</button><button class="btn-add" style="background-color:#ff3b30;width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${p.fromUid}')">✕</button></div></div>`); c.innerHTML=h; }
+    function renderRequestsDB(reqs) { const c = document.getElementById('container-pedidos'); if(reqs.length===0){c.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>'; return;} let h=''; reqs.forEach(p => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(p.fromName)}</div><div><p class="user-name" style="font-size:13px;">${p.fromName}</p><p style="font-size:11px;color:var(--text-muted);margin:0;">Pedido de amizade</p></div></div><div style="display:flex;gap:5px;"><button class="btn-add" style="width:30px;height:30px;border-radius:8px;" onclick="aceitarPedido('${p.fromUid}','${p.fromName}')">✓</button><button class="btn-add" style="background-color:#ff3b30;width:30px;height:30px;border-radius:8px;" onclick="recusarPedido('${p.fromUid}')">✕</button></div></div>`); c.innerHTML=h; }
     window.aceitarPedido = async (id, nm) => { await setDoc(doc(db,'artifacts',appId,'users',userId,'friends',id), {name:nm,uid:id}); await setDoc(doc(db,'artifacts',appId,'users',id,'friends',userId), {name:userName,uid:userId}); await window.recusarPedido(id); };
     window.recusarPedido = async (id) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,'requests',id));
-    function renderFriendsDB(amigos) { const c = document.getElementById('container-amigos'); if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} let h=''; amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${a.name.charAt(0).toUpperCase()}</div><p class="user-name">${a.name}</p></div></div>`); c.innerHTML=h; }
-
-    /* LÓGICA DE PAÍSES */
-    function renderPaises() {
-        const v = paisesUserData.visitados || [];
-        const d = paisesUserData.desejados || [];
-        document.getElementById('stat-paises-visitados').innerText = v.length;
-        document.getElementById('stat-paises-desejados').innerText = d.length;
-        filtrarPaises();
-    }
-
-    window.filtrarPaises = () => {
-        const queryTxt = (document.getElementById('search-pais').value || '').toLowerCase();
-        const container = document.getElementById('container-paises-lista');
-        const v = paisesUserData.visitados || [];
-        const d = paisesUserData.desejados || [];
-        let html = '';
-
-        listaPaisesMundo.filter(p => p.toLowerCase().includes(queryTxt)).forEach(pais => {
-            let status = 'Por visitar';
-            let badgeClass = '';
-            if(v.includes(pais)) { status = 'Visitado ✓'; badgeClass = 'visited'; }
-            else if(d.includes(pais)) { status = 'A Visitar ★'; badgeClass = 'wishlist'; }
-
-            html += `<div class="pais-item">
-                <span style="font-size:14px;font-weight:500;">${pais}</span>
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <span class="pais-badge ${badgeClass}">${status}</span>
-                    <button class="btn-icon-list" onclick="toggleEstadoPais('${pais}')" title="Mudar estado">${iconEdit}</button>
-                </div>
-            </div>`;
-        });
-        container.innerHTML = html;
-    };
-
-    window.toggleEstadoPais = async (pais) => {
-        let v = [...(paisesUserData.visitados || [])];
-        let d = [...(paisesUserData.desejados || [])];
-
-        if(v.includes(pais)) {
-            v = v.filter(x => x !== pais);
-            d.push(pais);
-        } else if(d.includes(pais)) {
-            d = d.filter(x => x !== pais);
-        } else {
-            v.push(pais);
-        }
-
-        paisesUserData = { visitados: v, desejados: d };
-        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'meta', 'paises'), paisesUserData);
-    };
+    function renderFriendsDB(amigos) { const c = document.getElementById('container-amigos'); if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} let h=''; amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(a.name)}</div><p class="user-name">${a.name}</p></div></div>`); c.innerHTML=h; }
 
     /* VIAGENS */
     function renderViagensCards() { 
@@ -1041,7 +1042,7 @@
         document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
 
         renderMembrosSettings(); 
-        window.switchTripTab('planeador'); 
+        window.switchTripTab('resumo'); 
         window.navegarMenu('page-viagem-detalhe');
         
         if(unsubDespesas) unsubDespesas();
@@ -1070,11 +1071,29 @@
 
     function renderMembrosSettings() {
          let sel='', list='', dd='', checkboxes = '';
+         const donoId = currentTripDoc.dono;
+
          currentTripDoc.membros_info.forEach(p => { 
              sel+=`<option value="${p.uid}">${p.nome}</option>`; 
-             list+=`<div class="user-card" style="padding:10px;"><div class="user-info"><div class="user-avatar" style="width:30px;height:30px;font-size:14px;">${p.nome.charAt(0).toUpperCase()}</div><span style="font-size:14px;font-weight:500;">${p.nome}</span></div></div>`; 
+             
+             let isCriador = (p.uid === donoId);
+             let btnRemover = (!isCriador && (userId === donoId || p.uid === userId)) ? 
+                `<button class="btn-icon-list" onclick="removerMembroViagem('${p.uid}')" title="Remover das viagens">${iconTrash}</button>` : '';
+
+             list+=`<div class="user-card" style="padding:10px;">
+                <div class="user-info">
+                    <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(p.nome)}</div>
+                    <div>
+                        <span style="font-size:14px;font-weight:500;">${p.nome}</span>
+                        ${isCriador ? '<span style="font-size:10px;color:var(--accent);margin-left:6px;font-weight:600;">(Criador)</span>' : ''}
+                    </div>
+                </div>
+                ${btnRemover}
+             </div>`; 
+
              checkboxes += `<label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" class="chk-split-membro" value="${p.uid}" checked> ${p.nome}</label>`;
          });
+
          document.getElementById('exp-pagador').innerHTML = sel; 
          document.getElementById('trip-membros-list').innerHTML = list;
          document.getElementById('split-participantes-checkboxes').innerHTML = checkboxes;
@@ -1087,6 +1106,18 @@
          const sel = document.getElementById('trip-amigos-disponiveis'); if(sel.value==="") return;
          const idA = sel.value, nmA = sel.options[sel.selectedIndex].getAttribute('data-nome');
          await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids:[...currentTripDoc.membros_uids, idA], membros_info:[...currentTripDoc.membros_info, {uid:idA, nome:nmA}] }); window.mostrarAlerta(nmA+" inserido na viagem!");
+    };
+
+    window.removerMembroViagem = async (membroUid) => {
+        if(confirm("Remover esta pessoa da viagem?")) {
+            const novosUids = currentTripDoc.membros_uids.filter(u => u !== membroUid);
+            const novaInfo = currentTripDoc.membros_info.filter(m => m.uid !== membroUid);
+            await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids: novosUids, membros_info: novaInfo });
+            if(membroUid === userId) {
+                fecharModal('modal-detalhes-viagem');
+                window.navegarMenu('menu-viagens');
+            }
+        }
     };
 
     function atualizarResumoInternoViagem(despesasPassadas) {

@@ -5,192 +5,163 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="App Casal">
+  <meta name="apple-mobile-web-app-title" content="Gestão G&N">
   <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    :root{--bg-color:#191919;--card-bg:#202020;--text-main:rgba(255,255,255,0.9);--text-muted:rgba(255,255,255,0.5);--accent:#FF6B00;--btn-secondary:#2C2C2C;--border-color:rgba(255,255,255,0.05);--sidebar-width:280px;--bottom-nav-height:70px}
-    body.light-mode{--bg-color:#FFFFFF;--card-bg:#F7F7F5;--text-main:#37352F;--text-muted:rgba(55,53,47,0.6);--btn-secondary:#EBEBEA;--border-color:rgba(0,0,0,0.08)}
+    :root{--bg-color:#121212;--card-bg:#181818;--text-main:rgba(255,255,255,0.95);--text-muted:rgba(255,255,255,0.6);--accent:#1DB954;--btn-secondary:#282828;--border-color:rgba(255,255,255,0.08);--sidebar-width:300px;--bottom-nav-height:75px}
+    body.light-mode{--bg-color:#FFFFFF;--card-bg:#F7F7F5;--text-main:#121212;--text-muted:rgba(0,0,0,0.6);--btn-secondary:#EBEBEA;--border-color:rgba(0,0,0,0.08)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{font-family:'Poppins',sans-serif;background-color:var(--bg-color);color:var(--text-main);margin:0;padding:0;display:flex;min-height:100vh;overflow-x:hidden;transition:background-color 0.3s,color 0.3s}
     
     #auth-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;transition:opacity 0.5s}
-    .auth-box{background-color:var(--card-bg);padding:30px;border-radius:20px;border:1px solid var(--border-color);width:100%;max-width:350px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
+    .auth-box{background-color:var(--card-bg);padding:30px;border-radius:20px;border:1px solid var(--border-color);width:100%;max-width:350px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.4)}
     .auth-input{width:100%;padding:15px;margin-bottom:15px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;font-family:inherit;font-size:15px;transition:border-color 0.3s}
     .auth-input:focus{outline:none;border-color:var(--accent)}
     .auth-btn{background-color:var(--accent);color:#121212;border:none;padding:15px;width:100%;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;transition:transform 0.1s}
     .auth-btn:active{transform:scale(0.95)}
     .auth-link{color:var(--text-muted);font-size:13px;cursor:pointer;text-decoration:underline;transition:color 0.3s}
-    .auth-link:active{color:var(--text-main)}
     .main-auth-logo{width:120px;margin-bottom:30px}
-    
     .loading-spinner{width:36px;height:36px;border:3px solid var(--border-color);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-top:15px}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    #app-container{display:none;width:100%;height:100vh}
-    .page-container{flex:1;padding:calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 40px) 20px;width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
-    h1{font-weight:600;font-size:26px;margin-bottom:30px;text-align:center;letter-spacing:1px}
-    h2{font-weight:400;font-size:18px;color:var(--text-muted);text-align:center;margin-bottom:20px}
-    h3{font-size:16px;font-weight:500;margin:0 0 15px 0;display:flex;align-items:center;gap:8px}
+    #app-container{display:none;width:100%;height:100vh;flex-direction:column}
+    
+    /* BARRA SUPERIOR SPOTIFY COM AVATAR DO UTILIZADOR */
+    #top-bar-spotify{position:sticky;top:0;left:0;right:0;height:60px;background-color:rgba(18,18,18,0.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:8000;border-bottom:1px solid var(--border-color)}
+    body.light-mode #top-bar-spotify{background-color:rgba(255,255,255,0.85)}
+    .top-user-avatar{width:36px;height:36px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;object-fit:cover;border:2px solid var(--border-color)}
+
+    .page-container{flex:1;padding:20px 20px calc(var(--bottom-nav-height) + 35px) 20px;width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
+    h1{font-weight:700;font-size:24px;margin-bottom:20px;text-align:center;letter-spacing:-0.5px}
+    h2{font-weight:500;font-size:18px;color:var(--text-muted);text-align:center;margin-bottom:20px}
+    h3{font-size:16px;font-weight:600;margin:0 0 15px 0;display:flex;align-items:center;gap:8px}
     .page{display:none;opacity:0;transform:translateY(15px);transition:opacity 0.3s,transform 0.3s;width:100%}
     .page.active{display:block;animation:fadeIn 0.4s forwards}
     @keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
     
-    #sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1999;opacity:0;pointer-events:none;transition:opacity 0.3s}
+    /* MENU LATERAL SPOTIFY */
+    #sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:11000;opacity:0;pointer-events:none;transition:opacity 0.3s}
     #sidebar-overlay.open{opacity:1;pointer-events:auto}
-    #sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-width);background-color:var(--card-bg);z-index:2000;transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),background-color 0.3s;border-right:1px solid var(--border-color);box-shadow:5px 0 15px rgba(0,0,0,0.5);display:flex;flex-direction:column}
+    #sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-width);background-color:var(--card-bg);z-index:12000;transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);border-right:1px solid var(--border-color);display:flex;flex-direction:column;padding:20px 0}
     #sidebar.open{transform:translateX(0)}
-    .sidebar-header{padding:calc(env(safe-area-inset-top) + 20px) 20px 20px 20px;border-bottom:1px solid var(--border-color);display:flex;flex-direction:column;align-items:center}
-    .sidebar-logo{width:140px;height:90px;object-fit:contain;margin:0 auto;display:block}
-    .light-logo{display:none} body.light-mode .light-logo{display:block} body.light-mode .dark-logo{display:none}
-    .sidebar-item{padding:18px 25px;font-size:15px;font-weight:500;color:var(--text-main);display:flex;align-items:center;gap:15px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02);transition:background-color 0.2s,color 0.3s}
+    .sidebar-user-header{padding:20px;display:flex;align-items:center;gap:15px;border-bottom:1px solid var(--border-color);cursor:pointer}
+    .sidebar-item{padding:16px 25px;font-size:15px;font-weight:500;color:var(--text-main);display:flex;align-items:center;gap:15px;cursor:pointer;transition:background-color 0.2s}
     .sidebar-item:active{background-color:var(--btn-secondary)}
-    .sidebar-item.active{border-left:4px solid var(--accent);background-color:rgba(255,107,0,0.05);color:var(--accent)}
-    .sidebar-submenu{display:none;flex-direction:column;background-color:rgba(0,0,0,0.1)} 
-    body.light-mode .sidebar-submenu{background-color:rgba(0,0,0,0.02)}
-    .sidebar-subitem{padding:12px 25px 12px 55px;font-size:13px;color:var(--text-muted);cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.01)}
-    .sidebar-subitem:active{color:var(--text-main)}
-    .sidebar-footer{margin-top:auto;border-top:1px solid var(--border-color)}
-    .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px;margin-bottom:4px}
-    .sidebar-icon-svg{width:20px;height:20px;flex-shrink:0;margin-bottom:0}
+    .sidebar-item.active{color:var(--accent);font-weight:600}
+    .sidebar-submenu{display:none;flex-direction:column;background-color:rgba(0,0,0,0.15)}
+    .sidebar-subitem{padding:12px 25px 12px 55px;font-size:13px;color:var(--text-muted);cursor:pointer}
+    .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px}
     
-    #bottom-nav{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 15px);left:20px;right:20px;height:var(--bottom-nav-height);background-color:rgba(35,35,35,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:35px;display:flex;justify-content:space-around;align-items:center;z-index:9000;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:background-color 0.3s,border 0.3s}
-    body.light-mode #bottom-nav{background-color:rgba(255,255,255,0.75);border:1px solid rgba(0,0,0,0.1)}
+    /* BARRA INFERIOR GRADIENTE SPOTIFY */
+    #bottom-nav-wrap{position:fixed;bottom:0;left:0;right:0;height:calc(var(--bottom-nav-height) + 20px);background:linear-gradient(to top, rgba(0,0,0,0.95) 60%, rgba(0,0,0,0));pointer-events:none;z-index:9000;display:flex;align-items:flex-end;justify-content:center;padding-bottom:15px}
+    body.light-mode #bottom-nav-wrap{background:linear-gradient(to top, rgba(255,255,255,0.95) 60%, rgba(255,255,255,0))}
+    #bottom-nav{pointer-events:auto;width:calc(100% - 40px);max-width:460px;height:var(--bottom-nav-height);background-color:rgba(24,24,24,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:35px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+    body.light-mode #bottom-nav{background-color:rgba(247,247,245,0.85)}
     .nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:100%;color:var(--text-muted);cursor:pointer;transition:color 0.2s,transform 0.1s}
-    .nav-btn:active{transform:scale(0.9)} .nav-btn.active{color:var(--accent)}
+    .nav-btn.active{color:var(--accent)}
+    .nav-badge{position:absolute;top:8px;right:10px;background-color:var(--accent);color:#121212;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;display:none;line-height:1}
     
-    .nav-badge{position:absolute;top:10px;right:10px;background-color:var(--accent);color:#121212;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;display:none;line-height:1}
-    @media (min-width:800px){#bottom-nav{display:none} .page-container{max-width:800px;padding-bottom:40px;margin:0} #app-container{flex-direction:row} #sidebar{position:static;transform:translateX(0);box-shadow:none;z-index:10} #sidebar-overlay{display:none !important}}
-    
-    .dashboard-widget{background-color:var(--card-bg);width:100%;border-radius:20px;padding:25px;margin-bottom:15px;border:1px solid var(--border-color);box-shadow:0 4px 15px rgba(0,0,0,0.05)}
+    /* MODO JIGGLE APPLE 3D */
+    .jiggle-mode .nav-btn, .jiggle-mode .library-card{animation:jiggle 0.25s infinite alternate ease-in-out}
+    @keyframes jiggle{0%{transform:rotate(-1.5deg) scale(0.98)}100%{transform:rotate(1.5deg) scale(1.02)}}
+
+    /* BOTÃO FLUTUANTE SIMPLES SUSPENSO */
+    .btn-fab{position:fixed !important;bottom:calc(var(--bottom-nav-height) + 35px) !important;right:25px !important;width:56px !important;height:56px !important;border-radius:50% !important;background-color:var(--accent) !important;color:#121212 !important;display:flex !important;align-items:center !important;justify-content:center !important;box-shadow:0 8px 25px rgba(0,0,0,0.6) !important;border:none !important;cursor:pointer !important;z-index:9500 !important;transition:transform 0.2s}
+    .btn-fab:active{transform:scale(0.92)}
+    .btn-fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.5}
+
+    /* BIBLIOTECA */
+    .library-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-top:15px}
+    .library-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:transform 0.2s}
+    .library-card:active{transform:scale(0.95)}
+
+    /* MÁSCARA CIRCULAR CROPPER */
+    .crop-viewport-circle{width:240px;height:240px;border-radius:50%;border:3px solid var(--accent);overflow:hidden;position:relative;margin:0 auto 15px auto;background:#000;touch-action:none;cursor:grab}
+    .crop-viewport-circle img{position:absolute;top:0;left:0;transform-origin:center;user-select:none;-webkit-user-drag:none}
+
+    /* ELEMENTOS E WIDGETS DA APLICAÇÃO */
+    .dashboard-widget{background-color:var(--card-bg);width:100%;border-radius:20px;padding:20px;margin-bottom:15px;border:1px solid var(--border-color)}
     .top-widgets-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:15px}
     .widget-relogio, .widget-meteorologia{margin-bottom:0;padding:20px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
     #data-atual{font-size:11px;font-weight:500;color:var(--accent);text-transform:uppercase;letter-spacing:1px}
-    #hora-atual{font-size:34px;font-weight:300;color:var(--text-main);margin:5px 0 0 0;line-height:1}
-    .meteo-top-row{display:flex;align-items:center;justify-content:center;gap:8px}
-    #meteo-temp{font-size:28px;font-weight:300;line-height:1;color:var(--text-main)}
-    #meteo-desc{font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:500}
-    #meteo-local-texto{font-size:9px;color:var(--accent);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:3px}
-    .widget-frase{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px}
-    .frase-texto{font-size:16px;font-style:italic;font-weight:300;line-height:1.5;margin:0}
-    .frase-autor{font-size:11px;color:var(--accent);margin-top:15px;font-weight:500;text-transform:uppercase;letter-spacing:1px}
+    #hora-atual{font-size:32px;font-weight:300;color:var(--text-main);margin:5px 0 0 0;line-height:1}
     .input-row{display:flex;gap:10px;margin-bottom:15px;width:100%}
     .input-text{flex:1;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);padding:12px 15px;border-radius:12px;font-family:inherit;font-size:14px}
-    .btn-add{background-color:var(--accent);color:#121212;border:none;border-radius:12px;width:45px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.1s} .btn-add:active{transform:scale(0.9)}
+    .btn-add{background-color:var(--accent);color:#121212;border:none;border-radius:12px;width:45px;display:flex;align-items:center;justify-content:center;cursor:pointer}
     .lista-itens{display:flex;flex-direction:column;gap:8px;width:100%}
     .list-item{display:flex;align-items:center;background-color:var(--card-bg);padding:12px 15px;border-radius:12px;border:1px solid var(--border-color)}
     .item-texto{flex:1;font-size:14px;margin-left:12px;word-break:break-word} .list-item.feita .item-texto{text-decoration:line-through;color:var(--text-muted)}
-    .checkbox-custom{width:24px;height:24px;border-radius:50%;border:2px solid var(--accent);cursor:pointer;flex-shrink:0;position:relative} .list-item.feita .checkbox-custom{background-color:var(--accent);border-color:var(--accent)} .list-item.feita .checkbox-custom::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-weight:bold;font-size:12px}
-    .btn-icon-list{background:none;border:none;color:var(--text-muted);padding:5px;cursor:pointer;display:flex;align-items:center;justify-content:center} .btn-icon-list:active{transform:scale(0.9);color:var(--text-main)}
-    .btn{background-color:var(--card-bg);color:var(--text-main);border:1px solid var(--border-color);padding:20px;margin-bottom:15px;border-radius:16px;font-size:16px;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:space-between} .btn:active{transform:scale(0.98);background-color:var(--btn-secondary)}
-    .btn-acao{flex:1;background-color:var(--btn-secondary);color:var(--text-main);border:1px solid var(--border-color);padding:12px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:500} .btn-acao:active{background-color:var(--border-color)}
-    .logos-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:20px}
-    .logo-card{background-color:#fff;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border-color);height:100px} .logo-card img{max-width:100%;max-height:100%;object-fit:contain}
-    .cartao-desconto-container{width:100%;height:200px;background-color:var(--card-bg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;margin-bottom:15px;cursor:pointer;border:1px dashed var(--border-color);position:relative} .cartao-desconto-container img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2}
-    .textarea-obs{width:100%;height:100px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:none;margin-top:10px} .textarea-obs:focus{outline:none;border-color:var(--accent)}
-
+    .checkbox-custom{width:22px;height:24px;border-radius:50%;border:2px solid var(--accent);cursor:pointer;flex-shrink:0;position:relative} .list-item.feita .checkbox-custom{background-color:var(--accent)}
+    .btn-icon-list{background:none;border:none;color:var(--text-muted);padding:5px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .btn-acao{flex:1;background-color:var(--btn-secondary);color:var(--text-main);border:1px solid var(--border-color);padding:12px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:500}
+    
     .stats-viagens{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:20px} 
     .stat-box{background-color:var(--card-bg);padding:15px 5px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} 
     .stat-num{font-size:20px;font-weight:600;color:var(--accent);display:block;line-height:1.2} 
-    .stat-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+    .stat-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase}
     
-    .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
+    .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;position:relative;height:150px;width:100%}
+    .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+    .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);display:flex;flex-direction:column}
+    .trip-title{color:white;font-size:18px;font-weight:600;margin:0}
+    .trip-country{color:#ddd;font-size:12px;display:flex;align-items:center;justify-content:space-between}
     
-    .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px} 
-    .viagem-header img{width:100%;height:100%;object-fit:cover} 
-    .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer} 
-    .viagem-header-title{color:white;font-size:26px;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.5);text-align:center;margin:0} 
-    .viagem-header-dates{color:#ddd;font-size:13px;margin-top:5px;text-shadow:0 1px 4px rgba(0,0,0,0.6)} 
+    .viagem-header{width:100%;height:180px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px}
+    .viagem-header img{width:100%;height:100%;object-fit:cover}
+    .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
     .edit-capa-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:6px 12px;border-radius:20px;font-size:11px;backdrop-filter:blur(5px);cursor:pointer;z-index:10}
     
-    .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} 
-    .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} 
-    .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} 
-    .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
+    .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%}
+    .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px}
+    .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)}
+    .trip-tab-content{display:none;width:100%}
     .trip-tab-content.active{display:block}
-
-    /* FORMATO DE SALDOS LIMPO (SEM BOLA ATRÁS) */
-    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} 
-    .split-balance{font-size:14px;font-weight:500;margin-top:8px;display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-radius:12px;background:var(--bg-color);border:1px solid var(--border-color)} 
-    .split-balance.owe{color:#ff3b30} .split-balance.receive{color:#28CD41}
     
-    .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} 
-    .exp-title{font-size:14px;font-weight:500} 
-    .exp-payer{font-size:11px;color:var(--text-muted)} 
+    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center}
+    .split-balance{font-size:13px;font-weight:500;margin-top:8px;display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-radius:12px;background:var(--bg-color);border:1px solid var(--border-color)}
+    .split-balance.owe{color:#ff3b30} .split-balance.receive{color:#1DB954}
+    
+    .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px}
+    .exp-title{font-size:14px;font-weight:500}
+    .exp-payer{font-size:11px;color:var(--text-muted)}
     .exp-amount{font-size:16px;font-weight:600;color:var(--accent)}
-    .exp-date-badge{font-size:10px;color:var(--accent);background:rgba(255,107,0,0.1);padding:2px 6px;border-radius:6px;margin-right:6px}
-
-    .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
-    .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
-
-    /* TIMELINE PICOTADA */
+    
+    .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:20000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}
+    .modal-overlay.active{display:flex}
+    .modal-content{background-color:var(--card-bg);width:100%;max-width:360px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);max-height:90vh;overflow-y:auto}
+    .modal-btn-row{display:flex;gap:10px;margin-top:15px}
+    
     .timeline-container{position:relative;padding-left:25px;margin-top:15px;margin-bottom:100px;width:100%}
     .timeline-container::before{content:'';position:absolute;left:8px;top:10px;bottom:10px;width:2px;border-left:2px dashed var(--accent);opacity:0.6}
     .timeline-item{position:relative;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;gap:5px}
-    .timeline-item::before{content:'';position:absolute;left:-22px;top:18px;width:10px;height:10px;border-radius:50%;background-color:var(--accent);border:2px solid var(--bg-color)}
+    .timeline-item::before{content:'';position:absolute;left:-22px;top:18px;width:10px;height:10px;border-radius:50%;background-color:var(--accent)}
     .timeline-header{display:flex;justify-content:space-between;align-items:center}
     .timeline-time{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase}
     .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE SIMPLES FIXO NO CANTO INFERIOR DIREITO DO ECRÃ */
-    .btn-fab{
-      position:fixed !important;
-      bottom:calc(var(--bottom-nav-height) + 30px) !important;
-      right:25px !important;
-      width:56px !important;
-      height:56px !important;
-      border-radius:50% !important;
-      background-color:var(--accent) !important;
-      color:#121212 !important;
-      display:flex !important;
-      align-items:center !important;
-      justify-content:center !important;
-      box-shadow:0 8px 25px rgba(0,0,0,0.6) !important;
-      border:none !important;
-      cursor:pointer !important;
-      z-index:9500 !important;
-      transition:transform 0.2s;
-    }
-    .btn-fab:active{transform:scale(0.92)}
-    .btn-fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.5}
-    
-    .viagem-stats-summary{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
-    .summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
-    .summary-label{color:var(--text-muted)}
-    .summary-val{font-weight:600;color:var(--text-main)}
-
-    .color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:10px 0}
-    .color-circle{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto;transition:transform 0.2s}
-    .color-circle:active{transform:scale(0.85)}
-    .color-circle.selected{border-color:var(--text-main)}
-
-    .user-avatar-custom{width:36px;height:36px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;}
+    .user-avatar-custom{width:36px;height:36px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;object-fit:cover;}
     .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:12px 15px;border-radius:14px;border:1px solid var(--border-color);margin-bottom:8px}
     .user-info{display:flex;align-items:center;gap:12px}
-
-    /* ESTILOS DE NOTIFICAÇÃO */
-    .notif-item{display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:14px;margin-bottom:10px;border:1px solid var(--border-color);transition:background-color 0.3s}
+    
+    .notif-item{display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:14px;margin-bottom:10px;border:1px solid var(--border-color)}
     .notif-item.nao-lida{background-color:rgba(255,255,255,0.08)}
-    body.light-mode .notif-item.nao-lida{background-color:rgba(0,0,0,0.05)}
     .notif-item.lida{background-color:var(--card-bg);opacity:0.7}
-    .notif-time{font-size:10px;color:var(--accent);font-weight:600;margin-bottom:3px;display:block}
+    
+    .logos-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:20px}
+    .logo-card{background-color:#fff;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border-color);height:100px}
+    .logo-card img{max-width:100%;max-height:100%;object-fit:contain}
+    .cartao-desconto-container{width:100%;height:200px;background-color:var(--card-bg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;margin-bottom:15px;cursor:pointer;border:1px dashed var(--border-color);position:relative}
+    .cartao-desconto-container img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2}
+    .textarea-obs{width:100%;height:100px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:none;margin-top:10px}
+    
+    .color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:10px 0}
+    .color-circle{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto}
+    .color-circle.selected{border-color:var(--text-main)}
 
-    /* CROPPING / AJUSTE DE IMAGEM */
-    .crop-viewport{width:100%;height:250px;background:#000;overflow:hidden;position:relative;border-radius:14px;margin-bottom:15px;touch-action:none;cursor:grab}
-    .crop-viewport img{position:absolute;top:0;left:0;transform-origin:center;user-select:none;-webkit-user-drag:none}
-
-    /* CAIXA DE ADD DESPESA ESTILO SPLITWISE */
-    .splitwise-card{background:var(--bg-color);border:1px solid var(--border-color);border-radius:16px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;gap:12px}
-    .splitwise-row{display:flex;align-items:center;gap:10px}
-    .splitwise-icon-box{width:45px;height:45px;border-radius:12px;border:1px solid var(--border-color);background:var(--card-bg);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
-    .splitwise-input{background:transparent;border:none;border-bottom:2px solid var(--border-color);color:var(--text-main);font-size:16px;padding:8px 0;width:100%;font-family:inherit}
-    .splitwise-input:focus{outline:none;border-bottom-color:var(--accent)}
-    .splitwise-tag{display:inline-block;padding:6px 12px;background:var(--card-bg);border:1px solid var(--border-color);border-radius:20px;font-size:12px;cursor:pointer;color:var(--text-main)}
-
-    /* CANVASES DE GRÁFICOS */
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
     canvas{width:100% !important;max-height:180px}
   </style>
@@ -200,8 +171,6 @@
   <!-- OVERLAY DE LOGIN / REGISTO -->
   <div id="auth-overlay">
     <img src="logobranco_semfundo.png" class="main-auth-logo dark-logo" onerror="this.style.display='none'">
-    <img src="logopreto_semfundo.png" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display:none;">
-    
     <div id="auth-loading-state" style="display:flex;flex-direction:column;align-items:center;">
       <div class="loading-spinner"></div>
       <p style="font-size:13px;color:var(--text-muted);margin-top:15px;">A verificar sessão...</p>
@@ -214,162 +183,136 @@
       <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display:none;">
       <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
       <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Cria uma aqui.</p>
-      <p class="auth-link" style="margin-top:5px;" onclick="mostrarAlerta('Se te esqueceste da password, avisa o admin.')">Esqueceste-te da password?</p>
       <p id="auth-error" style="color:#ff4d4d;font-size:13px;margin-top:15px;display:none;"></p>
     </div>
   </div>
 
-  <!-- CONTAINER PRINCIPAL DA APP -->
+  <!-- CONTAINER PRINCIPAL -->
   <div id="app-container">
     
-    <!-- MENU LATERAL (SIDEBAR) -->
+    <!-- BARRA SUPERIOR SPOTIFY -->
+    <div id="top-bar-spotify">
+      <div class="top-user-avatar" id="top-user-avatar" onclick="abrirSidebar()" title="Abrir Menu">?</div>
+      <span style="font-weight:700;font-size:16px;letter-spacing:-0.5px;">Gestão G&N</span>
+      <div style="width:36px;"></div>
+    </div>
+
+    <!-- SIDEBAR SPOTIFY -->
     <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
     <div id="sidebar">
-      <div class="sidebar-header">
-        <img src="logobranco_semfundo.png" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
-        <img src="logopreto_semfundo.png" class="sidebar-logo light-logo" onerror="this.style.display='none'">
+      <div class="sidebar-user-header" onclick="abrirModal('modal-definicoes')">
+        <div class="user-avatar-custom" id="sidebar-avatar" style="width:48px;height:48px;font-size:18px;">?</div>
+        <div>
+          <div style="font-weight:700;font-size:16px;" id="sidebar-user-name">Carregando...</div>
+          <div style="font-size:12px;color:var(--text-muted);">Ver perfil</div>
+        </div>
       </div>
       <div style="flex:1;overflow-y:auto;padding-top:10px;">
-        <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Início
+        <div class="sidebar-item" onclick="navegarMenu('menu-principal')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Início
         </div>
-        <div class="sidebar-item" id="sidebtn-menu-viagens" onclick="navegarMenu('menu-viagens')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg> Viagens
+        <div class="sidebar-item" onclick="navegarMenu('menu-viagens')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg> Viagens
         </div>
-        <div class="sidebar-item" id="sidebtn-menu-familia" onclick="navegarMenu('menu-familia')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Família & Amigos
+        <div class="sidebar-item" onclick="navegarMenu('menu-familia')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Família & Amigos
         </div>
-        <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="navegarMenu('menu-notificacoes')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Notificações
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="toggleSubmenu('submenu-supermercados', 'menu-supermercados')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Supermercados
+        <div class="sidebar-item" onclick="toggleSubmenu('submenu-supermercados', 'menu-supermercados')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Supermercados
         </div>
         <div class="sidebar-submenu" id="submenu-supermercados">
           <div class="sidebar-subitem" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</div>
           <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</div>
           <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</div>
         </div>
-        <div class="sidebar-item" id="sidebtn-menu-carros" onclick="navegarMenu('menu-carros')">
-           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg> Garagem
+        <div class="sidebar-item" onclick="navegarMenu('menu-carros')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg> Garagem
         </div>
       </div>
-      <div class="sidebar-footer">
-        <div class="sidebar-item" onclick="abrirModal('modal-definicoes')" style="border-bottom:none;justify-content:center;margin:10px;">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Definições
-        </div>
+      <div style="padding:20px;border-top:1px solid var(--border-color);">
+        <button class="btn-acao" onclick="pedirPermissaoNotificacaoNativa()" style="width:100%;margin-bottom:10px;font-size:12px;">🔔 Ativar Notificações Telemóvel</button>
+        <button class="btn-acao" onclick="abrirModal('modal-definicoes')" style="width:100%;">⚙️ Definições</button>
       </div>
     </div>
 
-    <!-- BARRA INFERIOR (BOTTOM NAV) -->
-    <div id="bottom-nav">
-      <div class="nav-btn" id="nav-btn-menu" onclick="abrirSidebar()">
-        <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-      </div>
-      <div class="nav-btn active" id="nav-btn-principal" onclick="navegarMenu('menu-principal')">
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      </div>
-      <div class="nav-btn" id="nav-btn-viagens" onclick="navegarMenu('menu-viagens')">
-        <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
-      </div>
-      <div class="nav-btn" id="nav-btn-familia" onclick="navegarMenu('menu-familia')">
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-      </div>
-      <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
-        <div class="nav-badge" id="badge-notificacoes-bottom">0</div>
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-      </div>
-    </div>
-
-    <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
+    <!-- PÁGINAS DA APLICAÇÃO -->
     <div class="page-container">
       
-      <!-- DASHBOARD (INÍCIO) -->
+      <!-- INÍCIO -->
       <div id="menu-principal" class="page active">
         <div class="top-widgets-grid">
           <div class="dashboard-widget widget-relogio">
-            <span id="data-atual">A carregar...</span><h1 id="hora-atual">00:00</h1>
+            <span id="data-atual">--</span><h1 id="hora-atual">00:00</h1>
           </div>
           <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
-            <div class="meteo-top-row">
-              <div id="meteo-icone" style="color:var(--accent);"><svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg></div>
-              <span id="meteo-temp">--°</span>
-            </div>
-            <span id="meteo-desc">A localizar...</span>
-            <span id="meteo-local-texto"><svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="nome-cidade-texto">GPS</span></span>
+            <div class="meteo-top-row"><span id="meteo-temp">--°</span></div>
+            <span id="meteo-desc">Meteorologia</span>
           </div>
-        </div>
-
-        <div class="dashboard-widget widget-frase">
-          <svg class="icon-svg" style="opacity:0.2;width:24px;margin-bottom:12px;color:var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
-          <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
         </div>
 
         <div class="dashboard-widget widget-tarefas">
-          <h3>
-            <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24">
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-              <path d="M18 11.5l-5 5-2 0 0-2 5-5 2 2z"></path>
-            </svg> 
-            A Fazer Hoje
-          </h3>
+          <h3>A Fazer Hoje</h3>
           <div class="input-row">
             <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
-            <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+            <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')">+</button>
           </div>
           <div class="lista-itens" id="container-tarefas"></div>
         </div>
       </div>
 
+      <!-- NOTIFICAÇÕES -->
+      <div id="menu-notificacoes" class="page">
+        <h2>Notificações</h2>
+        <div class="lista-itens" id="container-pedidos"></div>
+      </div>
+
+      <!-- BIBLIOTECA (4 QUADRADOS) -->
+      <div id="menu-biblioteca" class="page">
+        <h2>A Tua Biblioteca</h2>
+        <p style="font-size:11px;color:var(--text-muted);text-align:center;">MANTÉM PREMIDO PARA ATIVAR O MODO JIGGLE APPLE 3D</p>
+        
+        <button class="btn-acao" style="width:100%;margin-bottom:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="abrirModal('modal-novo-menu-bib')">
+          + Criar Novo Menu / Pasta
+        </button>
+
+        <div class="library-grid" id="container-biblioteca-items"></div>
+      </div>
+
       <!-- VIAGENS MAIN -->
       <div id="menu-viagens" class="page">
-        <h2 style="margin-bottom:10px;">As Minhas Viagens</h2>
+        <h2>As Minhas Viagens</h2>
         <div class="stats-viagens">
           <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens Registadas</span></div>
           <div class="stat-box"><span class="stat-num" id="stat-proxima-viagem">--</span><span class="stat-lbl">Próxima Aventura</span></div>
         </div>
         <button class="btn-acao" style="width:100%;margin-bottom:20px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
-          <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
+          + Adicionar Nova Viagem
         </button>
-
-        <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
-        <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
+        <div id="container-viagens" style="width:100%;"></div>
       </div>
 
       <!-- NOVA VIAGEM -->
       <div id="menu-nova-viagem" class="page">
         <h2>Nova Aventura</h2>
-        
-        <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="abrirCropModal('capa-nova')">
-          <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
+        <div class="cartao-desconto-container" style="height:150px;margin-bottom:20px;" onclick="abrirCropModal('capa-nova')">
+          <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para ajustar Capa da Viagem</span>
           <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
         </div>
-
         <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
         <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
-        
-        <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data de Início:</label>
-        <input type="date" id="input-viagem-data-inicio" class="auth-input" style="color:var(--text-main);">
-        
-        <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data do Fim:</label>
-        <input type="date" id="input-viagem-data-fim" class="auth-input" style="color:var(--text-main);">
-        
-        <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
-          Guardar Viagem
-        </button>
+        <input type="date" id="input-viagem-data-inicio" class="auth-input">
+        <input type="date" id="input-viagem-data-fim" class="auth-input">
+        <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">Guardar Viagem</button>
       </div>
 
       <!-- DETALHE VIAGEM -->
       <div id="page-viagem-detalhe" class="page" style="position:relative;">
         <div class="viagem-header">
           <img id="detalhe-viagem-img" src="">
-          
           <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')">
             <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
             <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
           </div>
-
           <span class="edit-capa-badge" onclick="abrirCropModal('capa-existente')">📷 Alterar Capa</span>
         </div>
 
@@ -379,57 +322,42 @@
           <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Despesas</div>
         </div>
         
-        <!-- RESUMO -->
+        <!-- RESUMO (SEM NENHUM BOTÃO +) -->
         <div id="tab-resumo" class="trip-tab-content active">
           <div class="viagem-stats-summary">
-            <h4 style="margin:0 0 5px 0;font-size:15px;color:var(--accent);">Resumo da Viagem</h4>
-            <div class="summary-row">
-              <span class="summary-label">Duração da Viagem:</span>
-              <span class="summary-val" id="summary-duracao-dias">-- dias</span>
-            </div>
-            <div class="summary-row">
-              <span class="summary-label">Locais / Atividades Planeadas:</span>
-              <span class="summary-val" id="summary-total-locais">0 sítios</span>
-            </div>
-            <div class="summary-row">
-              <span class="summary-label">Total Gasto na Viagem:</span>
-              <span class="summary-val" id="summary-total-gasto" style="font-size:16px;color:var(--accent);">0.00€</span>
-            </div>
+            <div class="summary-row"><span class="summary-label">Duração:</span><span class="summary-val" id="summary-duracao-dias">-- dias</span></div>
+            <div class="summary-row"><span class="summary-label">Sítios Planeados:</span><span class="summary-val" id="summary-total-locais">0 sítios</span></div>
+            <div class="summary-row"><span class="summary-label">Total Gasto:</span><span class="summary-val" id="summary-total-gasto" style="color:var(--accent);font-weight:700;">0.00€</span></div>
             <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
           </div>
 
-          <!-- GRÁFICO DE LINHA: EVOLUÇÃO DIÁRIA DE GASTOS -->
           <div class="chart-container">
             <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
             <canvas id="chart-linha-gastos"></canvas>
           </div>
 
-          <!-- GRÁFICO CIRCULAR: CATEGORIAS DE DESPESAS -->
           <div class="chart-container">
             <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
             <canvas id="chart-pie-categorias"></canvas>
           </div>
         </div>
 
-        <!-- PLANEAMENTO -->
+        <!-- PLANEAMENTO (BOTÃO + ADICIONA PASSO AO ITINERÁRIO) -->
         <div id="tab-planeador" class="trip-tab-content">
           <div class="timeline-container" id="container-timeline-events"></div>
         </div>
         
-        <!-- DESPESAS -->
+        <!-- DESPESAS (BOTÃO + ADICIONA DESPESA) -->
         <div id="tab-splitwise" class="trip-tab-content">
           <div class="splitwise-resumo">
-            <button class="btn-acao" onclick="liquidarSaldosDespesas()" style="background-color:var(--accent);color:#121212;width:100%;font-weight:600;margin-bottom:15px;">
-              ⚡ Botão de Liquidação
-            </button>
-            <div id="split-resultado" style="display:flex;flex-direction:column;gap:5px;"></div>
+            <button class="btn-acao" onclick="liquidarSaldosDespesas()" style="background-color:var(--accent);color:#121212;width:100%;font-weight:600;margin-bottom:15px;">⚡ Liquidação de Saldos</button>
+            <div id="split-resultado"></div>
           </div>
-          
           <div id="container-despesas" style="margin-bottom:100px;"></div>
         </div>
 
-        <!-- BOTÕES FLUTUANTES SUSPENSOS NO CANTO INFERIOR DIREITO DO ECRÃ -->
-        <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade" style="display:none;">
+        <!-- BOTÕES FLUTUANTES FIXOS NO CANTO INFERIOR DO ECRÃ -->
+        <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Passo ao Planeamento" style="display:none;">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
 
@@ -449,7 +377,7 @@
       <div id="menu-super-logos" class="page">
         <h2>Selecione uma Loja</h2><div class="logos-grid" id="container-logos"></div>
       </div>
-      
+
       <div id="page-super-detail" class="page">
         <h1 id="detalhe-nome">Supermercado</h1>
         <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
@@ -461,7 +389,7 @@
         <button class="btn-acao" id="btn-ver-folheto" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;">Abrir Folheto da Semana</button>
         <textarea id="detalhe-obs" class="textarea-obs" placeholder="Notas e Observações..." onchange="guardarObservacaoSuperDB()"></textarea>
       </div>
-      
+
       <div id="menu-compras-semanais" class="page">
         <h2>Lista Semanal</h2>
         <div class="input-row">
@@ -470,7 +398,7 @@
         </div>
         <div class="lista-itens" id="container-semanais"></div>
       </div>
-      
+
       <div id="menu-compras-rapidas" class="page">
         <h2>Compras Rápidas</h2>
         <div class="input-row">
@@ -480,23 +408,21 @@
         <div class="lista-itens" id="container-rapidas"></div>
       </div>
 
-      <!-- GARAGEM & COMBUSTÍVEL -->
+      <!-- GARAGEM -->
       <div id="menu-carros" class="page">
         <h2>Garagem & Combustível</h2>
-        
         <div class="dashboard-widget" style="margin-bottom:20px;">
           <h3 style="margin-top:0;">Adicionar Veículo</h3>
           <input type="text" id="input-carro-nome" class="auth-input" placeholder="Nome/Modelo (ex: VW Golf)">
           <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (opcional)">
           <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;" onclick="adicionarCarroDB()">Guardar Veículo</button>
         </div>
-
         <h3 style="margin-bottom:10px;">Os Meus Veículos</h3>
         <div id="container-lista-carros" class="lista-itens" style="margin-bottom:20px;"></div>
-
         <button class="btn-acao" style="background-color:var(--btn-secondary);color:var(--text-main);padding:15px;width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
       </div>
 
+      <!-- FAMÍLIA & AMIGOS -->
       <div id="menu-familia" class="page">
         <h2>Procurar Pessoas</h2>
         <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
@@ -504,30 +430,41 @@
         <h3 style="margin-top:30px;text-align:center;">A Minha Rede</h3>
         <div class="lista-itens" id="container-amigos"></div>
       </div>
-      
-      <!-- NOTIFICAÇÕES -->
-      <div id="menu-notificacoes" class="page">
-        <h2>Notificações</h2>
-        <div class="lista-itens" id="container-pedidos"></div>
+
+    </div>
+
+    <!-- BARRA INFERIOR COM GRADIENTE SPOTIFY -->
+    <div id="bottom-nav-wrap">
+      <div id="bottom-nav">
+        <div class="nav-btn active" id="nav-btn-principal" onclick="navegarMenu('menu-principal')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <span style="font-size:10px;margin-top:2px;">Início</span>
+        </div>
+        <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
+          <div class="nav-badge" id="badge-notificacoes-bottom">0</div>
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
+          <span style="font-size:10px;margin-top:2px;">Notificações</span>
+        </div>
+        <div class="nav-btn" id="nav-btn-biblioteca" onclick="navegarMenu('menu-biblioteca')">
+          <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span style="font-size:10px;margin-top:2px;">Biblioteca</span>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- MODALS DA APLICAÇÃO -->
-  
+
+  <!-- MODAL DE EDITAR VIAGEM -->
   <div id="modal-detalhes-viagem" class="modal-overlay">
     <div class="modal-content" style="text-align:left;">
       <h2 style="text-align:center;margin-bottom:15px;">Editar Viagem</h2>
-      
       <label style="font-size:12px;color:var(--text-muted);">Título da Viagem:</label>
       <input type="text" id="edit-trip-nome" class="auth-input">
-
       <label style="font-size:12px;color:var(--text-muted);">Destino:</label>
       <input type="text" id="edit-trip-destino" class="auth-input">
-
       <label style="font-size:12px;color:var(--text-muted);">Data Início:</label>
       <input type="date" id="edit-trip-data-inicio" class="auth-input">
-
       <label style="font-size:12px;color:var(--text-muted);">Data Fim:</label>
       <input type="date" id="edit-trip-data-fim" class="auth-input">
 
@@ -540,9 +477,7 @@
         <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
       </div>
 
-      <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">
-        <svg class="icon-svg" style="width:16px;height:16px;margin-bottom:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Apagar Viagem
-      </button>
+      <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">Apagar Viagem</button>
 
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-detalhes-viagem')">Cancelar</button>
@@ -551,54 +486,71 @@
     </div>
   </div>
 
-  <div id="modal-novo-evento" class="modal-overlay">
+  <!-- MODAL CROPPER CIRCULAR COM PINCH ZOOM -->
+  <div id="modal-crop-image" class="modal-overlay">
     <div class="modal-content">
-      <h2 id="modal-evento-titulo-header">Novo Passo no Planeamento</h2>
-      <input type="hidden" id="edit-event-id">
-      <input type="date" id="input-event-data" class="auth-input">
-      <input type="time" id="input-event-hora" class="auth-input">
-      <input type="text" id="input-event-titulo" class="auth-input" placeholder="Título / Localização (ex: Museu do Louvre)">
-      <textarea id="input-event-notas" class="textarea-obs" placeholder="Descrição / Notas..."></textarea>
+      <h2>Ajustar Fotografia</h2>
+      <div class="crop-viewport-circle" id="crop-viewport">
+        <img id="crop-target-img" src="" style="transform: translate(0px, 0px) scale(1);">
+      </div>
+      <input type="file" id="input-crop-file" accept="image/*" style="display:none;" onchange="carregarImagemParaCrop(event)">
       
-      <div style="margin-top:10px;margin-bottom:15px;">
-        <button class="btn-acao" style="width:100%;" onclick="document.getElementById('input-event-foto').click()">📸 Adicionar Foto</button>
-        <input type="file" id="input-event-foto" accept="image/*" style="display:none;" onchange="processarFotoEvento(event)">
-        <img id="preview-event-foto" src="" style="display:none;width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-top:10px;">
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:15px;">
+        <button class="btn-acao" onclick="alterarZoomCrop(0.15)">🔍 + Zoom</button>
+        <button class="btn-acao" onclick="alterarZoomCrop(-0.15)">🔍 - Zoom</button>
       </div>
 
       <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-novo-evento')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarEventoTimeline()">Guardar</button>
+        <button class="btn-acao" onclick="fecharModal('modal-crop-image')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="confirmarCropEGuardar()">Guardar</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL DE NOVA DESPESA - ESTILO SPLITWISE -->
+  <!-- MODAL NOVO PASSO NO PLANEAMENTO -->
+  <div id="modal-novo-evento" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Novo Passo no Planeamento</h2>
+      <input type="hidden" id="edit-event-id">
+      <input type="text" id="input-event-titulo" class="auth-input" placeholder="Título / Localização">
+      <textarea id="input-event-notas" class="textarea-obs" placeholder="Descrição / Observações..."></textarea>
+      <input type="date" id="input-event-data" class="auth-input">
+      <input type="time" id="input-event-hora" class="auth-input">
+      
+      <button class="btn-acao" style="width:100%;margin-top:5px;margin-bottom:10px;" onclick="abrirCropModal('evento-foto')">📸 Adicionar Foto</button>
+
+      <div class="modal-btn-row">
+        <button class="btn-acao" onclick="fecharModal('modal-novo-evento')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarEventoTimeline()">Guardar Passo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NOVA DESPESA SPLITWISE -->
   <div id="modal-nova-despesa" class="modal-overlay">
     <div class="modal-content" style="text-align:left;">
-      <h2 style="text-align:center;margin-bottom:15px;">Adicionar uma Despesa</h2>
+      <h2 style="text-align:center;margin-bottom:15px;">Adicionar Despesa</h2>
       
-      <div class="splitwise-card">
-        <div class="splitwise-row">
-          <div class="splitwise-icon-box" id="exp-icon-box">
-            <svg class="icon-svg" style="margin-bottom:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>
+      <div style="background:var(--bg-color);border:1px solid var(--border-color);border-radius:16px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="exp-icon-box" style="width:40px;height:40px;border-radius:10px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
           </div>
-          <input type="text" id="exp-desc" class="splitwise-input" placeholder="Descrição (ex: Café, Jantar)" oninput="atualizarIconeCategoriaAutomático(this.value)">
+          <input type="text" id="exp-desc" class="auth-input" style="margin:0;border:none;border-bottom:2px solid var(--border-color);border-radius:0;background:transparent;" placeholder="Descrição (ex: Uber, Café, Jantar)" oninput="atualizarIconeCategoriaAutomatico(this.value)">
         </div>
 
-        <div class="splitwise-row">
-          <div class="splitwise-icon-box" style="font-weight:600;font-size:18px;">€</div>
-          <input type="number" id="exp-valor" class="splitwise-input" placeholder="0.00" style="font-size:22px;font-weight:600;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:20px;">€</span>
+          <input type="number" id="exp-valor" class="auth-input" style="margin:0;border:none;border-bottom:2px solid var(--border-color);border-radius:0;background:transparent;font-size:20px;font-weight:700;" placeholder="0.00">
         </div>
       </div>
 
-      <div style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
+      <div style="margin-bottom:15px;display:flex;align-items:center;gap:6px;font-size:12px;flex-wrap:wrap;">
         <span>Pago por</span>
-        <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>
+        <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:5px;font-size:12px;"></select>
         <span>e dividido</span>
-        <select id="exp-modo-divisao" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;" onchange="alternarModoDivisaoUI()">
+        <select id="exp-modo-divisao" class="auth-input" style="width:auto;margin:0;padding:5px;font-size:12px;">
           <option value="iguais">em partes iguais</option>
-          <option value="exatos">por valores exatos</option>
         </select>
       </div>
 
@@ -606,74 +558,28 @@
 
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-nova-despesa')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="adicionarDespesa()">Guardar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="adicionarDespesa()">Guardar Despesa</button>
       </div>
     </div>
   </div>
 
-  <div id="modal-crop-image" class="modal-overlay">
+  <!-- MODAL NOVO MENU NA BIBLIOTECA -->
+  <div id="modal-novo-menu-bib" class="modal-overlay">
     <div class="modal-content">
-      <h2>Ajustar Imagem</h2>
-      <div class="crop-viewport" id="crop-viewport">
-        <img id="crop-target-img" src="" style="transform: translate(0px, 0px) scale(1);">
-      </div>
-      <input type="file" id="input-crop-file" accept="image/*" style="display:none;" onchange="carregarImagemParaCrop(event)">
-      
-      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:15px;">
-        <button class="btn-acao" onclick="alterarZoomCrop(0.1)">🔍 + Zoom</button>
-        <button class="btn-acao" onclick="alterarZoomCrop(-0.1)">🔍 - Zoom</button>
-      </div>
-
+      <h2>Criar Novo Menu</h2>
+      <input type="text" id="input-bib-titulo" class="auth-input" placeholder="Nome do Menu (ex: Receitas)">
       <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-crop-image')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="confirmarCropEGuardar()">Guardar Foto</button>
+        <button class="btn-acao" onclick="fecharModal('modal-novo-menu-bib')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarNovoMenuBiblioteca()">Criar</button>
       </div>
     </div>
   </div>
 
-  <div id="modal-definicoes" class="modal-overlay">
-    <div class="modal-content">
-      <h2 style="margin-bottom:20px;">Definições</h2>
-      <div class="user-card" style="margin-bottom:20px;">
-        <div class="user-info">
-          <div id="settings-avatar-container" onclick="abrirCropModal('perfil')" style="cursor:pointer;" title="Mudar Foto de Perfil">
-            <div class="user-avatar-custom" id="settings-avatar">?</div>
-          </div>
-          <div>
-            <p class="user-name" id="settings-name">A carregar...</p>
-            <p style="font-size:11px;color:var(--text-muted);margin:0;" id="settings-username">Firebase Cloud</p>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:flex-start;" onclick="alternarTema()">
-        <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display:none;margin-right:10px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-        <span id="texto-tema-modal">Mudar para Modo Claro</span>
-      </button>
-      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:space-between;" onclick="toggleGrelhaCores()">
-        <span>Cor Secundária</span><div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
-      </button>
-      <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
-      <button class="btn-acao" style="background-color:#ff3b30;color:white;width:100%;padding:15px;margin-top:10px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
-      <button class="btn-acao" style="width:100%;margin-top:10px;background:transparent;border:none;" onclick="fecharModal('modal-definicoes')">Fechar</button>
-    </div>
-  </div>
-
-  <div id="modal-logout" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Sair?</h2>
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
-        <button class="btn-acao" style="background-color:#ff3b30;color:white;" onclick="fazerLogout()">Sair</button>
-      </div>
-    </div>
-  </div>
-
+  <div id="modal-definicoes" class="modal-overlay"><div class="modal-content"><h2>Definições</h2><button class="btn-acao" onclick="fazerLogout()" style="background:#ff3b30;color:white;width:100%;">Terminar Sessão</button><button class="btn-acao" onclick="fecharModal('modal-definicoes')" style="width:100%;margin-top:10px;">Fechar</button></div></div>
   <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')"><img id="img-fullscreen-cartao" class="fullscreen-img" src=""></div>
-  <div id="modal-alerta" class="modal-overlay"><div class="modal-content"><h2>Aviso</h2><p id="mensagem-alerta" style="margin-top:15px;margin-bottom:25px;color:var(--text-muted);font-size:14px;"></p><button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color:var(--accent);color:#121212;width:100%;">OK</button></div></div>
+  <div id="modal-alerta" class="modal-overlay"><div class="modal-content"><h2>Aviso</h2><p id="mensagem-alerta"></p><button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color:var(--accent);color:#121212;width:100%;">OK</button></div></div>
 
-  <!-- SCRIPT FIREBASE -->
+  <!-- SCRIPT FIREBASE COMPLETO E RESTAURADO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -686,47 +592,55 @@
       storageBucket:"gestao-gn.firebasestorage.app",
       appId:"1:443510448711:web:a615ebd9cf2ec549e60762"
     });
-    const db = getFirestore(app); 
-    const auth = getAuth(app);
-    const appId = 'gestao-gn-app';
+    const db = getFirestore(app); const auth = getAuth(app); const appId = 'gestao-gn-app';
 
-    let userId = null, userName = "", userAvatarUrl = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
+    let userId = null, userName = "", userAvatarUrl = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [];
     let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
-    let timelineEventsData = [], tempEventFoto = "", despesasData = [];
+    let timelineEventsData = [], tempEventFoto = "", despesasData = [], customMenusData = [];
     
-    // VARIÁVEIS CROP
-    let cropTipo = null, cropScale = 1, cropPanX = 0, cropPanY = 0, isDragging = false, startX = 0, startY = 0;
+    let cropTipo = null, cropScale = 1, cropPanX = 0, cropPanY = 0, isDragging = false, startX = 0, startY = 0, initialPinchDist = 0;
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-    const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
-
-    // CATEGORIAS SVG
-    const svgCategorias = {
-        cafe: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`,
-        restaurante: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 2v20M6 2v20M12 2v20"></path></svg>`,
-        supermercado: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`,
-        gasolina: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 22V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18"></path><path d="M14 13h4a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h0"></path></svg>`,
-        hotel: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"></path><path d="M4 10V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"></path></svg>`,
-        lazer: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>`,
-        geral: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>`
-    };
 
     function obterCategoriaPorTexto(txt) {
-        if(!txt) return { nome: 'Geral', icon: svgCategorias.geral };
+        if(!txt) return { nome: 'Geral' };
         const t = txt.toLowerCase();
-        if(t.includes('café') || t.includes('cafe') || t.includes('galão') || t.includes('pequeno almoço')) return { nome: 'Café', icon: svgCategorias.cafe };
-        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza')) return { nome: 'Restaurante', icon: svgCategorias.restaurante };
-        if(t.includes('supermercado') || t.includes('compras') || t.includes('continente') || t.includes('pingo') || t.includes('lidl')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
-        if(t.includes('gasolina') || t.includes('combustível') || t.includes('gasóleo') || t.includes('posto') || t.includes('portagem')) return { nome: 'Transportes', icon: svgCategorias.gasolina };
-        if(t.includes('hotel') || t.includes('airbnb') || t.includes('alojamento') || t.includes('quarto')) return { nome: 'Alojamento', icon: svgCategorias.hotel };
-        if(t.includes('bilhete') || t.includes('museu') || t.includes('bar') || t.includes('festa')) return { nome: 'Lazer', icon: svgCategorias.lazer };
-        return { nome: 'Geral', icon: svgCategorias.geral };
+        if(t.includes('uber') || t.includes('bolt') || t.includes('táxi') || t.includes('autocarro') || t.includes('metro') || t.includes('comboio') || t.includes('avião') || t.includes('voo') || t.includes('gasolina') || t.includes('combustível') || t.includes('portagem')) return { nome: 'Transportes' };
+        if(t.includes('café') || t.includes('galão') || t.includes('pequeno almoço') || t.includes('restaurante') || t.includes('jantar') || t.includes('almoço') || t.includes('pizza') || t.includes('sushi') || t.includes('mcdonalds')) return { nome: 'Alimentação' };
+        if(t.includes('supermercado') || t.includes('continente') || t.includes('pingo') || t.includes('lidl') || t.includes('auchan') || t.includes('compras')) return { nome: 'Supermercado' };
+        if(t.includes('hotel') || t.includes('airbnb') || t.includes('alojamento') || t.includes('quarto') || t.includes('resort')) return { nome: 'Alojamento' };
+        if(t.includes('museu') || t.includes('festa') || t.includes('discoteca') || t.includes('bar') || t.includes('espetáculo') || t.includes('cinema') || t.includes('bilhete')) return { nome: 'Lazer' };
+        return { nome: 'Geral' };
     }
 
-    window.atualizarIconeCategoriaAutomático = (val) => {
+    window.atualizarIconeCategoriaAutomatico = (val) => {
         const cat = obterCategoriaPorTexto(val);
-        document.getElementById('exp-icon-box').innerHTML = cat.icon;
+        document.getElementById('exp-icon-box').innerText = cat.nome.charAt(0);
     };
+
+    window.pedirPermissaoNotificacaoNativa = async () => {
+        if ("Notification" in window) {
+            const perm = await Notification.requestPermission();
+            if (perm === "granted") {
+                new Notification("Gestão G&N", { body: "Notificações nativas ativadas!", icon: "logopreto_fundobranco.png" });
+            } else { window.mostrarAlerta("Permissão recusada."); }
+        } else { window.mostrarAlerta("Dispositivo não suporta Notificações Push."); }
+    };
+
+    async function criarNotificacaoDB(targetUid, texto) {
+        if(!targetUid) return;
+        const agora = new Date();
+        const dataStr = `${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}`;
+        const horaStr = `${String(agora.getHours()).padStart(2,'0')}:${String(agora.getMinutes()).padStart(2,'0')}`;
+        
+        await addDoc(collection(db, 'artifacts', appId, 'users', targetUid, 'notifications'), {
+            texto: texto, dataStr: dataStr, horaStr: horaStr, lida: false, timestamp: Date.now()
+        });
+
+        if(targetUid === userId && "Notification" in window && Notification.permission === "granted") {
+            new Notification("Gestão G&N", { body: texto, icon: "logopreto_fundobranco.png" });
+        }
+    }
 
     window.toggleAuthMode = () => { 
         isLoginMode = !isLoginMode; 
@@ -748,51 +662,31 @@
         const fakeEmail = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '') + "@gestaogn.app";
         if (!userTyped || !pass) return;
         try { 
-            if (isLoginMode) {
-                await signInWithEmailAndPassword(auth, fakeEmail, pass);
-            } else { 
+            if (isLoginMode) { await signInWithEmailAndPassword(auth, fakeEmail, pass); }
+            else { 
                 const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass); 
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
-                  uid: cred.user.uid, 
-                  username: userTyped, 
-                  searchName: userTyped.toLowerCase(),
-                  theme: 'dark',
-                  accentColor: '#FF6B00',
-                  avatarUrl: ''
+                  uid: cred.user.uid, username: userTyped, searchName: userTyped.toLowerCase(), theme: 'dark', accentColor: '#1DB954', avatarUrl: ''
                 }); 
             }
-        } catch(e) { 
-            document.getElementById('auth-error').innerText = "Erro no Login. Verifica os dados."; 
-            document.getElementById('auth-error').style.display = 'block'; 
-        }
+        } catch(e) { document.getElementById('auth-error').innerText = "Erro no Login. Verifica os dados."; document.getElementById('auth-error').style.display = 'block'; }
     };
 
-    window.fazerLogout = async () => { 
-        unsusbscribes.forEach(f => f());
-        unsusbscribes = [];
-        fecharModal('modal-definicoes');
-        fecharModal('modal-logout');
-        if (auth) await signOut(auth); 
-        else window.location.reload(); 
-    };
+    window.fazerLogout = async () => { unsusbscribes.forEach(f => f()); unsusbscribes = []; fecharModal('modal-definicoes'); if (auth) await signOut(auth); else window.location.reload(); };
 
     if (auth) {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid; 
                 try {
-                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId);
-                    const profileSnap = await getDoc(profileRef);
+                    const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
                     if (profileSnap.exists()) { 
                         const pData = profileSnap.data();
                         userName = pData.username || ""; 
                         userAvatarUrl = pData.avatarUrl || "";
-                        document.getElementById('settings-name').innerText = userName; 
-                        
-                        renderAvatarElement(document.getElementById('settings-avatar'), userName, userAvatarUrl);
-
-                        if(pData.theme) aplicarTemaInterface(pData.theme);
-                        if(pData.accentColor) aplicarCorInterface(pData.accentColor);
+                        document.getElementById('sidebar-user-name').innerText = userName; 
+                        renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+                        renderAvatarElement(document.getElementById('sidebar-avatar'), userName, userAvatarUrl);
                     }
                 } catch(e){}
 
@@ -808,332 +702,139 @@
                 document.getElementById('auth-loading-state').style.display = 'none';
                 document.getElementById('auth-box-form').style.display = 'block';
                 document.getElementById('auth-overlay').style.display = 'flex';
-                document.getElementById('auth-overlay').style.opacity = '1';
-                document.getElementById('app-container').style.display = 'none'; 
             }
         });
     }
 
     function renderAvatarElement(elem, nome, urlFoto) {
         if(!elem) return;
-        if(urlFoto) {
-            elem.innerHTML = `<img src="${urlFoto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-        } else {
-            elem.innerHTML = obterIniciaisNome(nome);
-        }
+        if(urlFoto) elem.innerHTML = `<img src="${urlFoto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        else elem.innerHTML = obterIniciaisNome(nome);
     }
 
-    /* AJUSTE / CROP INTERATIVO DE IMAGEM */
-    window.abrirCropModal = (tipo) => {
-        cropTipo = tipo;
-        cropScale = 1; cropPanX = 0; cropPanY = 0;
-        document.getElementById('input-crop-file').click();
-    };
+    /* CROPPER / ADJUSTER CIRCULAR COM PINCH ZOOM */
+    window.abrirCropModal = (tipo) => { cropTipo = tipo; cropScale = 1; cropPanX = 0; cropPanY = 0; document.getElementById('input-crop-file').click(); };
 
     window.carregarImagemParaCrop = (ev) => {
         const file = ev.target.files[0]; if(!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
-            const img = document.getElementById('crop-target-img');
-            img.src = e.target.result;
-            img.style.transform = `translate(0px, 0px) scale(1)`;
-            abrirModal('modal-crop-image');
-        };
-        reader.readAsDataURL(file);
+            const img = document.getElementById('crop-target-img'); img.src = e.target.result;
+            img.style.transform = `translate(0px, 0px) scale(1)`; abrirModal('modal-crop-image');
+        }; reader.readAsDataURL(file);
     };
 
     const viewport = document.getElementById('crop-viewport');
     const cropImg = document.getElementById('crop-target-img');
 
     viewport.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - cropPanX; startY = e.clientY - cropPanY; });
-    window.addEventListener('mousemove', e => {
-        if(!isDragging) return;
-        cropPanX = e.clientX - startX; cropPanY = e.clientY - startY;
-        cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
-    });
+    window.addEventListener('mousemove', e => { if(!isDragging) return; cropPanX = e.clientX - startX; cropPanY = e.clientY - startY; cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`; });
     window.addEventListener('mouseup', () => isDragging = false);
 
-    viewport.addEventListener('touchstart', e => { isDragging = true; startX = e.touches[0].clientX - cropPanX; startY = e.touches[0].clientY - cropPanY; }, {passive:true});
+    viewport.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - cropPanX; startY = e.touches[0].clientY - cropPanY; }
+        else if (e.touches.length === 2) { initialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); }
+    }, {passive:true});
+
     window.addEventListener('touchmove', e => {
-        if(!isDragging) return;
-        cropPanX = e.touches[0].clientX - startX; cropPanY = e.touches[0].clientY - startY;
-        cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
+        if (isDragging && e.touches.length === 1) {
+            cropPanX = e.touches[0].clientX - startX; cropPanY = e.touches[0].clientY - startY;
+            cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
+        } else if (e.touches.length === 2) {
+            let dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+            let factor = dist / initialPinchDist;
+            cropScale = Math.max(0.5, Math.min(3, cropScale * factor));
+            cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
+            initialPinchDist = dist;
+        }
     }, {passive:true});
     window.addEventListener('touchend', () => isDragging = false);
 
-    window.alterarZoomCrop = (delta) => {
-        cropScale = Math.max(0.5, Math.min(3, cropScale + delta));
-        cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
-    };
+    window.alterarZoomCrop = (delta) => { cropScale = Math.max(0.5, Math.min(3, cropScale + delta)); cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`; };
 
     window.confirmarCropEGuardar = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 600; canvas.height = 400;
-        const ctx = canvas.getContext('2d');
+        const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 400;
+        const ctx = canvas.getContext('2d'); const img = document.getElementById('crop-target-img');
         
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0,0,600,400);
-        
-        const img = document.getElementById('crop-target-img');
-        
-        ctx.save();
-        ctx.translate(300 + cropPanX, 200 + cropPanY);
-        ctx.scale(cropScale, cropScale);
-        ctx.drawImage(img, -300, -200, 600, 400);
-        ctx.restore();
+        ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,400);
+        ctx.save(); ctx.translate(200 + cropPanX, 200 + cropPanY); ctx.scale(cropScale, cropScale); ctx.drawImage(img, -200, -200, 400, 400); ctx.restore();
 
-        const croppedData = canvas.toDataURL('image/jpeg', 0.7);
+        const croppedData = canvas.toDataURL('image/jpeg', 0.75);
 
         if(cropTipo === 'perfil') {
             userAvatarUrl = croppedData;
-            renderAvatarElement(document.getElementById('settings-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('sidebar-avatar'), userName, userAvatarUrl);
             setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: croppedData }, { merge: true });
         } else if(cropTipo === 'capa-nova') {
-            tempCapaUrl = croppedData;
-            document.getElementById('preview-capa-viagem').src = tempCapaUrl;
-            document.getElementById('preview-capa-viagem').style.display = 'block';
-            document.getElementById('msg-sem-capa').style.display = 'none';
+            tempCapaUrl = croppedData; document.getElementById('preview-capa-viagem').src = tempCapaUrl;
+            document.getElementById('preview-capa-viagem').style.display = 'block'; document.getElementById('msg-sem-capa').style.display = 'none';
         } else if(cropTipo === 'capa-existente') {
             document.getElementById('detalhe-viagem-img').src = croppedData;
             updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { capa: croppedData });
-        }
+        } else if(cropTipo === 'evento-foto') { tempEventFoto = croppedData; }
 
         fecharModal('modal-crop-image');
     };
 
+    /* NAVEGAÇÃO & JIGGLE MODE 3D APPLE */
     window.abrirSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); };
     window.fecharSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); };
-    window.toggleSubmenu = (idSub, idBase) => { const s = document.getElementById(idSub); if(s.style.display==='flex'){s.style.display='none'; if(idBase) navegarMenu(idBase);}else{s.style.display='flex';} };
-    
-    window.navegarMenu = (idPagina, isBack=false) => {
+    window.toggleSubmenu = (idSub) => { const s = document.getElementById(idSub); s.style.display = (s.style.display==='flex') ? 'none' : 'flex'; };
+
+    window.navegarMenu = (idPagina) => {
         window.fecharSidebar(); 
-        if(!isBack && pageHistory[pageHistory.length-1] !== idPagina) pageHistory.push(idPagina);
-        document.querySelectorAll('.nav-btn, .sidebar-item').forEach(b => b.classList.remove('active'));
-        
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         let bottomId = 'nav-btn-' + idPagina.replace('menu-','');
         if(document.getElementById(bottomId)) document.getElementById(bottomId).classList.add('active');
-        if(document.getElementById('sidebtn-'+idPagina)) document.getElementById('sidebtn-'+idPagina).classList.add('active');
         
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         setTimeout(() => { const np = document.getElementById(idPagina); if(np){np.classList.add('active'); window.scrollTo(0,0);} }, 50);
 
-        if(idPagina === 'menu-notificacoes') {
-            marcarNotificacoesLidas();
-        }
+        if(idPagina === 'menu-notificacoes') marcarNotificacoesLidas();
     };
 
-    let touchStartX=0, touchStartY=0;
-    document.addEventListener('touchstart', e => { touchStartX=e.changedTouches[0].screenX; touchStartY=e.changedTouches[0].screenY; }, {passive:true});
-    document.addEventListener('touchend', e => {
-        let diffX = e.changedTouches[0].screenX - touchStartX;
-        if(Math.abs(diffX) > Math.abs(e.changedTouches[0].screenY - touchStartY)) {
-            if(diffX > 60 && touchStartX < 50) { if(pageHistory.length>1){ pageHistory.pop(); navegarMenu(pageHistory[pageHistory.length-1], true); }else navegarMenu('menu-principal',true); }
-            else if(diffX < -60) fecharSidebar();
+    let pressTimer;
+    document.addEventListener('touchstart', e => {
+        if(e.target.closest('.nav-btn') || e.target.closest('.library-card')) {
+            pressTimer = setTimeout(() => { document.body.classList.toggle('jiggle-mode'); }, 800);
         }
     }, {passive:true});
+    document.addEventListener('touchend', () => clearTimeout(pressTimer));
 
-    const palette10 = ['#FF6B00','#FF3B30','#28CD41','#007AFF','#AF52DE','#FF2D55','#5AC8FA','#FFCC00','#5856D6','#2ECC71'];
-    
-    function renderColorPicker() {
-        const grid = document.getElementById('color-picker-grid'); grid.innerHTML = ''; 
-        const sColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-        palette10.forEach(c => { 
-            const circle = document.createElement('div'); circle.className = 'color-circle';
-            if(c.toLowerCase() === sColor.toLowerCase()) circle.classList.add('selected');
-            circle.style.backgroundColor = c; 
-            circle.onclick = () => window.mudarCorApp(c);
-            grid.appendChild(circle); 
-        });
-    }
-
-    window.toggleGrelhaCores = () => {
-        const g = document.getElementById('color-picker-grid');
-        if(g.style.display === 'none' || g.style.display === '') {
-            renderColorPicker();
-            g.style.display = 'grid';
-        } else {
-            g.style.display = 'none';
-        }
-    };
-
-    function aplicarCorInterface(nc) {
-        document.documentElement.style.setProperty('--accent', nc);
-        if(document.getElementById('cor-atual-bolinha')) document.getElementById('cor-atual-bolinha').style.backgroundColor = nc;
-        renderColorPicker();
-    }
-    
-    window.mudarCorApp = async (nc) => { 
-        aplicarCorInterface(nc);
-        if(userId && db) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { accentColor: nc }, { merge: true });
-        }
-    };
-
-    function aplicarTemaInterface(tema) {
-        const isL = (tema === 'light');
-        if(isL) document.body.classList.add('light-mode');
-        else document.body.classList.remove('light-mode');
-        
-        if(document.getElementById('texto-tema-modal')) document.getElementById('texto-tema-modal').innerText = isL ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro'; 
-        if(document.getElementById('svg-moon')) document.getElementById('svg-moon').style.display = isL ? 'block' : 'none'; 
-        if(document.getElementById('svg-sun')) document.getElementById('svg-sun').style.display = isL ? 'none' : 'block'; 
-    }
-
-    window.alternarTema = async () => {
-        const novoTema = document.body.classList.contains('light-mode') ? 'dark' : 'light';
-        aplicarTemaInterface(novoTema);
-        if(userId && db) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { theme: novoTema }, { merge: true });
-        }
-    };
-
-    function atualizarRelogio() { 
-        const d = new Date(), ds = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"], nm = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; 
-        if(document.getElementById('data-atual')) document.getElementById('data-atual').innerText = `${ds[d.getDay()]}, ${d.getDate()} ${nm[d.getMonth()]}`; 
-        if(document.getElementById('hora-atual')) document.getElementById('hora-atual').innerText = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; 
-    } 
-    setInterval(atualizarRelogio, 1000); atualizarRelogio();
-    
-    const frases = [{t:"Entregue o seu caminho ao Senhor...",a:"Salmos 37:5"}, {t:"Tudo posso naquele que me fortalece.",a:"Filipenses 4:13"}, {t:"O amor é paciente, o amor é bondoso.",a:"1 Coríntios 13:4-7"}];
-    const ind = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0))/1000/60/60/24) % frases.length;
-    document.getElementById('frase-texto').innerText = `"${frases[ind].t}"`; document.getElementById('frase-autor').innerText = frases[ind].a; 
-    
-    window.carregarMeteorologia = async (forcar) => {
-        const req = async (lat, lon, nome) => { 
-            try { 
-                const res = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)).json(); 
-                document.getElementById('meteo-temp').innerText = Math.round(res.current_weather.temperature)+"°"; document.getElementById('meteo-desc').innerText="Atualizado"; document.getElementById('nome-cidade-texto').innerText=nome; 
-            } catch(e){ document.getElementById('meteo-desc').innerText="Sem dados"; } 
-        };
-        if(navigator.geolocation) navigator.geolocation.getCurrentPosition(async (pos) => { 
-            try { 
-                const geo = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=pt`)).json(); 
-                req(pos.coords.latitude, pos.coords.longitude, geo.city || geo.locality || "Local"); 
-            } catch(e){ req(pos.coords.latitude, pos.coords.longitude, "Local"); } 
-        }, () => req(38.5244, -8.8882, "Setúbal")); else req(38.5244, -8.8882, "Setúbal");
-    };
-    setTimeout(() => window.carregarMeteorologia(), 500);
-
+    /* LISTENERS FIREBASE COMPLETO */
     function iniciarListenersFirebase() {
-        if(!db || !userId) return; 
-        unsusbscribes.forEach(f => f()); 
-        unsusbscribes = []; 
-        
+        if(!db || !userId) return;
         const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
-        
+
         const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(userDocRef, col), s => {
-            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); 
-            renderListDB(arr, ui, col);
+            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderListDB(arr, ui, col);
         }));
-        attachList('tarefas', 'container-tarefas'); 
-        attachList('semanais', 'container-semanais'); 
+        attachList('tarefas', 'container-tarefas');
+        attachList('semanais', 'container-semanais');
         attachList('rapidas', 'container-rapidas');
-        
+
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'carros'), s => {
-            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()}));
-            renderCarrosDB(arr);
+            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); renderCarrosDB(arr);
         }));
 
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'notifications'), s => {
-            let notifs = []; s.forEach(d => notifs.push({id:d.id, ...d.data()})); 
-            renderNotificationsDB(notifs); 
+            let notifs = []; s.forEach(d => notifs.push({id:d.id, ...d.data()})); renderNotificationsDB(notifs); 
         }));
-        
+
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
-        const qViagens = query(
-            collection(db, 'artifacts', appId, 'viagens_partilhadas'), 
-            where("membros_uids", "array-contains", userId)
-        );
-        unsusbscribes.push(onSnapshot(qViagens, s => {
-            viagensData = []; 
-            s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
-            if(document.getElementById('stat-total-viagens')) document.getElementById('stat-total-viagens').innerText = viagensData.length; 
-            
-            const hoje = new Date().toISOString().split('T')[0];
-            const proximas = viagensData.filter(v => v.dataInicio && v.dataInicio >= hoje).sort((a,b) => a.dataInicio.localeCompare(b.dataInicio));
-            if(document.getElementById('stat-proxima-viagem')) {
-                document.getElementById('stat-proxima-viagem').innerText = proximas.length > 0 ? proximas[0].nome : '--';
-            }
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'custom_menus'), s => {
+            customMenusData = []; s.forEach(d => customMenusData.push({id:d.id, ...d.data()})); renderBibliotecaDB();
+        }));
 
+        const qViagens = query(collection(db, 'artifacts', appId, 'viagens_partilhadas'), where("membros_uids", "array-contains", userId));
+        unsusbscribes.push(onSnapshot(qViagens, s => {
+            viagensData = []; s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
+            document.getElementById('stat-total-viagens').innerText = viagensData.length; 
             renderViagensCards(); 
-            if(currentTripId){
-                const tripAtual = viagensData.find(v => v.id === currentTripId);
-                if(tripAtual){ 
-                    currentTripDoc = tripAtual; 
-                    document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome;
-                    document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
-                    document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
-                    renderMembrosSettings(); 
-                    atualizarResumoInternoViagem();
-                }
-                else navegarMenu('menu-viagens');
-            }
-        }, err => {
-            console.error("Erro Viagens:", err);
-            window.mostrarAlerta("Erro a obter viagens: " + err.message);
         }));
     }
-
-    async function criarNotificacaoDB(targetUid, texto) {
-        if(!targetUid) return;
-        const agora = new Date();
-        const dataStr = `${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}/${agora.getFullYear()}`;
-        const horaStr = `${String(agora.getHours()).padStart(2,'0')}:${String(agora.getMinutes()).padStart(2,'0')}`;
-        
-        await addDoc(collection(db, 'artifacts', appId, 'users', targetUid, 'notifications'), {
-            texto: texto,
-            dataStr: dataStr,
-            horaStr: horaStr,
-            lida: false,
-            timestamp: Date.now()
-        });
-    }
-
-    function renderNotificationsDB(notifs) {
-        const c = document.getElementById('container-pedidos');
-        const badge = document.getElementById('badge-notificacoes-bottom');
-        
-        notifs.sort((a,b) => b.timestamp - a.timestamp);
-        const naoLidas = notifs.filter(n => !n.lida).length;
-
-        if(naoLidas > 0) {
-            badge.innerText = naoLidas;
-            badge.style.display = 'block';
-        } else {
-            badge.style.display = 'none';
-        }
-
-        if(notifs.length === 0) {
-            c.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>';
-            return;
-        }
-
-        let html = '';
-        notifs.forEach(n => {
-            html += `<div class="notif-item ${n.lida ? 'lida' : 'nao-lida'}">
-                <div style="flex:1;padding-right:10px;">
-                    <span class="notif-time">${n.dataStr || ''} • ${n.horaStr || ''}</span>
-                    <span style="font-size:13px;">${n.texto}</span>
-                </div>
-                <button class="btn-icon-list" onclick="apagarNotificacaoDB('${n.id}')">${iconTrash}</button>
-            </div>`;
-        });
-        c.innerHTML = html;
-    }
-
-    async function marcarNotificacoesLidas() {
-        const snap = await getDocs(collection(db, 'artifacts', appId, 'users', userId, 'notifications'));
-        snap.forEach(d => {
-            if(!d.data().lida) {
-                updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'notifications', d.id), { lida: true });
-            }
-        });
-    }
-
-    window.apagarNotificacaoDB = async (notifId) => {
-        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'notifications', notifId));
-    };
 
     function renderListDB(arr, ui, col) { 
         arr.sort((a,b) => (a.timestamp||0)-(b.timestamp||0)); let h='';
@@ -1145,38 +846,27 @@
     window.toggleItemDB = async (col, docId, est) => await updateDoc(doc(db,'artifacts',appId,'users',userId,col,docId), {feita:est}); 
     window.apagarItemDB = async (col, docId) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,col,docId));
 
-    /* GARAGEM DA CONTA */
+    /* GARAGEM */
     window.adicionarCarroDB = async () => {
         const nome = document.getElementById('input-carro-nome').value.trim();
         const mat = document.getElementById('input-carro-mat').value.trim();
-        if(!nome) return window.mostrarAlerta("Preenche pelo menos o nome do veículo.");
+        if(!nome) return;
         await addDoc(collection(db,'artifacts',appId,'users',userId,'carros'), { nome: nome, matricula: mat, timestamp: Date.now() });
-        document.getElementById('input-carro-nome').value = '';
-        document.getElementById('input-carro-mat').value = '';
+        document.getElementById('input-carro-nome').value = ''; document.getElementById('input-carro-mat').value = '';
     };
 
     function renderCarrosDB(carros) {
-        const c = document.getElementById('container-lista-carros');
-        if(!c) return;
-        if(carros.length === 0) { c.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Sem veículos registados.</p>'; return; }
+        const c = document.getElementById('container-lista-carros'); if(!c) return;
+        if(carros.length === 0) { c.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Sem veículos.</p>'; return; }
         let h = '';
         carros.forEach(car => {
-            h += `<div class="list-item">
-                <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
-                <div style="flex:1;margin-left:12px;">
-                    <div style="font-weight:600;font-size:14px;">${car.nome}</div>
-                    ${car.matricula ? `<div style="font-size:11px;color:var(--text-muted);">${car.matricula}</div>` : ''}
-                </div>
-                <button class="btn-icon-list" onclick="apagarCarroDB('${car.id}')">${iconTrash}</button>
-            </div>`;
+            h += `<div class="list-item"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg><div style="flex:1;margin-left:12px;"><div style="font-weight:600;font-size:14px;">${car.nome}</div>${car.matricula ? `<div style="font-size:11px;color:var(--text-muted);">${car.matricula}</div>` : ''}</div><button class="btn-icon-list" onclick="apagarCarroDB('${car.id}')">${iconTrash}</button></div>`;
         });
         c.innerHTML = h;
     }
+    window.apagarCarroDB = async (carId) => { if(confirm("Remover veículo?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'carros',carId)); };
 
-    window.apagarCarroDB = async (carId) => {
-        if(confirm("Remover este veículo?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'carros',carId));
-    };
-
+    /* SUPERMERCADOS */
     const lojas = [ {id:'continente',nome:'Continente',logo:'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg',link:'https://folhetos.continente.pt/'}, {id:'pingodoce',nome:'Pingo Doce',logo:'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg',link:'https://www.pingodoce.pt/folhetos/'}, {id:'lidl',nome:'Lidl',logo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png',link:'https://www.lidl.pt/folhetos'}, {id:'auchan',nome:'Auchan',logo:'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg',link:'https://www.auchan.pt/pt/folhetos/'}, {id:'intermarche',nome:'Intermarché',logo:'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg',link:'https://www.intermarche.pt/folhetos/'} ];
     let hl=''; lojas.forEach(l => hl+=`<div class="logo-card" onclick="abrirDetalheSupermercado('${l.id}')"><img src="${l.logo}"></div>`); document.getElementById('container-logos').innerHTML=hl;
     
@@ -1189,13 +879,10 @@
     
     window.guardarObservacaoSuperDB = async () => await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {notas:document.getElementById('detalhe-obs').value}, {merge:true});
     window.cliqueCartao = () => { const i=document.getElementById('detalhe-cartao-img'); if(i.style.display!=='none' && i.src){ document.getElementById('img-fullscreen-cartao').src=i.src; window.abrirModal('modal-cartao'); } else document.getElementById('input-foto-cartao').click(); };
-    
     window.processarFotoCartao = (ev) => { 
-        const file = ev.target.files[0]; if(!file) return; 
-        const reader = new FileReader(); reader.onload = (e) => { 
+        const file = ev.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { 
             const img = new Image(); img.onload = async () => { 
-                const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height; 
-                if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h; 
+                const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height; if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h; 
                 canvas.getContext('2d').drawImage(img,0,0,w,h); const b64 = canvas.toDataURL('image/jpeg',0.6); 
                 document.getElementById('detalhe-cartao-img').src=b64; document.getElementById('detalhe-cartao-img').style.display='block'; document.getElementById('msg-sem-cartao').style.display='none'; 
                 await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {cartao_img:b64}, {merge:true}); 
@@ -1203,6 +890,7 @@
         }; reader.readAsDataURL(file); 
     };
 
+    /* FAMÍLIA E AMIGOS */
     window.pesquisarUtilizadores = async () => { 
         const t = document.getElementById('input-search-users').value.toLowerCase(), c = document.getElementById('container-pesquisa-users'); 
         if(t.length < 2) { c.innerHTML=''; return; } c.innerHTML='<p style="text-align:center;font-size:12px;">A procurar...</p>'; 
@@ -1215,19 +903,55 @@
     window.enviarPedido = async (id, nm) => { 
         await setDoc(doc(db,'artifacts',appId,'users',id,'requests',userId), {fromUid:userId, fromName:userName, timestamp:Date.now()}); 
         await criarNotificacaoDB(id, `${userName} enviou-te um pedido de amizade.`);
-        window.mostrarAlerta(nm+" convidado!"); 
-        document.getElementById('input-search-users').value=''; 
-        document.getElementById('container-pesquisa-users').innerHTML=''; 
+        window.mostrarAlerta(nm+" convidado!"); document.getElementById('input-search-users').value=''; document.getElementById('container-pesquisa-users').innerHTML=''; 
     };
 
     function renderFriendsDB(amigos) { const c = document.getElementById('container-amigos'); if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} let h=''; amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(a.name)}</div><p class="user-name">${a.name}</p></div></div>`); c.innerHTML=h; }
+
+    function renderBibliotecaDB() {
+        const c = document.getElementById('container-biblioteca-items');
+        let h = `
+            <div class="library-card" onclick="navegarMenu('menu-viagens')"><svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg><span>Viagens</span></div>
+            <div class="library-card" onclick="navegarMenu('menu-supermercados')"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><span>Supermercados</span></div>
+            <div class="library-card" onclick="navegarMenu('menu-carros')"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg><span>Garagem</span></div>
+            <div class="library-card" onclick="navegarMenu('menu-familia')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg><span>Amigos</span></div>
+        `;
+        customMenusData.forEach(m => { h += `<div class="library-card"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg><span>${m.titulo}</span></div>`; });
+        c.innerHTML = h;
+    }
+
+    window.guardarNovoMenuBiblioteca = async () => {
+        const tit = document.getElementById('input-bib-titulo').value.trim(); if(!tit) return;
+        await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'custom_menus'), { titulo: tit, timestamp: Date.now() });
+        document.getElementById('input-bib-titulo').value = ''; fecharModal('modal-novo-menu-bib');
+    };
+
+    function renderNotificationsDB(notifs) {
+        const c = document.getElementById('container-pedidos'); const badge = document.getElementById('badge-notificacoes-bottom');
+        notifs.sort((a,b) => b.timestamp - a.timestamp); const naoLidas = notifs.filter(n => !n.lida).length;
+
+        if(naoLidas > 0) { badge.innerText = naoLidas; badge.style.display = 'block'; } else { badge.style.display = 'none'; }
+        if(notifs.length === 0) { c.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>'; return; }
+
+        let html = '';
+        notifs.forEach(n => {
+            html += `<div class="notif-item ${n.lida ? 'lida' : 'nao-lida'}"><div style="flex:1;"><span style="font-size:10px;color:var(--accent);">${n.dataStr || ''} • ${n.horaStr || ''}</span><div style="font-size:13px;margin-top:2px;">${n.texto}</div></div><button class="btn-icon-list" onclick="apagarNotificacaoDB('${n.id}')">${iconTrash}</button></div>`;
+        });
+        c.innerHTML = html;
+    }
+
+    async function marcarNotificacoesLidas() {
+        const snap = await getDocs(collection(db, 'artifacts', appId, 'users', userId, 'notifications'));
+        snap.forEach(d => { if(!d.data().lida) updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'notifications', d.id), { lida: true }); });
+    }
+
+    window.apagarNotificacaoDB = async (notifId) => { await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'notifications', notifId)); };
 
     /* VIAGENS */
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
-        
-        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
+        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>`;
 
         viagensData.forEach(v => {
             let datasTxt = (v.dataInicio ? v.dataInicio : '') + (v.dataFim ? ' - ' + v.dataFim : '');
@@ -1237,43 +961,23 @@
                 <img class="trip-cover" src="${v.capa||'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'}">
                 <div class="trip-overlay">
                     <h4 class="trip-title">${v.nome||'Sem Título'}</h4>
-                    <span class="trip-country">
-                        <span>${v.paisCode||''} • ${datasTxt || 'Sem datas'}</span>
-                        ${isPartilhada ? svgGroup : ''}
-                    </span>
+                    <span class="trip-country"><span>${v.paisCode||''} • ${datasTxt || 'Sem datas'}</span>${isPartilhada ? svgGroup : ''}</span>
                 </div>
             </div>`; 
         });
         c.innerHTML=h; 
     }
-    
-    window.guardarNovaViagem = async () => {
-        try {
-            const tit = document.getElementById('input-viagem-nome').value.trim();
-            const dest = document.getElementById('input-viagem-destino').value.trim();
-            const dtInicio = document.getElementById('input-viagem-data-inicio').value;
-            const dtFim = document.getElementById('input-viagem-data-fim').value;
 
-            if(!tit || !dest) return window.mostrarAlerta("Preenche o título e o destino."); 
-            const btn = document.getElementById('btn-save-viagem'); btn.innerText="A guardar..."; btn.disabled=true;
-            
-            await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), { 
-                nome: tit, 
-                paisCode: dest, 
-                dataInicio: dtInicio,
-                dataFim: dtFim,
-                capa: tempCapaUrl||"", 
-                timestamp: Date.now(), 
-                membros_uids: [userId], 
-                membros_info: [{uid:userId, nome:userName||"Eu"}], 
-                dono: userId 
-            });
-            
-            document.getElementById('input-viagem-nome').value=''; document.getElementById('input-viagem-destino').value=''; 
-            document.getElementById('input-viagem-data-inicio').value=''; document.getElementById('input-viagem-data-fim').value=''; 
-            document.getElementById('preview-capa-viagem').style.display='none'; document.getElementById('msg-sem-capa').style.display='block'; tempCapaUrl=""; 
-            btn.innerText="Guardar Viagem"; btn.disabled=false; window.navegarMenu('menu-viagens');
-        } catch(e){ window.mostrarAlerta("Erro a guardar: " + e.message); const btn = document.getElementById('btn-save-viagem'); if(btn){btn.innerText="Guardar Viagem"; btn.disabled=false;} }
+    window.guardarNovaViagem = async () => {
+        const tit = document.getElementById('input-viagem-nome').value.trim(); const dest = document.getElementById('input-viagem-destino').value.trim();
+        const dtInicio = document.getElementById('input-viagem-data-inicio').value; const dtFim = document.getElementById('input-viagem-data-fim').value;
+        if(!tit || !dest) return;
+        
+        await addDoc(collection(db, 'artifacts', appId, 'viagens_partilhadas'), { 
+            nome: tit, paisCode: dest, dataInicio: dtInicio, dataFim: dtFim, capa: tempCapaUrl||"", timestamp: Date.now(), membros_uids: [userId], membros_info: [{uid:userId, nome:userName||"Eu"}], dono: userId 
+        });
+        document.getElementById('input-viagem-nome').value=''; document.getElementById('input-viagem-destino').value=''; tempCapaUrl=""; 
+        navegarMenu('menu-viagens');
     };
 
     window.switchTripTab = (n) => { 
@@ -1285,9 +989,6 @@
         document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'flex' : 'none';
         document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'flex' : 'none';
     };
-    
-    let unsubDespesas = null;
-    let unsubTimeline = null;
 
     window.abrirDetalheViagem = async (id) => {
         currentTripId = id; currentTripDoc = viagensData.find(v => v.id === id); if(!currentTripDoc) return;
@@ -1304,18 +1005,15 @@
         window.switchTripTab('resumo'); 
         window.navegarMenu('page-viagem-detalhe');
         
-        if(unsubDespesas) unsubDespesas();
-        unsubDespesas = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { 
+        onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { 
             despesasData = []; s.forEach(d => despesasData.push({id:d.id, ...d.data()})); 
             renderizarDespesas(despesasData); 
             atualizarResumoInternoViagem(despesasData);
             renderizarGraficosResumo(despesasData);
         });
 
-        if(unsubTimeline) unsubTimeline();
-        unsubTimeline = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'timeline'), s => { 
-            timelineEventsData = []; 
-            s.forEach(d => timelineEventsData.push({id:d.id, ...d.data()})); 
+        onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'timeline'), s => { 
+            timelineEventsData = []; s.forEach(d => timelineEventsData.push({id:d.id, ...d.data()})); 
             renderizarTimelineEvents(); 
             atualizarResumoInternoViagem();
         });
@@ -1327,23 +1025,17 @@
         const novaDataInicio = document.getElementById('edit-trip-data-inicio').value;
         const novaDataFim = document.getElementById('edit-trip-data-fim').value;
 
-        if(!novoNome) return window.mostrarAlerta("Insere um título válido.");
-
+        if(!novoNome) return;
         await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), {
-            nome: novoNome,
-            paisCode: novoDestino,
-            dataInicio: novaDataInicio,
-            dataFim: novaDataFim
+            nome: novoNome, paisCode: novoDestino, dataInicio: novaDataInicio, dataFim: novaDataFim
         });
-
         fecharModal('modal-detalhes-viagem');
     };
-    
+
     window.apagarViagem = async () => { 
         if(confirm("Apagar esta viagem permanentemente?")) { 
             await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); 
-            fecharModal('modal-detalhes-viagem');
-            window.navegarMenu('menu-viagens'); 
+            fecharModal('modal-detalhes-viagem'); window.navegarMenu('menu-viagens'); 
         } 
     };
 
@@ -1353,28 +1045,11 @@
 
          currentTripDoc.membros_info.forEach(p => { 
              sel+=`<option value="${p.uid}">${p.nome}</option>`; 
-             
              let isCriador = (p.uid === donoId);
-             let btnRemover = (!isCriador && (userId === donoId || p.uid === userId)) ? 
-                `<button class="btn-icon-list" onclick="removerMembroViagem('${p.uid}')" title="Remover das viagens">${iconTrash}</button>` : '';
+             let btnRemover = (!isCriador && (userId === donoId || p.uid === userId)) ? `<button class="btn-icon-list" onclick="removerMembroViagem('${p.uid}')">${iconTrash}</button>` : '';
 
-             list+=`<div class="user-card" style="padding:10px;">
-                <div class="user-info">
-                    <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(p.nome)}</div>
-                    <div>
-                        <span style="font-size:14px;font-weight:500;">${p.nome}</span>
-                        ${isCriador ? '<span style="font-size:10px;color:var(--accent);margin-left:6px;font-weight:600;">(Criador)</span>' : ''}
-                    </div>
-                </div>
-                ${btnRemover}
-             </div>`; 
-
-             checkboxes += `<div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:6px;">
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
-                    <input type="checkbox" class="chk-split-membro" value="${p.uid}" checked onchange="alternarModoDivisaoUI()"> ${p.nome}
-                </label>
-                <input type="number" class="val-split-exato auth-input" data-uid="${p.uid}" placeholder="€" style="display:none;width:80px;margin:0;padding:4px 8px;font-size:12px;">
-             </div>`;
+             list+=`<div class="user-card" style="padding:10px;"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(p.nome)}</div><div><span style="font-size:14px;font-weight:500;">${p.nome}</span>${isCriador ? '<span style="font-size:10px;color:var(--accent);margin-left:6px;font-weight:600;">(Criador)</span>' : ''}</div></div>${btnRemover}</div>`; 
+             checkboxes += `<label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" class="chk-split-membro" value="${p.uid}" checked> ${p.nome}</label>`;
          });
 
          document.getElementById('exp-pagador').innerHTML = sel; 
@@ -1385,13 +1060,6 @@
          document.getElementById('trip-amigos-disponiveis').innerHTML = conv ? dd : '<option value="">Todos já adicionados!</option>';
     }
 
-    window.alternarModoDivisaoUI = () => {
-        const modo = document.getElementById('exp-modo-divisao').value;
-        document.querySelectorAll('.val-split-exato').forEach(inp => {
-            inp.style.display = (modo === 'exatos') ? 'block' : 'none';
-        });
-    };
-    
     window.adicionarMembroViagem = async () => {
          const sel = document.getElementById('trip-amigos-disponiveis'); if(sel.value==="") return;
          const idA = sel.value, nmA = sel.options[sel.selectedIndex].getAttribute('data-nome');
@@ -1405,191 +1073,102 @@
             const novosUids = currentTripDoc.membros_uids.filter(u => u !== membroUid);
             const novaInfo = currentTripDoc.membros_info.filter(m => m.uid !== membroUid);
             await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids: novosUids, membros_info: novaInfo });
-            if(membroUid === userId) {
-                fecharModal('modal-detalhes-viagem');
-                window.navegarMenu('menu-viagens');
-            }
+            if(membroUid === userId) { fecharModal('modal-detalhes-viagem'); navegarMenu('menu-viagens'); }
         }
     };
 
     function atualizarResumoInternoViagem(despesasPassadas) {
         if(!currentTripDoc) return;
-
         let duracaoTxt = "Não definida";
         if(currentTripDoc.dataInicio && currentTripDoc.dataFim) {
-            let d1 = new Date(currentTripDoc.dataInicio);
-            let d2 = new Date(currentTripDoc.dataFim);
-            let diffTime = Math.abs(d2 - d1);
-            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            let d1 = new Date(currentTripDoc.dataInicio); let d2 = new Date(currentTripDoc.dataFim);
+            let diffDays = Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
             duracaoTxt = diffDays + (diffDays === 1 ? " dia" : " dias");
         }
         document.getElementById('summary-duracao-dias').innerText = duracaoTxt;
         document.getElementById('summary-total-locais').innerText = timelineEventsData.length + (timelineEventsData.length === 1 ? " sítio" : " sítios");
 
         if(despesasPassadas) {
-            let totalGasto = 0;
-            let pagosPorPessoa = {};
+            let totalGasto = 0; let pagosPorPessoa = {};
             currentTripDoc.membros_info.forEach(m => pagosPorPessoa[m.uid] = { nome: m.nome, total: 0 });
 
-            despesasPassadas.forEach(d => {
-                totalGasto += d.valor;
-                if(pagosPorPessoa[d.pagadorUid]) pagosPorPessoa[d.pagadorUid].total += d.valor;
-            });
-
+            despesasPassadas.forEach(d => { totalGasto += d.valor; if(pagosPorPessoa[d.pagadorUid]) pagosPorPessoa[d.pagadorUid].total += d.valor; });
             document.getElementById('summary-total-gasto').innerText = totalGasto.toFixed(2) + '€';
 
             let htmlMembros = '';
             Object.keys(pagosPorPessoa).forEach(u => {
-                htmlMembros += `<div class="summary-row">
-                    <span class="summary-label">Pago por ${pagosPorPessoa[u].nome}:</span>
-                    <span class="summary-val">${pagosPorPessoa[u].total.toFixed(2)}€</span>
-                </div>`;
+                htmlMembros += `<div class="summary-row"><span class="summary-label">Pago por ${pagosPorPessoa[u].nome}:</span><span class="summary-val">${pagosPorPessoa[u].total.toFixed(2)}€</span></div>`;
             });
             document.getElementById('summary-pagamento-membros').innerHTML = htmlMembros;
         }
     }
 
-    /* RENDERIZAR GRÁFICOS RESUMO (CANVAS NATIVO) */
+    /* RENDERIZAR GRÁFICOS NATIVOS */
     function renderizarGraficosResumo(listaDespesas) {
-        // 1. DESENHAR GRÁFICO DE LINHA (DIAS vs €)
         const canvasL = document.getElementById('chart-linha-gastos');
         if(canvasL) {
             const ctxL = canvasL.getContext('2d');
-            canvasL.width = canvasL.parentElement.clientWidth - 30;
-            canvasL.height = 150;
-            ctxL.clearRect(0,0,canvasL.width,canvasL.height);
+            canvasL.width = canvasL.parentElement.clientWidth - 30; canvasL.height = 150; ctxL.clearRect(0,0,canvasL.width,canvasL.height);
 
-            let gastosPorDia = {};
-            listaDespesas.forEach(d => {
-                let dia = d.dataStr || 'Hoje';
-                gastosPorDia[dia] = (gastosPorDia[dia] || 0) + d.valor;
-            });
-
-            let diasKeys = Object.keys(gastosPorDia);
-            if(diasKeys.length === 0) diasKeys = ['Sem dados'];
-
+            let gastosPorDia = {}; listaDespesas.forEach(d => { let dia = d.dataStr || 'Hoje'; gastosPorDia[dia] = (gastosPorDia[dia] || 0) + d.valor; });
+            let diasKeys = Object.keys(gastosPorDia); if(diasKeys.length === 0) diasKeys = ['Sem dados'];
             let maxGasto = Math.max(...Object.values(gastosPorDia), 10);
             let paddingLeft = 35, paddingBottom = 25, widthChart = canvasL.width - paddingLeft - 10, heightChart = canvasL.height - paddingBottom - 10;
 
-            // Eixos
-            ctxL.strokeStyle = 'rgba(255,255,255,0.1)';
-            ctxL.lineWidth = 1;
-            ctxL.beginPath();
-            ctxL.moveTo(paddingLeft, 10);
-            ctxL.lineTo(paddingLeft, heightChart + 10);
-            ctxL.lineTo(paddingLeft + widthChart, heightChart + 10);
-            ctxL.stroke();
+            ctxL.strokeStyle = 'rgba(255,255,255,0.1)'; ctxL.lineWidth = 1; ctxL.beginPath();
+            ctxL.moveTo(paddingLeft, 10); ctxL.lineTo(paddingLeft, heightChart + 10); ctxL.lineTo(paddingLeft + widthChart, heightChart + 10); ctxL.stroke();
 
-            // Texto Eixo Y (€)
-            ctxL.fillStyle = 'rgba(255,255,255,0.5)';
-            ctxL.font = '9px Poppins';
-            ctxL.fillText(Math.round(maxGasto) + '€', 2, 15);
-            ctxL.fillText('0€', 12, heightChart + 10);
+            ctxL.fillStyle = 'rgba(255,255,255,0.5)'; ctxL.font = '9px Poppins';
+            ctxL.fillText(Math.round(maxGasto) + '€', 2, 15); ctxL.fillText('0€', 12, heightChart + 10);
 
-            // Pontos da Linha
             let stepX = widthChart / Math.max(diasKeys.length - 1, 1);
-            ctxL.strokeStyle = '#FF6B00';
-            ctxL.lineWidth = 2.5;
-            ctxL.beginPath();
+            ctxL.strokeStyle = '#1DB954'; ctxL.lineWidth = 2.5; ctxL.beginPath();
 
             diasKeys.forEach((dia, idx) => {
-                let val = gastosPorDia[dia] || 0;
-                let x = paddingLeft + (idx * stepX);
+                let val = gastosPorDia[dia] || 0; let x = paddingLeft + (idx * stepX);
                 let y = (heightChart + 10) - ((val / maxGasto) * heightChart);
-
-                if(idx === 0) ctxL.moveTo(x, y);
-                else ctxL.lineTo(x, y);
-
-                // Rotulo Dia X
-                ctxL.fillStyle = 'rgba(255,255,255,0.5)';
-                ctxL.fillText(dia.substring(0,5), x - 10, heightChart + 22);
+                if(idx === 0) ctxL.moveTo(x, y); else ctxL.lineTo(x, y);
+                ctxL.fillStyle = 'rgba(255,255,255,0.5)'; ctxL.fillText(dia.substring(0,5), x - 10, heightChart + 22);
             });
             ctxL.stroke();
         }
 
-        // 2. DESENHAR GRÁFICO CIRCULAR / DONUT (CATEGORIAS)
         const canvasP = document.getElementById('chart-pie-categorias');
         if(canvasP) {
             const ctxP = canvasP.getContext('2d');
-            canvasP.width = canvasP.parentElement.clientWidth - 30;
-            canvasP.height = 150;
-            ctxP.clearRect(0,0,canvasP.width,canvasP.height);
+            canvasP.width = canvasP.parentElement.clientWidth - 30; canvasP.height = 150; ctxP.clearRect(0,0,canvasP.width,canvasP.height);
 
-            let porCat = {};
-            listaDespesas.forEach(d => {
-                let c = d.categoria || 'Geral';
-                porCat[c] = (porCat[c] || 0) + d.valor;
-            });
+            let porCat = {}; listaDespesas.forEach(d => { let c = d.categoria || 'Geral'; porCat[c] = (porCat[c] || 0) + d.valor; });
+            let total = Object.values(porCat).reduce((a,b)=>a+b, 0); if(total === 0) { porCat = {'Sem dados': 1}; total = 1; }
 
-            let total = Object.values(porCat).reduce((a,b)=>a+b, 0);
-            if(total === 0) { porCat = {'Sem dados': 1}; total = 1; }
-
-            const cores = ['#FF6B00', '#007AFF', '#28CD41', '#AF52DE', '#FF3B30', '#FFCC00'];
-            let startAngle = 0;
-            let centerX = canvasP.width / 3, centerY = canvasP.height / 2, radius = 50;
+            const cores = ['#1DB954', '#007AFF', '#AF52DE', '#FF3B30', '#FFCC00'];
+            let startAngle = 0, centerX = canvasP.width / 3, centerY = canvasP.height / 2, radius = 50;
 
             Object.keys(porCat).forEach((cat, idx) => {
-                let val = porCat[cat];
-                let sliceAngle = (val / total) * 2 * Math.PI;
+                let val = porCat[cat]; let sliceAngle = (val / total) * 2 * Math.PI;
+                ctxP.fillStyle = cores[idx % cores.length]; ctxP.beginPath();
+                ctxP.moveTo(centerX, centerY); ctxP.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle); ctxP.closePath(); ctxP.fill();
 
-                ctxP.fillStyle = cores[idx % cores.length];
-                ctxP.beginPath();
-                ctxP.moveTo(centerX, centerY);
-                ctxP.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-                ctxP.closePath();
-                ctxP.fill();
-
-                // Legenda à direita
                 let legendY = 25 + (idx * 20);
                 ctxP.fillRect(canvasP.width / 2 + 10, legendY - 8, 10, 10);
-                ctxP.fillStyle = 'rgba(255,255,255,0.8)';
-                ctxP.font = '11px Poppins';
+                ctxP.fillStyle = 'rgba(255,255,255,0.8)'; ctxP.font = '11px Poppins';
                 ctxP.fillText(`${cat}: ${val.toFixed(2)}€`, canvasP.width / 2 + 26, legendY);
-
                 startAngle += sliceAngle;
             });
         }
     }
 
-    /* PLANEAMENTO */
-    window.processarFotoEvento = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image(); img.onload = () => {
-                const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height;
-                if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h;
-                canvas.getContext('2d').drawImage(img,0,0,w,h);
-                tempEventFoto = canvas.toDataURL('image/jpeg',0.6);
-                document.getElementById('preview-event-foto').src = tempEventFoto;
-                document.getElementById('preview-event-foto').style.display = 'block';
-            }; img.src = e.target.result;
-        }; reader.readAsDataURL(file);
-    };
-
+    /* PLANEAMENTO (NOVO PASSO NO ITINERÁRIO) */
     function renderizarTimelineEvents() {
         const container = document.getElementById('container-timeline-events');
         if(timelineEventsData.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão "+" no canto inferior direito!</p>';
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Sem passos no planeamento. Clica no + para adicionar!</p>';
             return;
         }
-
-        timelineEventsData.sort((a,b) => {
-            let keyA = (a.data || '') + ' ' + (a.hora || '');
-            let keyB = (b.data || '') + ' ' + (b.hora || '');
-            return keyA.localeCompare(keyB);
-        });
-
         let html = '';
         timelineEventsData.forEach(ev => {
             html += `<div class="timeline-item">
-                <div class="timeline-header">
-                    <span class="timeline-time">${ev.data || ''} ${ev.hora ? '• ' + ev.hora : ''}</span>
-                    <div style="display:flex;gap:5px;">
-                        <button class="btn-icon-list" onclick="prepararEditarEvento('${ev.id}')">${iconEdit}</button>
-                        <button class="btn-icon-list" onclick="apagarEventoTimeline('${ev.id}')">${iconTrash}</button>
-                    </div>
-                </div>
+                <div class="timeline-header"><span class="timeline-time">${ev.data || ''} ${ev.hora ? '• ' + ev.hora : ''}</span></div>
                 <div class="timeline-title">${ev.titulo}</div>
                 ${ev.notas ? `<div class="timeline-notes">${ev.notas}</div>` : ''}
                 ${ev.foto ? `<img src="${ev.foto}" class="timeline-img">` : ''}
@@ -1599,172 +1178,70 @@
     }
 
     window.guardarEventoTimeline = async () => {
-        const evId = document.getElementById('edit-event-id').value;
-        const dt = document.getElementById('input-event-data').value;
-        const hr = document.getElementById('input-event-hora').value;
-        const tit = document.getElementById('input-event-titulo').value.trim();
-        const nts = document.getElementById('input-event-notas').value.trim();
+        const dt = document.getElementById('input-event-data').value; const hr = document.getElementById('input-event-hora').value;
+        const tit = document.getElementById('input-event-titulo').value.trim(); const nts = document.getElementById('input-event-notas').value.trim();
+        if(!tit) return;
 
-        if(!tit) return window.mostrarAlerta("Insere um título ou localização.");
-
-        const payload = { data: dt, hora: hr, titulo: tit, notas: nts, foto: tempEventFoto || "", timestamp: Date.now() };
-
-        if(evId) {
-            await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline',evId), payload);
-        } else {
-            await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline'), payload);
-        }
-
-        fecharModal('modal-novo-evento');
-        document.getElementById('edit-event-id').value = '';
-        document.getElementById('input-event-titulo').value = '';
-        document.getElementById('input-event-notas').value = '';
-        document.getElementById('preview-event-foto').style.display = 'none';
-        tempEventFoto = "";
-    };
-
-    window.prepararEditarEvento = (id) => {
-        const ev = timelineEventsData.find(x => x.id === id);
-        if(!ev) return;
-        document.getElementById('edit-event-id').value = ev.id;
-        document.getElementById('input-event-data').value = ev.data || '';
-        document.getElementById('input-event-hora').value = ev.hora || '';
-        document.getElementById('input-event-titulo').value = ev.titulo || '';
-        document.getElementById('input-event-notas').value = ev.notas || '';
-        if(ev.foto) {
-            tempEventFoto = ev.foto;
-            document.getElementById('preview-event-foto').src = ev.foto;
-            document.getElementById('preview-event-foto').style.display = 'block';
-        }
-        document.getElementById('modal-evento-titulo-header').innerText = "Editar Passo";
-        abrirModal('modal-novo-evento');
-    };
-
-    window.apagarEventoTimeline = async (id) => {
-        if(confirm("Apagar esta atividade?")) {
-            await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline',id));
-        }
-    };
-
-    /* DESPESAS & SALDOS ESTILO SPLITWISE */
-    window.adicionarDespesa = async () => {
-        const desc = document.getElementById('exp-desc').value.trim();
-        const val = parseFloat(document.getElementById('exp-valor').value);
-        const uidP = document.getElementById('exp-pagador').value; 
-        const modo = document.getElementById('exp-modo-divisao').value;
-        
-        let divididos = [];
-        let quotasExatas = {};
-
-        if(modo === 'iguais') {
-            document.querySelectorAll('.chk-split-membro:checked').forEach(c => divididos.push(c.value));
-        } else {
-            let somaExata = 0;
-            document.querySelectorAll('.val-split-exato').forEach(inp => {
-                let v = parseFloat(inp.value) || 0;
-                if(v > 0) {
-                    let u = inp.getAttribute('data-uid');
-                    divididos.push(u);
-                    quotasExatas[u] = v;
-                    somaExa += v;
-                }
-            });
-        }
-
-        if(!desc || !val || val<=0) return window.mostrarAlerta("Preenche a descrição e um valor válido.");
-        if(divididos.length === 0) return window.mostrarAlerta("Seleciona pelo menos uma pessoa para dividir.");
-
-        const pObj = currentTripDoc.membros_info.find(i => i.uid === uidP);
-        const cat = obterCategoriaPorTexto(desc);
-        
-        const agora = new Date();
-        const dataAddStr = `${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}`;
-
-        await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {
-            desc: desc, 
-            valor: val, 
-            pagadorUid: uidP, 
-            pagadorNome: (pObj?pObj.nome:"Desconhecido"), 
-            divididoPor: divididos,
-            modoDivisao: modo,
-            quotasExatas: quotasExatas,
-            categoria: cat.nome,
-            dataStr: dataAddStr,
-            timestamp: Date.now()
-        }); 
-
-        // Notifica participantes
-        currentTripDoc.membros_uids.forEach(mUid => {
-            if(mUid !== userId) {
-                criarNotificacaoDB(mUid, `${userName} adicionou a despesa "${desc}" (${val.toFixed(2)}€) na viagem "${currentTripDoc.nome}".`);
-            }
+        await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline'), {
+            data: dt, hora: hr, titulo: tit, notas: nts, foto: tempEventFoto || "", timestamp: Date.now()
         });
 
-        document.getElementById('exp-desc').value=''; 
-        document.getElementById('exp-valor').value='';
-        fecharModal('modal-nova-despesa');
+        fecharModal('modal-novo-evento'); document.getElementById('input-event-titulo').value = ''; document.getElementById('input-event-notas').value = ''; tempEventFoto = "";
     };
-    
+
+    /* DESPESAS SPLITWISE */
+    window.adicionarDespesa = async () => {
+        const desc = document.getElementById('exp-desc').value.trim(); const val = parseFloat(document.getElementById('exp-valor').value);
+        const uidP = document.getElementById('exp-pagador').value; 
+        
+        let divididos = [];
+        document.querySelectorAll('.chk-split-membro:checked').forEach(c => divididos.push(c.value));
+        if(!desc || !val || val<=0) return;
+
+        const cat = obterCategoriaPorTexto(desc);
+        const agora = new Date(); const dataAddStr = `${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}`;
+
+        await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {
+            desc: desc, valor: val, pagadorUid: uidP, pagadorNome: userName,
+            divididoPor: divididos, categoria: cat.nome, dataStr: dataAddStr, timestamp: Date.now()
+        }); 
+
+        currentTripDoc.membros_uids.forEach(mUid => {
+            if(mUid !== userId) criarNotificacaoDB(mUid, `${userName} adicionou a despesa "${desc}" (${val.toFixed(2)}€) na viagem "${currentTripDoc.nome}".`);
+        });
+
+        document.getElementById('exp-desc').value=''; document.getElementById('exp-valor').value=''; fecharModal('modal-nova-despesa');
+    };
+
     function renderizarDespesas(listaExp) {
         let saldos = {}, htmlD = '', resHtml = '';
         currentTripDoc.membros_info.forEach(m => saldos[m.uid] = { nome: m.nome, pago: 0, deve: 0 });
 
         listaExp.sort((a,b) => b.timestamp - a.timestamp).forEach(e => { 
             if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago += e.valor;
-
             let participantes = e.divididoPor || currentTripDoc.membros_uids;
+            let quota = e.valor / participantes.length;
 
-            if(e.modoDivisao === 'exatos' && e.quotasExatas) {
-                Object.keys(e.quotasExatas).forEach(pUid => {
-                    if(saldos[pUid]) saldos[pUid].deve += e.quotasExatas[pUid];
-                });
-            } else {
-                let quota = e.valor / participantes.length;
-                participantes.forEach(pUid => {
-                    if(saldos[pUid]) saldos[pUid].deve += quota;
-                });
-            }
-
-            const catInfo = obterCategoriaPorTexto(e.desc);
+            participantes.forEach(pUid => { if(saldos[pUid]) saldos[pUid].deve += quota; });
 
             htmlD += `<div class="expense-item">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="color:var(--accent);">${catInfo.icon}</div>
-                    <div class="exp-info">
-                        <span class="exp-title">${e.desc}</span>
-                        <span class="exp-payer">
-                            <span class="exp-date-badge">${e.dataStr || 'Hoje'}</span>
-                            Pago por ${e.pagadorNome} (${participantes.length} pessoas)
-                        </span>
-                    </div>
-                </div>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <span class="exp-amount">${e.valor.toFixed(2)}€</span>
-                    <button class="btn-icon-list" onclick="apagarDespesa('${e.id}')">${iconTrash}</button>
-                </div>
+                <div class="exp-info"><span class="exp-title">${e.desc}</span><span style="font-size:11px;color:var(--text-muted);display:block;">${e.dataStr || 'Hoje'} • Pago por ${e.pagadorNome}</span></div>
+                <div style="display:flex;align-items:center;gap:10px;"><span class="exp-amount">${e.valor.toFixed(2)}€</span><button class="btn-icon-list" onclick="apagarDespesa('${e.id}')">${iconTrash}</button></div>
             </div>`; 
         });
 
         document.getElementById('container-despesas').innerHTML = htmlD; 
 
-        // SALDOS SEM BOLA ATRÁS DO NOME
         const meuSaldo = (saldos[userId] ? (saldos[userId].pago - saldos[userId].deve) : 0);
-
         Object.keys(saldos).forEach(u => { 
             if(u !== userId) {
                 let saldoPessoa = saldos[u].pago - saldos[u].deve;
                 let relacao = 0;
-                if(meuSaldo > 0 && saldoPessoa < 0) {
-                    relacao = Math.min(meuSaldo, Math.abs(saldoPessoa));
-                } else if(meuSaldo < 0 && saldoPessoa > 0) {
-                    relacao = -Math.min(Math.abs(meuSaldo), saldoPessoa);
-                }
+                if(meuSaldo > 0 && saldoPessoa < 0) relacao = Math.min(meuSaldo, Math.abs(saldoPessoa));
+                else if(meuSaldo < 0 && saldoPessoa > 0) relacao = -Math.min(Math.abs(meuSaldo), saldoPessoa);
 
-                if(relacao > 0.01) {
-                    resHtml += `<div class="split-balance receive"><span>${saldos[u].nome} deve-te</span> <b>${relacao.toFixed(2)}€</b></div>`;
-                } else if(relacao < -0.01) {
-                    resHtml += `<div class="split-balance owe"><span>Deves a ${saldos[u].nome}</span> <b>${Math.abs(relacao).toFixed(2)}€</b></div>`;
-                }
+                if(relacao > 0.01) resHtml += `<div class="split-balance receive"><span>${saldos[u].nome} deve-te</span> <b>${relacao.toFixed(2)}€</b></div>`;
+                else if(relacao < -0.01) resHtml += `<div class="split-balance owe"><span>Deves a ${saldos[u].nome}</span> <b>${Math.abs(relacao).toFixed(2)}€</b></div>`;
             }
         });
 
@@ -1772,16 +1249,12 @@
     }
 
     window.liquidarSaldosDespesas = async () => {
-        if(confirm("Liquidar e quitar todos os saldos pendentes nesta viagem?")) {
+        if(confirm("Liquidar todos os saldos pendentes?")) {
             await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {
-                desc: "Liquidação de Saldos",
-                valor: 0,
-                pagadorUid: userId,
-                pagadorNome: userName,
-                divididoPor: currentTripDoc.membros_uids,
-                timestamp: Date.now()
+                desc: "Liquidação de Saldos", valor: 0, pagadorUid: userId, pagadorNome: userName,
+                divididoPor: currentTripDoc.membros_uids, timestamp: Date.now()
             });
-            window.mostrarAlerta("Saldos validados e liquidados com sucesso.");
+            window.mostrarAlerta("Saldos liquidados!");
         }
     };
     

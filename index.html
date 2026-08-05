@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Gestão G&N">
+  <meta name="apple-mobile-web-app-title" content="App Casal">
   <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   
@@ -45,14 +45,15 @@
     .loading-spinner{width:36px;height:36px;border:3px solid var(--border-color);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-top:15px}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    #app-container{display:none;width:100%;height:100vh;flex-direction:column}
+    #app-container{display:none;width:100%;height:100vh;flex-direction:column;margin:0 auto;max-width:100%}
     
-    /* TOP BAR COM PERFIL */
-    .top-app-bar{width:100%;max-width:500px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 20px 10px 20px;display:flex;align-items:center;justify-content:space-between;z-index:8000;background:var(--bg-color)}
-    .top-profile-btn{display:flex;align-items:center;gap:10px;cursor:pointer}
+    /* TOP BAR COM PERFIL E TÍTULO DINÂMICO */
+    .top-app-bar{width:100%;max-width:600px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 20px 10px 20px;display:flex;align-items:center;justify-content:space-between;z-index:8000;background:var(--bg-color)}
+    .top-left-btn{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:34px;height:34px}
     .top-profile-avatar{width:34px;height:34px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;border:1px solid var(--border-color)}
-    
-    .page-container{flex:1;padding:10px 20px calc(var(--bottom-nav-height) + 20px) 20px;width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
+    .top-title{font-weight:600;font-size:16px;letter-spacing:0.5px;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
+
+    .page-container{flex:1;padding:10px 20px calc(var(--bottom-nav-height) + 20px) 20px;width:100%;max-width:600px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
     h1{font-weight:600;font-size:26px;margin-bottom:30px;text-align:center;letter-spacing:1px}
     h2{font-weight:400;font-size:18px;color:var(--text-muted);text-align:center;margin-bottom:20px}
     h3{font-size:16px;font-weight:500;margin:0 0 15px 0;display:flex;align-items:center;gap:8px}
@@ -64,9 +65,11 @@
     #sidebar-overlay.open{opacity:1;pointer-events:auto}
     #sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-width);background-color:var(--card-bg);z-index:20000;transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),background-color 0.3s;border-right:1px solid var(--border-color);box-shadow:5px 0 15px rgba(0,0,0,0.5);display:flex;flex-direction:column}
     #sidebar.open{transform:translateX(0)}
-    .sidebar-header{padding:calc(env(safe-area-inset-top) + 20px) 20px 20px 20px;border-bottom:1px solid var(--border-color);display:flex;flex-direction:column;align-items:center}
-    .sidebar-logo{width:120px;height:70px;object-fit:contain;margin:0 auto;display:block}
-    .light-logo{display:none} body.light-mode .light-logo{display:block} body.light-mode .dark-logo{display:none}
+    .sidebar-header-account{padding:calc(env(safe-area-inset-top) + 20px) 20px 20px 20px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;gap:15px;cursor:pointer;transition:background 0.2s}
+    .sidebar-header-account:active{background:var(--btn-secondary)}
+    .sidebar-account-info{display:flex;flex-direction:column}
+    .sidebar-account-name{font-weight:600;font-size:15px;color:var(--text-main)}
+    .sidebar-account-sub{font-size:12px;color:var(--text-muted)}
     .sidebar-item{padding:18px 25px;font-size:15px;font-weight:500;color:var(--text-main);display:flex;align-items:center;gap:15px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02);transition:background-color 0.2s,color 0.3s}
     .sidebar-item:active{background-color:var(--btn-secondary)}
     .sidebar-item.active{border-left:4px solid var(--accent);background-color:rgba(255,107,0,0.05);color:var(--accent)}
@@ -78,7 +81,7 @@
     .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px;margin-bottom:4px}
     .sidebar-icon-svg{width:20px;height:20px;flex-shrink:0;margin-bottom:0}
     
-    /* BARRA INFERIOR ESTILO SPOTIFY GRADUAL */
+    /* BARRA INFERIOR SPOTIFY GRADUAL EM CINZENTO */
     #bottom-nav{
       position:fixed;
       bottom:0;
@@ -86,7 +89,7 @@
       right:0;
       height:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
       padding-bottom:env(safe-area-inset-bottom);
-      background: linear-gradient(to top, rgba(0,0,0,1) 30%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0) 100%);
+      background: linear-gradient(to top, rgba(24,24,24,1) 35%, rgba(24,24,24,0.85) 75%, rgba(24,24,24,0) 100%);
       backdrop-filter:blur(10px);
       -webkit-backdrop-filter:blur(10px);
       display:flex;
@@ -96,14 +99,23 @@
       border:none;
     }
     body.light-mode #bottom-nav{
-      background: linear-gradient(to top, rgba(255,255,255,1) 30%, rgba(255,255,255,0.85) 70%, rgba(255,255,255,0) 100%);
+      background: linear-gradient(to top, rgba(242,242,242,1) 35%, rgba(242,242,242,0.85) 75%, rgba(242,242,242,0) 100%);
     }
     .nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:70px;height:100%;color:var(--text-muted);cursor:pointer;transition:color 0.2s,transform 0.1s}
     .nav-btn .nav-lbl{font-size:10px;margin-top:2px;font-weight:500}
     .nav-btn:active{transform:scale(0.9)} .nav-btn.active{color:var(--accent)}
     
     .nav-badge{position:absolute;top:6px;right:18px;background-color:var(--accent);color:#121212;font-size:10px;font-weight:700;padding:2px 5px;border-radius:10px;display:none;line-height:1}
-    @media (min-width:800px){#bottom-nav{display:none} .page-container{max-width:800px;padding-bottom:40px;margin:0} #app-container{flex-direction:row} #sidebar{position:static;transform:translateX(0);box-shadow:none;z-index:10} #sidebar-overlay{display:none !important}}
+    
+    /* AJUSTE RESPONSIVO DESKTOP / PC */
+    @media (min-width:800px){
+      #app-container{flex-direction:row}
+      .top-app-bar{max-width:100%;padding-left:30px;padding-right:30px}
+      .page-container{max-width:100%;padding-left:40px;padding-right:40px;padding-bottom:40px}
+      #sidebar{position:static;transform:translateX(0);box-shadow:none;z-index:10}
+      #sidebar-overlay{display:none !important}
+      #bottom-nav{display:none}
+    }
     
     .dashboard-widget{background-color:var(--card-bg);width:100%;border-radius:20px;padding:25px;margin-bottom:15px;border:1px solid var(--border-color);box-shadow:0 4px 15px rgba(0,0,0,0.05)}
     .top-widgets-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:15px}
@@ -155,7 +167,6 @@
     /* FORMATO DE SALDOS SPLITWISE */
     .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px} 
     
-    /* BOTÃO DE LIQUIDAÇÃO PEQUENO E SEM RAIO */
     .btn-liquidar-clean{
       background:transparent;
       border:none;
@@ -191,7 +202,6 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE SIMPLES */
     .btn-fab{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 20px) !important;
@@ -246,15 +256,9 @@
     .notif-push-time{font-size:10px;color:var(--text-muted)}
     .notif-push-body{font-size:13px;color:var(--text-main);line-height:1.4}
 
-    /* SWITCH ESTILO IOS */
-    .switch-setting-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 0;border-bottom:1px solid var(--border-color)}
-    .switch-setting-label{font-size:14px;font-weight:500;color:var(--text-main)}
-    .ios-switch{position:relative;display:inline-block;width:46px;height:26px}
-    .ios-switch input{opacity:0;width:0;height:0}
-    .ios-slider{position:absolute;cursor:pointer;inset:0;background-color:var(--btn-secondary);transition:.3s;border-radius:34px;border:1px solid var(--border-color)}
-    .ios-slider:before{position:absolute;content:"";height:20px;width:20px;left:2px;bottom:2px;background-color:white;transition:.3s;border-radius:50%}
-    input:checked + .ios-slider{background-color:var(--accent)}
-    input:checked + .ios-slider:before{transform:translateX(20px)}
+    /* CONFIGURAÇÃO LINHA COM SELECTOR */
+    .setting-select-row{display:flex;flex-direction:column;gap:6px;width:100%;padding:14px 0;border-bottom:1px solid var(--border-color)}
+    .setting-select-label{font-size:14px;font-weight:500;color:var(--text-main)}
 
     /* CROPPING / AJUSTE DE IMAGEM TOUCH */
     .crop-viewport{width:100%;height:250px;background:#000;overflow:hidden;position:relative;border-radius:14px;margin-bottom:15px;touch-action:none;cursor:grab}
@@ -299,21 +303,15 @@
   <!-- CONTAINER PRINCIPAL DA APP -->
   <div id="app-container">
     
-    <!-- TOP APP BAR -->
-    <div class="top-app-bar">
-      <div class="top-profile-btn" onclick="abrirSidebar()">
-        <div class="top-profile-avatar" id="top-user-avatar">?</div>
-      </div>
-      <div style="font-weight:600;font-size:15px;letter-spacing:0.5px;">Gestão G&N</div>
-      <div style="width:34px;"></div>
-    </div>
-
     <!-- MENU LATERAL (SIDEBAR) -->
     <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
     <div id="sidebar">
-      <div class="sidebar-header">
-        <img src="logobranco_semfundo.png" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
-        <img src="logopreto_semfundo.png" class="sidebar-logo light-logo" onerror="this.style.display='none'">
+      <div class="sidebar-header-account" onclick="navegarMenu('menu-perfil')">
+        <div class="top-profile-avatar" id="sidebar-user-avatar">?</div>
+        <div class="sidebar-account-info">
+          <span class="sidebar-account-name" id="sidebar-account-name">A carregar...</span>
+          <span class="sidebar-account-sub">Ver perfil</span>
+        </div>
       </div>
       <div style="flex:1;overflow-y:auto;padding-top:10px;">
         <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
@@ -341,8 +339,329 @@
         </div>
       </div>
       <div class="sidebar-footer">
-        <div class="sidebar-item" onclick="abrirModal('modal-definicoes')" style="border-bottom:none;justify-content:center;margin:10px;">
+        <div class="sidebar-item" onclick="navegarMenu('menu-definicoes')" style="border-bottom:none;justify-content:center;margin:10px;">
           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Definições
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN WRAPPER -->
+    <div style="flex:1;display:flex;flex-direction:column;width:100%;overflow:hidden;">
+      <!-- TOP APP BAR -->
+      <div class="top-app-bar">
+        <div class="top-left-btn" id="top-left-btn" onclick="handleTopLeftClick()">
+          <div class="top-profile-avatar" id="top-user-avatar">?</div>
+        </div>
+        <div class="top-title" id="top-title">Início</div>
+        <div style="width:34px;"></div>
+      </div>
+
+      <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
+      <div class="page-container">
+        
+        <!-- DASHBOARD (INÍCIO) -->
+        <div id="menu-principal" class="page active">
+          <div class="top-widgets-grid">
+            <div class="dashboard-widget widget-relogio">
+              <span id="data-atual">A carregar...</span><h1 id="hora-atual">00:00</h1>
+            </div>
+            <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
+              <div class="meteo-top-row">
+                <div id="meteo-icone" style="color:var(--accent);"><svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg></div>
+                <span id="meteo-temp">--°</span>
+              </div>
+              <span id="meteo-desc">A localizar...</span>
+              <span id="meteo-local-texto"><svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="nome-cidade-texto">GPS</span></span>
+            </div>
+          </div>
+
+          <div class="dashboard-widget widget-frase">
+            <svg class="icon-svg" style="opacity:0.2;width:24px;margin-bottom:12px;color:var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
+            <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
+          </div>
+
+          <div class="dashboard-widget widget-tarefas">
+            <h3>
+              <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <path d="M18 11.5l-5 5-2 0 0-2 5-5 2 2z"></path>
+              </svg> 
+              A Fazer Hoje
+            </h3>
+            <div class="input-row">
+              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
+              <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+            </div>
+            <div class="lista-itens" id="container-tarefas"></div>
+          </div>
+        </div>
+
+        <!-- BIBLIOTECA (TODOS OS MENUS) -->
+        <div id="menu-biblioteca" class="page">
+          <h2>A tua Biblioteca</h2>
+          <button class="btn" onclick="navegarMenu('menu-viagens')">
+            <span>Viagens</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
+          </button>
+          <button class="btn" onclick="navegarMenu('menu-supermercados')">
+            <span>Supermercados</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          </button>
+          <button class="btn" onclick="navegarMenu('menu-familia')">
+            <span>Família & Amigos</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+          </button>
+          <button class="btn" onclick="navegarMenu('menu-carros')">
+            <span>Garagem & Veículos</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
+          </button>
+        </div>
+
+        <!-- PÁGINA DE PERFIL -->
+        <div id="menu-perfil" class="page">
+          <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:30px;">
+            <div id="profile-avatar-container" onclick="abrirCropModal('perfil')" style="cursor:pointer;position:relative;" title="Editar Foto de Perfil">
+              <div class="user-avatar-custom" id="profile-page-avatar" style="width:90px;height:90px;font-size:32px;">?</div>
+              <span style="position:absolute;bottom:0;right:0;background:var(--accent);color:#121212;padding:6px;border-radius:50%;display:flex;"><svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></span>
+            </div>
+            <h2 id="profile-page-name" style="margin-top:15px;margin-bottom:2px;font-weight:600;color:var(--text-main);">A carregar...</h2>
+            <span style="font-size:12px;color:var(--text-muted);">Conta Pessoal</span>
+          </div>
+
+          <div class="dashboard-widget" style="display:flex;align-items:center;justify-content:space-between;padding:18px 25px;">
+            <span style="font-size:14px;font-weight:500;">Número de Amigos</span>
+            <span class="stat-num" id="profile-friends-count">0</span>
+          </div>
+
+          <button class="btn-acao" style="width:100%;padding:15px;margin-top:10px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="abrirCropModal('perfil')">Editar Foto de Perfil</button>
+        </div>
+
+        <!-- PÁGINA DE DEFINIÇÕES (ESTILO SPOTIFY) -->
+        <div id="menu-definicoes" class="page">
+          <h2>Definições da Aplicação</h2>
+          
+          <div class="dashboard-widget" style="margin-bottom:20px;">
+            <div class="setting-select-row">
+              <span class="setting-select-label">Permissões de Localização</span>
+              <select id="select-location" class="auth-input" style="margin:0;padding:10px;" onchange="alterarPermissaoLocalizacao(this.value)">
+                <option value="sempre">Sempre</option>
+                <option value="uso">Durante a Utilização</option>
+                <option value="nunca">Nunca</option>
+              </select>
+            </div>
+
+            <div class="setting-select-row" style="border-bottom:none;">
+              <span class="setting-select-label">Notificações Push</span>
+              <select id="select-notifications" class="auth-input" style="margin:0;padding:10px;" onchange="alterarPermissaoNotificacoes(this.value)">
+                <option value="sempre">Sempre</option>
+                <option value="uso">Durante a Utilização</option>
+                <option value="nunca">Nunca</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:flex-start;" onclick="alternarTema()">
+            <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display:none;margin-right:10px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <span id="texto-tema-modal">Mudar para Modo Claro</span>
+          </button>
+
+          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:space-between;" onclick="toggleGrelhaCores()">
+            <span>Cor Secundária</span><div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
+          </button>
+          <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
+
+          <button class="btn-acao" style="background-color:#ff3b30;color:white;width:100%;padding:15px;margin-top:20px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
+        </div>
+
+        <!-- VIAGENS MAIN -->
+        <div id="menu-viagens" class="page">
+          <h2 style="margin-bottom:10px;">As Minhas Viagens</h2>
+          <div class="stats-viagens">
+            <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens Registadas</span></div>
+            <div class="stat-box"><span class="stat-num" id="stat-proxima-viagem">--</span><span class="stat-lbl">Próxima Aventura</span></div>
+          </div>
+          <button class="btn-acao" style="width:100%;margin-bottom:20px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
+            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
+          </button>
+
+          <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
+          <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
+        </div>
+
+        <!-- NOVA VIAGEM -->
+        <div id="menu-nova-viagem" class="page">
+          <h2>Nova Aventura</h2>
+          
+          <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="abrirCropModal('capa-nova')">
+            <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
+            <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
+          </div>
+
+          <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
+          <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
+          
+          <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data de Início:</label>
+          <input type="date" id="input-viagem-data-inicio" class="auth-input" style="color:var(--text-main);">
+          
+          <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data do Fim:</label>
+          <input type="date" id="input-viagem-data-fim" class="auth-input" style="color:var(--text-main);">
+          
+          <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
+            Guardar Viagem
+          </button>
+        </div>
+
+        <!-- DETALHE VIAGEM -->
+        <div id="page-viagem-detalhe" class="page" style="position:relative;">
+          <div class="viagem-header">
+            <img id="detalhe-viagem-img" src="">
+            
+            <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')">
+              <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
+              <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
+            </div>
+
+            <span class="edit-capa-badge" onclick="abrirCropModal('capa-existente')">📷 Alterar Capa</span>
+          </div>
+
+          <div class="trip-tabs">
+            <div class="trip-tab active" id="tab-btn-resumo" onclick="switchTripTab('resumo')">Resumo</div>
+            <div class="trip-tab" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeamento</div>
+            <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Despesas</div>
+          </div>
+          
+          <!-- RESUMO -->
+          <div id="tab-resumo" class="trip-tab-content active">
+            <div class="viagem-stats-summary">
+              <h4 style="margin:0 0 5px 0;font-size:15px;color:var(--accent);">Resumo da Viagem</h4>
+              <div class="summary-row">
+                <span class="summary-label">Duração da Viagem:</span>
+                <span class="summary-val" id="summary-duracao-dias">-- dias</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Locais / Atividades Planeadas:</span>
+                <span class="summary-val" id="summary-total-locais">0 sítios</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Total Gasto na Viagem:</span>
+                <span class="summary-val" id="summary-total-gasto" style="font-size:16px;color:var(--accent);">0.00€</span>
+              </div>
+              <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
+            </div>
+
+            <!-- GRÁFICO DE LINHA: EVOLUÇÃO DIÁRIA DE GASTOS -->
+            <div class="chart-container">
+              <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
+              <canvas id="chart-linha-gastos"></canvas>
+            </div>
+
+            <!-- GRÁFICO CIRCULAR: CATEGORIAS DE DESPESAS -->
+            <div class="chart-container">
+              <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
+              <canvas id="chart-pie-categorias"></canvas>
+            </div>
+          </div>
+
+          <!-- PLANEAMENTO -->
+          <div id="tab-planeador" class="trip-tab-content">
+            <div class="timeline-container" id="container-timeline-events"></div>
+          </div>
+          
+          <!-- DESPESAS -->
+          <div id="tab-splitwise" class="trip-tab-content">
+            <div class="splitwise-resumo">
+              <div id="split-resultado" style="display:flex;flex-direction:column;gap:5px;"></div>
+              <button class="btn-liquidar-clean" onclick="abrirModalLiquidação()">
+                ⚡ Liquidação
+              </button>
+            </div>
+            
+            <div id="container-despesas" style="margin-bottom:100px;"></div>
+          </div>
+
+          <!-- BOTÕES FLUTUANTES -->
+          <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade" style="display:none;">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+
+          <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa" style="display:none;">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+
+        <!-- SUPERMERCADOS -->
+        <div id="menu-supermercados" class="page">
+          <h1>Supermercados</h1>
+          <button class="btn" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</button>
+          <button class="btn" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</button>
+          <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</button>
+        </div>
+
+        <div id="menu-super-logos" class="page">
+          <h2>Selecione uma Loja</h2><div class="logos-grid" id="container-logos"></div>
+        </div>
+        
+        <div id="page-super-detail" class="page">
+          <h1 id="detalhe-nome">Supermercado</h1>
+          <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
+            <span id="msg-sem-cartao" style="color:var(--text-muted);font-size:14px;">Inserir cartão de cliente</span>
+            <img id="detalhe-cartao-img" src="" style="display:none;">
+          </div>
+          <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
+          <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width:100%;margin-bottom:15px;">Fotografar / Inserir Cartão</button>
+          <button class="btn-acao" id="btn-ver-folheto" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;">Abrir Folheto da Semana</button>
+          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Notas e Observações..." onchange="guardarObservacaoSuperDB()"></textarea>
+        </div>
+        
+        <div id="menu-compras-semanais" class="page">
+          <h2>Lista Semanal</h2>
+          <div class="input-row">
+            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key==='Enter') adicionarItemDB('semanais', 'input-semanal')">
+            <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">+</button>
+          </div>
+          <div class="lista-itens" id="container-semanais"></div>
+        </div>
+        
+        <div id="menu-compras-rapidas" class="page">
+          <h2>Compras Rápidas</h2>
+          <div class="input-row">
+            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key==='Enter') adicionarItemDB('rapidas', 'input-rapidas')">
+            <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">+</button>
+          </div>
+          <div class="lista-itens" id="container-rapidas"></div>
+        </div>
+
+        <!-- GARAGEM & COMBUSTÍVEL -->
+        <div id="menu-carros" class="page">
+          <h2>Garagem & Combustível</h2>
+          
+          <div class="dashboard-widget" style="margin-bottom:20px;">
+            <h3 style="margin-top:0;">Adicionar Veículo</h3>
+            <input type="text" id="input-carro-nome" class="auth-input" placeholder="Nome/Modelo (ex: VW Golf)">
+            <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (opcional)">
+            <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;" onclick="adicionarCarroDB()">Guardar Veículo</button>
+          </div>
+
+          <h3 style="margin-bottom:10px;">Os Meus Veículos</h3>
+          <div id="container-lista-carros" class="lista-itens" style="margin-bottom:20px;"></div>
+
+          <button class="btn-acao" style="background-color:var(--btn-secondary);color:var(--text-main);padding:15px;width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
+        </div>
+
+        <div id="menu-familia" class="page">
+          <h2>Procurar Pessoas</h2>
+          <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
+          <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom:20px;"></div>
+          <h3 style="margin-top:30px;text-align:center;">A Minha Rede</h3>
+          <div class="lista-itens" id="container-amigos"></div>
+        </div>
+        
+        <!-- NOTIFICAÇÕES -->
+        <div id="menu-notificacoes" class="page">
+          <h2>Notificações</h2>
+          <div class="lista-itens" id="container-pedidos"></div>
         </div>
       </div>
     </div>
@@ -364,257 +683,6 @@
       </div>
     </div>
 
-    <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
-    <div class="page-container">
-      
-      <!-- DASHBOARD (INÍCIO) -->
-      <div id="menu-principal" class="page active">
-        <div class="top-widgets-grid">
-          <div class="dashboard-widget widget-relogio">
-            <span id="data-atual">A carregar...</span><h1 id="hora-atual">00:00</h1>
-          </div>
-          <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
-            <div class="meteo-top-row">
-              <div id="meteo-icone" style="color:var(--accent);"><svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg></div>
-              <span id="meteo-temp">--°</span>
-            </div>
-            <span id="meteo-desc">A localizar...</span>
-            <span id="meteo-local-texto"><svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="nome-cidade-texto">GPS</span></span>
-          </div>
-        </div>
-
-        <div class="dashboard-widget widget-frase">
-          <svg class="icon-svg" style="opacity:0.2;width:24px;margin-bottom:12px;color:var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
-          <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
-        </div>
-
-        <div class="dashboard-widget widget-tarefas">
-          <h3>
-            <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24">
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-              <path d="M18 11.5l-5 5-2 0 0-2 5-5 2 2z"></path>
-            </svg> 
-            A Fazer Hoje
-          </h3>
-          <div class="input-row">
-            <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
-            <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-          </div>
-          <div class="lista-itens" id="container-tarefas"></div>
-        </div>
-      </div>
-
-      <!-- BIBLIOTECA (TODOS OS MENUS) -->
-      <div id="menu-biblioteca" class="page">
-        <h2>A tua Biblioteca</h2>
-        <button class="btn" onclick="navegarMenu('menu-viagens')">
-          <span>Viagens</span>
-          <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
-        </button>
-        <button class="btn" onclick="navegarMenu('menu-supermercados')">
-          <span>Supermercados</span>
-          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-        </button>
-        <button class="btn" onclick="navegarMenu('menu-familia')">
-          <span>Família & Amigos</span>
-          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-        </button>
-        <button class="btn" onclick="navegarMenu('menu-carros')">
-          <span>Garagem & Veículos</span>
-          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
-        </button>
-      </div>
-
-      <!-- VIAGENS MAIN -->
-      <div id="menu-viagens" class="page">
-        <h2 style="margin-bottom:10px;">As Minhas Viagens</h2>
-        <div class="stats-viagens">
-          <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens Registadas</span></div>
-          <div class="stat-box"><span class="stat-num" id="stat-proxima-viagem">--</span><span class="stat-lbl">Próxima Aventura</span></div>
-        </div>
-        <button class="btn-acao" style="width:100%;margin-bottom:20px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
-          <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
-        </button>
-
-        <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
-        <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
-      </div>
-
-      <!-- NOVA VIAGEM -->
-      <div id="menu-nova-viagem" class="page">
-        <h2>Nova Aventura</h2>
-        
-        <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="abrirCropModal('capa-nova')">
-          <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
-          <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
-        </div>
-
-        <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
-        <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
-        
-        <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data de Início:</label>
-        <input type="date" id="input-viagem-data-inicio" class="auth-input" style="color:var(--text-main);">
-        
-        <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data do Fim:</label>
-        <input type="date" id="input-viagem-data-fim" class="auth-input" style="color:var(--text-main);">
-        
-        <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
-          Guardar Viagem
-        </button>
-      </div>
-
-      <!-- DETALHE VIAGEM -->
-      <div id="page-viagem-detalhe" class="page" style="position:relative;">
-        <div class="viagem-header">
-          <img id="detalhe-viagem-img" src="">
-          
-          <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')">
-            <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
-            <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
-          </div>
-
-          <span class="edit-capa-badge" onclick="abrirCropModal('capa-existente')">📷 Alterar Capa</span>
-        </div>
-
-        <div class="trip-tabs">
-          <div class="trip-tab active" id="tab-btn-resumo" onclick="switchTripTab('resumo')">Resumo</div>
-          <div class="trip-tab" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeamento</div>
-          <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Despesas</div>
-        </div>
-        
-        <!-- RESUMO -->
-        <div id="tab-resumo" class="trip-tab-content active">
-          <div class="viagem-stats-summary">
-            <h4 style="margin:0 0 5px 0;font-size:15px;color:var(--accent);">Resumo da Viagem</h4>
-            <div class="summary-row">
-              <span class="summary-label">Duração da Viagem:</span>
-              <span class="summary-val" id="summary-duracao-dias">-- dias</span>
-            </div>
-            <div class="summary-row">
-              <span class="summary-label">Locais / Atividades Planeadas:</span>
-              <span class="summary-val" id="summary-total-locais">0 sítios</span>
-            </div>
-            <div class="summary-row">
-              <span class="summary-label">Total Gasto na Viagem:</span>
-              <span class="summary-val" id="summary-total-gasto" style="font-size:16px;color:var(--accent);">0.00€</span>
-            </div>
-            <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
-          </div>
-
-          <!-- GRÁFICO DE LINHA: EVOLUÇÃO DIÁRIA DE GASTOS -->
-          <div class="chart-container">
-            <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
-            <canvas id="chart-linha-gastos"></canvas>
-          </div>
-
-          <!-- GRÁFICO CIRCULAR: CATEGORIAS DE DESPESAS -->
-          <div class="chart-container">
-            <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
-            <canvas id="chart-pie-categorias"></canvas>
-          </div>
-        </div>
-
-        <!-- PLANEAMENTO -->
-        <div id="tab-planeador" class="trip-tab-content">
-          <div class="timeline-container" id="container-timeline-events"></div>
-        </div>
-        
-        <!-- DESPESAS -->
-        <div id="tab-splitwise" class="trip-tab-content">
-          <div class="splitwise-resumo">
-            <div id="split-resultado" style="display:flex;flex-direction:column;gap:5px;"></div>
-            <button class="btn-liquidar-clean" onclick="abrirModalLiquidação()">
-              ⚡ Liquidação
-            </button>
-          </div>
-          
-          <div id="container-despesas" style="margin-bottom:100px;"></div>
-        </div>
-
-        <!-- BOTÕES FLUTUANTES -->
-        <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade" style="display:none;">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-
-        <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa" style="display:none;">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-      </div>
-
-      <!-- SUPERMERCADOS -->
-      <div id="menu-supermercados" class="page">
-        <h1>Supermercados</h1>
-        <button class="btn" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</button>
-        <button class="btn" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</button>
-        <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</button>
-      </div>
-
-      <div id="menu-super-logos" class="page">
-        <h2>Selecione uma Loja</h2><div class="logos-grid" id="container-logos"></div>
-      </div>
-      
-      <div id="page-super-detail" class="page">
-        <h1 id="detalhe-nome">Supermercado</h1>
-        <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
-          <span id="msg-sem-cartao" style="color:var(--text-muted);font-size:14px;">Inserir cartão de cliente</span>
-          <img id="detalhe-cartao-img" src="" style="display:none;">
-        </div>
-        <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
-        <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width:100%;margin-bottom:15px;">Fotografar / Inserir Cartão</button>
-        <button class="btn-acao" id="btn-ver-folheto" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;">Abrir Folheto da Semana</button>
-        <textarea id="detalhe-obs" class="textarea-obs" placeholder="Notas e Observações..." onchange="guardarObservacaoSuperDB()"></textarea>
-      </div>
-      
-      <div id="menu-compras-semanais" class="page">
-        <h2>Lista Semanal</h2>
-        <div class="input-row">
-          <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key==='Enter') adicionarItemDB('semanais', 'input-semanal')">
-          <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">+</button>
-        </div>
-        <div class="lista-itens" id="container-semanais"></div>
-      </div>
-      
-      <div id="menu-compras-rapidas" class="page">
-        <h2>Compras Rápidas</h2>
-        <div class="input-row">
-          <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key==='Enter') adicionarItemDB('rapidas', 'input-rapidas')">
-          <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">+</button>
-        </div>
-        <div class="lista-itens" id="container-rapidas"></div>
-      </div>
-
-      <!-- GARAGEM & COMBUSTÍVEL -->
-      <div id="menu-carros" class="page">
-        <h2>Garagem & Combustível</h2>
-        
-        <div class="dashboard-widget" style="margin-bottom:20px;">
-          <h3 style="margin-top:0;">Adicionar Veículo</h3>
-          <input type="text" id="input-carro-nome" class="auth-input" placeholder="Nome/Modelo (ex: VW Golf)">
-          <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (opcional)">
-          <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;" onclick="adicionarCarroDB()">Guardar Veículo</button>
-        </div>
-
-        <h3 style="margin-bottom:10px;">Os Meus Veículos</h3>
-        <div id="container-lista-carros" class="lista-itens" style="margin-bottom:20px;"></div>
-
-        <button class="btn-acao" style="background-color:var(--btn-secondary);color:var(--text-main);padding:15px;width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
-      </div>
-
-      <div id="menu-familia" class="page">
-        <h2>Procurar Pessoas</h2>
-        <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
-        <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom:20px;"></div>
-        <h3 style="margin-top:30px;text-align:center;">A Minha Rede</h3>
-        <div class="lista-itens" id="container-amigos"></div>
-      </div>
-      
-      <!-- NOTIFICAÇÕES -->
-      <div id="menu-notificacoes" class="page">
-        <h2>Notificações</h2>
-        <div class="lista-itens" id="container-pedidos"></div>
-      </div>
-    </div>
   </div>
 
   <!-- MODALS DA APLICAÇÃO -->
@@ -752,52 +820,6 @@
     </div>
   </div>
 
-  <div id="modal-definicoes" class="modal-overlay">
-    <div class="modal-content">
-      <h2 style="margin-bottom:20px;">Definições</h2>
-      <div class="user-card" style="margin-bottom:20px;">
-        <div class="user-info">
-          <div id="settings-avatar-container" onclick="abrirCropModal('perfil')" style="cursor:pointer;" title="Mudar Foto de Perfil">
-            <div class="user-avatar-custom" id="settings-avatar">?</div>
-          </div>
-          <div>
-            <p class="user-name" id="settings-name">A carregar...</p>
-            <p style="font-size:11px;color:var(--text-muted);margin:0;" id="settings-username">Firebase Cloud</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SWITCHES DE DEFINIÇÕES -->
-      <div class="switch-setting-row">
-        <span class="switch-setting-label">Permitir Localização</span>
-        <label class="ios-switch">
-          <input type="checkbox" id="switch-location" onchange="togglePermissaoLocalizacao(this.checked)">
-          <span class="ios-slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-setting-row" style="margin-bottom:15px;">
-        <span class="switch-setting-label">Notificações Push</span>
-        <label class="ios-switch">
-          <input type="checkbox" id="switch-notifications" onchange="togglePermissaoNotificacoes(this.checked)">
-          <span class="ios-slider"></span>
-        </label>
-      </div>
-
-      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:flex-start;" onclick="alternarTema()">
-        <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display:none;margin-right:10px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-        <span id="texto-tema-modal">Mudar para Modo Claro</span>
-      </button>
-      <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--bg-color);justify-content:space-between;" onclick="toggleGrelhaCores()">
-        <span>Cor Secundária</span><div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
-      </button>
-      <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
-      <button class="btn-acao" style="background-color:#ff3b30;color:white;width:100%;padding:15px;margin-top:10px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
-      <button class="btn-acao" style="width:100%;margin-top:10px;background:transparent;border:none;" onclick="fecharModal('modal-definicoes')">Fechar</button>
-    </div>
-  </div>
-
   <div id="modal-logout" class="modal-overlay">
     <div class="modal-content">
       <h2>Sair?</h2>
@@ -838,6 +860,25 @@
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+    const iconBackArrow = `<svg class="icon-svg" style="width:22px;height:22px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
+
+    const pageTitles = {
+      'menu-principal': 'Início',
+      'menu-viagens': 'Viagens',
+      'menu-supermercados': 'Supermercados',
+      'menu-familia': 'Família & Amigos',
+      'menu-carros': 'Garagem',
+      'menu-notificacoes': 'Notificações',
+      'menu-biblioteca': 'Biblioteca',
+      'menu-perfil': 'Perfil',
+      'menu-definicoes': 'Definições',
+      'menu-nova-viagem': 'Nova Viagem',
+      'menu-super-logos': 'Lojas & Cartões',
+      'menu-compras-semanais': 'Lista Semanal',
+      'menu-compras-rapidas': 'Lista Rápida'
+    };
+
+    const mainPagesList = ['menu-principal', 'menu-viagens', 'menu-supermercados', 'menu-familia', 'menu-carros', 'menu-notificacoes', 'menu-biblioteca'];
 
     // CATEGORIAS SVG
     const svgCategorias = {
@@ -898,8 +939,8 @@
                   theme: 'dark',
                   accentColor: '#FF6B00',
                   avatarUrl: '',
-                  allowLocation: true,
-                  allowNotifications: true
+                  allowLocation: 'sempre',
+                  allowNotifications: 'sempre'
                 }); 
             }
         } catch(e) { 
@@ -911,7 +952,6 @@
     window.fazerLogout = async () => { 
         unsusbscribes.forEach(f => f());
         unsusbscribes = [];
-        fecharModal('modal-definicoes');
         fecharModal('modal-logout');
         if (auth) await signOut(auth); 
         else window.location.reload(); 
@@ -928,15 +968,18 @@
                         const pData = profileSnap.data();
                         userName = pData.username || ""; 
                         userAvatarUrl = pData.avatarUrl || "";
-                        document.getElementById('settings-name').innerText = userName; 
                         
-                        renderAvatarElement(document.getElementById('settings-avatar'), userName, userAvatarUrl);
+                        document.getElementById('sidebar-account-name').innerText = userName; 
+                        document.getElementById('profile-page-name').innerText = userName; 
+                        
+                        renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
                         renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+                        renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
 
                         if(pData.theme) aplicarTemaInterface(pData.theme);
                         if(pData.accentColor) aplicarCorInterface(pData.accentColor);
-                        if(pData.allowLocation !== undefined) document.getElementById('switch-location').checked = pData.allowLocation;
-                        if(pData.allowNotifications !== undefined) document.getElementById('switch-notifications').checked = pData.allowNotifications;
+                        if(pData.allowLocation) document.getElementById('select-location').value = pData.allowLocation;
+                        if(pData.allowNotifications) document.getElementById('select-notifications').value = pData.allowNotifications;
                     }
                 } catch(e){}
 
@@ -967,13 +1010,13 @@
         }
     }
 
-    window.togglePermissaoLocalizacao = async (val) => {
+    window.alterarPermissaoLocalizacao = async (val) => {
         if(userId && db) {
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowLocation: val }, { merge: true });
         }
     };
 
-    window.togglePermissaoNotificacoes = async (val) => {
+    window.alterarPermissaoNotificacoes = async (val) => {
         if(userId && db) {
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowNotifications: val }, { merge: true });
         }
@@ -1072,8 +1115,9 @@
 
         if(cropTipo === 'perfil') {
             userAvatarUrl = croppedData;
-            renderAvatarElement(document.getElementById('settings-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
             renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
             setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: croppedData }, { merge: true });
         } else if(cropTipo === 'capa-nova') {
             tempCapaUrl = croppedData;
@@ -1092,6 +1136,25 @@
     window.fecharSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); };
     window.toggleSubmenu = (idSub, idBase) => { const s = document.getElementById(idSub); if(s.style.display==='flex'){s.style.display='none'; if(idBase) navegarMenu(idBase);}else{s.style.display='flex';} };
     
+    window.handleTopLeftClick = () => {
+        const currentPage = pageHistory[pageHistory.length - 1];
+        if(!mainPagesList.includes(currentPage)) {
+            window.voltarAtras();
+        } else {
+            abrirSidebar();
+        }
+    };
+
+    window.voltarAtras = () => {
+        if(pageHistory.length > 1) {
+            pageHistory.pop();
+            const pageAnterior = pageHistory[pageHistory.length - 1];
+            navegarMenu(pageAnterior, true);
+        } else {
+            navegarMenu('menu-principal', true);
+        }
+    };
+
     window.navegarMenu = (idPagina, isBack=false) => {
         window.fecharSidebar(); 
         if(!isBack && pageHistory[pageHistory.length-1] !== idPagina) pageHistory.push(idPagina);
@@ -1104,6 +1167,22 @@
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         setTimeout(() => { const np = document.getElementById(idPagina); if(np){np.classList.add('active'); window.scrollTo(0,0);} }, 50);
 
+        // ATUALIZAR TOP BAR (TÍTULO E ÍCONE/SETA)
+        const topLeftBtn = document.getElementById('top-left-btn');
+        const topTitle = document.getElementById('top-title');
+
+        if(idPagina === 'page-viagem-detalhe') {
+            topLeftBtn.innerHTML = iconBackArrow;
+            topTitle.innerText = currentTripDoc ? currentTripDoc.nome : 'Viagem';
+        } else if(!mainPagesList.includes(idPagina)) {
+            topLeftBtn.innerHTML = iconBackArrow;
+            topTitle.innerText = pageTitles[idPagina] || 'Menu';
+        } else {
+            topLeftBtn.innerHTML = `<div class="top-profile-avatar" id="top-user-avatar">?</div>`;
+            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+            topTitle.innerText = pageTitles[idPagina] || 'App Casal';
+        }
+
         if(idPagina === 'menu-notificacoes') {
             marcarNotificacoesLidas();
         }
@@ -1114,7 +1193,14 @@
     document.addEventListener('touchend', e => {
         let diffX = e.changedTouches[0].screenX - touchStartX;
         if(Math.abs(diffX) > Math.abs(e.changedTouches[0].screenY - touchStartY)) {
-            if(diffX > 60 && touchStartX < 50) { abrirSidebar(); }
+            if(diffX > 60 && touchStartX < 50) { 
+                const currentPage = pageHistory[pageHistory.length - 1];
+                if(!mainPagesList.includes(currentPage)) {
+                    voltarAtras();
+                } else {
+                    abrirSidebar(); 
+                }
+            }
             else if(diffX < -60) fecharSidebar();
         }
     }, {passive:true});
@@ -1253,6 +1339,9 @@
                     document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
                     renderMembrosSettings(); 
                     atualizarResumoInternoViagem();
+                    if(pageHistory[pageHistory.length-1] === 'page-viagem-detalhe') {
+                        document.getElementById('top-title').innerText = currentTripDoc.nome;
+                    }
                 }
                 else navegarMenu('menu-viagens');
             }
@@ -1303,7 +1392,7 @@
                 <div class="notif-push-header">
                     <div class="notif-push-brand">
                         <img src="logopreto_fundobranco.png" class="notif-push-app-icon" onerror="this.src='logobranco_semfundo.png'">
-                        <span class="notif-push-app-name">Gestão G&N</span>
+                        <span class="notif-push-app-name">App Casal</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span class="notif-push-time">${n.horaStr || 'Agora'}</span>
@@ -1414,14 +1503,21 @@
         document.getElementById('container-pesquisa-users').innerHTML=''; 
     };
 
-    function renderFriendsDB(amigos) { const c = document.getElementById('container-amigos'); if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} let h=''; amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(a.name)}</div><p class="user-name">${a.name}</p></div></div>`); c.innerHTML=h; }
+    function renderFriendsDB(amigos) { 
+        const c = document.getElementById('container-amigos'); 
+        if(document.getElementById('profile-friends-count')) document.getElementById('profile-friends-count').innerText = amigos.length;
+        if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} 
+        let h=''; 
+        amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(a.name)}</div><p class="user-name">${a.name}</p></div></div>`); 
+        c.innerHTML=h; 
+    }
 
     /* VIAGENS */
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
         
-        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
+        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
 
         viagensData.forEach(v => {
             let datasTxt = (v.dataInicio ? v.dataInicio : '') + (v.dataFim ? ' - ' + v.dataFim : '');

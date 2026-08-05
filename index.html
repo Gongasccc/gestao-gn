@@ -202,6 +202,7 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
+    /* BOTÃO FLUTUANTE SUSPENSO FIXO */
     .btn-fab{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 20px) !important;
@@ -256,9 +257,15 @@
     .notif-push-time{font-size:10px;color:var(--text-muted)}
     .notif-push-body{font-size:13px;color:var(--text-main);line-height:1.4}
 
-    /* CONFIGURAÇÃO LINHA COM SELECTOR */
-    .setting-select-row{display:flex;flex-direction:column;gap:6px;width:100%;padding:14px 0;border-bottom:1px solid var(--border-color)}
-    .setting-select-label{font-size:14px;font-weight:500;color:var(--text-main)}
+    /* SWITCH ESTILO IOS */
+    .switch-setting-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 0;border-bottom:1px solid var(--border-color)}
+    .switch-setting-label{font-size:14px;font-weight:500;color:var(--text-main)}
+    .ios-switch{position:relative;display:inline-block;width:46px;height:26px}
+    .ios-switch input{opacity:0;width:0;height:0}
+    .ios-slider{position:absolute;cursor:pointer;inset:0;background-color:var(--btn-secondary);transition:.3s;border-radius:34px;border:1px solid var(--border-color)}
+    .ios-slider:before{position:absolute;content:"";height:20px;width:20px;left:2px;bottom:2px;background-color:white;transition:.3s;border-radius:50%}
+    input:checked + .ios-slider{background-color:var(--accent)}
+    input:checked + .ios-slider:before{transform:translateX(20px)}
 
     /* CROPPING / AJUSTE DE IMAGEM TOUCH */
     .crop-viewport{width:100%;height:250px;background:#000;overflow:hidden;position:relative;border-radius:14px;margin-bottom:15px;touch-action:none;cursor:grab}
@@ -321,7 +328,7 @@
           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg> Viagens
         </div>
         <div class="sidebar-item" id="sidebtn-menu-familia" onclick="navegarMenu('menu-familia')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Família & Amigos
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Amigos
         </div>
         <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="navegarMenu('menu-notificacoes')">
           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Notificações
@@ -399,7 +406,6 @@
 
         <!-- BIBLIOTECA (TODOS OS MENUS) -->
         <div id="menu-biblioteca" class="page">
-          <h2>A tua Biblioteca</h2>
           <button class="btn" onclick="navegarMenu('menu-viagens')">
             <span>Viagens</span>
             <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
@@ -409,7 +415,7 @@
             <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
           </button>
           <button class="btn" onclick="navegarMenu('menu-familia')">
-            <span>Família & Amigos</span>
+            <span>Amigos</span>
             <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
           </button>
           <button class="btn" onclick="navegarMenu('menu-carros')">
@@ -433,31 +439,25 @@
             <span style="font-size:14px;font-weight:500;">Número de Amigos</span>
             <span class="stat-num" id="profile-friends-count">0</span>
           </div>
-
-          <button class="btn-acao" style="width:100%;padding:15px;margin-top:10px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="abrirCropModal('perfil')">Editar Foto de Perfil</button>
         </div>
 
-        <!-- PÁGINA DE DEFINIÇÕES (ESTILO SPOTIFY) -->
+        <!-- PÁGINA DE DEFINIÇÕES (ESTILO SPOTIFY COM SWITCHES DE PERMISSÃO NATIVA) -->
         <div id="menu-definicoes" class="page">
-          <h2>Definições da Aplicação</h2>
-          
           <div class="dashboard-widget" style="margin-bottom:20px;">
-            <div class="setting-select-row">
-              <span class="setting-select-label">Permissões de Localização</span>
-              <select id="select-location" class="auth-input" style="margin:0;padding:10px;" onchange="alterarPermissaoLocalizacao(this.value)">
-                <option value="sempre">Sempre</option>
-                <option value="uso">Durante a Utilização</option>
-                <option value="nunca">Nunca</option>
-              </select>
+            <div class="switch-setting-row">
+              <span class="switch-setting-label">Permissão de Localização</span>
+              <label class="ios-switch">
+                <input type="checkbox" id="switch-location" onchange="togglePermissaoLocalizacao(this.checked)">
+                <span class="ios-slider"></span>
+              </label>
             </div>
 
-            <div class="setting-select-row" style="border-bottom:none;">
-              <span class="setting-select-label">Notificações Push</span>
-              <select id="select-notifications" class="auth-input" style="margin:0;padding:10px;" onchange="alterarPermissaoNotificacoes(this.value)">
-                <option value="sempre">Sempre</option>
-                <option value="uso">Durante a Utilização</option>
-                <option value="nunca">Nunca</option>
-              </select>
+            <div class="switch-setting-row" style="border-bottom:none;">
+              <span class="switch-setting-label">Notificações Push</span>
+              <label class="ios-switch">
+                <input type="checkbox" id="switch-notifications" onchange="togglePermissaoNotificacoes(this.checked)">
+                <span class="ios-slider"></span>
+              </label>
             </div>
           </div>
 
@@ -477,7 +477,6 @@
 
         <!-- VIAGENS MAIN -->
         <div id="menu-viagens" class="page">
-          <h2 style="margin-bottom:10px;">As Minhas Viagens</h2>
           <div class="stats-viagens">
             <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens Registadas</span></div>
             <div class="stat-box"><span class="stat-num" id="stat-proxima-viagem">--</span><span class="stat-lbl">Próxima Aventura</span></div>
@@ -492,8 +491,6 @@
 
         <!-- NOVA VIAGEM -->
         <div id="menu-nova-viagem" class="page">
-          <h2>Nova Aventura</h2>
-          
           <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="abrirCropModal('capa-nova')">
             <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
             <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
@@ -518,7 +515,7 @@
           <div class="viagem-header">
             <img id="detalhe-viagem-img" src="">
             
-            <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')">
+            <div class="viagem-header-overlay" onclick="navegarMenu('page-detalhes-viagem-edit')">
               <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
               <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
             </div>
@@ -581,7 +578,7 @@
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES -->
+          <!-- BOTÕES FLUTUANTES FIXOS EM SUSPENSE -->
           <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade" style="display:none;">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
@@ -591,16 +588,45 @@
           </button>
         </div>
 
+        <!-- PÁGINA INTEIRA PARA EDITAR / VER DETALHES DA VIAGEM -->
+        <div id="page-detalhes-viagem-edit" class="page">
+          <label style="font-size:12px;color:var(--text-muted);">Título da Viagem:</label>
+          <input type="text" id="edit-trip-nome" class="auth-input">
+
+          <label style="font-size:12px;color:var(--text-muted);">Destino:</label>
+          <input type="text" id="edit-trip-destino" class="auth-input">
+
+          <label style="font-size:12px;color:var(--text-muted);">Data Início:</label>
+          <input type="date" id="edit-trip-data-inicio" class="auth-input">
+
+          <label style="font-size:12px;color:var(--text-muted);">Data Fim:</label>
+          <input type="date" id="edit-trip-data-fim" class="auth-input">
+
+          <h3>Pessoas nesta Viagem</h3>
+          <div id="trip-membros-list" style="margin-bottom:20px;"></div>
+          
+          <h3>Convidar Amigo</h3>
+          <div style="display:flex;gap:10px;margin-bottom:25px;">
+            <select id="trip-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
+            <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
+          </div>
+
+          <button class="btn-acao" onclick="guardarAlteracoesViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;margin-bottom:15px;">Guardar Alterações</button>
+
+          <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">
+            <svg class="icon-svg" style="width:16px;height:16px;margin-bottom:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Apagar Viagem
+          </button>
+        </div>
+
         <!-- SUPERMERCADOS -->
         <div id="menu-supermercados" class="page">
-          <h1>Supermercados</h1>
           <button class="btn" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</button>
           <button class="btn" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</button>
           <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</button>
         </div>
 
         <div id="menu-super-logos" class="page">
-          <h2>Selecione uma Loja</h2><div class="logos-grid" id="container-logos"></div>
+          <div class="logos-grid" id="container-logos"></div>
         </div>
         
         <div id="page-super-detail" class="page">
@@ -616,7 +642,6 @@
         </div>
         
         <div id="menu-compras-semanais" class="page">
-          <h2>Lista Semanal</h2>
           <div class="input-row">
             <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key==='Enter') adicionarItemDB('semanais', 'input-semanal')">
             <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">+</button>
@@ -625,7 +650,6 @@
         </div>
         
         <div id="menu-compras-rapidas" class="page">
-          <h2>Compras Rápidas</h2>
           <div class="input-row">
             <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key==='Enter') adicionarItemDB('rapidas', 'input-rapidas')">
             <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">+</button>
@@ -635,8 +659,6 @@
 
         <!-- GARAGEM & COMBUSTÍVEL -->
         <div id="menu-carros" class="page">
-          <h2>Garagem & Combustível</h2>
-          
           <div class="dashboard-widget" style="margin-bottom:20px;">
             <h3 style="margin-top:0;">Adicionar Veículo</h3>
             <input type="text" id="input-carro-nome" class="auth-input" placeholder="Nome/Modelo (ex: VW Golf)">
@@ -651,7 +673,6 @@
         </div>
 
         <div id="menu-familia" class="page">
-          <h2>Procurar Pessoas</h2>
           <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
           <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom:20px;"></div>
           <h3 style="margin-top:30px;text-align:center;">A Minha Rede</h3>
@@ -660,7 +681,6 @@
         
         <!-- NOTIFICAÇÕES -->
         <div id="menu-notificacoes" class="page">
-          <h2>Notificações</h2>
           <div class="lista-itens" id="container-pedidos"></div>
         </div>
       </div>
@@ -686,42 +706,6 @@
   </div>
 
   <!-- MODALS DA APLICAÇÃO -->
-  
-  <div id="modal-detalhes-viagem" class="modal-overlay">
-    <div class="modal-content" style="text-align:left;">
-      <h2 style="text-align:center;margin-bottom:15px;">Editar Viagem</h2>
-      
-      <label style="font-size:12px;color:var(--text-muted);">Título da Viagem:</label>
-      <input type="text" id="edit-trip-nome" class="auth-input">
-
-      <label style="font-size:12px;color:var(--text-muted);">Destino:</label>
-      <input type="text" id="edit-trip-destino" class="auth-input">
-
-      <label style="font-size:12px;color:var(--text-muted);">Data Início:</label>
-      <input type="date" id="edit-trip-data-inicio" class="auth-input">
-
-      <label style="font-size:12px;color:var(--text-muted);">Data Fim:</label>
-      <input type="date" id="edit-trip-data-fim" class="auth-input">
-
-      <h3>Pessoas nesta Viagem</h3>
-      <div id="trip-membros-list" style="margin-bottom:20px;"></div>
-      
-      <h3>Convidar Amigo</h3>
-      <div style="display:flex;gap:10px;margin-bottom:25px;">
-        <select id="trip-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
-        <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
-      </div>
-
-      <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">
-        <svg class="icon-svg" style="width:16px;height:16px;margin-bottom:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Apagar Viagem
-      </button>
-
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-detalhes-viagem')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarAlteracoesViagem()">Guardar Alterações</button>
-      </div>
-    </div>
-  </div>
 
   <div id="modal-novo-evento" class="modal-overlay">
     <div class="modal-content">
@@ -866,13 +850,14 @@
       'menu-principal': 'Início',
       'menu-viagens': 'Viagens',
       'menu-supermercados': 'Supermercados',
-      'menu-familia': 'Família & Amigos',
+      'menu-familia': 'Amigos',
       'menu-carros': 'Garagem',
       'menu-notificacoes': 'Notificações',
       'menu-biblioteca': 'Biblioteca',
       'menu-perfil': 'Perfil',
       'menu-definicoes': 'Definições',
       'menu-nova-viagem': 'Nova Viagem',
+      'page-detalhes-viagem-edit': 'Detalhes da Viagem',
       'menu-super-logos': 'Lojas & Cartões',
       'menu-compras-semanais': 'Lista Semanal',
       'menu-compras-rapidas': 'Lista Rápida'
@@ -939,8 +924,8 @@
                   theme: 'dark',
                   accentColor: '#FF6B00',
                   avatarUrl: '',
-                  allowLocation: 'sempre',
-                  allowNotifications: 'sempre'
+                  allowLocation: false,
+                  allowNotifications: false
                 }); 
             }
         } catch(e) { 
@@ -978,8 +963,8 @@
 
                         if(pData.theme) aplicarTemaInterface(pData.theme);
                         if(pData.accentColor) aplicarCorInterface(pData.accentColor);
-                        if(pData.allowLocation) document.getElementById('select-location').value = pData.allowLocation;
-                        if(pData.allowNotifications) document.getElementById('select-notifications').value = pData.allowNotifications;
+                        if(pData.allowLocation !== undefined) document.getElementById('switch-location').checked = pData.allowLocation;
+                        if(pData.allowNotifications !== undefined) document.getElementById('switch-notifications').checked = pData.allowNotifications;
                     }
                 } catch(e){}
 
@@ -1010,19 +995,47 @@
         }
     }
 
-    window.alterarPermissaoLocalizacao = async (val) => {
+    window.togglePermissaoLocalizacao = async (checked) => {
+        if(checked) {
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    () => window.mostrarAlerta("Permissão de localização concedida com sucesso!"),
+                    () => {
+                        document.getElementById('switch-location').checked = false;
+                        window.mostrarAlerta("Permissão de localização recusada nas definições do dispositivo.");
+                    }
+                );
+            } else {
+                document.getElementById('switch-location').checked = false;
+                window.mostrarAlerta("O teu dispositivo/navegador não suporta geolocalização.");
+            }
+        }
         if(userId && db) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowLocation: val }, { merge: true });
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowLocation: document.getElementById('switch-location').checked }, { merge: true });
         }
     };
 
-    window.alterarPermissaoNotificacoes = async (val) => {
+    window.togglePermissaoNotificacoes = async (checked) => {
+        if(checked) {
+            if ("Notification" in window) {
+                const permission = await Notification.requestPermission();
+                if (permission === "granted") {
+                    window.mostrarAlerta("Permissão de Notificações ativada com sucesso!");
+                } else {
+                    document.getElementById('switch-notifications').checked = false;
+                    window.mostrarAlerta("Permissão de notificações recusada.");
+                }
+            } else {
+                document.getElementById('switch-notifications').checked = false;
+                window.mostrarAlerta("O teu navegador não suporta Notificações Push.");
+            }
+        }
         if(userId && db) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowNotifications: val }, { merge: true });
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowNotifications: document.getElementById('switch-notifications').checked }, { merge: true });
         }
     };
 
-    /* CROP COM SUPORTE A TOUCH & PINCH TO ZOOM */
+    /* CROP COM SUPORTE A TOUCH & PINCH TO ZOOM SEM ZOOM INICIAL EXAGERADO */
     window.abrirCropModal = (tipo) => {
         cropTipo = tipo;
         cropScale = 1; cropPanX = 0; cropPanY = 0;
@@ -1626,13 +1639,12 @@
             dataFim: novaDataFim
         });
 
-        fecharModal('modal-detalhes-viagem');
+        window.voltarAtras();
     };
     
     window.apagarViagem = async () => { 
         if(confirm("Apagar esta viagem permanentemente?")) { 
             await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId)); 
-            fecharModal('modal-detalhes-viagem');
             window.navegarMenu('menu-viagens'); 
         } 
     };
@@ -1696,7 +1708,6 @@
             const novaInfo = currentTripDoc.membros_info.filter(m => m.uid !== membroUid);
             await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { membros_uids: novosUids, membros_info: novaInfo });
             if(membroUid === userId) {
-                fecharModal('modal-detalhes-viagem');
                 window.navegarMenu('menu-viagens');
             }
         }

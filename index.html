@@ -60,7 +60,6 @@
     .nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:100%;color:var(--text-muted);cursor:pointer;transition:color 0.2s,transform 0.1s}
     .nav-btn:active{transform:scale(0.9)} .nav-btn.active{color:var(--accent)}
     
-    /* BADGE COM A COR SECUNDÁRIA E NÚMERO */
     .nav-badge{position:absolute;top:10px;right:10px;background-color:var(--accent);color:#121212;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;display:none;line-height:1}
     @media (min-width:800px){#bottom-nav{display:none} .page-container{max-width:800px;padding-bottom:40px;margin:0} #app-container{flex-direction:row} #sidebar{position:static;transform:translateX(0);box-shadow:none;z-index:10} #sidebar-overlay{display:none !important}}
     
@@ -96,7 +95,7 @@
     .stat-num{font-size:20px;font-weight:600;color:var(--accent);display:block;line-height:1.2} 
     .stat-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
     
-    .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
+    .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
     
     .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px} 
     .viagem-header img{width:100%;height:100%;object-fit:cover} 
@@ -111,8 +110,17 @@
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
-    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} .split-balance{font-size:14px;font-weight:500;margin-top:6px;display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;background:var(--bg-color)} .split-balance.owe{color:#ff3b30} .split-balance.receive{color:#28CD41}
-    .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} .exp-title{font-size:14px;font-weight:500} .exp-payer{font-size:11px;color:var(--text-muted)} .exp-amount{font-size:16px;font-weight:600;color:var(--accent)}
+    /* FORMATO DE SALDOS LIMPO (SEM BOLA ATRÁS) */
+    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:20px;border:1px solid var(--border-color);margin-bottom:20px;text-align:center} 
+    .split-balance{font-size:14px;font-weight:500;margin-top:8px;display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-radius:12px;background:var(--bg-color);border:1px solid var(--border-color)} 
+    .split-balance.owe{color:#ff3b30} .split-balance.receive{color:#28CD41}
+    
+    .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} 
+    .exp-title{font-size:14px;font-weight:500} 
+    .exp-payer{font-size:11px;color:var(--text-muted)} 
+    .exp-amount{font-size:16px;font-weight:600;color:var(--accent)}
+    .exp-date-badge{font-size:10px;color:var(--accent);background:rgba(255,107,0,0.1);padding:2px 6px;border-radius:6px;margin-right:6px}
+
     .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
     .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
 
@@ -173,6 +181,18 @@
     /* CROPPING / AJUSTE DE IMAGEM */
     .crop-viewport{width:100%;height:250px;background:#000;overflow:hidden;position:relative;border-radius:14px;margin-bottom:15px;touch-action:none;cursor:grab}
     .crop-viewport img{position:absolute;top:0;left:0;transform-origin:center;user-select:none;-webkit-user-drag:none}
+
+    /* CAIXA DE ADD DESPESA ESTILO SPLITWISE */
+    .splitwise-card{background:var(--bg-color);border:1px solid var(--border-color);border-radius:16px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;gap:12px}
+    .splitwise-row{display:flex;align-items:center;gap:10px}
+    .splitwise-icon-box{width:45px;height:45px;border-radius:12px;border:1px solid var(--border-color);background:var(--card-bg);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+    .splitwise-input{background:transparent;border:none;border-bottom:2px solid var(--border-color);color:var(--text-main);font-size:16px;padding:8px 0;width:100%;font-family:inherit}
+    .splitwise-input:focus{outline:none;border-bottom-color:var(--accent)}
+    .splitwise-tag{display:inline-block;padding:6px 12px;background:var(--card-bg);border:1px solid var(--border-color);border-radius:20px;font-size:12px;cursor:pointer;color:var(--text-main)}
+
+    /* CANVASES DE GRÁFICOS */
+    .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
+    canvas{width:100% !important;max-height:180px}
   </style>
 </head>
 <body>
@@ -371,7 +391,23 @@
               <span class="summary-label">Locais / Atividades Planeadas:</span>
               <span class="summary-val" id="summary-total-locais">0 sítios</span>
             </div>
+            <div class="summary-row">
+              <span class="summary-label">Total Gasto na Viagem:</span>
+              <span class="summary-val" id="summary-total-gasto" style="font-size:16px;color:var(--accent);">0.00€</span>
+            </div>
             <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
+          </div>
+
+          <!-- GRÁFICO DE LINHA: EVOLUÇÃO DIÁRIA DE GASTOS -->
+          <div class="chart-container">
+            <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
+            <canvas id="chart-linha-gastos"></canvas>
+          </div>
+
+          <!-- GRÁFICO CIRCULAR: CATEGORIAS DE DESPESAS -->
+          <div class="chart-container">
+            <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
+            <canvas id="chart-pie-categorias"></canvas>
           </div>
         </div>
 
@@ -537,21 +573,40 @@
     </div>
   </div>
 
+  <!-- MODAL DE NOVA DESPESA - ESTILO SPLITWISE -->
   <div id="modal-nova-despesa" class="modal-overlay">
     <div class="modal-content" style="text-align:left;">
-      <h2 style="text-align:center;margin-bottom:15px;">Registar Despesa</h2>
-      <input type="text" id="exp-desc" class="auth-input" placeholder="Descrição (ex: Jantar, Táxi)">
-      <input type="number" id="exp-valor" class="auth-input" placeholder="Valor (€)">
+      <h2 style="text-align:center;margin-bottom:15px;">Adicionar uma Despesa</h2>
       
-      <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Quem pagou?</label>
-      <select id="exp-pagador" class="auth-input"></select>
+      <div class="splitwise-card">
+        <div class="splitwise-row">
+          <div class="splitwise-icon-box" id="exp-icon-box">
+            <svg class="icon-svg" style="margin-bottom:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>
+          </div>
+          <input type="text" id="exp-desc" class="splitwise-input" placeholder="Descrição (ex: Café, Jantar)" oninput="atualizarIconeCategoriaAutomático(this.value)">
+        </div>
 
-      <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">Dividir por quem?</label>
-      <div id="split-participantes-checkboxes" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;"></div>
+        <div class="splitwise-row">
+          <div class="splitwise-icon-box" style="font-weight:600;font-size:18px;">€</div>
+          <input type="number" id="exp-valor" class="splitwise-input" placeholder="0.00" style="font-size:22px;font-weight:600;">
+        </div>
+      </div>
+
+      <div style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
+        <span>Pago por</span>
+        <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>
+        <span>e dividido</span>
+        <select id="exp-modo-divisao" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;" onchange="alternarModoDivisaoUI()">
+          <option value="iguais">em partes iguais</option>
+          <option value="exatos">por valores exatos</option>
+        </select>
+      </div>
+
+      <div id="split-participantes-container" style="margin-bottom:20px;"></div>
 
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-nova-despesa')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="adicionarDespesa()">Adicionar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="adicionarDespesa()">Guardar</button>
       </div>
     </div>
   </div>
@@ -637,13 +692,41 @@
 
     let userId = null, userName = "", userAvatarUrl = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
     let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
-    let timelineEventsData = [], tempEventFoto = "";
+    let timelineEventsData = [], tempEventFoto = "", despesasData = [];
     
     // VARIÁVEIS CROP
     let cropTipo = null, cropScale = 1, cropPanX = 0, cropPanY = 0, isDragging = false, startX = 0, startY = 0;
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+
+    // CATEGORIAS SVG
+    const svgCategorias = {
+        cafe: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`,
+        restaurante: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 2v20M6 2v20M12 2v20"></path></svg>`,
+        supermercado: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`,
+        gasolina: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 22V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18"></path><path d="M14 13h4a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h0"></path></svg>`,
+        hotel: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"></path><path d="M4 10V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"></path></svg>`,
+        lazer: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>`,
+        geral: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>`
+    };
+
+    function obterCategoriaPorTexto(txt) {
+        if(!txt) return { nome: 'Geral', icon: svgCategorias.geral };
+        const t = txt.toLowerCase();
+        if(t.includes('café') || t.includes('cafe') || t.includes('galão') || t.includes('pequeno almoço')) return { nome: 'Café', icon: svgCategorias.cafe };
+        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza')) return { nome: 'Restaurante', icon: svgCategorias.restaurante };
+        if(t.includes('supermercado') || t.includes('compras') || t.includes('continente') || t.includes('pingo') || t.includes('lidl')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
+        if(t.includes('gasolina') || t.includes('combustível') || t.includes('gasóleo') || t.includes('posto') || t.includes('portagem')) return { nome: 'Transportes', icon: svgCategorias.gasolina };
+        if(t.includes('hotel') || t.includes('airbnb') || t.includes('alojamento') || t.includes('quarto')) return { nome: 'Alojamento', icon: svgCategorias.hotel };
+        if(t.includes('bilhete') || t.includes('museu') || t.includes('bar') || t.includes('festa')) return { nome: 'Lazer', icon: svgCategorias.lazer };
+        return { nome: 'Geral', icon: svgCategorias.geral };
+    }
+
+    window.atualizarIconeCategoriaAutomático = (val) => {
+        const cat = obterCategoriaPorTexto(val);
+        document.getElementById('exp-icon-box').innerHTML = cat.icon;
+    };
 
     window.toggleAuthMode = () => { 
         isLoginMode = !isLoginMode; 
@@ -792,7 +875,6 @@
         ctx.fillRect(0,0,600,400);
         
         const img = document.getElementById('crop-target-img');
-        const ratio = img.naturalWidth / 600;
         
         ctx.save();
         ctx.translate(300 + cropPanX, 200 + cropPanY);
@@ -952,7 +1034,6 @@
             renderCarrosDB(arr);
         }));
 
-        // NOTIFICAÇÕES
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'notifications'), s => {
             let notifs = []; s.forEach(d => notifs.push({id:d.id, ...d.data()})); 
             renderNotificationsDB(notifs); 
@@ -994,7 +1075,6 @@
         }));
     }
 
-    /* ENVIAR NOTIFICAÇÃO GENÉRICA */
     async function criarNotificacaoDB(targetUid, texto) {
         if(!targetUid) return;
         const agora = new Date();
@@ -1146,9 +1226,23 @@
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
+        
+        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
+
         viagensData.forEach(v => {
             let datasTxt = (v.dataInicio ? v.dataInicio : '') + (v.dataFim ? ' - ' + v.dataFim : '');
-            h+=`<div class="trip-card" onclick="abrirDetalheViagem('${v.id}')"><img class="trip-cover" src="${v.capa||'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'}"><div class="trip-overlay"><h4 class="trip-title">${v.nome||'Sem Título'}</h4><span class="trip-country">${v.paisCode||''} • ${datasTxt || 'Sem datas'}</span></div></div>`; 
+            let isPartilhada = (v.membros_uids && v.membros_uids.length > 1);
+
+            h+=`<div class="trip-card" onclick="abrirDetalheViagem('${v.id}')">
+                <img class="trip-cover" src="${v.capa||'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'}">
+                <div class="trip-overlay">
+                    <h4 class="trip-title">${v.nome||'Sem Título'}</h4>
+                    <span class="trip-country">
+                        <span>${v.paisCode||''} • ${datasTxt || 'Sem datas'}</span>
+                        ${isPartilhada ? svgGroup : ''}
+                    </span>
+                </div>
+            </div>`; 
         });
         c.innerHTML=h; 
     }
@@ -1212,9 +1306,10 @@
         
         if(unsubDespesas) unsubDespesas();
         unsubDespesas = onSnapshot(collection(db,'artifacts',appId,'viagens_partilhadas',id,'despesas'), s => { 
-            let arr=[]; s.forEach(d => arr.push({id:d.id, ...d.data()})); 
-            renderizarDespesas(arr); 
-            atualizarResumoInternoViagem(arr);
+            despesasData = []; s.forEach(d => despesasData.push({id:d.id, ...d.data()})); 
+            renderizarDespesas(despesasData); 
+            atualizarResumoInternoViagem(despesasData);
+            renderizarGraficosResumo(despesasData);
         });
 
         if(unsubTimeline) unsubTimeline();
@@ -1274,16 +1369,28 @@
                 ${btnRemover}
              </div>`; 
 
-             checkboxes += `<label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" class="chk-split-membro" value="${p.uid}" checked> ${p.nome}</label>`;
+             checkboxes += `<div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:6px;">
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="checkbox" class="chk-split-membro" value="${p.uid}" checked onchange="alternarModoDivisaoUI()"> ${p.nome}
+                </label>
+                <input type="number" class="val-split-exato auth-input" data-uid="${p.uid}" placeholder="€" style="display:none;width:80px;margin:0;padding:4px 8px;font-size:12px;">
+             </div>`;
          });
 
          document.getElementById('exp-pagador').innerHTML = sel; 
          document.getElementById('trip-membros-list').innerHTML = list;
-         document.getElementById('split-participantes-checkboxes').innerHTML = checkboxes;
+         document.getElementById('split-participantes-container').innerHTML = checkboxes;
 
          let conv=false; minhaRede.forEach(c => { if(!currentTripDoc.membros_uids.includes(c.uid)){ dd+=`<option value="${c.uid}" data-nome="${c.name}">${c.name}</option>`; conv=true; } });
          document.getElementById('trip-amigos-disponiveis').innerHTML = conv ? dd : '<option value="">Todos já adicionados!</option>';
     }
+
+    window.alternarModoDivisaoUI = () => {
+        const modo = document.getElementById('exp-modo-divisao').value;
+        document.querySelectorAll('.val-split-exato').forEach(inp => {
+            inp.style.display = (modo === 'exatos') ? 'block' : 'none';
+        });
+    };
     
     window.adicionarMembroViagem = async () => {
          const sel = document.getElementById('trip-amigos-disponiveis'); if(sel.value==="") return;
@@ -1329,6 +1436,8 @@
                 if(pagosPorPessoa[d.pagadorUid]) pagosPorPessoa[d.pagadorUid].total += d.valor;
             });
 
+            document.getElementById('summary-total-gasto').innerText = totalGasto.toFixed(2) + '€';
+
             let htmlMembros = '';
             Object.keys(pagosPorPessoa).forEach(u => {
                 htmlMembros += `<div class="summary-row">
@@ -1337,6 +1446,108 @@
                 </div>`;
             });
             document.getElementById('summary-pagamento-membros').innerHTML = htmlMembros;
+        }
+    }
+
+    /* RENDERIZAR GRÁFICOS RESUMO (CANVAS NATIVO) */
+    function renderizarGraficosResumo(listaDespesas) {
+        // 1. DESENHAR GRÁFICO DE LINHA (DIAS vs €)
+        const canvasL = document.getElementById('chart-linha-gastos');
+        if(canvasL) {
+            const ctxL = canvasL.getContext('2d');
+            canvasL.width = canvasL.parentElement.clientWidth - 30;
+            canvasL.height = 150;
+            ctxL.clearRect(0,0,canvasL.width,canvasL.height);
+
+            let gastosPorDia = {};
+            listaDespesas.forEach(d => {
+                let dia = d.dataStr || 'Hoje';
+                gastosPorDia[dia] = (gastosPorDia[dia] || 0) + d.valor;
+            });
+
+            let diasKeys = Object.keys(gastosPorDia);
+            if(diasKeys.length === 0) diasKeys = ['Sem dados'];
+
+            let maxGasto = Math.max(...Object.values(gastosPorDia), 10);
+            let paddingLeft = 35, paddingBottom = 25, widthChart = canvasL.width - paddingLeft - 10, heightChart = canvasL.height - paddingBottom - 10;
+
+            // Eixos
+            ctxL.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctxL.lineWidth = 1;
+            ctxL.beginPath();
+            ctxL.moveTo(paddingLeft, 10);
+            ctxL.lineTo(paddingLeft, heightChart + 10);
+            ctxL.lineTo(paddingLeft + widthChart, heightChart + 10);
+            ctxL.stroke();
+
+            // Texto Eixo Y (€)
+            ctxL.fillStyle = 'rgba(255,255,255,0.5)';
+            ctxL.font = '9px Poppins';
+            ctxL.fillText(Math.round(maxGasto) + '€', 2, 15);
+            ctxL.fillText('0€', 12, heightChart + 10);
+
+            // Pontos da Linha
+            let stepX = widthChart / Math.max(diasKeys.length - 1, 1);
+            ctxL.strokeStyle = '#FF6B00';
+            ctxL.lineWidth = 2.5;
+            ctxL.beginPath();
+
+            diasKeys.forEach((dia, idx) => {
+                let val = gastosPorDia[dia] || 0;
+                let x = paddingLeft + (idx * stepX);
+                let y = (heightChart + 10) - ((val / maxGasto) * heightChart);
+
+                if(idx === 0) ctxL.moveTo(x, y);
+                else ctxL.lineTo(x, y);
+
+                // Rotulo Dia X
+                ctxL.fillStyle = 'rgba(255,255,255,0.5)';
+                ctxL.fillText(dia.substring(0,5), x - 10, heightChart + 22);
+            });
+            ctxL.stroke();
+        }
+
+        // 2. DESENHAR GRÁFICO CIRCULAR / DONUT (CATEGORIAS)
+        const canvasP = document.getElementById('chart-pie-categorias');
+        if(canvasP) {
+            const ctxP = canvasP.getContext('2d');
+            canvasP.width = canvasP.parentElement.clientWidth - 30;
+            canvasP.height = 150;
+            ctxP.clearRect(0,0,canvasP.width,canvasP.height);
+
+            let porCat = {};
+            listaDespesas.forEach(d => {
+                let c = d.categoria || 'Geral';
+                porCat[c] = (porCat[c] || 0) + d.valor;
+            });
+
+            let total = Object.values(porCat).reduce((a,b)=>a+b, 0);
+            if(total === 0) { porCat = {'Sem dados': 1}; total = 1; }
+
+            const cores = ['#FF6B00', '#007AFF', '#28CD41', '#AF52DE', '#FF3B30', '#FFCC00'];
+            let startAngle = 0;
+            let centerX = canvasP.width / 3, centerY = canvasP.height / 2, radius = 50;
+
+            Object.keys(porCat).forEach((cat, idx) => {
+                let val = porCat[cat];
+                let sliceAngle = (val / total) * 2 * Math.PI;
+
+                ctxP.fillStyle = cores[idx % cores.length];
+                ctxP.beginPath();
+                ctxP.moveTo(centerX, centerY);
+                ctxP.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctxP.closePath();
+                ctxP.fill();
+
+                // Legenda à direita
+                let legendY = 25 + (idx * 20);
+                ctxP.fillRect(canvasP.width / 2 + 10, legendY - 8, 10, 10);
+                ctxP.fillStyle = 'rgba(255,255,255,0.8)';
+                ctxP.font = '11px Poppins';
+                ctxP.fillText(`${cat}: ${val.toFixed(2)}€`, canvasP.width / 2 + 26, legendY);
+
+                startAngle += sliceAngle;
+            });
         }
     }
 
@@ -1435,26 +1646,50 @@
         }
     };
 
-    /* DESPESAS & SALDOS */
+    /* DESPESAS & SALDOS ESTILO SPLITWISE */
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim();
         const val = parseFloat(document.getElementById('exp-valor').value);
         const uidP = document.getElementById('exp-pagador').value; 
+        const modo = document.getElementById('exp-modo-divisao').value;
         
         let divididos = [];
-        document.querySelectorAll('.chk-split-membro:checked').forEach(c => divididos.push(c.value));
+        let quotasExatas = {};
+
+        if(modo === 'iguais') {
+            document.querySelectorAll('.chk-split-membro:checked').forEach(c => divididos.push(c.value));
+        } else {
+            let somaExata = 0;
+            document.querySelectorAll('.val-split-exato').forEach(inp => {
+                let v = parseFloat(inp.value) || 0;
+                if(v > 0) {
+                    let u = inp.getAttribute('data-uid');
+                    divididos.push(u);
+                    quotasExatas[u] = v;
+                    somaExa += v;
+                }
+            });
+        }
 
         if(!desc || !val || val<=0) return window.mostrarAlerta("Preenche a descrição e um valor válido.");
         if(divididos.length === 0) return window.mostrarAlerta("Seleciona pelo menos uma pessoa para dividir.");
 
         const pObj = currentTripDoc.membros_info.find(i => i.uid === uidP);
+        const cat = obterCategoriaPorTexto(desc);
         
+        const agora = new Date();
+        const dataAddStr = `${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}`;
+
         await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {
             desc: desc, 
             valor: val, 
             pagadorUid: uidP, 
             pagadorNome: (pObj?pObj.nome:"Desconhecido"), 
             divididoPor: divididos,
+            modoDivisao: modo,
+            quotasExatas: quotasExatas,
+            categoria: cat.nome,
+            dataStr: dataAddStr,
             timestamp: Date.now()
         }); 
 
@@ -1478,16 +1713,30 @@
             if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago += e.valor;
 
             let participantes = e.divididoPor || currentTripDoc.membros_uids;
-            let quota = e.valor / participantes.length;
 
-            participantes.forEach(pUid => {
-                if(saldos[pUid]) saldos[pUid].deve += quota;
-            });
+            if(e.modoDivisao === 'exatos' && e.quotasExatas) {
+                Object.keys(e.quotasExatas).forEach(pUid => {
+                    if(saldos[pUid]) saldos[pUid].deve += e.quotasExatas[pUid];
+                });
+            } else {
+                let quota = e.valor / participantes.length;
+                participantes.forEach(pUid => {
+                    if(saldos[pUid]) saldos[pUid].deve += quota;
+                });
+            }
+
+            const catInfo = obterCategoriaPorTexto(e.desc);
 
             htmlD += `<div class="expense-item">
-                <div class="exp-info">
-                    <span class="exp-title">${e.desc}</span>
-                    <span class="exp-payer">Pago por ${e.pagadorNome} (${participantes.length} pessoas)</span>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="color:var(--accent);">${catInfo.icon}</div>
+                    <div class="exp-info">
+                        <span class="exp-title">${e.desc}</span>
+                        <span class="exp-payer">
+                            <span class="exp-date-badge">${e.dataStr || 'Hoje'}</span>
+                            Pago por ${e.pagadorNome} (${participantes.length} pessoas)
+                        </span>
+                    </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <span class="exp-amount">${e.valor.toFixed(2)}€</span>
@@ -1498,13 +1747,12 @@
 
         document.getElementById('container-despesas').innerHTML = htmlD; 
 
-        // SALDOS ESPECÍFICOS APENAS EM RELAÇÃO À PESSOA DA CONTA
+        // SALDOS SEM BOLA ATRÁS DO NOME
         const meuSaldo = (saldos[userId] ? (saldos[userId].pago - saldos[userId].deve) : 0);
 
         Object.keys(saldos).forEach(u => { 
             if(u !== userId) {
                 let saldoPessoa = saldos[u].pago - saldos[u].deve;
-                // Cálculo simplificado de compensação entre utilizadores
                 let relacao = 0;
                 if(meuSaldo > 0 && saldoPessoa < 0) {
                     relacao = Math.min(meuSaldo, Math.abs(saldoPessoa));
@@ -1513,9 +1761,9 @@
                 }
 
                 if(relacao > 0.01) {
-                    resHtml += `<div class="split-balance receive"><span>🟢 ${saldos[u].nome} deve-te</span> <b>${relacao.toFixed(2)}€</b></div>`;
+                    resHtml += `<div class="split-balance receive"><span>${saldos[u].nome} deve-te</span> <b>${relacao.toFixed(2)}€</b></div>`;
                 } else if(relacao < -0.01) {
-                    resHtml += `<div class="split-balance owe"><span>🔴 Deves a ${saldos[u].nome}</span> <b>${Math.abs(relacao).toFixed(2)}€</b></div>`;
+                    resHtml += `<div class="split-balance owe"><span>Deves a ${saldos[u].nome}</span> <b>${Math.abs(relacao).toFixed(2)}€</b></div>`;
                 }
             }
         });

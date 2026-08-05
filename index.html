@@ -14,6 +14,7 @@
     body.light-mode{--bg-color:#FFFFFF;--card-bg:#F7F7F5;--text-main:#37352F;--text-muted:rgba(55,53,47,0.6);--btn-secondary:#EBEBEA;--border-color:rgba(0,0,0,0.08)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{font-family:'Poppins',sans-serif;background-color:var(--bg-color);color:var(--text-main);margin:0;padding:0;display:flex;min-height:100vh;overflow-x:hidden;transition:background-color 0.3s,color 0.3s}
+    
     #auth-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;transition:opacity 0.5s}
     .auth-box{background-color:var(--card-bg);padding:30px;border-radius:20px;border:1px solid var(--border-color);width:100%;max-width:350px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
     .auth-input{width:100%;padding:15px;margin-bottom:15px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;font-family:inherit;font-size:15px;transition:border-color 0.3s}
@@ -23,6 +24,10 @@
     .auth-link{color:var(--text-muted);font-size:13px;cursor:pointer;text-decoration:underline;transition:color 0.3s}
     .auth-link:active{color:var(--text-main)}
     .main-auth-logo{width:120px;margin-bottom:30px}
+    
+    .loading-spinner{width:36px;height:36px;border:3px solid var(--border-color);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-top:15px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
     #app-container{display:none;width:100%;height:100vh}
     .page-container{flex:1;padding:calc(env(safe-area-inset-top) + 20px) 20px calc(var(--bottom-nav-height) + 40px) 20px;width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto}
     h1{font-weight:600;font-size:26px;margin-bottom:30px;text-align:center;letter-spacing:1px}
@@ -31,6 +36,7 @@
     .page{display:none;opacity:0;transform:translateY(15px);transition:opacity 0.3s,transform 0.3s;width:100%}
     .page.active{display:block;animation:fadeIn 0.4s forwards}
     @keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
+    
     #sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1999;opacity:0;pointer-events:none;transition:opacity 0.3s}
     #sidebar-overlay.open{opacity:1;pointer-events:auto}
     #sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-width);background-color:var(--card-bg);z-index:2000;transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),background-color 0.3s;border-right:1px solid var(--border-color);box-shadow:5px 0 15px rgba(0,0,0,0.5);display:flex;flex-direction:column}
@@ -48,12 +54,14 @@
     .sidebar-footer{margin-top:auto;border-top:1px solid var(--border-color)}
     .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px;margin-bottom:4px}
     .sidebar-icon-svg{width:20px;height:20px;flex-shrink:0;margin-bottom:0}
+    
     #bottom-nav{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 15px);left:20px;right:20px;height:var(--bottom-nav-height);background-color:rgba(35,35,35,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:35px;display:flex;justify-content:space-around;align-items:center;z-index:1500;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:background-color 0.3s,border 0.3s}
     body.light-mode #bottom-nav{background-color:rgba(255,255,255,0.75);border:1px solid rgba(0,0,0,0.1)}
     .nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:100%;color:var(--text-muted);cursor:pointer;transition:color 0.2s,transform 0.1s}
     .nav-btn:active{transform:scale(0.9)} .nav-btn.active{color:var(--accent)}
     .nav-badge{position:absolute;top:12px;right:14px;width:8px;height:8px;background-color:#ff3b30;border-radius:50%;display:none}
     @media (min-width:800px){#bottom-nav{display:none} .page-container{max-width:800px;padding-bottom:40px;margin:0} #app-container{flex-direction:row} #sidebar{position:static;transform:translateX(0);box-shadow:none;z-index:10} #sidebar-overlay{display:none !important}}
+    
     .dashboard-widget{background-color:var(--card-bg);width:100%;border-radius:20px;padding:25px;margin-bottom:15px;border:1px solid var(--border-color);box-shadow:0 4px 15px rgba(0,0,0,0.05)}
     .top-widgets-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:15px}
     .widget-relogio, .widget-meteorologia{margin-bottom:0;padding:20px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
@@ -148,6 +156,11 @@
     .summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
     .summary-label{color:var(--text-muted)}
     .summary-val{font-weight:600;color:var(--text-main)}
+
+    .color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:10px 0}
+    .color-circle{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto;transition:transform 0.2s}
+    .color-circle:active{transform:scale(0.85)}
+    .color-circle.selected{border-color:var(--text-main)}
   </style>
 </head>
 <body>
@@ -156,7 +169,15 @@
   <div id="auth-overlay">
     <img src="logobranco_semfundo.png" class="main-auth-logo dark-logo" onerror="this.style.display='none'">
     <img src="logopreto_semfundo.png" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display:none;">
-    <div class="auth-box">
+    
+    <!-- SPINNER DE CARREGAMENTO INICIAL DE SESSÃO -->
+    <div id="auth-loading-state" style="display:flex;flex-direction:column;align-items:center;">
+      <div class="loading-spinner"></div>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:15px;">A verificar sessão...</p>
+    </div>
+
+    <!-- FORMULÁRIO DE LOGIN/REGISTO -->
+    <div class="auth-box" id="auth-box-form" style="display:none;">
       <h2 style="margin-bottom:25px;color:var(--text-main);" id="auth-title">Entrar na App</h2>
       <input type="text" id="auth-username" class="auth-input" placeholder="Nome de Utilizador">
       <input type="password" id="auth-password" class="auth-input" placeholder="Password Secreta">
@@ -177,7 +198,6 @@
       <div class="sidebar-header">
         <img src="logobranco_semfundo.png" class="sidebar-logo dark-logo" onerror="this.style.display='none'">
         <img src="logopreto_semfundo.png" class="sidebar-logo light-logo" onerror="this.style.display='none'">
-        <span style="font-size:14px;font-weight:500;color:var(--text-muted);margin-top:5px;">Gestão G&N</span>
       </div>
       <div style="flex:1;overflow-y:auto;padding-top:10px;">
         <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
@@ -321,14 +341,12 @@
         <div class="viagem-header">
           <img id="detalhe-viagem-img" src="">
           
-          <!-- AO CLICAR NO TEXTO ABRE OS DETALHES DA VIAGEM -->
           <div class="viagem-header-overlay" onclick="abrirModal('modal-detalhes-viagem')" title="Abrir Definições & Membros">
             <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
             <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
             <span style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px;">⚙️ Ver Detalhes e Pessoas</span>
           </div>
 
-          <!-- AO CLICAR NO BADGE DA CAPA MUDA A FOTO -->
           <span class="edit-capa-badge" onclick="document.getElementById('input-edit-capa-direct').click()">📷 Alterar Capa</span>
         </div>
         <input type="file" id="input-edit-capa-direct" accept="image/*" style="display:none;" onchange="alterarCapaDireta(event)">
@@ -360,7 +378,6 @@
 
           <div class="timeline-container" id="container-timeline-events"></div>
 
-          <!-- BOTÃO FLUTUANTE DO PLANEADOR NO CANTO INFERIOR DIREITO -->
           <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
@@ -375,7 +392,6 @@
           
           <div id="container-despesas" style="margin-bottom:100px;"></div>
 
-          <!-- BOTÃO FLUTUANTE DAS DÍVIDAS NO CANTO INFERIOR DIREITO -->
           <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa" style="display:none;">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
@@ -424,9 +440,21 @@
         <div class="lista-itens" id="container-rapidas"></div>
       </div>
 
+      <!-- GARAGEM & COMBUSTÍVEL -->
       <div id="menu-carros" class="page">
         <h2>Garagem & Combustível</h2>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;padding:15px;width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
+        
+        <div class="dashboard-widget" style="margin-bottom:20px;">
+          <h3 style="margin-top:0;">Adicionar Veículo</h3>
+          <input type="text" id="input-carro-nome" class="auth-input" placeholder="Nome/Modelo (ex: VW Golf)">
+          <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (opcional)">
+          <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;" onclick="adicionarCarroDB()">Guardar Veículo</button>
+        </div>
+
+        <h3 style="margin-bottom:10px;">Os Meus Veículos</h3>
+        <div id="container-lista-carros" class="lista-itens" style="margin-bottom:20px;"></div>
+
+        <button class="btn-acao" style="background-color:var(--btn-secondary);color:var(--text-main);padding:15px;width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
       </div>
 
       <div id="menu-familia" class="page">
@@ -445,7 +473,6 @@
 
   <!-- MODALS DA APLICAÇÃO -->
   
-  <!-- MODAL DE DEFINIÇÕES DA VIAGEM (ABRE AO CLICAR NA CAPA) -->
   <div id="modal-detalhes-viagem" class="modal-overlay">
     <div class="modal-content" style="text-align:left;">
       <h2 style="text-align:center;margin-bottom:15px;">Detalhes da Viagem</h2>
@@ -582,7 +609,9 @@
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
                   uid: cred.user.uid, 
                   username: userTyped, 
-                  searchName: userTyped.toLowerCase()
+                  searchName: userTyped.toLowerCase(),
+                  theme: 'dark',
+                  accentColor: '#FF6B00'
                 }); 
             }
         } catch(e) { 
@@ -592,6 +621,8 @@
     };
 
     window.fazerLogout = async () => { 
+        unsusbscribes.forEach(f => f());
+        unsusbscribes = [];
         if (auth) await signOut(auth); 
         else window.location.reload(); 
     };
@@ -600,23 +631,33 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid; 
+                try {
+                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId);
+                    const profileSnap = await getDoc(profileRef);
+                    if (profileSnap.exists()) { 
+                        const pData = profileSnap.data();
+                        userName = pData.username || ""; 
+                        document.getElementById('settings-name').innerText = userName; 
+                        document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase(); 
+                        
+                        // Aplica preferências do utilizador vindas da BD
+                        if(pData.theme) aplicarTemaInterface(pData.theme);
+                        if(pData.accentColor) aplicarCorInterface(pData.accentColor);
+                    }
+                } catch(e){}
+
                 document.getElementById('auth-overlay').style.opacity = '0';
                 setTimeout(() => { 
                     document.getElementById('auth-overlay').style.display = 'none'; 
                     document.getElementById('app-container').style.display = 'flex'; 
-                }, 500);
-                try {
-                    const profile = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId));
-                    if (profile.exists()) { 
-                        userName = profile.data().username; 
-                        document.getElementById('settings-name').innerText = userName; 
-                        document.getElementById('settings-avatar').innerText = userName.charAt(0).toUpperCase(); 
-                    }
-                } catch(e){}
+                }, 400);
+
                 iniciarListenersFirebase();
             } else { 
+                document.getElementById('auth-loading-state').style.display = 'none';
+                document.getElementById('auth-box-form').style.display = 'block';
                 document.getElementById('auth-overlay').style.display = 'flex';
-                setTimeout(() => { document.getElementById('auth-overlay').style.opacity = '1'; }, 100);
+                document.getElementById('auth-overlay').style.opacity = '1';
                 document.getElementById('app-container').style.display = 'none'; 
             }
         });
@@ -653,7 +694,7 @@
     
     function renderColorPicker() {
         const grid = document.getElementById('color-picker-grid'); grid.innerHTML = ''; 
-        const sColor = localStorage.getItem('accentColorApp') || '#FF6B00';
+        const sColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
         palette.forEach(c => { 
             const circle = document.createElement('div'); circle.className = 'color-circle';
             if(c.toLowerCase() === sColor.toLowerCase()) circle.classList.add('selected');
@@ -662,18 +703,37 @@
             grid.appendChild(circle); 
         });
     }
+
+    function aplicarCorInterface(nc) {
+        document.documentElement.style.setProperty('--accent', nc);
+        if(document.getElementById('cor-atual-bolinha')) document.getElementById('cor-atual-bolinha').style.backgroundColor = nc;
+        renderColorPicker();
+    }
     
-    window.mudarCorApp = (nc) => { document.documentElement.style.setProperty('--accent', nc); localStorage.setItem('accentColorApp', nc); document.getElementById('cor-atual-bolinha').style.backgroundColor = nc; renderColorPicker(); };
-    window.alternarTema = () => {
-        const isL = document.body.classList.toggle('light-mode'); 
-        document.getElementById('texto-tema-modal').innerText = isL ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro'; 
-        document.getElementById('svg-moon').style.display = isL ? 'block' : 'none'; 
-        document.getElementById('svg-sun').style.display = isL ? 'none' : 'block'; 
-        localStorage.setItem('temaApp', isL ? 'light' : 'dark'); 
+    window.mudarCorApp = async (nc) => { 
+        aplicarCorInterface(nc);
+        if(userId && db) {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { accentColor: nc }, { merge: true });
+        }
     };
 
-    if(localStorage.getItem('temaApp') === 'light'){ document.body.classList.add('light-mode'); document.getElementById('texto-tema-modal').innerText='Mudar para Modo Escuro'; document.getElementById('svg-moon').style.display='block'; document.getElementById('svg-sun').style.display='none'; }
-    const corG = localStorage.getItem('accentColorApp'); if(corG) window.mudarCorApp(corG); else{ document.getElementById('cor-atual-bolinha').style.backgroundColor='#FF6B00'; renderColorPicker(); }
+    function aplicarTemaInterface(tema) {
+        const isL = (tema === 'light');
+        if(isL) document.body.classList.add('light-mode');
+        else document.body.classList.remove('light-mode');
+        
+        if(document.getElementById('texto-tema-modal')) document.getElementById('texto-tema-modal').innerText = isL ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro'; 
+        if(document.getElementById('svg-moon')) document.getElementById('svg-moon').style.display = isL ? 'block' : 'none'; 
+        if(document.getElementById('svg-sun')) document.getElementById('svg-sun').style.display = isL ? 'none' : 'block'; 
+    }
+
+    window.alternarTema = async () => {
+        const novoTema = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+        aplicarTemaInterface(novoTema);
+        if(userId && db) {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { theme: novoTema }, { merge: true });
+        }
+    };
 
     function atualizarRelogio() { 
         const d = new Date(), ds = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"], nm = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; 
@@ -717,6 +777,11 @@
         attachList('semanais', 'container-semanais'); 
         attachList('rapidas', 'container-rapidas');
         
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'carros'), s => {
+            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()}));
+            renderCarrosDB(arr);
+        }));
+
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'requests'), s => {
             let reqs = []; s.forEach(d => reqs.push({id:d.id, ...d.data()})); renderRequestsDB(reqs); 
             document.getElementById('badge-notificacoes-bottom').style.display = reqs.length > 0 ? 'block' : 'none';
@@ -730,7 +795,11 @@
             renderPaises();
         }));
 
-        const qViagens = collection(db, 'artifacts', appId, 'viagens_partilhadas');
+        // Consulta filtrada apenas para as viagens onde o utilizador participa
+        const qViagens = query(
+            collection(db, 'artifacts', appId, 'viagens_partilhadas'), 
+            where("membros_uids", "array-contains", userId)
+        );
         unsusbscribes.push(onSnapshot(qViagens, s => {
             viagensData = []; 
             s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
@@ -763,6 +832,38 @@
     window.adicionarItemDB = async (col, idInp) => { const txt = document.getElementById(idInp).value.trim(); if(txt){ await addDoc(collection(db,'artifacts',appId,'users',userId,col), {texto:txt, feita:false, timestamp:Date.now()}); document.getElementById(idInp).value=''; } };
     window.toggleItemDB = async (col, docId, est) => await updateDoc(doc(db,'artifacts',appId,'users',userId,col,docId), {feita:est}); 
     window.apagarItemDB = async (col, docId) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,col,docId));
+
+    /* GARAGEM DA CONTA */
+    window.adicionarCarroDB = async () => {
+        const nome = document.getElementById('input-carro-nome').value.trim();
+        const mat = document.getElementById('input-carro-mat').value.trim();
+        if(!nome) return window.mostrarAlerta("Preenche pelo menos o nome do veículo.");
+        await addDoc(collection(db,'artifacts',appId,'users',userId,'carros'), { nome: nome, matricula: mat, timestamp: Date.now() });
+        document.getElementById('input-carro-nome').value = '';
+        document.getElementById('input-carro-mat').value = '';
+    };
+
+    function renderCarrosDB(carros) {
+        const c = document.getElementById('container-lista-carros');
+        if(!c) return;
+        if(carros.length === 0) { c.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Sem veículos registados.</p>'; return; }
+        let h = '';
+        carros.forEach(car => {
+            h += `<div class="list-item">
+                <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
+                <div style="flex:1;margin-left:12px;">
+                    <div style="font-weight:600;font-size:14px;">${car.nome}</div>
+                    ${car.matricula ? `<div style="font-size:11px;color:var(--text-muted);">${car.matricula}</div>` : ''}
+                </div>
+                <button class="btn-icon-list" onclick="apagarCarroDB('${car.id}')">${iconTrash}</button>
+            </div>`;
+        });
+        c.innerHTML = h;
+    }
+
+    window.apagarCarroDB = async (carId) => {
+        if(confirm("Remover este veículo?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'carros',carId));
+    };
 
     const lojas = [ {id:'continente',nome:'Continente',logo:'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg',link:'https://folhetos.continente.pt/'}, {id:'pingodoce',nome:'Pingo Doce',logo:'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg',link:'https://www.pingodoce.pt/folhetos/'}, {id:'lidl',nome:'Lidl',logo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png',link:'https://www.lidl.pt/folhetos'}, {id:'auchan',nome:'Auchan',logo:'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg',link:'https://www.auchan.pt/pt/folhetos/'}, {id:'intermarche',nome:'Intermarché',logo:'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg',link:'https://www.intermarche.pt/folhetos/'} ];
     let hl=''; lojas.forEach(l => hl+=`<div class="logo-card" onclick="abrirDetalheSupermercado('${l.id}')"><img src="${l.logo}"></div>`); document.getElementById('container-logos').innerHTML=hl;
@@ -926,7 +1027,6 @@
         document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
         document.getElementById('tab-'+n).classList.add('active'); 
 
-        // Alterna a visibilidade dos botões flutuantes (+)
         document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'flex' : 'none';
         document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'flex' : 'none';
     };

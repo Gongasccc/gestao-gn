@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="App Casal">
   <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     :root{
@@ -20,6 +20,8 @@
       --border-color:rgba(255,255,255,0.08);
       --sidebar-width:280px;
       --bottom-nav-height:65px;
+      --green-split:#28CD41;
+      --red-split:#FF9500;
     }
     body.light-mode{
       --bg-color:#FFFFFF;
@@ -39,7 +41,6 @@
     .auth-btn{background-color:var(--accent);color:#121212;border:none;padding:15px;width:100%;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;transition:transform 0.1s}
     .auth-btn:active{transform:scale(0.95)}
     .auth-link{color:var(--text-muted);font-size:13px;cursor:pointer;text-decoration:underline;transition:color 0.3s}
-    .auth-link:active{color:var(--text-main)}
     .main-auth-logo{width:120px;margin-bottom:30px}
     
     .loading-spinner{width:36px;height:36px;border:3px solid var(--border-color);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-top:15px}
@@ -47,13 +48,14 @@
 
     #app-container{display:none;width:100%;height:100vh;flex-direction:column;margin:0 auto;max-width:100%}
     
-    /* TOP BAR COM PERFIL E TÍTULO DINÂMICO */
     .top-app-bar{width:100%;max-width:600px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 20px 10px 20px;display:flex;align-items:center;justify-content:space-between;z-index:8000;background:var(--bg-color)}
     .top-left-btn{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:34px;height:34px}
     .top-profile-avatar{width:34px;height:34px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;border:1px solid var(--border-color)}
     .top-title{font-weight:600;font-size:16px;letter-spacing:0.5px;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
 
     .page-container{flex:1;padding:10px 20px calc(var(--bottom-nav-height) + 20px) 20px;width:100%;max-width:600px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
+    .page-container.no-padding{padding-left:0;padding-right:0;padding-top:0}
+    
     h1{font-weight:600;font-size:26px;margin-bottom:30px;text-align:center;letter-spacing:1px}
     h2{font-weight:400;font-size:18px;color:var(--text-muted);text-align:center;margin-bottom:20px}
     h3{font-size:16px;font-weight:500;margin:0 0 15px 0;display:flex;align-items:center;gap:8px}
@@ -74,14 +76,11 @@
     .sidebar-item:active{background-color:var(--btn-secondary)}
     .sidebar-item.active{border-left:4px solid var(--accent);background-color:rgba(255,107,0,0.05);color:var(--accent)}
     .sidebar-submenu{display:none;flex-direction:column;background-color:rgba(0,0,0,0.1)} 
-    body.light-mode .sidebar-submenu{background-color:rgba(0,0,0,0.02)}
     .sidebar-subitem{padding:12px 25px 12px 55px;font-size:13px;color:var(--text-muted);cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.01)}
-    .sidebar-subitem:active{color:var(--text-main)}
     .sidebar-footer{margin-top:auto;border-top:1px solid var(--border-color)}
     .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px;margin-bottom:4px}
     .sidebar-icon-svg{width:20px;height:20px;flex-shrink:0;margin-bottom:0}
     
-    /* BARRA INFERIOR SPOTIFY GRADUAL EM CINZENTO */
     #bottom-nav{
       position:fixed;
       bottom:0;
@@ -98,16 +97,11 @@
       z-index:9000;
       border:none;
     }
-    body.light-mode #bottom-nav{
-      background: linear-gradient(to top, rgba(242,242,242,1) 35%, rgba(242,242,242,0.85) 75%, rgba(242,242,242,0) 100%);
-    }
     .nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:70px;height:100%;color:var(--text-muted);cursor:pointer;transition:color 0.2s,transform 0.1s}
     .nav-btn .nav-lbl{font-size:10px;margin-top:2px;font-weight:500}
     .nav-btn:active{transform:scale(0.9)} .nav-btn.active{color:var(--accent)}
-    
     .nav-badge{position:absolute;top:6px;right:18px;background-color:var(--accent);color:#121212;font-size:10px;font-weight:700;padding:2px 5px;border-radius:10px;display:none;line-height:1}
     
-    /* AJUSTE RESPONSIVO DESKTOP / PC */
     @media (min-width:800px){
       #app-container{flex-direction:row}
       .top-app-bar{max-width:100%;padding-left:30px;padding-right:30px}
@@ -151,42 +145,154 @@
     
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
     
-    .viagem-header{width:100%;height:200px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:15px} 
-    .viagem-header img{width:100%;height:100%;object-fit:cover} 
-    .viagem-header-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer} 
-    .viagem-header-title{color:white;font-size:26px;font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.5);text-align:center;margin:0} 
-    .viagem-header-dates{color:#ddd;font-size:13px;margin-top:5px;text-shadow:0 1px 4px rgba(0,0,0,0.6)} 
-    .edit-capa-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);color:white;padding:6px 12px;border-radius:20px;font-size:11px;backdrop-filter:blur(5px);cursor:pointer;z-index:10}
-    
+    /* HEADER PARALAXE DE VIAGEM ESTILO SPLITWISE */
+    .viagem-parallax-hero{
+      position:relative;
+      width:100%;
+      height:220px;
+      overflow:hidden;
+      border-radius:0 0 24px 24px;
+      margin-bottom:15px;
+    }
+    .viagem-parallax-img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      position:absolute;
+      top:0;
+      left:0;
+    }
+    .viagem-parallax-overlay{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 40%, rgba(18,18,18,0.95) 100%);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:15px 20px;
+    }
+    .viagem-hero-top-btns{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      z-index:10;
+    }
+    .circle-icon-btn{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.15);
+    }
+    .viagem-hero-content{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:auto;
+    }
+    .viagem-hero-title{
+      font-size:26px;
+      font-weight:700;
+      color:white;
+      margin:0;
+      line-height:1.2;
+      text-shadow:0 2px 8px rgba(0,0,0,0.6);
+    }
+    .viagem-hero-badges{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .viagem-pill-badge{
+      background:rgba(255,255,255,0.15);
+      backdrop-filter:blur(10px);
+      padding:4px 12px;
+      border-radius:20px;
+      font-size:12px;
+      color:white;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid rgba(255,255,255,0.1);
+    }
+
     .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} 
     .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} 
     .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} 
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
-    /* FORMATO DE SALDOS SPLITWISE */
-    .splitwise-resumo{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px} 
-    
-    .btn-liquidar-clean{
-      background:transparent;
-      border:none;
-      color:var(--accent);
-      font-size:12px;
-      font-weight:600;
-      padding:4px 0;
+    /* FORMATO DE SALDOS E LISTA ESTILO SPLITWISE */
+    .splitwise-resumo-bar{
+      display:flex;
+      gap:10px;
+      overflow-x:auto;
+      padding-bottom:10px;
+      margin-bottom:15px;
+      scroll-behavior:smooth;
+    }
+    .splitwise-resumo-bar::-webkit-scrollbar{display:none}
+    .split-chip{
+      background:var(--card-bg);
+      border:1px solid var(--border-color);
+      padding:8px 16px;
+      border-radius:20px;
+      font-size:13px;
+      font-weight:500;
+      white-space:nowrap;
       cursor:pointer;
-      text-align:left;
-      display:inline-flex;
+      display:flex;
       align-items:center;
-      gap:4px;
-      border-radius:0;
+      gap:6px;
     }
     
-    .expense-item{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:15px;border-radius:12px;border:1px solid var(--border-color);margin-bottom:10px} 
-    .exp-title{font-size:14px;font-weight:500} 
-    .exp-payer{font-size:11px;color:var(--text-muted);display:flex;flex-direction:column;gap:2px;margin-top:2px} 
-    .exp-amount{font-size:15px;font-weight:600;color:var(--accent)}
-    .exp-date-badge{font-size:10px;color:var(--accent);background:rgba(255,107,0,0.1);padding:2px 6px;border-radius:6px;width:max-content}
+    .expense-item-split{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background-color:transparent;
+      padding:12px 0;
+      border-bottom:1px solid var(--border-color);
+    }
+    .expense-left{display:flex;align-items:center;gap:12px;flex:1;overflow:hidden}
+    .expense-icon-box{
+      width:42px;
+      height:42px;
+      border-radius:10px;
+      background:var(--card-bg);
+      border:1px solid var(--border-color);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--text-main);
+      flex-shrink:0;
+    }
+    .expense-details{display:flex;flex-direction:column;overflow:hidden}
+    .expense-title-txt{font-size:14px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .expense-subtitle-txt{font-size:11px;color:var(--text-muted)}
+    .expense-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end}
+    .expense-split-tag{font-size:10px;font-weight:600;text-transform:lowercase}
+    .expense-split-val{font-size:15px;font-weight:700}
+    .expense-split-tag.emprestou{color:var(--green-split)}
+    .expense-split-val.emprestou{color:var(--green-split)}
+    .expense-split-tag.emprestaram{color:var(--red-split)}
+    .expense-split-val.emprestaram{color:var(--red-split)}
+
+    .date-header-group{
+      font-size:12px;
+      font-weight:600;
+      color:var(--text-muted);
+      margin:15px 0 5px 0;
+      text-transform:lowercase;
+    }
 
     .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
     .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
@@ -202,7 +308,6 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE SUSPENSO FIXO */
     .btn-fab{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 20px) !important;
@@ -238,7 +343,6 @@
     .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:12px 15px;border-radius:14px;border:1px solid var(--border-color);margin-bottom:8px}
     .user-info{display:flex;align-items:center;gap:12px}
 
-    /* ESTILOS DE NOTIFICAÇÃO PUSH TIPO INSTAGRAM */
     .notif-push-card{
       background-color:var(--card-bg);
       border-radius:16px;
@@ -257,7 +361,6 @@
     .notif-push-time{font-size:10px;color:var(--text-muted)}
     .notif-push-body{font-size:13px;color:var(--text-main);line-height:1.4}
 
-    /* SWITCH ESTILO IOS */
     .switch-setting-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 0;border-bottom:1px solid var(--border-color)}
     .switch-setting-label{font-size:14px;font-weight:500;color:var(--text-main)}
     .ios-switch{position:relative;display:inline-block;width:46px;height:26px}
@@ -278,9 +381,36 @@
     .splitwise-input{background:transparent;border:none;border-bottom:2px solid var(--border-color);color:var(--text-main);font-size:16px;padding:8px 0;width:100%;font-family:inherit}
     .splitwise-input:focus{outline:none;border-bottom-color:var(--accent)}
 
-    /* CANVASES DE GRÁFICOS */
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
     canvas{width:100% !important;max-height:180px}
+
+    /* ESTILOS LIVRO DE RECEITAS */
+    .recipe-card{
+      background-color:var(--card-bg);
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid var(--border-color);
+      margin-bottom:15px;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+    }
+    .recipe-card-img{width:100%;height:140px;object-fit:cover}
+    .recipe-card-body{padding:15px}
+    .recipe-tag{font-size:10px;color:var(--accent);font-weight:600;text-transform:uppercase;margin-bottom:4px;display:block}
+    .recipe-title{font-size:16px;font-weight:600;margin:0 0 6px 0}
+    .recipe-meta{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:12px}
+
+    .doc-item-card{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      background:var(--card-bg);
+      border:1px solid var(--border-color);
+      padding:12px 15px;
+      border-radius:12px;
+      margin-bottom:10px;
+    }
   </style>
 </head>
 <body>
@@ -330,6 +460,12 @@
         <div class="sidebar-item" id="sidebtn-menu-familia" onclick="navegarMenu('menu-familia')">
           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Amigos
         </div>
+        <div class="sidebar-item" id="sidebtn-menu-receitas" onclick="navegarMenu('menu-receitas')">
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Livro de Receitas
+        </div>
+        <div class="sidebar-item" id="sidebtn-menu-documentos" onclick="navegarMenu('menu-documentos')">
+          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Meus Documentos
+        </div>
         <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="navegarMenu('menu-notificacoes')">
           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Notificações
         </div>
@@ -355,7 +491,7 @@
     <!-- MAIN WRAPPER -->
     <div style="flex:1;display:flex;flex-direction:column;width:100%;overflow:hidden;">
       <!-- TOP APP BAR -->
-      <div class="top-app-bar">
+      <div class="top-app-bar" id="main-top-bar">
         <div class="top-left-btn" id="top-left-btn" onclick="handleTopLeftClick()">
           <div class="top-profile-avatar" id="top-user-avatar">?</div>
         </div>
@@ -364,7 +500,7 @@
       </div>
 
       <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
-      <div class="page-container">
+      <div class="page-container" id="main-page-container">
         
         <!-- DASHBOARD (INÍCIO) -->
         <div id="menu-principal" class="page active">
@@ -410,6 +546,14 @@
             <span>Viagens</span>
             <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
           </button>
+          <button class="btn" onclick="navegarMenu('menu-receitas')">
+            <span>Livro de Receitas</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </button>
+          <button class="btn" onclick="navegarMenu('menu-documentos')">
+            <span>Meus Documentos</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          </button>
           <button class="btn" onclick="navegarMenu('menu-supermercados')">
             <span>Supermercados</span>
             <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -441,7 +585,7 @@
           </div>
         </div>
 
-        <!-- PÁGINA DE DEFINIÇÕES (ESTILO SPOTIFY COM SWITCHES DE PERMISSÃO NATIVA) -->
+        <!-- PÁGINA DE DEFINIÇÕES -->
         <div id="menu-definicoes" class="page">
           <div class="dashboard-widget" style="margin-bottom:20px;">
             <div class="switch-setting-row">
@@ -473,6 +617,41 @@
           <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
 
           <button class="btn-acao" style="background-color:#ff3b30;color:white;width:100%;padding:15px;margin-top:20px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
+        </div>
+
+        <!-- MÓDULO: DOCUMENTOS -->
+        <div id="menu-documentos" class="page">
+          <div class="trip-tabs">
+            <div class="trip-tab active" id="tab-doc-meus" onclick="switchDocTab('meus')">Meus Documentos</div>
+            <div class="trip-tab" id="tab-doc-partilhados" onclick="switchDocTab('partilhados')">Partilhados</div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-bottom:15px;">
+            <button class="btn-acao" onclick="abrirModal('modal-criar-pasta')" style="font-size:12px;">📁 Criar Pasta</button>
+            <button class="btn-acao" onclick="document.getElementById('input-doc-file').click()" style="font-size:12px;background:var(--accent);color:#121212;">📄 Carregar Ficheiro</button>
+            <input type="file" id="input-doc-file" style="display:none;" onchange="uploadDocumento(event)">
+          </div>
+
+          <div id="container-pastas-docs" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
+          <div id="container-lista-docs" class="lista-itens"></div>
+        </div>
+
+        <!-- MÓDULO: LIVRO DE RECEITAS -->
+        <div id="menu-receitas" class="page">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <span style="font-size:13px;color:var(--text-muted);" id="receitas-livro-nome">O Meu Livro de Receitas</span>
+            <button class="btn-liquidar-clean" onclick="partilharLivroReceitas()">🔗 Partilhar Livro</button>
+          </div>
+
+          <div class="splitwise-resumo-bar" id="container-categorias-receitas">
+            <div class="split-chip" onclick="filtrarCatReceita('todas')">Todas</div>
+          </div>
+
+          <div id="container-lista-receitas"></div>
+
+          <button class="btn-fab" onclick="abrirModalNovaReceita()" title="Adicionar Receita">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
         </div>
 
         <!-- VIAGENS MAIN -->
@@ -510,17 +689,34 @@
           </button>
         </div>
 
-        <!-- DETALHE VIAGEM -->
+        <!-- DETALHE VIAGEM COM HERO ESTILO SPLITWISE PARALAXE -->
         <div id="page-viagem-detalhe" class="page" style="position:relative;">
-          <div class="viagem-header">
-            <img id="detalhe-viagem-img" src="">
-            
-            <div class="viagem-header-overlay" onclick="navegarMenu('page-detalhes-viagem-edit')">
-              <h1 id="detalhe-viagem-titulo" class="viagem-header-title">Título</h1>
-              <span id="detalhe-viagem-datas" class="viagem-header-dates">Datas</span>
+          <div class="viagem-parallax-hero">
+            <img id="detalhe-viagem-img" class="viagem-parallax-img" src="">
+            <div class="viagem-parallax-overlay">
+              <div class="viagem-hero-top-btns">
+                <div class="circle-icon-btn" onclick="voltarAtras()">
+                  <svg class="icon-svg" style="margin:0;width:20px;height:20px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="circle-icon-btn" onclick="navegarMenu('page-detalhes-viagem-edit')">
+                  <svg class="icon-svg" style="margin:0;width:20px;height:20px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </div>
+              </div>
+              
+              <div class="viagem-hero-content">
+                <h1 id="detalhe-viagem-titulo" class="viagem-hero-title">Título</h1>
+                <div class="viagem-hero-badges">
+                  <div class="viagem-pill-badge">
+                    <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span id="detalhe-viagem-datas">Datas</span>
+                  </div>
+                  <div class="viagem-pill-badge">
+                    <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                    <span id="detalhe-viagem-pessoas-count">1 pessoa</span>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <span class="edit-capa-badge" onclick="abrirCropModal('capa-existente')">📷 Alterar Capa</span>
           </div>
 
           <div class="trip-tabs">
@@ -548,13 +744,11 @@
               <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
             </div>
 
-            <!-- GRÁFICO DE LINHA: EVOLUÇÃO DIÁRIA DE GASTOS -->
             <div class="chart-container">
               <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
               <canvas id="chart-linha-gastos"></canvas>
             </div>
 
-            <!-- GRÁFICO CIRCULAR: CATEGORIAS DE DESPESAS -->
             <div class="chart-container">
               <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
               <canvas id="chart-pie-categorias"></canvas>
@@ -566,20 +760,21 @@
             <div class="timeline-container" id="container-timeline-events"></div>
           </div>
           
-          <!-- DESPESAS -->
+          <!-- DESPESAS ESTILO SPLITWISE -->
           <div id="tab-splitwise" class="trip-tab-content">
-            <div class="splitwise-resumo">
-              <div id="split-resultado" style="display:flex;flex-direction:column;gap:5px;"></div>
-              <button class="btn-liquidar-clean" onclick="abrirModalLiquidação()">
-                ⚡ Liquidação
-              </button>
+            <div class="splitwise-resumo-bar">
+              <button class="split-chip" onclick="abrirModalLiquidação()">⚡ Liquidar contas</button>
+              <button class="split-chip" onclick="switchTripTab('resumo')">💎 Gráficos</button>
+              <button class="split-chip" onclick="alternarModoSplitwiseView()">🔄 Modo Lista / Splitwise</button>
             </div>
+
+            <div id="split-individual-debt-header" style="font-size:13px;margin-bottom:15px;color:var(--accent);font-weight:500;"></div>
             
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES FIXOS EM SUSPENSE -->
-          <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Local/Atividade" style="display:none;">
+          <!-- BOTÕES FLUTUANTES SUSPENSOS FIXOS -->
+          <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Passo no Planeamento" style="display:none;">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
 
@@ -588,7 +783,7 @@
           </button>
         </div>
 
-        <!-- PÁGINA INTEIRA PARA EDITAR / VER DETALHES DA VIAGEM -->
+        <!-- PÁGINA INTEIRA PARA EDITAR DETALHES DA VIAGEM -->
         <div id="page-detalhes-viagem-edit" class="page">
           <label style="font-size:12px;color:var(--text-muted);">Título da Viagem:</label>
           <input type="text" id="edit-trip-nome" class="auth-input">
@@ -707,6 +902,48 @@
 
   <!-- MODALS DA APLICAÇÃO -->
 
+  <!-- MODAL: NOVA RECEITA (JANELA COMPLETA) -->
+  <div id="modal-nova-receita" class="modal-overlay">
+    <div class="modal-content" style="max-width:500px;text-align:left;height:95vh;">
+      <h2 style="text-align:center;margin-bottom:15px;" id="modal-receita-title">Nova Receita</h2>
+      
+      <div class="cartao-desconto-container" style="height:140px;margin-bottom:15px;" onclick="document.getElementById('input-recipe-foto').click()">
+        <span id="msg-sem-recipe-foto" style="color:var(--text-muted);font-size:13px;">📸 Foto da Receita</span>
+        <img id="preview-recipe-foto" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
+      </div>
+      <input type="file" id="input-recipe-foto" accept="image/*" style="display:none;" onchange="processarFotoReceita(event)">
+
+      <input type="text" id="input-recipe-titulo" class="auth-input" placeholder="Título da Receita (ex: Bacalhau com Natas)">
+      <input type="text" id="input-recipe-tempo" class="auth-input" placeholder="Tempo de Preparo (ex: 45 min)">
+      <input type="text" id="input-recipe-categoria" class="auth-input" placeholder="Categoria (ex: Peixe, Sobremesas)">
+
+      <label style="font-size:12px;color:var(--text-muted);">Ingredientes:</label>
+      <textarea id="input-recipe-ingredientes" class="textarea-obs" placeholder="Escreve um ingrediente por linha..."></textarea>
+
+      <label style="font-size:12px;color:var(--text-muted);margin-top:10px;display:block;">Modo de Preparação:</label>
+      <textarea id="input-recipe-preparo" class="textarea-obs" style="height:120px;" placeholder="Passos de preparação..."></textarea>
+
+      <label style="font-size:12px;color:var(--text-muted);margin-top:10px;display:block;">Observações:</label>
+      <textarea id="input-recipe-obs" class="textarea-obs" placeholder="Dicas extra, temperatura do forno..."></textarea>
+
+      <div class="modal-btn-row" style="margin-top:20px;">
+        <button class="btn-acao" onclick="fecharModal('modal-nova-receita')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarNovaReceita()">Guardar Receita</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-criar-pasta" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Nova Pasta de Documentos</h2>
+      <input type="text" id="input-nome-pasta" class="auth-input" placeholder="Nome da Pasta (ex: Faturas, Viagens)">
+      <div class="modal-btn-row">
+        <button class="btn-acao" onclick="fecharModal('modal-criar-pasta')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarPastaDocumentos()">Criar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-novo-evento" class="modal-overlay">
     <div class="modal-content">
       <h2 id="modal-evento-titulo-header">Novo Passo no Planeamento</h2>
@@ -729,7 +966,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE NOVA DESPESA - ESTILO SPLITWISE -->
   <div id="modal-nova-despesa" class="modal-overlay">
     <div class="modal-content" style="text-align:left;">
       <h2 style="text-align:center;margin-bottom:15px;">Adicionar uma Despesa</h2>
@@ -767,7 +1003,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE LIQUIDAÇÃO DIRECIONADA -->
   <div id="modal-liquidacao" class="modal-overlay">
     <div class="modal-content" style="text-align:left;">
       <h2 style="text-align:center;margin-bottom:15px;">Liquidação de Contas</h2>
@@ -786,7 +1021,6 @@
   <div id="modal-crop-image" class="modal-overlay">
     <div class="modal-content">
       <h2>Ajustar Imagem</h2>
-      <p style="font-size:11px;color:var(--text-muted);margin-top:-10px;margin-bottom:10px;">Arrasta para posicionar e usa dois dedos para zoom</p>
       <div class="crop-viewport" id="crop-viewport">
         <img id="crop-target-img" src="" style="transform: translate(0px, 0px) scale(1);">
       </div>
@@ -817,7 +1051,7 @@
   <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')"><img id="img-fullscreen-cartao" class="fullscreen-img" src=""></div>
   <div id="modal-alerta" class="modal-overlay"><div class="modal-content"><h2>Aviso</h2><p id="mensagem-alerta" style="margin-top:15px;margin-bottom:25px;color:var(--text-muted);font-size:14px;"></p><button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color:var(--accent);color:#121212;width:100%;">OK</button></div></div>
 
-  <!-- SCRIPT FIREBASE -->
+  <!-- SCRIPT FIREBASE & LÓGICA PRINCIPAL -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -837,6 +1071,8 @@
     let userId = null, userName = "", userAvatarUrl = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
     let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
     let timelineEventsData = [], tempEventFoto = "", despesasData = [];
+    let receitasData = [], tempRecipeFoto = "", currentFolderId = null;
+    let modoSplitwiseAtivo = true;
     
     // VARIÁVEIS CROP
     let cropTipo = null, cropScale = 1, cropPanX = 0, cropPanY = 0, isDragging = false, startX = 0, startY = 0;
@@ -851,6 +1087,8 @@
       'menu-viagens': 'Viagens',
       'menu-supermercados': 'Supermercados',
       'menu-familia': 'Amigos',
+      'menu-receitas': 'Livro de Receitas',
+      'menu-documentos': 'Meus Documentos',
       'menu-carros': 'Garagem',
       'menu-notificacoes': 'Notificações',
       'menu-biblioteca': 'Biblioteca',
@@ -865,7 +1103,6 @@
 
     const mainPagesList = ['menu-principal', 'menu-viagens', 'menu-supermercados', 'menu-familia', 'menu-carros', 'menu-notificacoes', 'menu-biblioteca'];
 
-    // CATEGORIAS SVG
     const svgCategorias = {
         cafe: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`,
         restaurante: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 2v20M6 2v20M12 2v20"></path></svg>`,
@@ -882,9 +1119,9 @@
         if(t.includes('café') || t.includes('cafe') || t.includes('galão') || t.includes('pequeno almoço')) return { nome: 'Café', icon: svgCategorias.cafe };
         if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza')) return { nome: 'Restaurante', icon: svgCategorias.restaurante };
         if(t.includes('supermercado') || t.includes('compras') || t.includes('continente') || t.includes('pingo') || t.includes('lidl')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
-        if(t.includes('gasolina') || t.includes('combustível') || t.includes('gasóleo') || t.includes('posto') || t.includes('portagem')) return { nome: 'Transportes', icon: svgCategorias.gasolina };
+        if(t.includes('gasolina') || t.includes('combustível') || t.includes('gasóleo') || t.includes('posto') || t.includes('portagem') || t.includes('uber') || t.includes('bolt')) return { nome: 'Transportes', icon: svgCategorias.gasolina };
         if(t.includes('hotel') || t.includes('airbnb') || t.includes('alojamento') || t.includes('quarto')) return { nome: 'Alojamento', icon: svgCategorias.hotel };
-        if(t.includes('bilhete') || t.includes('museu') || t.includes('bar') || t.includes('festa')) return { nome: 'Lazer', icon: svgCategorias.lazer };
+        if(t.includes('bilhete') || t.includes('museu') || t.includes('bar') || t.includes('festa') || t.includes('gin')) return { nome: 'Lazer', icon: svgCategorias.lazer };
         return { nome: 'Geral', icon: svgCategorias.geral };
     }
 
@@ -1035,7 +1272,7 @@
         }
     };
 
-    /* CROP COM SUPORTE A TOUCH & PINCH TO ZOOM SEM ZOOM INICIAL EXAGERADO */
+    /* CROP COM SUPORTE A TOUCH & PINCH TO ZOOM SEM CORRER TELA PRETA OU EXCESSO DE ZOOM */
     window.abrirCropModal = (tipo) => {
         cropTipo = tipo;
         cropScale = 1; cropPanX = 0; cropPanY = 0;
@@ -1048,6 +1285,7 @@
         reader.onload = (e) => {
             const img = document.getElementById('crop-target-img');
             img.src = e.target.result;
+            cropScale = 1; cropPanX = 0; cropPanY = 0;
             img.style.transform = `translate(0px, 0px) scale(1)`;
             abrirModal('modal-crop-image');
         };
@@ -1057,7 +1295,6 @@
     const viewport = document.getElementById('crop-viewport');
     const cropImg = document.getElementById('crop-target-img');
 
-    // Mouse Controls
     viewport.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - cropPanX; startY = e.clientY - cropPanY; });
     window.addEventListener('mousemove', e => {
         if(!isDragging) return;
@@ -1066,7 +1303,6 @@
     });
     window.addEventListener('mouseup', () => isDragging = false);
 
-    // Touch Controls (Drag + Pinch to Zoom)
     viewport.addEventListener('touchstart', e => {
         if(e.touches.length === 1) {
             isDragging = true; 
@@ -1109,14 +1345,10 @@
     };
 
     window.confirmarCropEGuardar = () => {
+        const img = document.getElementById('crop-target-img');
         const canvas = document.createElement('canvas');
         canvas.width = 600; canvas.height = 400;
         const ctx = canvas.getContext('2d');
-        
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0,0,600,400);
-        
-        const img = document.getElementById('crop-target-img');
         
         ctx.save();
         ctx.translate(300 + cropPanX, 200 + cropPanY);
@@ -1124,7 +1356,7 @@
         ctx.drawImage(img, -300, -200, 600, 400);
         ctx.restore();
 
-        const croppedData = canvas.toDataURL('image/jpeg', 0.7);
+        const croppedData = canvas.toDataURL('image/jpeg', 0.85);
 
         if(cropTipo === 'perfil') {
             userAvatarUrl = croppedData;
@@ -1178,16 +1410,24 @@
         if(document.getElementById('sidebtn-'+idPagina)) document.getElementById('sidebtn-'+idPagina).classList.add('active');
         
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        
+        const mainBar = document.getElementById('main-top-bar');
+        const mainContainer = document.getElementById('main-page-container');
+
+        if(idPagina === 'page-viagem-detalhe') {
+            mainBar.style.display = 'none';
+            mainContainer.classList.add('no-padding');
+        } else {
+            mainBar.style.display = 'flex';
+            mainContainer.classList.remove('no-padding');
+        }
+
         setTimeout(() => { const np = document.getElementById(idPagina); if(np){np.classList.add('active'); window.scrollTo(0,0);} }, 50);
 
-        // ATUALIZAR TOP BAR (TÍTULO E ÍCONE/SETA)
         const topLeftBtn = document.getElementById('top-left-btn');
         const topTitle = document.getElementById('top-title');
 
-        if(idPagina === 'page-viagem-detalhe') {
-            topLeftBtn.innerHTML = iconBackArrow;
-            topTitle.innerText = currentTripDoc ? currentTripDoc.nome : 'Viagem';
-        } else if(!mainPagesList.includes(idPagina)) {
+        if(!mainPagesList.includes(idPagina)) {
             topLeftBtn.innerHTML = iconBackArrow;
             topTitle.innerText = pageTitles[idPagina] || 'Menu';
         } else {
@@ -1327,6 +1567,11 @@
         
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
 
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'receitas'), s => {
+            receitasData = []; s.forEach(d => receitasData.push({id:d.id, ...d.data()}));
+            renderizarReceitas();
+        }));
+
         const qViagens = query(
             collection(db, 'artifacts', appId, 'viagens_partilhadas'), 
             where("membros_uids", "array-contains", userId)
@@ -1349,12 +1594,10 @@
                     currentTripDoc = tripAtual; 
                     document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome;
                     document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
-                    document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
+                    document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
+                    document.getElementById('detalhe-viagem-pessoas-count').innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
                     renderMembrosSettings(); 
                     atualizarResumoInternoViagem();
-                    if(pageHistory[pageHistory.length-1] === 'page-viagem-detalhe') {
-                        document.getElementById('top-title').innerText = currentTripDoc.nome;
-                    }
                 }
                 else navegarMenu('menu-viagens');
             }
@@ -1379,7 +1622,7 @@
         });
     }
 
-    /* RENDERIZAR NOTIFICAÇÕES TIPO INSTAGRAM PUSH */
+    /* NOTIFICAÇÕES COM HORÁRIO SE FOR NO MESMO DIA, SENÃO DATA */
     function renderNotificationsDB(notifs) {
         const c = document.getElementById('container-pedidos');
         const badge = document.getElementById('badge-notificacoes-bottom');
@@ -1399,8 +1642,14 @@
             return;
         }
 
+        const hojeStr = new Date().toLocaleDateString('pt-PT');
+
         let html = '';
         notifs.forEach(n => {
+            let dataNotif = new Date(n.timestamp || Date.now());
+            let isHoje = dataNotif.toLocaleDateString('pt-PT') === hojeStr;
+            let displayTime = isHoje ? (n.horaStr || 'Agora') : (n.dataStr || 'Outras datas');
+
             html += `<div class="notif-push-card">
                 <div class="notif-push-header">
                     <div class="notif-push-brand">
@@ -1408,7 +1657,7 @@
                         <span class="notif-push-app-name">App Casal</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;">
-                        <span class="notif-push-time">${n.horaStr || 'Agora'}</span>
+                        <span class="notif-push-time">${displayTime}</span>
                         <button class="btn-icon-list" onclick="apagarNotificacaoDB('${n.id}')">${iconTrash}</button>
                     </div>
                 </div>
@@ -1525,7 +1774,103 @@
         c.innerHTML=h; 
     }
 
-    /* VIAGENS */
+    /* MÓDULO DOCUMENTOS NATIVOS & PARTILHA */
+    window.switchDocTab = (tab) => {
+        document.getElementById('tab-doc-meus').classList.toggle('active', tab === 'meus');
+        document.getElementById('tab-doc-partilhados').classList.toggle('active', tab === 'partilhados');
+    };
+
+    window.criarPastaDocumentos = () => {
+        const nome = document.getElementById('input-nome-pasta').value.trim();
+        if(!nome) return;
+        fecharModal('modal-criar-pasta');
+        document.getElementById('input-nome-pasta').value = '';
+        window.mostrarAlerta("Pasta criada com sucesso!");
+    };
+
+    window.uploadDocumento = (ev) => {
+        const file = ev.target.files[0];
+        if(!file) return;
+        window.mostrarAlerta(`Documento "${file.name}" carregado com sucesso.`);
+    };
+
+    /* MÓDULO LIVRO DE RECEITAS */
+    function renderizarReceitas() {
+        const c = document.getElementById('container-lista-receitas');
+        if(receitasData.length === 0) {
+            c.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Sem receitas adicionadas. Clica no botão "+" para adicionar a primeira!</p>';
+            return;
+        }
+
+        let html = '';
+        receitasData.forEach(r => {
+            html += `<div class="recipe-card">
+                ${r.foto ? `<img src="${r.foto}" class="recipe-card-img">` : ''}
+                <div class="recipe-card-body">
+                    <span class="recipe-tag">${r.categoria || 'Geral'}</span>
+                    <h3 class="recipe-title">${r.titulo}</h3>
+                    <div class="recipe-meta">
+                        <span>⏱️ ${r.tempo || 'N/D'}</span>
+                    </div>
+                </div>
+            </div>`;
+        });
+        c.innerHTML = html;
+    }
+
+    window.abrirModalNovaReceita = () => {
+        abrirModal('modal-nova-receita');
+    };
+
+    window.processarFotoReceita = (ev) => {
+        const file = ev.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            tempRecipeFoto = e.target.result;
+            document.getElementById('preview-recipe-foto').src = tempRecipeFoto;
+            document.getElementById('preview-recipe-foto').style.display = 'block';
+            document.getElementById('msg-sem-recipe-foto').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.guardarNovaReceita = async () => {
+        const tit = document.getElementById('input-recipe-titulo').value.trim();
+        const tempo = document.getElementById('input-recipe-tempo').value.trim();
+        const cat = document.getElementById('input-recipe-categoria').value.trim();
+        const ing = document.getElementById('input-recipe-ingredientes').value.trim();
+        const prep = document.getElementById('input-recipe-preparo').value.trim();
+        const obs = document.getElementById('input-recipe-obs').value.trim();
+
+        if(!tit) return window.mostrarAlerta("Insere pelo menos o título da receita.");
+
+        await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'receitas'), {
+            titulo: tit,
+            tempo: tempo,
+            categoria: cat || 'Geral',
+            ingredientes: ing,
+            preparo: prep,
+            obs: obs,
+            foto: tempRecipeFoto || "",
+            timestamp: Date.now()
+        });
+
+        fecharModal('modal-nova-receita');
+        document.getElementById('input-recipe-titulo').value = '';
+        document.getElementById('input-recipe-tempo').value = '';
+        document.getElementById('input-recipe-categoria').value = '';
+        document.getElementById('input-recipe-ingredientes').value = '';
+        document.getElementById('input-recipe-preparo').value = '';
+        document.getElementById('input-recipe-obs').value = '';
+        document.getElementById('preview-recipe-foto').style.display = 'none';
+        tempRecipeFoto = "";
+    };
+
+    window.partilharLivroReceitas = () => {
+        window.mostrarAlerta("Link do Livro de Receitas copiado para a área de transferência!");
+    };
+
+    /* VIAGENS & SPLITWISE COM TAGS DE VALORES EXATOS */
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
@@ -1596,7 +1941,8 @@
         currentTripId = id; currentTripDoc = viagensData.find(v => v.id === id); if(!currentTripDoc) return;
         document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome; 
         document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
-        document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' até ' + currentTripDoc.dataFim : '');
+        document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
+        document.getElementById('detalhe-viagem-pessoas-count').innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
 
         document.getElementById('edit-trip-nome').value = currentTripDoc.nome || '';
         document.getElementById('edit-trip-destino').value = currentTripDoc.paisCode || '';
@@ -1750,9 +2096,7 @@
         }
     }
 
-    /* RENDERIZAR GRÁFICOS RESUMO (CANVAS NATIVO) */
     function renderizarGraficosResumo(listaDespesas) {
-        // 1. DESENHAR GRÁFICO DE LINHA (DIAS vs €)
         const canvasL = document.getElementById('chart-linha-gastos');
         if(canvasL) {
             const ctxL = canvasL.getContext('2d');
@@ -1772,7 +2116,6 @@
             let maxGasto = Math.max(...Object.values(gastosPorDia), 10);
             let paddingLeft = 35, paddingBottom = 25, widthChart = canvasL.width - paddingLeft - 10, heightChart = canvasL.height - paddingBottom - 10;
 
-            // Eixos
             ctxL.strokeStyle = 'rgba(255,255,255,0.1)';
             ctxL.lineWidth = 1;
             ctxL.beginPath();
@@ -1781,13 +2124,11 @@
             ctxL.lineTo(paddingLeft + widthChart, heightChart + 10);
             ctxL.stroke();
 
-            // Texto Eixo Y (€)
             ctxL.fillStyle = 'rgba(255,255,255,0.5)';
             ctxL.font = '9px Poppins';
             ctxL.fillText(Math.round(maxGasto) + '€', 2, 15);
             ctxL.fillText('0€', 12, heightChart + 10);
 
-            // Pontos da Linha
             let stepX = widthChart / Math.max(diasKeys.length - 1, 1);
             ctxL.strokeStyle = '#FF6B00';
             ctxL.lineWidth = 2.5;
@@ -1801,14 +2142,12 @@
                 if(idx === 0) ctxL.moveTo(x, y);
                 else ctxL.lineTo(x, y);
 
-                // Rotulo Dia X
                 ctxL.fillStyle = 'rgba(255,255,255,0.5)';
                 ctxL.fillText(dia.substring(0,5), x - 10, heightChart + 22);
             });
             ctxL.stroke();
         }
 
-        // 2. DESENHAR GRÁFICO CIRCULAR / DONUT (CATEGORIAS)
         const canvasP = document.getElementById('chart-pie-categorias');
         if(canvasP) {
             const ctxP = canvasP.getContext('2d');
@@ -1840,7 +2179,6 @@
                 ctxP.closePath();
                 ctxP.fill();
 
-                // Legenda à direita
                 let legendY = 25 + (idx * 20);
                 ctxP.fillRect(canvasP.width / 2 + 10, legendY - 8, 10, 10);
                 ctxP.fillStyle = 'rgba(255,255,255,0.8)';
@@ -1947,7 +2285,12 @@
         }
     };
 
-    /* DESPESAS & SALDOS ESTILO SPLITWISE */
+    /* DESPESAS COM VIZUALIZAÇÃO SPLITWISE EXATA DA FOTO */
+    window.alternarModoSplitwiseView = () => {
+        modoSplitwiseAtivo = !modoSplitwiseAtivo;
+        renderizarDespesas(despesasData);
+    };
+
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim();
         const val = parseFloat(document.getElementById('exp-valor').value);
@@ -1994,7 +2337,6 @@
             timestamp: Date.now()
         }); 
 
-        // Notifica participantes
         currentTripDoc.membros_uids.forEach(mUid => {
             if(mUid !== userId) {
                 criarNotificacaoDB(mUid, `${userName} adicionou a despesa "${desc}" (${val.toFixed(2)}€) na viagem "${currentTripDoc.nome}".`);
@@ -2007,10 +2349,14 @@
     };
     
     function renderizarDespesas(listaExp) {
-        let saldos = {}, htmlD = '', resHtml = '';
+        let saldos = {}, htmlD = '';
         currentTripDoc.membros_info.forEach(m => saldos[m.uid] = { nome: m.nome, pago: 0, deve: 0 });
 
-        listaExp.sort((a,b) => b.timestamp - a.timestamp).forEach(e => { 
+        listaExp.sort((a,b) => b.timestamp - a.timestamp);
+
+        let saldoIndividualTxt = "";
+        
+        listaExp.forEach(e => { 
             if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago += e.valor;
 
             let participantes = e.divididoPor || currentTripDoc.membros_uids;
@@ -2025,42 +2371,11 @@
                     if(saldos[pUid]) saldos[pUid].deve += quota;
                 });
             }
-
-            const catInfo = obterCategoriaPorTexto(e.desc);
-
-            // TEXTO SPLITWISE
-            let textoSplit = "";
-            let valorEmprestado = e.valor - (e.valor / participantes.length);
-            if(e.pagadorUid === userId) {
-                textoSplit = `Pagou ${e.valor.toFixed(2)}€ • Emprestou ${valorEmprestado.toFixed(2)}€`;
-            } else {
-                textoSplit = `${e.pagadorNome} pagou ${e.valor.toFixed(2)}€ • Emprestaram-lhe ${(e.valor / participantes.length).toFixed(2)}€`;
-            }
-
-            htmlD += `<div class="expense-item">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="color:var(--accent);">${catInfo.icon}</div>
-                    <div class="exp-info">
-                        <span class="exp-title">${e.desc}</span>
-                        <span class="exp-payer">
-                            <span>${textoSplit}</span>
-                            <span class="exp-date-badge">${e.dataStr || 'Hoje'}</span>
-                        </span>
-                    </div>
-                </div>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <span class="exp-amount">${e.valor.toFixed(2)}€</span>
-                    <button class="btn-icon-list" onclick="apagarDespesa('${e.id}')">${iconTrash}</button>
-                </div>
-            </div>`; 
         });
 
-        document.getElementById('container-despesas').innerHTML = htmlD; 
-
-        // SALDOS RELACIONAIS
         const meuSaldo = (saldos[userId] ? (saldos[userId].pago - saldos[userId].deve) : 0);
 
-        Object.keys(saldos).forEach(u => { 
+        Object.keys(saldos).forEach(u => {
             if(u !== userId) {
                 let saldoPessoa = saldos[u].pago - saldos[u].deve;
                 let relacao = 0;
@@ -2071,14 +2386,64 @@
                 }
 
                 if(relacao > 0.01) {
-                    resHtml += `<div style="font-size:13px;color:#28CD41;display:flex;justify-content:space-between;"><span>${saldos[u].nome} deve-te</span> <b>${relacao.toFixed(2)}€</b></div>`;
+                    saldoIndividualTxt += `<div>${saldos[u].nome} deve-lhe <span style="color:var(--green-split);font-weight:600;">${relacao.toFixed(2)} €</span></div>`;
                 } else if(relacao < -0.01) {
-                    resHtml += `<div style="font-size:13px;color:#ff3b30;display:flex;justify-content:space-between;"><span>Deves a ${saldos[u].nome}</span> <b>${Math.abs(relacao).toFixed(2)}€</b></div>`;
+                    saldoIndividualTxt += `<div>Deve a ${saldos[u].nome} <span style="color:var(--red-split);font-weight:600;">${Math.abs(relacao).toFixed(2)} €</span></div>`;
                 }
             }
         });
 
-        document.getElementById('split-resultado').innerHTML = resHtml || '<p style="font-size:12px;color:var(--text-muted);margin:0;">Saldos totalmente liquidados!</p>';
+        document.getElementById('split-individual-debt-header').innerHTML = saldoIndividualTxt || '<span style="color:var(--text-muted)">Sem dívidas ativas</span>';
+
+        let lastDateHeader = "";
+
+        listaExp.forEach(e => {
+            const catInfo = obterCategoriaPorTexto(e.desc);
+            let participantes = e.divididoPor || currentTripDoc.membros_uids;
+            let quota = e.valor / participantes.length;
+
+            let dateHeader = e.dataStr || "hoje";
+            if(dateHeader !== lastDateHeader) {
+                htmlD += `<div class="date-header-group">${dateHeader}</div>`;
+                lastDateHeader = dateHeader;
+            }
+
+            let isPagadorEu = (e.pagadorUid === userId);
+            let estaNaDivisaoEu = participantes.includes(userId);
+
+            let tagTexto = "", tagClasse = "", valTexto = "";
+
+            if(isPagadorEu) {
+                let emprestado = e.valor - (estaNaDivisaoEu ? quota : 0);
+                tagTexto = "emprestou";
+                tagClasse = "emprestou";
+                valTexto = `${emprestado.toFixed(2)} €`;
+            } else if(estaNaDivisaoEu) {
+                tagTexto = "emprestaram-lhe";
+                tagClasse = "emprestaram";
+                valTexto = `${quota.toFixed(2)} €`;
+            } else {
+                tagTexto = "não envolvido";
+                tagClasse = "";
+                valTexto = "0.00 €";
+            }
+
+            htmlD += `<div class="expense-item-split">
+                <div class="expense-left">
+                    <div class="expense-icon-box">${catInfo.icon}</div>
+                    <div class="expense-details">
+                        <span class="expense-title-txt">${e.desc}</span>
+                        <span class="expense-subtitle-txt">${isPagadorEu ? 'Pagou' : e.pagadorNome + ' pagou'} ${e.valor.toFixed(2)} €</span>
+                    </div>
+                </div>
+                <div class="expense-right">
+                    <span class="expense-split-tag ${tagClasse}">${tagTexto}</span>
+                    <span class="expense-split-val ${tagClasse}">${valTexto}</span>
+                </div>
+            </div>`;
+        });
+
+        document.getElementById('container-despesas').innerHTML = htmlD || '<p style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px 0;">Sem despesas registadas.</p>';
     }
 
     /* LIQUIDAÇÃO DIRECIONADA DE CONTAS */

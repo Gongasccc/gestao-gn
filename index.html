@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Gestão G&N">
+  <meta name="apple-mobile-web-app-title" content="App Casal">
   <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -65,14 +65,32 @@
     .auth-link{color:var(--text-muted);font-size:13px;cursor:pointer;text-decoration:underline;transition:color 0.3s}
     .main-auth-logo{width:120px;margin-bottom:30px}
     
-    .loading-spinner{width:36px;height:36px;border:3px solid var(--border-color);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-top:15px}
+    /* SPINNER BRANCO INICIAL */
+    .loading-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.2);border-top-color:#FFFFFF;border-radius:50%;animation:spin 0.8s linear infinite;margin-top:15px}
     @keyframes spin{to{transform:rotate(360deg)}}
 
     #app-container{display:none;width:100%;height:100vh;flex-direction:column;margin:0 auto;max-width:100%}
     
     .top-app-bar{width:100%;max-width:600px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 20px 10px 20px;display:flex;align-items:center;justify-content:space-between;z-index:8000;background:var(--bg-color)}
     .top-left-btn{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:34px;height:34px}
-    .top-profile-avatar{width:34px;height:34px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;border:1px solid var(--border-color);overflow:hidden}
+    
+    /* AVATAR COM INICIAIS CENTRADAS E COR SECUNDÁRIA */
+    .top-profile-avatar, .user-avatar-custom{
+      border-radius:50%;
+      background-color:var(--accent);
+      color:#121212;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      object-fit:cover;
+      border:1px solid var(--border-color);
+      overflow:hidden;
+      line-height:1;
+      text-align:center;
+    }
+    .top-profile-avatar{width:34px;height:34px;font-size:13px;}
+    
     .top-title{font-weight:600;font-size:16px;letter-spacing:0.5px;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
 
     .page-container{flex:1;padding:10px 20px calc(var(--bottom-nav-height) + 20px) 20px;width:100%;max-width:600px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
@@ -283,7 +301,6 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE SIMPLES COR SECUNDÁRIA FIXO EM RELAÇÃO À BARRA DA BIBLIOTECA */
     .btn-fab-simple{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 15px) !important;
@@ -305,7 +322,6 @@
     .btn-fab-simple:active{transform:scale(0.92)}
     .btn-fab-simple svg{width:24px;height:24px;stroke:currentColor;stroke-width:2.8;fill:none}
 
-    /* ESTILO PUSH DE NOTIFICAÇÃO LIMPO E TAMANHO CORRETO */
     .notif-push-card{
       background-color:var(--card-bg);
       border-radius:16px;
@@ -553,8 +569,8 @@
             <span style="font-size:12px;color:var(--text-muted);">Conta Pessoal</span>
           </div>
 
-          <div class="dashboard-widget" style="display:flex;align-items:center;justify-content:space-between;padding:18px 25px;">
-            <span style="font-size:14px;font-weight:500;">Número de Amigos</span>
+          <div class="dashboard-widget" style="display:flex;align-items:center;justify-content:space-between;padding:18px 25px;cursor:pointer;" onclick="navegarMenu('menu-familia')">
+            <span style="font-size:14px;font-weight:500;">Amigos</span>
             <span class="stat-num" id="profile-friends-count">0</span>
           </div>
         </div>
@@ -656,7 +672,6 @@
             <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
           </button>
 
-          <h3 style="margin-bottom:10px;">Diário de Bordo</h3>
           <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
         </div>
 
@@ -996,7 +1011,7 @@
         </div>
       </div>
 
-      <!-- APENAS APARECE NO MODO SPLITWISE -->
+      <!-- OCULTO AUTOMATICAMENTE EM MODO SIMPLES -->
       <div id="container-campos-splitwise-mode" style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
         <span>Pago por</span>
         <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>

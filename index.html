@@ -54,7 +54,6 @@
     .top-title{font-weight:600;font-size:16px;letter-spacing:0.5px;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
 
     .page-container{flex:1;padding:10px 20px calc(var(--bottom-nav-height) + 20px) 20px;width:100%;max-width:600px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
-    .page-container.no-padding{padding:0 0 calc(var(--bottom-nav-height) + 20px) 0;}
     
     h1{font-weight:600;font-size:26px;margin-bottom:30px;text-align:center;letter-spacing:1px}
     h2{font-weight:400;font-size:18px;color:var(--text-muted);text-align:center;margin-bottom:20px}
@@ -145,83 +144,25 @@
     
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
     
-    /* CAPA FIXA DA VIAGEM */
-    .viagem-parallax-hero{
+    /* CABEÇALHO/CAPA DA VIAGEM */
+    .viagem-header-card{
       position:relative;
       width:100%;
-      height:220px;
+      height:210px;
+      border-radius:16px;
       overflow:hidden;
-      border-radius:0 0 24px 24px;
       margin-bottom:15px;
+      border:1px solid var(--border-color);
     }
-    .viagem-parallax-img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      position:absolute;
-      top:0;
-      left:0;
-    }
-    .viagem-parallax-overlay{
+    .viagem-header-card img{width:100%;height:100%;object-fit:cover}
+    .viagem-header-overlay-box{
       position:absolute;
       inset:0;
-      background:linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 40%, rgba(18,18,18,0.95) 100%);
+      background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.5) 100%);
       display:flex;
       flex-direction:column;
       justify-content:space-between;
-      padding:15px 20px;
-    }
-    .viagem-hero-top-btns{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      z-index:10;
-    }
-    .circle-icon-btn{
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      background:rgba(0,0,0,0.5);
-      backdrop-filter:blur(8px);
-      -webkit-backdrop-filter:blur(8px);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      cursor:pointer;
-      border:1px solid rgba(255,255,255,0.15);
-    }
-    .viagem-hero-content{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      margin-top:auto;
-    }
-    .viagem-hero-title{
-      font-size:24px;
-      font-weight:700;
-      color:white;
-      margin:0;
-      line-height:1.2;
-      text-shadow:0 2px 8px rgba(0,0,0,0.6);
-    }
-    .viagem-hero-badges{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .viagem-pill-badge{
-      background:rgba(255,255,255,0.15);
-      backdrop-filter:blur(10px);
-      padding:4px 12px;
-      border-radius:20px;
-      font-size:12px;
-      color:white;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      border:1px solid rgba(255,255,255,0.1);
+      padding:15px;
     }
 
     .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} 
@@ -230,15 +171,21 @@
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
-    /* CONTROLO DE DESPESAS */
-    .splitwise-resumo-bar{
-      display:flex;
+    /* FORMATO DE DESPESAS SPLITWISE IDENTICO Á FOTO */
+    .btn-pill-splitwise{
+      background:var(--btn-secondary);
+      border:1px solid var(--border-color);
+      color:var(--text-main);
+      border-radius:20px;
+      padding:6px 14px;
+      font-size:12px;
+      font-weight:600;
+      display:inline-flex;
       align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:15px;
+      gap:6px;
+      cursor:pointer;
     }
-    
+
     .expense-item-split{
       display:flex;
       align-items:center;
@@ -264,7 +211,7 @@
     .expense-subtitle-txt{font-size:11px;color:var(--text-muted)}
     .expense-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end}
     .expense-split-tag{font-size:10px;font-weight:600;text-transform:lowercase}
-    .expense-split-val{font-size:15px;font-weight:700}
+    .expense-split-val{font-size:14px;font-weight:700}
     .expense-split-tag.emprestou{color:var(--green-split)}
     .expense-split-val.emprestou{color:var(--green-split)}
     .expense-split-tag.emprestaram{color:var(--red-split)}
@@ -365,47 +312,43 @@
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
     canvas{width:100% !important;max-height:180px}
 
-    /* ESTILOS LIVRO DE RECEITAS E NAVEGAÇÃO */
+    /* ESTILOS LIVRO DE RECEITAS */
     .books-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:15px;
       width:100%;
     }
-    .book-card{
+    .book-cover-card{
       background:var(--card-bg);
-      border-radius:14px;
+      border-radius:12px;
       overflow:hidden;
       border:1px solid var(--border-color);
       display:flex;
       flex-direction:column;
       cursor:pointer;
       position:relative;
-      height:180px;
+      height:200px;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
     }
-    .book-card-cover{
+    .book-cover-img{
       width:100%;
-      height:120px;
+      height:140px;
       object-fit:cover;
       background:var(--accent);
     }
-    .book-card-body{
+    .book-cover-title{
       padding:10px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--text-main);
+      text-align:center;
       display:flex;
-      flex-direction:column;
+      align-items:center;
       justify-content:center;
       flex:1;
     }
-    .book-card-title{
-      font-size:14px;
-      font-weight:600;
-      margin:0;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
 
-    /* LIVRO ABERTO COM FOLHAS BRANCAS */
     .recipe-book-reader{
       background:#FFFFFF;
       color:#121212;
@@ -416,23 +359,6 @@
       box-shadow:0 10px 25px rgba(0,0,0,0.3);
       margin-bottom:20px;
       overflow:hidden;
-      transition:transform 0.3s ease;
-    }
-    .recipe-book-reader.page-flip-right{
-      animation: flipRight 0.4s ease-in-out;
-    }
-    .recipe-book-reader.page-flip-left{
-      animation: flipLeft 0.4s ease-in-out;
-    }
-    @keyframes flipRight {
-      0%{ transform: rotateY(0deg); }
-      50%{ transform: rotateY(-15deg) scale(0.98); }
-      100%{ transform: rotateY(0deg); }
-    }
-    @keyframes flipLeft {
-      0%{ transform: rotateY(0deg); }
-      50%{ transform: rotateY(15deg) scale(0.98); }
-      100%{ transform: rotateY(0deg); }
     }
 
     .recipe-page-touch-left, .recipe-page-touch-right{
@@ -445,21 +371,6 @@
     }
     .recipe-page-touch-left{ left:0 }
     .recipe-page-touch-right{ right:0 }
-
-    .recipe-content-wrapper{
-      position:relative;
-      max-height:360px;
-      overflow:hidden;
-    }
-    .recipe-content-wrapper.truncated::after{
-      content:'';
-      position:absolute;
-      bottom:0;
-      left:0;
-      right:0;
-      height:80px;
-      background:linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
-    }
 
     .doc-item-card{
       display:flex;
@@ -696,22 +607,22 @@
           <div id="container-lista-docs" class="lista-itens"></div>
         </div>
 
-        <!-- MÓDULO: LIVRO DE RECEITAS (VISTA EM GRELHA E LEITOR DE FOLHAS) -->
+        <!-- MÓDULO: LIVRO DE RECEITAS (CAPAS + ÍNDICE) -->
         <div id="menu-receitas" class="page">
           <div id="receitas-view-livros">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-              <span style="font-size:14px;font-weight:600;">Os Meus Livros</span>
-              <button class="btn-acao" onclick="abrirModal('modal-criar-livro-receita')" style="padding:8px 12px;font-size:12px;background:var(--accent);color:#121212;">+ Criar Livro</button>
+              <span style="font-size:14px;font-weight:600;">Biblioteca de Receitas</span>
+              <button class="btn-pill-splitwise" onclick="abrirModal('modal-criar-livro-receita')" style="background:var(--accent);color:#121212;border:none;">+ Criar Livro</button>
             </div>
             <div class="books-grid" id="container-grid-livros-receitas"></div>
           </div>
 
           <div id="receitas-view-reader" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <button class="btn-liquidar-clean" onclick="fecharLivroReceitas()">
-                <svg class="icon-svg" style="width:16px;height:16px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Voltar aos Livros
+              <button class="btn-pill-splitwise" onclick="fecharLivroReceitas()">
+                <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Voltar aos Livros
               </button>
-              <button class="btn-liquidar-clean" onclick="partilharLivroAtual()">🔗 Partilhar Livro</button>
+              <button class="btn-pill-splitwise" onclick="partilharLivroAtual()">🔗 Partilhar Livro</button>
             </div>
 
             <div class="recipe-book-reader" id="book-reader-element">
@@ -723,9 +634,13 @@
 
             <div style="display:flex;justify-content:space-between;align-items:center;padding:0 10px;">
               <span style="font-size:12px;color:var(--text-muted);" id="recipe-reader-page-num">Página 1</span>
-              <button class="btn-acao" onclick="abrirModalNovaReceita()" style="font-size:12px;padding:8px 14px;background:var(--accent);color:#121212;">+ Adicionar Receita</button>
             </div>
           </div>
+
+          <!-- BOTÃO FLUTUANTE FIXO SOBRE A BARRA DA BIBLIOTECA -->
+          <button class="btn-fab" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()" title="Adicionar Receita" style="display:none;">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
         </div>
 
         <!-- VIAGENS MAIN -->
@@ -763,17 +678,17 @@
           </button>
         </div>
 
-        <!-- DETALHE VIAGEM COM HERO ESTILO SPLITWISE PARALAXE -->
+        <!-- DETALHE VIAGEM COM CAPA FIXA E SEGURA -->
         <div id="page-viagem-detalhe" class="page" style="position:relative;">
-          <div class="viagem-parallax-hero">
-            <img id="detalhe-viagem-img" class="viagem-parallax-img" src="">
-            <div class="viagem-parallax-overlay">
+          <div class="viagem-header-card">
+            <img id="detalhe-viagem-img" src="">
+            <div class="viagem-header-overlay-box">
               <div class="viagem-hero-top-btns">
                 <div class="circle-icon-btn" onclick="voltarAtras()">
-                  <svg class="icon-svg" style="margin:0;width:20px;height:20px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                  <svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                 </div>
                 <div class="circle-icon-btn" onclick="navegarMenu('page-detalhes-viagem-edit')">
-                  <svg class="icon-svg" style="margin:0;width:20px;height:20px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  <svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </div>
               </div>
               
@@ -781,11 +696,11 @@
                 <h1 id="detalhe-viagem-titulo" class="viagem-hero-title">Título</h1>
                 <div class="viagem-hero-badges">
                   <div class="viagem-pill-badge">
-                    <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <svg class="icon-svg" style="width:12px;height:12px;margin:0;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                     <span id="detalhe-viagem-datas">Datas</span>
                   </div>
                   <div class="viagem-pill-badge">
-                    <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                    <svg class="icon-svg" style="width:12px;height:12px;margin:0;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                     <span id="detalhe-viagem-pessoas-count">1 pessoa</span>
                   </div>
                 </div>
@@ -834,21 +749,20 @@
             <div class="timeline-container" id="container-timeline-events"></div>
           </div>
           
-          <!-- DESPESAS APENAS COM EMOJIS SVG E CORES PADRÃO -->
+          <!-- DESPESAS - MODOS E LIQUIDAÇÃO PADRONIZADOS -->
           <div id="tab-splitwise" class="trip-tab-content">
+            <div id="split-individual-debt-header" style="font-size:14px;margin-bottom:15px;font-weight:600;"></div>
+
             <div class="splitwise-resumo-bar">
               <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:8px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
                 <option value="splitwise">Modo Splitwise</option>
                 <option value="simples">Modo Lista Simples</option>
               </select>
 
-              <button class="btn-liquidar-clean" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
-                <svg class="icon-svg" style="width:16px;height:16px;margin:0;" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Liquidar contas
+              <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
+                ⚡ Liquidar contas
               </button>
             </div>
-
-            <div id="split-individual-debt-header" style="font-size:13px;margin-bottom:15px;color:var(--accent);font-weight:500;"></div>
             
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
@@ -863,7 +777,7 @@
           </button>
         </div>
 
-        <!-- PÁGINA INTEIRA PARA EDITAR DETALHES DA VIAGEM -->
+        <!-- EDITAR DETALHES DA VIAGEM -->
         <div id="page-detalhes-viagem-edit" class="page">
           <label style="font-size:12px;color:var(--text-muted);">Capa da Viagem:</label>
           <button class="btn-acao" style="margin-bottom:15px;width:100%;" onclick="abrirCropModal('capa-existente')">📸 Alterar Capa da Viagem</button>
@@ -988,7 +902,11 @@
   <div id="modal-criar-livro-receita" class="modal-overlay">
     <div class="modal-content">
       <h2>Novo Livro de Receitas</h2>
-      <input type="text" id="input-nome-livro" class="auth-input" placeholder="Nome do Livro (ex: Sobremesas, Receitas de Família)">
+      <div class="cartao-desconto-container" style="height:120px;margin-bottom:15px;" onclick="abrirCropModal('capa-livro-nova')">
+        <span id="msg-sem-capa-livro" style="color:var(--text-muted);font-size:13px;">📸 Foto/Capa do Livro (opcional)</span>
+        <img id="preview-capa-livro-nova" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
+      </div>
+      <input type="text" id="input-nome-livro" class="auth-input" placeholder="Nome do Livro (ex: Sobremesas, Italianas)">
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-criar-livro-receita')">Cancelar</button>
         <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarNovoLivroReceita()">Criar Livro</button>
@@ -1006,9 +924,13 @@
       </div>
       <input type="file" id="input-recipe-foto" accept="image/*" style="display:none;" onchange="processarFotoReceita(event)">
 
-      <input type="text" id="input-recipe-titulo" class="auth-input" placeholder="Título da Receita (ex: Bacalhau com Natas)">
+      <input type="text" id="input-recipe-titulo" class="auth-input" placeholder="Título da Receita">
       <input type="text" id="input-recipe-tempo" class="auth-input" placeholder="Tempo de Preparo (ex: 45 min)">
-      <input type="text" id="input-recipe-categoria" class="auth-input" placeholder="Categoria (ex: Peixe, Sobremesas)">
+      
+      <div id="container-select-categoria-receita-box" style="margin-bottom:15px;display:none;">
+        <label style="font-size:12px;color:var(--text-muted);">Categoria (do Índice):</label>
+        <select id="select-recipe-categoria" class="auth-input" style="margin-top:4px;margin-bottom:0;"></select>
+      </div>
 
       <label style="font-size:12px;color:var(--text-muted);">Ingredientes:</label>
       <textarea id="input-recipe-ingredientes" class="textarea-obs" placeholder="Escreve um ingrediente por linha..."></textarea>
@@ -1017,7 +939,7 @@
       <textarea id="input-recipe-preparo" class="textarea-obs" style="height:120px;" placeholder="Passos de preparação..."></textarea>
 
       <label style="font-size:12px;color:var(--text-muted);margin-top:10px;display:block;">Observações:</label>
-      <textarea id="input-recipe-obs" class="textarea-obs" placeholder="Dicas extra, temperatura do forno..."></textarea>
+      <textarea id="input-recipe-obs" class="textarea-obs" placeholder="Dicas extra..."></textarea>
 
       <div class="modal-btn-row" style="margin-top:20px;">
         <button class="btn-acao" onclick="fecharModal('modal-nova-receita')">Cancelar</button>
@@ -1164,7 +1086,7 @@
     let userId = null, userName = "", userAvatarUrl = "", isLoginMode = true, currentSuperId = null, unsusbscribes = [], pageHistory = ['menu-principal'];
     let viagensData = [], currentTripId = null, tempCapaUrl = "", minhaRede = [], currentTripDoc = null;
     let timelineEventsData = [], tempEventFoto = "", despesasData = [];
-    let livrosReceitasData = [], currentLivroId = null, receitasLivroAtual = [], currentRecipePageIndex = 0, tempRecipeFoto = "";
+    let livrosReceitasData = [], currentLivroId = null, receitasLivroAtual = [], categoriasIndiceLivro = [], currentRecipePageIndex = 0, tempRecipeFoto = "", tempCapaLivroUrl = "";
     let documentosList = [], pastasList = [];
     let modoDespesasAtivo = 'splitwise';
     
@@ -1330,7 +1252,7 @@
         if(checked) {
             if(navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    () => window.mostrarAlerta("Permissão de localização concedida com sucesso!"),
+                    () => window.mostrarAlerta("Permissão de localização concedida!"),
                     () => {
                         document.getElementById('switch-location').checked = false;
                         window.mostrarAlerta("Permissão de localização recusada.");
@@ -1338,7 +1260,7 @@
                 );
             } else {
                 document.getElementById('switch-location').checked = false;
-                window.mostrarAlerta("Dispositivo não suporta geolocalização.");
+                window.mostrarAlerta("O dispositivo não suporta geolocalização.");
             }
         }
         if(userId && db) {
@@ -1358,7 +1280,7 @@
                 }
             } else {
                 document.getElementById('switch-notifications').checked = false;
-                window.mostrarAlerta("O teu navegador não suporta Notificações.");
+                window.mostrarAlerta("Navegador não suporta Notificações.");
             }
         }
         if(userId && db) {
@@ -1366,7 +1288,7 @@
         }
     };
 
-    /* CROP SEM TELA PRETA OU ZOOM EXCESSO */
+    /* CROP LIMPO SEM ZOOM EXCESSIVO */
     window.abrirCropModal = (tipo) => {
         cropTipo = tipo;
         cropScale = 1; cropPanX = 0; cropPanY = 0;
@@ -1466,6 +1388,11 @@
         } else if(cropTipo === 'capa-existente') {
             document.getElementById('detalhe-viagem-img').src = croppedData;
             updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { capa: croppedData });
+        } else if(cropTipo === 'capa-livro-nova') {
+            tempCapaLivroUrl = croppedData;
+            document.getElementById('preview-capa-livro-nova').src = tempCapaLivroUrl;
+            document.getElementById('preview-capa-livro-nova').style.display = 'block';
+            document.getElementById('msg-sem-capa-livro').style.display = 'none';
         }
 
         fecharModal('modal-crop-image');
@@ -1504,17 +1431,6 @@
         if(document.getElementById('sidebtn-'+idPagina)) document.getElementById('sidebtn-'+idPagina).classList.add('active');
         
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        
-        const mainBar = document.getElementById('main-top-bar');
-        const mainContainer = document.getElementById('main-page-container');
-
-        if(idPagina === 'page-viagem-detalhe') {
-            mainBar.style.display = 'none';
-            mainContainer.classList.add('no-padding');
-        } else {
-            mainBar.style.display = 'flex';
-            mainContainer.classList.remove('no-padding');
-        }
 
         setTimeout(() => { const np = document.getElementById(idPagina); if(np){np.classList.add('active'); window.scrollTo(0,0);} }, 50);
 
@@ -1726,7 +1642,7 @@
         });
     }
 
-    /* NOTIFICAÇÕES HORA NO MESMO DIA OU DATA */
+    /* NOTIFICAÇÕES */
     function renderNotificationsDB(notifs) {
         const c = document.getElementById('container-pedidos');
         const badge = document.getElementById('badge-notificacoes-bottom');
@@ -1878,7 +1794,7 @@
         c.innerHTML=h; 
     }
 
-    /* MÓDULO DOCUMENTOS E PASTAS */
+    /* DOCUMENTOS */
     window.switchDocTab = (tab) => {
         document.getElementById('tab-doc-meus').classList.toggle('active', tab === 'meus');
         document.getElementById('tab-doc-partilhados').classList.toggle('active', tab === 'partilhados');
@@ -1905,10 +1821,9 @@
                 nome: file.name,
                 tipo: file.type,
                 conteudo: e.target.result,
-                pastaId: currentFolderId || 'raiz',
                 timestamp: Date.now()
             });
-            window.mostrarAlerta(`Documento "${file.name}" guardado.`);
+            window.mostrarAlerta(`Documento "${file.name}" guardado com sucesso!`);
         };
         reader.readAsDataURL(file);
     };
@@ -1917,7 +1832,7 @@
         const c = document.getElementById('container-pastas-docs');
         let h = '';
         pastasList.forEach(p => {
-            h += `<div class="btn-acao" onclick="abrirPastaDocs('${p.id}')">📁 ${p.nome}</div>`;
+            h += `<div class="btn-acao" style="font-size:12px;">📁 ${p.nome}</div>`;
         });
         c.innerHTML = h;
     }
@@ -1945,23 +1860,21 @@
         if(confirm("Remover documento?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'documentos',id));
     };
 
-    /* MÓDULO LIVRO DE RECEITAS */
+    /* MÓDULO LIVRO DE RECEITAS COM ÍNDICE E SEÇÕES */
     function renderizarLivrosReceitasGrelha() {
         const c = document.getElementById('container-grid-livros-receitas');
         if(!c) return;
 
         if(livrosReceitasData.length === 0) {
-            c.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:13px;padding:20px 0;">Nenhum livro de receitas criado. Clica em "+ Criar Livro"!</p>';
+            c.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:13px;padding:20px 0;">Nenhum livro criado. Clica em "+ Criar Livro"!</p>';
             return;
         }
 
         let html = '';
         livrosReceitasData.forEach(livro => {
-            html += `<div class="book-card" onclick="abrirLivroReceitas('${livro.id}')">
-                <img src="${livro.capa || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352'}" class="book-card-cover">
-                <div class="book-card-body">
-                    <h4 class="book-card-title">${livro.nome}</h4>
-                </div>
+            html += `<div class="book-cover-card" onclick="abrirLivroReceitas('${livro.id}')">
+                <img src="${livro.capa || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352'}" class="book-cover-img">
+                <div class="book-cover-title">${livro.nome}</div>
             </div>`;
         });
         c.innerHTML = html;
@@ -1973,20 +1886,26 @@
 
         await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'livros_receitas'), {
             nome: nome,
-            capa: tempCapaUrl || "https://images.unsplash.com/photo-1495521821757-a1efb6729352",
+            capa: tempCapaLivroUrl || "https://images.unsplash.com/photo-1495521821757-a1efb6729352",
+            categorias: [],
             timestamp: Date.now()
         });
 
         fecharModal('modal-criar-livro-receita');
         document.getElementById('input-nome-livro').value = '';
+        document.getElementById('preview-capa-livro-nova').style.display = 'none';
+        document.getElementById('msg-sem-capa-livro').style.display = 'block';
+        tempCapaLivroUrl = "";
     };
 
     window.abrirLivroReceitas = async (livroId) => {
         currentLivroId = livroId;
         const livro = livrosReceitasData.find(l => l.id === livroId);
+        categoriasIndiceLivro = livro.categorias || [];
         
         document.getElementById('receitas-view-livros').style.display = 'none';
         document.getElementById('receitas-view-reader').style.display = 'block';
+        document.getElementById('btn-fab-receitas-add').style.display = 'flex';
 
         const qRec = collection(db, 'artifacts', appId, 'users', userId, 'livros_receitas', livroId, 'itens');
         onSnapshot(qRec, s => {
@@ -2000,20 +1919,41 @@
     window.fecharLivroReceitas = () => {
         document.getElementById('receitas-view-reader').style.display = 'none';
         document.getElementById('receitas-view-livros').style.display = 'block';
+        document.getElementById('btn-fab-receitas-add').style.display = 'none';
     };
 
     function renderizarPaginaAtualLivro() {
         const c = document.getElementById('recipe-page-content-inside');
         const pageNum = document.getElementById('recipe-reader-page-num');
         
-        if(receitasLivroAtual.length === 0) {
-            c.innerHTML = '<p style="text-align:center;color:#666;font-size:14px;padding-top:100px;">Este livro ainda não tem receitas. Clica em "+ Adicionar Receita".</p>';
-            pageNum.innerText = "Página 0 de 0";
+        // PÁGINA 0 É O ÍNDICE
+        if(currentRecipePageIndex === 0) {
+            pageNum.innerText = "Índice do Livro";
+            let catsHtml = '';
+            categoriasIndiceLivro.forEach(cat => {
+                catsHtml += `<div class="list-item" style="background:#F2F2F2;color:#121212;border:none;"><span>📌 ${cat}</span></div>`;
+            });
+
+            c.innerHTML = `
+                <h2 style="font-size:22px;font-weight:700;color:#121212;margin-bottom:15px;text-align:center;">📖 ÍNDICE</h2>
+                <div style="display:flex;gap:8px;margin-bottom:15px;">
+                    <input type="text" id="input-nova-cat-indice" class="input-text" style="background:#fff;color:#121212;border:1px solid #ccc;" placeholder="Nova Categoria...">
+                    <button class="btn-add" onclick="adicionarCategoriaIndice()">+</button>
+                </div>
+                <div class="lista-itens">${catsHtml || '<p style="font-size:12px;color:#777;text-align:center;">Sem categorias. Adiciona acima!</p>'}</div>
+            `;
             return;
         }
 
-        const r = receitasLivroAtual[currentRecipePageIndex];
-        pageNum.innerText = `Página ${currentRecipePageIndex + 1} de ${receitasLivroAtual.length}`;
+        const rIndex = currentRecipePageIndex - 1;
+        if(receitasLivroAtual.length === 0 || !receitasLivroAtual[rIndex]) {
+            c.innerHTML = '<p style="text-align:center;color:#666;font-size:14px;padding-top:100px;">Nenhuma receita nesta página. Clica no botão "+" no canto inferior!</p>';
+            pageNum.innerText = "Página Vazia";
+            return;
+        }
+
+        const r = receitasLivroAtual[rIndex];
+        pageNum.innerText = `Página ${currentRecipePageIndex} de ${receitasLivroAtual.length}`;
 
         c.innerHTML = `
             ${r.foto ? `<img src="${r.foto}" style="width:100%;height:140px;object-fit:cover;border-radius:8px;margin-bottom:12px;">` : ''}
@@ -2021,7 +1961,7 @@
             <h2 style="font-size:20px;font-weight:700;color:#121212;margin:2px 0 10px 0;text-align:left;">${r.titulo}</h2>
             <div style="font-size:12px;color:#555;margin-bottom:10px;">⏱️ ${r.tempo || 'N/D'}</div>
             
-            <div class="recipe-content-wrapper truncated">
+            <div class="recipe-content-wrapper">
                 <strong style="font-size:13px;display:block;margin-bottom:4px;color:#121212;">Ingredientes:</strong>
                 <p style="font-size:12px;color:#333;white-space:pre-line;margin:0 0 10px 0;">${r.ingredientes || 'Sem ingredientes'}</p>
                 <strong style="font-size:13px;display:block;margin-bottom:4px;color:#121212;">Preparação:</strong>
@@ -2030,25 +1970,47 @@
         `;
     }
 
+    window.adicionarCategoriaIndice = async () => {
+        const inp = document.getElementById('input-nova-cat-indice');
+        const novaCat = inp.value.trim();
+        if(!novaCat) return;
+
+        categoriasIndiceLivro.push(novaCat);
+        await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'livros_receitas', currentLivroId), {
+            categorias: categoriasIndiceLivro
+        });
+        inp.value = '';
+        renderizarPaginaAtualLivro();
+    };
+
     window.folhearPaginaReceita = (direcao) => {
-        if(receitasLivroAtual.length === 0) return;
+        const totalPaginas = receitasLivroAtual.length + 1; // +1 devido ao Índice
         const reader = document.getElementById('book-reader-element');
 
-        if(direcao === 1 && currentRecipePageIndex < receitasLivroAtual.length - 1) {
-            reader.classList.add('page-flip-right');
-            setTimeout(() => reader.classList.remove('page-flip-right'), 400);
+        if(direcao === 1 && currentRecipePageIndex < totalPaginas - 1) {
             currentRecipePageIndex++;
             renderizarPaginaAtualLivro();
         } else if(direcao === -1 && currentRecipePageIndex > 0) {
-            reader.classList.add('page-flip-left');
-            setTimeout(() => reader.classList.remove('page-flip-left'), 400);
             currentRecipePageIndex--;
             renderizarPaginaAtualLivro();
         }
     };
 
     window.abrirModalNovaReceita = () => {
-        if(!currentLivroId) return window.mostrarAlerta("Abre primeiro um livro para adicionar receitas.");
+        if(!currentLivroId) return window.mostrarAlerta("Abre um livro para adicionar receitas.");
+        
+        const catBox = document.getElementById('container-select-categoria-receita-box');
+        const catSelect = document.getElementById('select-recipe-categoria');
+
+        if(categoriasIndiceLivro && categoriasIndiceLivro.length > 0) {
+            let options = '';
+            categoriasIndiceLivro.forEach(c => options += `<option value="${c}">${c}</option>`);
+            catSelect.innerHTML = options;
+            catBox.style.display = 'block';
+        } else {
+            catBox.style.display = 'none';
+        }
+
         abrirModal('modal-nova-receita');
     };
 
@@ -2067,7 +2029,12 @@
     window.guardarNovaReceita = async () => {
         const tit = document.getElementById('input-recipe-titulo').value.trim();
         const tempo = document.getElementById('input-recipe-tempo').value.trim();
-        const cat = document.getElementById('input-recipe-categoria').value.trim();
+        
+        let cat = "Geral";
+        if(categoriasIndiceLivro && categoriasIndiceLivro.length > 0) {
+            cat = document.getElementById('select-recipe-categoria').value;
+        }
+
         const ing = document.getElementById('input-recipe-ingredientes').value.trim();
         const prep = document.getElementById('input-recipe-preparo').value.trim();
         const obs = document.getElementById('input-recipe-obs').value.trim();
@@ -2077,7 +2044,7 @@
         await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'livros_receitas', currentLivroId, 'itens'), {
             titulo: tit,
             tempo: tempo,
-            categoria: cat || 'Geral',
+            categoria: cat,
             ingredientes: ing,
             preparo: prep,
             obs: obs,
@@ -2088,7 +2055,6 @@
         fecharModal('modal-nova-receita');
         document.getElementById('input-recipe-titulo').value = '';
         document.getElementById('input-recipe-tempo').value = '';
-        document.getElementById('input-recipe-categoria').value = '';
         document.getElementById('input-recipe-ingredientes').value = '';
         document.getElementById('input-recipe-preparo').value = '';
         document.getElementById('input-recipe-obs').value = '';
@@ -2100,7 +2066,7 @@
         window.mostrarAlerta("Link do Livro copiado!");
     };
 
-    /* VIAGENS COM CAPA FIXA E CONTROLO POR SELECT DE MODO */
+    /* VIAGENS */
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
@@ -2617,9 +2583,9 @@
                 }
 
                 if(relacao > 0.01) {
-                    saldoIndividualTxt += `<div>${saldos[u].nome} deve-lhe <span style="color:var(--green-split);font-weight:600;">${relacao.toFixed(2)} €</span></div>`;
+                    saldoIndividualTxt += `<div>${saldos[u].nome} deve-lhe <span style="color:var(--green-split);font-weight:700;">${relacao.toFixed(2)} €</span></div>`;
                 } else if(relacao < -0.01) {
-                    saldoIndividualTxt += `<div>Deve a ${saldos[u].nome} <span style="color:var(--red-split);font-weight:600;">${Math.abs(relacao).toFixed(2)} €</span></div>`;
+                    saldoIndividualTxt += `<div>Deve a ${saldos[u].nome} <span style="color:var(--red-split);font-weight:700;">${Math.abs(relacao).toFixed(2)} €</span></div>`;
                 }
             }
         });

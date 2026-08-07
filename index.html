@@ -20,8 +20,8 @@
       --border-color:rgba(255,255,255,0.08);
       --sidebar-width:280px;
       --bottom-nav-height:65px;
-      --green-split:#28CD41;
-      --red-split:#FF9500;
+      --green-split:#20C997;
+      --red-split:#FF4D4D;
     }
     body.light-mode{
       --bg-color:#FFFFFF;
@@ -144,7 +144,7 @@
     
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
     
-    /* CABEÇALHO/CAPA DA VIAGEM */
+    /* CAPA FIXA DA VIAGEM */
     .viagem-header-card{
       position:relative;
       width:100%;
@@ -171,7 +171,14 @@
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
-    /* FORMATO DE DESPESAS SPLITWISE IDENTICO Á FOTO */
+    .splitwise-resumo-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:15px;
+    }
+
     .btn-pill-splitwise{
       background:var(--btn-secondary);
       border:1px solid var(--border-color);
@@ -185,7 +192,7 @@
       gap:6px;
       cursor:pointer;
     }
-
+    
     .expense-item-split{
       display:flex;
       align-items:center;
@@ -238,26 +245,27 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    .btn-fab{
+    /* BOTÃO FLUTUANTE ESTILO SPLITWISE */
+    .btn-fab-splitwise{
       position:fixed !important;
-      bottom:calc(var(--bottom-nav-height) + 20px) !important;
-      right:25px !important;
-      width:56px !important;
-      height:56px !important;
-      border-radius:50% !important;
-      background-color:var(--accent) !important;
+      bottom:calc(var(--bottom-nav-height) + 15px) !important;
+      right:20px !important;
+      background-color:#20C997 !important;
       color:#121212 !important;
-      display:flex !important;
+      display:inline-flex !important;
       align-items:center !important;
-      justify-content:center !important;
-      box-shadow:0 8px 25px rgba(0,0,0,0.6) !important;
+      gap:8px !important;
+      padding:12px 20px !important;
+      border-radius:30px !important;
+      font-size:14px !important;
+      font-weight:700 !important;
+      box-shadow:0 8px 25px rgba(0,0,0,0.5) !important;
       border:none !important;
       cursor:pointer !important;
       z-index:9500 !important;
-      transition:transform 0.2s;
+      transition:transform 0.15s;
     }
-    .btn-fab:active{transform:scale(0.92)}
-    .btn-fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.5}
+    .btn-fab-splitwise:active{transform:scale(0.95)}
     
     .viagem-stats-summary{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
     .summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
@@ -299,9 +307,6 @@
     .ios-slider:before{position:absolute;content:"";height:20px;width:20px;left:2px;bottom:2px;background-color:white;transition:.3s;border-radius:50%}
     input:checked + .ios-slider{background-color:var(--accent)}
     input:checked + .ios-slider:before{transform:translateX(20px)}
-
-    .crop-viewport{width:100%;height:250px;background:#000;overflow:hidden;position:relative;border-radius:14px;margin-bottom:15px;touch-action:none;cursor:grab}
-    .crop-viewport img{position:absolute;top:0;left:0;transform-origin:center;user-select:none;-webkit-user-drag:none}
 
     .splitwise-card{background:var(--bg-color);border:1px solid var(--border-color);border-radius:16px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;gap:12px}
     .splitwise-row{display:flex;align-items:center;gap:10px}
@@ -511,7 +516,7 @@
           </div>
         </div>
 
-        <!-- BIBLIOTECA (TODOS OS MENUS) -->
+        <!-- BIBLIOTECA -->
         <div id="menu-biblioteca" class="page">
           <button class="btn" onclick="navegarMenu('menu-viagens')">
             <span>Viagens</span>
@@ -542,10 +547,11 @@
         <!-- PÁGINA DE PERFIL -->
         <div id="menu-perfil" class="page">
           <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:30px;">
-            <div id="profile-avatar-container" onclick="abrirCropModal('perfil')" style="cursor:pointer;position:relative;" title="Editar Foto de Perfil">
+            <div id="profile-avatar-container" onclick="document.getElementById('input-direct-avatar-file').click()" style="cursor:pointer;position:relative;" title="Editar Foto de Perfil">
               <div class="user-avatar-custom" id="profile-page-avatar" style="width:90px;height:90px;font-size:32px;">?</div>
               <span style="position:absolute;bottom:0;right:0;background:var(--accent);color:#121212;padding:6px;border-radius:50%;display:flex;"><svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></span>
             </div>
+            <input type="file" id="input-direct-avatar-file" accept="image/*" style="display:none;" onchange="uploadFotoDiretaPerfil(event)">
             <h2 id="profile-page-name" style="margin-top:15px;margin-bottom:2px;font-weight:600;color:var(--text-main);">A carregar...</h2>
             <span style="font-size:12px;color:var(--text-muted);">Conta Pessoal</span>
           </div>
@@ -607,7 +613,7 @@
           <div id="container-lista-docs" class="lista-itens"></div>
         </div>
 
-        <!-- MÓDULO: LIVRO DE RECEITAS (CAPAS + ÍNDICE) -->
+        <!-- MÓDULO: LIVRO DE RECEITAS -->
         <div id="menu-receitas" class="page">
           <div id="receitas-view-livros">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
@@ -637,9 +643,10 @@
             </div>
           </div>
 
-          <!-- BOTÃO FLUTUANTE FIXO SOBRE A BARRA DA BIBLIOTECA -->
-          <button class="btn-fab" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()" title="Adicionar Receita" style="display:none;">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <!-- BOTÃO FLUTUANTE ESTILO SPLITWISE FIXO EM VERDE -->
+          <button class="btn-fab-splitwise" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()" style="display:none;">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;stroke-width:3;fill:none;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Adicionar receita
           </button>
         </div>
 
@@ -659,10 +666,11 @@
 
         <!-- NOVA VIAGEM -->
         <div id="menu-nova-viagem" class="page">
-          <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="abrirCropModal('capa-nova')">
+          <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="document.getElementById('input-direct-capa-nova').click()">
             <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
             <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
           </div>
+          <input type="file" id="input-direct-capa-nova" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaNova(event)">
 
           <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
           <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
@@ -678,7 +686,7 @@
           </button>
         </div>
 
-        <!-- DETALHE VIAGEM COM CAPA FIXA E SEGURA -->
+        <!-- DETALHE VIAGEM -->
         <div id="page-viagem-detalhe" class="page" style="position:relative;">
           <div class="viagem-header-card">
             <img id="detalhe-viagem-img" src="">
@@ -749,38 +757,41 @@
             <div class="timeline-container" id="container-timeline-events"></div>
           </div>
           
-          <!-- DESPESAS - MODOS E LIQUIDAÇÃO PADRONIZADOS -->
+          <!-- DESPESAS ESTILO SPLITWISE EXACTO -->
           <div id="tab-splitwise" class="trip-tab-content">
             <div id="split-individual-debt-header" style="font-size:14px;margin-bottom:15px;font-weight:600;"></div>
 
             <div class="splitwise-resumo-bar">
-              <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:8px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
-                <option value="splitwise">Modo Splitwise</option>
-                <option value="simples">Modo Lista Simples</option>
-              </select>
-
               <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
                 ⚡ Liquidar contas
               </button>
+
+              <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
+                <option value="splitwise">Modo Splitwise</option>
+                <option value="simples">Modo Simples</option>
+              </select>
             </div>
             
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES SUSPENSOS FIXOS -->
-          <button class="btn-fab" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" title="Adicionar Passo no Planeamento" style="display:none;">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <!-- BOTÕES FLUTUANTES ESTILO SPLITWISE FIXOS EM VERDE -->
+          <button class="btn-fab-splitwise" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" style="display:none;">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;stroke-width:3;fill:none;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Adicionar passo
           </button>
 
-          <button class="btn-fab" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" title="Adicionar Despesa" style="display:none;">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <button class="btn-fab-splitwise" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')" style="display:none;">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;stroke-width:3;fill:none;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Adicionar despesa
           </button>
         </div>
 
         <!-- EDITAR DETALHES DA VIAGEM -->
         <div id="page-detalhes-viagem-edit" class="page">
           <label style="font-size:12px;color:var(--text-muted);">Capa da Viagem:</label>
-          <button class="btn-acao" style="margin-bottom:15px;width:100%;" onclick="abrirCropModal('capa-existente')">📸 Alterar Capa da Viagem</button>
+          <button class="btn-acao" style="margin-bottom:15px;width:100%;" onclick="document.getElementById('input-direct-capa-existente').click()">📸 Alterar Capa da Viagem</button>
+          <input type="file" id="input-direct-capa-existente" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaExistente(event)">
 
           <label style="font-size:12px;color:var(--text-muted);">Título da Viagem:</label>
           <input type="text" id="edit-trip-nome" class="auth-input">
@@ -902,10 +913,11 @@
   <div id="modal-criar-livro-receita" class="modal-overlay">
     <div class="modal-content">
       <h2>Novo Livro de Receitas</h2>
-      <div class="cartao-desconto-container" style="height:120px;margin-bottom:15px;" onclick="abrirCropModal('capa-livro-nova')">
+      <div class="cartao-desconto-container" style="height:120px;margin-bottom:15px;" onclick="document.getElementById('input-direct-capa-livro').click()">
         <span id="msg-sem-capa-livro" style="color:var(--text-muted);font-size:13px;">📸 Foto/Capa do Livro (opcional)</span>
         <img id="preview-capa-livro-nova" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
       </div>
+      <input type="file" id="input-direct-capa-livro" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaLivro(event)">
       <input type="text" id="input-nome-livro" class="auth-input" placeholder="Nome do Livro (ex: Sobremesas, Italianas)">
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-criar-livro-receita')">Cancelar</button>
@@ -999,7 +1011,7 @@
         </div>
       </div>
 
-      <div style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
+      <div id="container-campos-splitwise-mode" style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
         <span>Pago por</span>
         <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>
         <span>e dividido</span>
@@ -1029,26 +1041,6 @@
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-liquidacao')">Cancelar</button>
         <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="confirmarLiquidaçãoPessoa()">Liquidar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-crop-image" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Ajustar Imagem</h2>
-      <div class="crop-viewport" id="crop-viewport">
-        <img id="crop-target-img" src="" style="transform: translate(0px, 0px) scale(1);">
-      </div>
-      <input type="file" id="input-crop-file" accept="image/*" style="display:none;" onchange="carregarImagemParaCrop(event)">
-      
-      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:15px;">
-        <button class="btn-acao" onclick="alterarZoomCrop(0.1)">🔍 + Zoom</button>
-        <button class="btn-acao" onclick="alterarZoomCrop(-0.1)">🔍 - Zoom</button>
-      </div>
-
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-crop-image')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="confirmarCropEGuardar()">Guardar Foto</button>
       </div>
     </div>
   </div>
@@ -1089,10 +1081,6 @@
     let livrosReceitasData = [], currentLivroId = null, receitasLivroAtual = [], categoriasIndiceLivro = [], currentRecipePageIndex = 0, tempRecipeFoto = "", tempCapaLivroUrl = "";
     let documentosList = [], pastasList = [];
     let modoDespesasAtivo = 'splitwise';
-    
-    // VARIÁVEIS CROP
-    let cropTipo = null, cropScale = 1, cropPanX = 0, cropPanY = 0, isDragging = false, startX = 0, startY = 0;
-    let initialPinchDistance = null, initialScale = 1;
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
@@ -1146,19 +1134,61 @@
         document.getElementById('exp-icon-box').innerHTML = cat.icon;
     };
 
+    /* UPLOAD DIRETO DE FOTOS SEM CROP */
+    window.uploadFotoDiretaPerfil = (ev) => {
+        const file = ev.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            userAvatarUrl = e.target.result;
+            renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: userAvatarUrl }, { merge: true });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.uploadFotoDiretaCapaNova = (ev) => {
+        const file = ev.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            tempCapaUrl = e.target.result;
+            document.getElementById('preview-capa-viagem').src = tempCapaUrl;
+            document.getElementById('preview-capa-viagem').style.display = 'block';
+            document.getElementById('msg-sem-capa').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.uploadFotoDiretaCapaExistente = (ev) => {
+        const file = ev.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const b64 = e.target.result;
+            document.getElementById('detalhe-viagem-img').src = b64;
+            await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { capa: b64 });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.uploadFotoDiretaCapaLivro = (ev) => {
+        const file = ev.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            tempCapaLivroUrl = e.target.result;
+            document.getElementById('preview-capa-livro-nova').src = tempCapaLivroUrl;
+            document.getElementById('preview-capa-livro-nova').style.display = 'block';
+            document.getElementById('msg-sem-capa-livro').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    };
+
     window.toggleAuthMode = () => { 
         isLoginMode = !isLoginMode; 
         document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
         document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar e Entrar';
         document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
     };
-
-    function obterIniciaisNome(nomeCompleto) {
-        if(!nomeCompleto) return "?";
-        const partes = nomeCompleto.trim().split(/\s+/);
-        if(partes.length === 1) return partes[0].charAt(0).toUpperCase();
-        return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
-    }
 
     window.handleAuth = async () => {
         const userTyped = document.getElementById('auth-username').value.trim(); 
@@ -1252,15 +1282,12 @@
         if(checked) {
             if(navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    () => window.mostrarAlerta("Permissão de localização concedida!"),
+                    () => window.mostrarAlerta("Localização concedida!"),
                     () => {
                         document.getElementById('switch-location').checked = false;
                         window.mostrarAlerta("Permissão de localização recusada.");
                     }
                 );
-            } else {
-                document.getElementById('switch-location').checked = false;
-                window.mostrarAlerta("O dispositivo não suporta geolocalização.");
             }
         }
         if(userId && db) {
@@ -1278,124 +1305,11 @@
                     document.getElementById('switch-notifications').checked = false;
                     window.mostrarAlerta("Permissão de Notificações recusada.");
                 }
-            } else {
-                document.getElementById('switch-notifications').checked = false;
-                window.mostrarAlerta("Navegador não suporta Notificações.");
             }
         }
         if(userId && db) {
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowNotifications: document.getElementById('switch-notifications').checked }, { merge: true });
         }
-    };
-
-    /* CROP LIMPO SEM ZOOM EXCESSIVO */
-    window.abrirCropModal = (tipo) => {
-        cropTipo = tipo;
-        cropScale = 1; cropPanX = 0; cropPanY = 0;
-        document.getElementById('input-crop-file').click();
-    };
-
-    window.carregarImagemParaCrop = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = document.getElementById('crop-target-img');
-            img.src = e.target.result;
-            cropScale = 1; cropPanX = 0; cropPanY = 0;
-            img.style.transform = `translate(0px, 0px) scale(1)`;
-            abrirModal('modal-crop-image');
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const viewport = document.getElementById('crop-viewport');
-    const cropImg = document.getElementById('crop-target-img');
-
-    viewport.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - cropPanX; startY = e.clientY - cropPanY; });
-    window.addEventListener('mousemove', e => {
-        if(!isDragging) return;
-        cropPanX = e.clientX - startX; cropPanY = e.clientY - startY;
-        cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
-    });
-    window.addEventListener('mouseup', () => isDragging = false);
-
-    viewport.addEventListener('touchstart', e => {
-        if(e.touches.length === 1) {
-            isDragging = true; 
-            startX = e.touches[0].clientX - cropPanX; 
-            startY = e.touches[0].clientY - cropPanY;
-        } else if(e.touches.length === 2) {
-            isDragging = false;
-            initialPinchDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            initialScale = cropScale;
-        }
-    }, {passive:true});
-
-    window.addEventListener('touchmove', e => {
-        if(isDragging && e.touches.length === 1) {
-            cropPanX = e.touches[0].clientX - startX; 
-            cropPanY = e.touches[0].clientY - startY;
-            cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
-        } else if(e.touches.length === 2 && initialPinchDistance) {
-            const currentDist = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            const factor = currentDist / initialPinchDistance;
-            cropScale = Math.max(0.5, Math.min(4, initialScale * factor));
-            cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
-        }
-    }, {passive:true});
-
-    window.addEventListener('touchend', e => {
-        if(e.touches.length < 2) initialPinchDistance = null;
-        if(e.touches.length === 0) isDragging = false;
-    });
-
-    window.alterarZoomCrop = (delta) => {
-        cropScale = Math.max(0.5, Math.min(4, cropScale + delta));
-        cropImg.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropScale})`;
-    };
-
-    window.confirmarCropEGuardar = () => {
-        const img = document.getElementById('crop-target-img');
-        const canvas = document.createElement('canvas');
-        canvas.width = 600; canvas.height = 400;
-        const ctx = canvas.getContext('2d');
-        
-        ctx.save();
-        ctx.translate(300 + cropPanX, 200 + cropPanY);
-        ctx.scale(cropScale, cropScale);
-        ctx.drawImage(img, -300, -200, 600, 400);
-        ctx.restore();
-
-        const croppedData = canvas.toDataURL('image/jpeg', 0.85);
-
-        if(cropTipo === 'perfil') {
-            userAvatarUrl = croppedData;
-            renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
-            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
-            renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
-            setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: croppedData }, { merge: true });
-        } else if(cropTipo === 'capa-nova') {
-            tempCapaUrl = croppedData;
-            document.getElementById('preview-capa-viagem').src = tempCapaUrl;
-            document.getElementById('preview-capa-viagem').style.display = 'block';
-            document.getElementById('msg-sem-capa').style.display = 'none';
-        } else if(cropTipo === 'capa-existente') {
-            document.getElementById('detalhe-viagem-img').src = croppedData;
-            updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { capa: croppedData });
-        } else if(cropTipo === 'capa-livro-nova') {
-            tempCapaLivroUrl = croppedData;
-            document.getElementById('preview-capa-livro-nova').src = tempCapaLivroUrl;
-            document.getElementById('preview-capa-livro-nova').style.display = 'block';
-            document.getElementById('msg-sem-capa-livro').style.display = 'none';
-        }
-
-        fecharModal('modal-crop-image');
     };
 
     window.abrirSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); };
@@ -1642,7 +1556,6 @@
         });
     }
 
-    /* NOTIFICAÇÕES */
     function renderNotificationsDB(notifs) {
         const c = document.getElementById('container-pedidos');
         const badge = document.getElementById('badge-notificacoes-bottom');
@@ -1860,7 +1773,7 @@
         if(confirm("Remover documento?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'documentos',id));
     };
 
-    /* MÓDULO LIVRO DE RECEITAS COM ÍNDICE E SEÇÕES */
+    /* MÓDULO LIVRO DE RECEITAS */
     function renderizarLivrosReceitasGrelha() {
         const c = document.getElementById('container-grid-livros-receitas');
         if(!c) return;
@@ -1905,7 +1818,7 @@
         
         document.getElementById('receitas-view-livros').style.display = 'none';
         document.getElementById('receitas-view-reader').style.display = 'block';
-        document.getElementById('btn-fab-receitas-add').style.display = 'flex';
+        document.getElementById('btn-fab-receitas-add').style.display = 'inline-flex';
 
         const qRec = collection(db, 'artifacts', appId, 'users', userId, 'livros_receitas', livroId, 'itens');
         onSnapshot(qRec, s => {
@@ -1926,7 +1839,6 @@
         const c = document.getElementById('recipe-page-content-inside');
         const pageNum = document.getElementById('recipe-reader-page-num');
         
-        // PÁGINA 0 É O ÍNDICE
         if(currentRecipePageIndex === 0) {
             pageNum.innerText = "Índice do Livro";
             let catsHtml = '';
@@ -1947,7 +1859,7 @@
 
         const rIndex = currentRecipePageIndex - 1;
         if(receitasLivroAtual.length === 0 || !receitasLivroAtual[rIndex]) {
-            c.innerHTML = '<p style="text-align:center;color:#666;font-size:14px;padding-top:100px;">Nenhuma receita nesta página. Clica no botão "+" no canto inferior!</p>';
+            c.innerHTML = '<p style="text-align:center;color:#666;font-size:14px;padding-top:100px;">Nenhuma receita nesta página.</p>';
             pageNum.innerText = "Página Vazia";
             return;
         }
@@ -1984,9 +1896,7 @@
     };
 
     window.folhearPaginaReceita = (direcao) => {
-        const totalPaginas = receitasLivroAtual.length + 1; // +1 devido ao Índice
-        const reader = document.getElementById('book-reader-element');
-
+        const totalPaginas = receitasLivroAtual.length + 1;
         if(direcao === 1 && currentRecipePageIndex < totalPaginas - 1) {
             currentRecipePageIndex++;
             renderizarPaginaAtualLivro();
@@ -2126,8 +2036,8 @@
         document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
         document.getElementById('tab-'+n).classList.add('active'); 
 
-        document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'flex' : 'none';
-        document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'flex' : 'none';
+        document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'inline-flex' : 'none';
+        document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'inline-flex' : 'none';
     };
     
     let unsubDespesas = null;
@@ -2239,6 +2149,11 @@
     window.alterarModoDespesasSelect = (val) => {
         modoDespesasAtivo = val;
         document.getElementById('btn-liquidar-split-only').style.display = (val === 'splitwise') ? 'inline-flex' : 'none';
+        
+        // No modo simples oculta opções de split
+        const containerSplitBox = document.getElementById('container-campos-splitwise-mode');
+        if(containerSplitBox) containerSplitBox.style.display = (val === 'simples') ? 'none' : 'flex';
+
         renderizarDespesas(despesasData);
     };
     
@@ -2411,7 +2326,7 @@
     function renderizarTimelineEvents() {
         const container = document.getElementById('container-timeline-events');
         if(timelineEventsData.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão "+" no canto inferior direito!</p>';
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão no canto inferior direito!</p>';
             return;
         }
 
@@ -2491,25 +2406,29 @@
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim();
         const val = parseFloat(document.getElementById('exp-valor').value);
-        const uidP = document.getElementById('exp-pagador').value; 
-        const modo = document.getElementById('exp-modo-divisao').value;
         
-        let divididos = [];
+        let uidP = userId;
+        let modo = 'iguais';
+        let divididos = currentTripDoc.membros_uids;
         let quotasExatas = {};
 
-        if(modo === 'iguais') {
-            document.querySelectorAll('.chk-split-membro:checked').forEach(c => divididos.push(c.value));
-        } else {
-            let somaExata = 0;
-            document.querySelectorAll('.val-split-exato').forEach(inp => {
-                let v = parseFloat(inp.value) || 0;
-                if(v > 0) {
-                    let u = inp.getAttribute('data-uid');
-                    divididos.push(u);
-                    quotasExatas[u] = v;
-                    somaExata += v;
-                }
-            });
+        if(modoDespesasAtivo === 'splitwise') {
+            uidP = document.getElementById('exp-pagador').value; 
+            modo = document.getElementById('exp-modo-divisao').value;
+            divididos = [];
+
+            if(modo === 'iguais') {
+                document.querySelectorAll('.chk-split-membro:checked').forEach(c => divididos.push(c.value));
+            } else {
+                document.querySelectorAll('.val-split-exato').forEach(inp => {
+                    let v = parseFloat(inp.value) || 0;
+                    if(v > 0) {
+                        let u = inp.getAttribute('data-uid');
+                        divididos.push(u);
+                        quotasExatas[u] = v;
+                    }
+                });
+            }
         }
 
         if(!desc || !val || val<=0) return window.mostrarAlerta("Preenche a descrição e um valor válido.");
@@ -2534,15 +2453,9 @@
             timestamp: Date.now()
         }); 
 
-        currentTripDoc.membros_uids.forEach(mUid => {
-            if(mUid !== userId) {
-                criarNotificacaoDB(mUid, `${userName} adicionou a despesa "${desc}" (${val.toFixed(2)}€) na viagem "${currentTripDoc.nome}".`);
-            }
-        });
-
+        fecharModal('modal-nova-despesa');
         document.getElementById('exp-desc').value=''; 
         document.getElementById('exp-valor').value='';
-        fecharModal('modal-nova-despesa');
     };
     
     function renderizarDespesas(listaExp) {
@@ -2590,7 +2503,12 @@
             }
         });
 
-        document.getElementById('split-individual-debt-header').innerHTML = saldoIndividualTxt || '<span style="color:var(--text-muted)">Sem dívidas ativas</span>';
+        if(modoDespesasAtivo === 'splitwise') {
+            document.getElementById('split-individual-debt-header').innerHTML = saldoIndividualTxt || '<span style="color:var(--text-muted)">Sem dívidas ativas</span>';
+            document.getElementById('split-individual-debt-header').style.display = 'block';
+        } else {
+            document.getElementById('split-individual-debt-header').style.display = 'none';
+        }
 
         let lastDateHeader = "";
 
@@ -2605,39 +2523,53 @@
                 lastDateHeader = dateHeader;
             }
 
-            let isPagadorEu = (e.pagadorUid === userId);
-            let estaNaDivisaoEu = participantes.includes(userId);
-
-            let tagTexto = "", tagClasse = "", valTexto = "";
-
-            if(isPagadorEu) {
-                let emprestado = e.valor - (estaNaDivisaoEu ? quota : 0);
-                tagTexto = "emprestou";
-                tagClasse = "emprestou";
-                valTexto = `${emprestado.toFixed(2)} €`;
-            } else if(estaNaDivisaoEu) {
-                tagTexto = "emprestaram-lhe";
-                tagClasse = "emprestaram";
-                valTexto = `${quota.toFixed(2)} €`;
-            } else {
-                tagTexto = "não envolvido";
-                tagClasse = "";
-                valTexto = "0.00 €";
-            }
-
-            htmlD += `<div class="expense-item-split">
-                <div class="expense-left">
-                    <div class="expense-icon-box">${catInfo.icon}</div>
-                    <div class="expense-details">
-                        <span class="expense-title-txt">${e.desc}</span>
-                        <span class="expense-subtitle-txt">${isPagadorEu ? 'Pagou' : e.pagadorNome + ' pagou'} ${e.valor.toFixed(2)} €</span>
+            if(modoDespesasAtivo === 'simples') {
+                htmlD += `<div class="expense-item-split">
+                    <div class="expense-left">
+                        <div class="expense-icon-box">${catInfo.icon}</div>
+                        <div class="expense-details">
+                            <span class="expense-title-txt">${e.desc}</span>
+                        </div>
                     </div>
-                </div>
-                <div class="expense-right">
-                    <span class="expense-split-tag ${tagClasse}">${tagTexto}</span>
-                    <span class="expense-split-val ${tagClasse}">${valTexto}</span>
-                </div>
-            </div>`;
+                    <div class="expense-right">
+                        <span class="expense-split-val" style="color:var(--text-main);">${e.valor.toFixed(2)} €</span>
+                    </div>
+                </div>`;
+            } else {
+                let isPagadorEu = (e.pagadorUid === userId);
+                let estaNaDivisaoEu = participantes.includes(userId);
+
+                let tagTexto = "", tagClasse = "", valTexto = "";
+
+                if(isPagadorEu) {
+                    let emprestado = e.valor - (estaNaDivisaoEu ? quota : 0);
+                    tagTexto = "emprestou";
+                    tagClasse = "emprestou";
+                    valTexto = `${emprestado.toFixed(2)} €`;
+                } else if(estaNaDivisaoEu) {
+                    tagTexto = "emprestaram-lhe";
+                    tagClasse = "emprestaram";
+                    valTexto = `${quota.toFixed(2)} €`;
+                } else {
+                    tagTexto = "não envolvido";
+                    tagClasse = "";
+                    valTexto = "0.00 €";
+                }
+
+                htmlD += `<div class="expense-item-split">
+                    <div class="expense-left">
+                        <div class="expense-icon-box">${catInfo.icon}</div>
+                        <div class="expense-details">
+                            <span class="expense-title-txt">${e.desc}</span>
+                            <span class="expense-subtitle-txt">${isPagadorEu ? 'Pagou' : e.pagadorNome + ' pagou'} ${e.valor.toFixed(2)} €</span>
+                        </div>
+                    </div>
+                    <div class="expense-right">
+                        <span class="expense-split-tag ${tagClasse}">${tagTexto}</span>
+                        <span class="expense-split-val ${tagClasse}">${valTexto}</span>
+                    </div>
+                </div>`;
+            }
         });
 
         document.getElementById('container-despesas').innerHTML = htmlD || '<p style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px 0;">Sem despesas registadas.</p>';

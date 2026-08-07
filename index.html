@@ -174,7 +174,7 @@
     .logos-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:20px}
     .logo-card{background-color:#fff;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border-color);height:100px} .logo-card img{max-width:100%;max-height:100%;object-fit:contain}
     .cartao-desconto-container{width:100%;height:200px;background-color:var(--card-bg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;margin-bottom:15px;cursor:pointer;border:1px dashed var(--border-color);position:relative} .cartao-desconto-container img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2}
-    .textarea-obs{width:100%;height:100px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:none;margin-top:10px} .textarea-obs:focus{outline:none;border-color:var(--accent)}
+    .textarea-obs{width:100%;min-height:120px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:vertical;} .textarea-obs:focus{outline:none;border-color:var(--accent)}
 
     .stats-viagens{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:20px} 
     .stat-box{background-color:var(--card-bg);padding:15px 5px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} 
@@ -220,12 +220,11 @@
     }
 
     .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} 
-    .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} 
+    .trip-tab{flex:1;text-align:center;padding:10px;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} 
     .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} 
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
-    /* BARRA DE DESPESAS COM BOTÃO + À ESQUERDA */
     .splitwise-resumo-bar{
       display:flex;
       align-items:center;
@@ -343,7 +342,9 @@
     .splitwise-input:focus{outline:none;border-bottom-color:var(--accent)}
 
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
-    canvas{width:100% !important;max-height:180px}
+    
+    /* SVG CHARTS VETORIAIS HD */
+    .svg-chart{width:100%;height:160px;overflow:visible;}
 
     .books-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%}
     .book-cover-card{
@@ -388,7 +389,6 @@
       margin-bottom:10px;
     }
 
-    /* ESTILOS DE CARRO DA GARAGEM */
     .car-card-item{
       background:var(--card-bg);
       border-radius:16px;
@@ -399,6 +399,17 @@
     }
     .car-card-img{width:100%;height:160px;object-fit:cover}
     .car-card-info{padding:15px;display:flex;justify-content:space-between;align-items:center}
+    
+    .user-card{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:12px;
+      background-color:var(--card-bg);
+      padding:12px 15px;
+      border-radius:12px;
+      border:1px solid var(--border-color);
+    }
   </style>
 </head>
 <body>
@@ -657,10 +668,6 @@
               <span style="font-size:12px;color:var(--text-muted);" id="recipe-reader-page-num">Página 1</span>
             </div>
           </div>
-
-          <button class="btn-fab-simple" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
         </div>
 
         <!-- MÓDULO GARAGEM & VEÍCULOS -->
@@ -697,7 +704,6 @@
                 <h3 id="detalhe-carro-nome" style="margin:0;">Modelo</h3>
                 <span id="detalhe-carro-mat" style="font-size:12px;color:var(--text-muted);">Matrícula</span>
               </div>
-              <button class="btn-pill-splitwise" onclick="partilharCarroAtual()">🔗 Partilhar Carro</button>
             </div>
           </div>
 
@@ -709,6 +715,30 @@
 
           <div id="container-pastas-carro" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
           <div id="container-docs-carro" class="lista-itens"></div>
+        </div>
+
+        <!-- DEFINIÇÕES DO VEÍCULO -->
+        <div id="page-carro-edit" class="page">
+          <label style="font-size:12px;color:var(--text-muted);">Fotografia do Veículo:</label>
+          <button class="btn-acao" style="margin-bottom:15px;width:100%;" onclick="document.getElementById('input-direct-car-photo-existente').click()">📸 Alterar Fotografia</button>
+          <input type="file" id="input-direct-car-photo-existente" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCarroExistente(event)">
+
+          <button class="btn-pill-splitwise" style="margin-bottom:15px;background:#ff3b30;color:white;width:100%;justify-content:center;" onclick="removerFotoCarro()">🗑️ Remover Foto</button>
+
+          <label style="font-size:12px;color:var(--text-muted);">Modelo do Veículo:</label>
+          <input type="text" id="edit-car-nome" class="auth-input">
+
+          <label style="font-size:12px;color:var(--text-muted);">Matrícula:</label>
+          <input type="text" id="edit-car-mat" class="auth-input">
+
+          <h3>Partilhar Veículo</h3>
+          <div style="display:flex;gap:10px;margin-bottom:25px;">
+            <select id="car-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
+            <button class="btn-acao" onclick="adicionarMembroCarro()" style="width:100px;">Adicionar</button>
+          </div>
+
+          <button class="btn-acao" onclick="guardarAlteracoesCarro()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;margin-bottom:15px;">Guardar Alterações</button>
+          <button class="btn-acao" onclick="apagarCarroDB(currentCarroId)" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;">Apagar Veículo</button>
         </div>
 
         <!-- VIAGENS MAIN -->
@@ -768,6 +798,7 @@
 
           <div class="trip-tabs">
             <div class="trip-tab active" id="tab-btn-resumo" onclick="switchTripTab('resumo')">Resumo</div>
+            <div class="trip-tab" id="tab-btn-notas" onclick="switchTripTab('notas')">Notas</div>
             <div class="trip-tab" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeamento</div>
             <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Despesas</div>
           </div>
@@ -791,19 +822,22 @@
               <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
             </div>
 
-            <div class="dashboard-widget" style="margin-bottom:15px;">
-              <h4 style="margin:0 0 8px 0;font-size:14px;color:var(--accent);">Notas / Detalhes da Viagem</h4>
-              <textarea id="trip-detalhes-notes-text" class="textarea-obs" placeholder="Escreve detalhes importantes da viagem..." onchange="guardarNotasGeraisViagem()"></textarea>
-            </div>
-
             <div class="chart-container">
               <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
-              <canvas id="chart-linha-gastos"></canvas>
+              <div id="svg-chart-linha" style="width:100%;"></div>
             </div>
 
             <div class="chart-container">
               <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
-              <canvas id="chart-pie-categorias"></canvas>
+              <div id="svg-chart-pie" style="width:100%;"></div>
+            </div>
+          </div>
+
+          <!-- NOTAS -->
+          <div id="tab-notas" class="trip-tab-content">
+            <div class="dashboard-widget" style="margin-bottom:15px;">
+              <h4 style="margin:0 0 12px 0;font-size:15px;color:var(--accent);">Anotações e Detalhes da Viagem</h4>
+              <textarea id="trip-detalhes-notes-text" class="textarea-obs" style="min-height:300px;font-size:14px;line-height:1.6;" placeholder="Escreve aqui tudo o que precisares sem limite de linhas..." onchange="guardarNotasGeraisViagem()"></textarea>
             </div>
           </div>
 
@@ -1130,302 +1164,14 @@
     let timelineEventsData = [], tempEventFoto = "", despesasData = [];
     let livrosReceitasData = [], currentLivroId = null, receitasLivroAtual = [], categoriasIndiceLivro = [], currentRecipePageIndex = 0, tempRecipeFoto = "", tempCapaLivroUrl = "";
     let documentosList = [], pastasList = [];
-    let carrosData = [], currentCarroId = null, tempCarFoto = "", carDocsList = [], carPastasList = [];
+    let carrosData = [], currentCarroId = null, tempCarFoto = "", carDocsList = [], carPastasList = [], currentCarroDoc = null;
     let modoDespesasAtivo = 'splitwise';
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
     const iconBackArrow = `<svg class="icon-svg" style="width:22px;height:22px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
     const iconGear = `<div class="circle-icon-btn" onclick="navegarMenu('page-detalhes-viagem-edit')"><svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>`;
-
-    const pageTitles = {
-      'menu-principal': 'Início',
-      'menu-viagens': 'Viagens',
-      'menu-supermercados': 'Supermercados',
-      'menu-familia': 'Amigos',
-      'menu-receitas': 'Livro de Receitas',
-      'menu-documentos': 'Meus Documentos',
-      'menu-carros': 'Garagem',
-      'page-add-carro': 'Adicionar Veículo',
-      'page-detalhe-carro': 'Documentos do Veículo',
-      'menu-notificacoes': 'Notificações',
-      'menu-biblioteca': 'Biblioteca',
-      'menu-perfil': 'Perfil',
-      'menu-definicoes': 'Definições',
-      'menu-nova-viagem': 'Nova Viagem',
-      'page-detalhes-viagem-edit': 'Detalhes da Viagem',
-      'menu-super-logos': 'Lojas & Cartões',
-      'menu-compras-semanais': 'Lista Semanal',
-      'menu-compras-rapidas': 'Lista Rápida'
-    };
-
-    const mainPagesList = ['menu-principal', 'menu-viagens', 'menu-supermercados', 'menu-familia', 'menu-carros', 'menu-notificacoes', 'menu-biblioteca', 'menu-receitas', 'menu-documentos'];
-
-    const svgCategorias = {
-        cafe: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`,
-        restaurante: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"></path></svg>`,
-        supermercado: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`,
-        compras: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>`,
-        casa: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
-        gasolina: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 22V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18"></path><path d="M14 13h4a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h0"></path></svg>`,
-        hotel: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"></path><path d="M4 10V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"></path></svg>`,
-        lazer: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>`,
-        geral: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>`
-    };
-
-    function obterCategoriaPorTexto(txt) {
-        if(!txt) return { nome: 'Geral', icon: svgCategorias.geral };
-        const t = txt.toLowerCase();
-        if(t.includes('café') || t.includes('cafe') || t.includes('galão')) return { nome: 'Café', icon: svgCategorias.cafe };
-        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza') || t.includes('ubereats') || t.includes('uber eats') || t.includes('bolt food')) return { nome: 'Restauração', icon: svgCategorias.restaurante };
-        if(t.includes('supermercado') || t.includes('continente') || t.includes('pingo') || t.includes('lidl') || t.includes('auchan')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
-        if(t.includes('roupa') || t.includes('zara') || t.includes('compras') || t.includes('sapatos')) return { nome: 'Vestuário', icon: svgCategorias.compras };
-        if(t.includes('mobília') || t.includes('mobilia') || t.includes('casa') || t.includes('ikea') || t.includes('decoração')) return { nome: 'Casa & Mobília', icon: svgCategorias.casa };
-        if(t.includes('gasolina') || t.includes('combustível') || t.includes('gasóleo') || t.includes('posto') || t.includes('portagem') || t.includes('uber') || t.includes('bolt')) return { nome: 'Transportes', icon: svgCategorias.gasolina };
-        if(t.includes('hotel') || t.includes('airbnb') || t.includes('alojamento') || t.includes('quarto')) return { nome: 'Alojamento', icon: svgCategorias.hotel };
-        if(t.includes('bilhete') || t.includes('museu') || t.includes('bar') || t.includes('festa') || t.includes('gin')) return { nome: 'Lazer', icon: svgCategorias.lazer };
-        return { nome: 'Geral', icon: svgCategorias.geral };
-    }
-
-    window.atualizarIconeCategoriaAutomático = (val) => {
-        const cat = obterCategoriaPorTexto(val);
-        document.getElementById('exp-icon-box').innerHTML = cat.icon;
-    };
-
-    window.uploadFotoDiretaPerfil = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            userAvatarUrl = e.target.result;
-            renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
-            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
-            renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
-            if(document.getElementById('btn-remover-foto-perfil')) document.getElementById('btn-remover-foto-perfil').style.display = 'inline-flex';
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: userAvatarUrl }, { merge: true });
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.removerFotoPerfil = async () => {
-        if(confirm("Remover a tua foto de perfil?")) {
-            userAvatarUrl = "";
-            renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
-            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
-            renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
-            if(document.getElementById('btn-remover-foto-perfil')) document.getElementById('btn-remover-foto-perfil').style.display = 'none';
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: "" }, { merge: true });
-        }
-    };
-
-    window.uploadFotoDiretaCarro = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            tempCarFoto = e.target.result;
-            document.getElementById('preview-car-photo').src = tempCarFoto;
-            document.getElementById('preview-car-photo').style.display = 'block';
-            document.getElementById('msg-sem-car-photo').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.uploadFotoDiretaCapaNova = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            tempCapaUrl = e.target.result;
-            document.getElementById('preview-capa-viagem').src = tempCapaUrl;
-            document.getElementById('preview-capa-viagem').style.display = 'block';
-            document.getElementById('msg-sem-capa').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.uploadFotoDiretaCapaExistente = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const b64 = e.target.result;
-            document.getElementById('detalhe-viagem-img').src = b64;
-            await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { capa: b64 });
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.uploadFotoDiretaCapaLivro = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            tempCapaLivroUrl = e.target.result;
-            document.getElementById('preview-capa-livro-nova').src = tempCapaLivroUrl;
-            document.getElementById('preview-capa-livro-nova').style.display = 'block';
-            document.getElementById('msg-sem-capa-livro').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.toggleAuthMode = () => { 
-        isLoginMode = !isLoginMode; 
-        document.getElementById('auth-title').innerText = isLoginMode ? 'Entrar na App' : 'Criar Conta';
-        document.getElementById('btn-login-submit').innerText = isLoginMode ? 'Entrar' : 'Registar e Entrar';
-        document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
-    };
-
-    function obterIniciaisNome(nomeCompleto) {
-        if(!nomeCompleto) return "U";
-        const partes = nomeCompleto.trim().split(/\s+/);
-        if(partes.length === 1) return partes[0].charAt(0).toUpperCase();
-        return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
-    }
-
-    window.handleAuth = async () => {
-        const userTyped = document.getElementById('auth-username').value.trim(); 
-        const pass = document.getElementById('auth-password').value; 
-        const fakeEmail = userTyped.toLowerCase().replace(/[^a-z0-9]/g, '') + "@gestaogn.app";
-        if (!userTyped || !pass) return;
-        try { 
-            if (isLoginMode) {
-                await signInWithEmailAndPassword(auth, fakeEmail, pass);
-            } else { 
-                const cred = await createUserWithEmailAndPassword(auth, fakeEmail, pass); 
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), {
-                  uid: cred.user.uid, 
-                  username: userTyped, 
-                  searchName: userTyped.toLowerCase(),
-                  theme: 'dark',
-                  accentColor: '#FF6B00',
-                  avatarUrl: '',
-                  allowLocation: false,
-                  allowNotifications: false
-                }); 
-            }
-        } catch(e) { 
-            document.getElementById('auth-error').innerText = "Erro no Login. Verifica os dados."; 
-            document.getElementById('auth-error').style.display = 'block'; 
-        }
-    };
-
-    window.fazerLogout = async () => { 
-        unsusbscribes.forEach(f => f());
-        unsusbscribes = [];
-        fecharModal('modal-logout');
-        if (auth) await signOut(auth); 
-        else window.location.reload(); 
-    };
-
-    if (auth) {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid; 
-                try {
-                    const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId);
-                    const profileSnap = await getDoc(profileRef);
-                    if (profileSnap.exists()) { 
-                        const pData = profileSnap.data();
-                        userName = pData.username || "Utilizador"; 
-                        userAvatarUrl = pData.avatarUrl || "";
-                        
-                        document.getElementById('sidebar-account-name').innerText = userName; 
-                        document.getElementById('profile-page-name').innerText = userName; 
-                        
-                        renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
-                        renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
-                        renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
-
-                        if(document.getElementById('btn-remover-foto-perfil')) {
-                            document.getElementById('btn-remover-foto-perfil').style.display = (userAvatarUrl && userAvatarUrl.length > 5) ? 'inline-flex' : 'none';
-                        }
-
-                        if(pData.theme) aplicarTemaInterface(pData.theme);
-                        if(pData.accentColor) aplicarCorInterface(pData.accentColor);
-                        if(pData.allowLocation !== undefined) document.getElementById('switch-location').checked = pData.allowLocation;
-                        if(pData.allowNotifications !== undefined) document.getElementById('switch-notifications').checked = pData.allowNotifications;
-                    }
-                } catch(e){}
-
-                document.getElementById('auth-overlay').style.opacity = '0';
-                setTimeout(() => { 
-                    document.getElementById('auth-overlay').style.display = 'none'; 
-                    document.getElementById('app-container').style.display = 'flex'; 
-                    navegarMenu('menu-principal'); 
-                }, 400);
-
-                iniciarListenersFirebase();
-            } else { 
-                document.getElementById('auth-loading-state').style.display = 'none';
-                document.getElementById('auth-box-form').style.display = 'block';
-                document.getElementById('auth-overlay').style.display = 'flex';
-                document.getElementById('auth-overlay').style.opacity = '1';
-                document.getElementById('app-container').style.display = 'none'; 
-            }
-        });
-    }
-
-    function renderAvatarElement(elem, nome, urlFoto) {
-        if(!elem) return;
-        if(urlFoto && urlFoto.length > 5) {
-            elem.innerHTML = `<img src="${urlFoto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-        } else {
-            elem.innerHTML = `<span>${obterIniciaisNome(nome)}</span>`;
-        }
-    }
-
-    window.togglePermissaoLocalizacao = async (checked) => {
-        if(checked) {
-            if(navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    () => window.mostrarAlerta("Localização concedida!"),
-                    () => {
-                        document.getElementById('switch-location').checked = false;
-                        window.mostrarAlerta("Permissão de localização recusada.");
-                    }
-                );
-            }
-        }
-        if(userId && db) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowLocation: document.getElementById('switch-location').checked }, { merge: true });
-        }
-    };
-
-    window.togglePermissaoNotificacoes = async (checked) => {
-        if(checked) {
-            if ("Notification" in window) {
-                const permission = await Notification.requestPermission();
-                if (permission === "granted") {
-                    window.mostrarAlerta("Notificações Push ativadas!");
-                } else {
-                    document.getElementById('switch-notifications').checked = false;
-                    window.mostrarAlerta("Permissão de Notificações recusada.");
-                }
-            }
-        }
-        if(userId && db) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { allowNotifications: document.getElementById('switch-notifications').checked }, { merge: true });
-        }
-    };
-
-    window.abrirSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); };
-    window.fecharSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); };
-    window.toggleSubmenu = (idSub, idBase) => { const s = document.getElementById(idSub); if(s.style.display==='flex'){s.style.display='none'; if(idBase) navegarMenu(idBase);}else{s.style.display='flex';} };
-    
-    window.handleTopLeftClick = () => {
-        const currentPage = pageHistory[pageHistory.length - 1];
-        if(!mainPagesList.includes(currentPage)) {
-            window.voltarAtras();
-        } else {
-            abrirSidebar();
-        }
-    };
-
-    window.voltarAtras = () => {
-        if(pageHistory.length > 1) {
-            pageHistory.pop();
-            const pageAnterior = pageHistory[pageHistory.length - 1];
-            navegarMenu(pageAnterior, true);
-        } else {
-            navegarMenu('menu-principal', true);
-        }
-    };
+    const iconCarGear = `<div class="circle-icon-btn" onclick="navegarMenu('page-carro-edit')"><svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>`;
 
     window.navegarMenu = (idPagina, isBack=false) => {
         window.fecharSidebar(); 
@@ -1448,6 +1194,10 @@
             topLeftBtn.innerHTML = iconBackArrow;
             topTitle.innerText = currentTripDoc ? currentTripDoc.nome : 'Viagem';
             gearContainer.innerHTML = iconGear;
+        } else if(idPagina === 'page-detalhe-carro') {
+            topLeftBtn.innerHTML = iconBackArrow;
+            topTitle.innerText = currentCarroDoc ? currentCarroDoc.nome : 'Veículo';
+            gearContainer.innerHTML = iconCarGear;
         } else if(!mainPagesList.includes(idPagina)) {
             topLeftBtn.innerHTML = iconBackArrow;
             topTitle.innerText = pageTitles[idPagina] || 'Menu';
@@ -1463,6 +1213,183 @@
             marcarNotificacoesLidas();
         }
     };
+
+    /* GARAGEM */
+    window.abrirDetalheCarro = (id) => {
+        currentCarroId = id;
+        currentCarroDoc = carrosData.find(c => c.id === id);
+        if(!currentCarroDoc) return;
+
+        document.getElementById('detalhe-carro-nome').innerText = currentCarroDoc.nome;
+        document.getElementById('detalhe-carro-mat').innerText = currentCarroDoc.matricula || 'Sem matrícula';
+        document.getElementById('detalhe-carro-img').src = currentCarroDoc.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf';
+
+        document.getElementById('edit-car-nome').value = currentCarroDoc.nome || '';
+        document.getElementById('edit-car-mat').value = currentCarroDoc.matricula || '';
+
+        window.navegarMenu('page-detalhe-carro');
+
+        onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'carros', id, 'documentos'), s => {
+            carDocsList = []; s.forEach(d => carDocsList.push({id:d.id, ...d.data()}));
+            renderizarCarDocs();
+        });
+
+        onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'carros', id, 'pastas'), s => {
+            carPastasList = []; s.forEach(d => carPastasList.push({id:d.id, ...d.data()}));
+            renderizarCarPastas();
+        });
+    };
+
+    window.guardarAlteracoesCarro = async () => {
+        const novoNome = document.getElementById('edit-car-nome').value.trim();
+        const novaMat = document.getElementById('edit-car-mat').value.trim();
+        if(!novoNome) return window.mostrarAlerta("Insere um modelo válido.");
+
+        await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId), {
+            nome: novoNome,
+            matricula: novaMat
+        });
+        window.voltarAtras();
+    };
+
+    window.uploadFotoDiretaCarroExistente = (ev) => {
+        const file = ev.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const b64 = e.target.result;
+            document.getElementById('detalhe-carro-img').src = b64;
+            await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId), { foto: b64 });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.removerFotoCarro = async () => {
+        if(confirm("Remover foto do veículo?")) {
+            await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId), { foto: "" });
+            document.getElementById('detalhe-carro-img').src = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf';
+        }
+    };
+
+    /* ORDENAÇÃO DO PLANEAMENTO DAS 00:00 ÀS 23:59 */
+    function renderizarTimelineEvents() {
+        const container = document.getElementById('container-timeline-events');
+        if(!container) return;
+        if(timelineEventsData.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão acima!</p>';
+            return;
+        }
+
+        timelineEventsData.sort((a,b) => {
+            let horaA = a.hora || '00:00';
+            let horaB = b.hora || '00:00';
+            let keyA = (a.data || '9999-12-31') + ' ' + horaA;
+            let keyB = (b.data || '9999-12-31') + ' ' + horaB;
+            return keyA.localeCompare(keyB);
+        });
+
+        let html = '';
+        timelineEventsData.forEach(ev => {
+            html += `<div class="timeline-item">
+                <div class="timeline-header">
+                    <span class="timeline-time">${ev.data || ''} ${ev.hora ? '• ' + ev.hora : ''}</span>
+                    <div style="display:flex;gap:5px;">
+                        <button class="btn-icon-list" onclick="prepararEditarEvento('${ev.id}')">${iconEdit}</button>
+                        <button class="btn-icon-list" onclick="apagarEventoTimeline('${ev.id}')">${iconTrash}</button>
+                    </div>
+                </div>
+                <div class="timeline-title">${ev.titulo}</div>
+                ${ev.notas ? `<div class="timeline-notes">${ev.notas}</div>` : ''}
+                ${ev.foto ? `<img src="${ev.foto}" class="timeline-img">` : ''}
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    /* GRÁFICOS SVG PURE HD / VETORIAIS */
+    function renderizarGraficosResumo(listaDespesas) {
+        const divL = document.getElementById('svg-chart-linha');
+        if(divL) {
+            let gastosPorDia = {};
+            listaDespesas.forEach(d => {
+                let dia = d.dataStr || 'Hoje';
+                gastosPorDia[dia] = (gastosPorDia[dia] || 0) + d.valor;
+            });
+
+            let diasKeys = Object.keys(gastosPorDia);
+            if(diasKeys.length === 0) diasKeys = ['Sem dados'];
+
+            let maxGasto = Math.max(...Object.values(gastosPorDia), 10);
+            let width = 300, height = 140, paddingLeft = 35, paddingBottom = 25;
+            let widthChart = width - paddingLeft - 10, heightChart = height - paddingBottom - 10;
+            let stepX = widthChart / Math.max(diasKeys.length - 1, 1);
+
+            let points = [];
+            diasKeys.forEach((dia, idx) => {
+                let val = gastosPorDia[dia] || 0;
+                let x = paddingLeft + (idx * stepX);
+                let y = (heightChart + 10) - ((val / maxGasto) * heightChart);
+                points.push(`${x},${y}`);
+            });
+
+            let svgHtml = `<svg class="svg-chart" viewBox="0 0 ${width} ${height}">
+                <line x1="${paddingLeft}" y1="10" x2="${paddingLeft}" y2="${heightChart + 10}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                <line x1="${paddingLeft}" y1="${heightChart + 10}" x2="${width - 10}" y2="${heightChart + 10}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                <text x="5" y="15" fill="rgba(255,255,255,0.5)" font-size="9">${Math.round(maxGasto)}€</text>
+                <text x="12" y="${heightChart + 10}" fill="rgba(255,255,255,0.5)" font-size="9">0€</text>
+                <polyline fill="none" stroke="var(--accent)" stroke-width="3" points="${points.join(' ')}"/>
+            `;
+
+            diasKeys.forEach((dia, idx) => {
+                let x = paddingLeft + (idx * stepX);
+                svgHtml += `<text x="${x - 10}" y="${heightChart + 22}" fill="rgba(255,255,255,0.5)" font-size="9">${dia.substring(0,5)}</text>`;
+            });
+
+            svgHtml += `</svg>`;
+            divL.innerHTML = svgHtml;
+        }
+
+        const divP = document.getElementById('svg-chart-pie');
+        if(divP) {
+            let porCat = {};
+            listaDespesas.forEach(d => {
+                let c = d.categoria || 'Geral';
+                porCat[c] = (porCat[c] || 0) + d.valor;
+            });
+
+            let total = Object.values(porCat).reduce((a,b)=>a+b, 0);
+            if(total === 0) { porCat = {'Sem dados': 1}; total = 1; }
+
+            const cores = ['#FF6B00', '#007AFF', '#28CD41', '#AF52DE', '#FF3B30', '#FFCC00'];
+            let cx = 60, cy = 70, r = 45;
+            let currentAngle = 0;
+
+            let svgPie = `<svg class="svg-chart" viewBox="0 0 300 140">`;
+
+            Object.keys(porCat).forEach((cat, idx) => {
+                let val = porCat[cat];
+                let sliceAngle = (val / total) * 2 * Math.PI;
+                let x1 = cx + r * Math.cos(currentAngle);
+                let y1 = cy + r * Math.sin(currentAngle);
+                let x2 = cx + r * Math.cos(currentAngle + sliceAngle);
+                let y2 = cy + r * Math.sin(currentAngle + sliceAngle);
+                let largeArc = sliceAngle > Math.PI ? 1 : 0;
+
+                let pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                let cor = cores[idx % cores.length];
+
+                svgPie += `<path d="${pathData}" fill="${cor}"/>`;
+                
+                let legendY = 25 + (idx * 18);
+                svgPie += `<rect x="130" y="${legendY - 8}" width="10" height="10" rx="2" fill="${cor}"/>`;
+                svgPie += `<text x="148" y="${legendY}" fill="rgba(255,255,255,0.8)" font-size="11" font-family="Poppins">${cat}: ${val.toFixed(2)}€</text>`;
+
+                currentAngle += sliceAngle;
+            });
+
+            svgPie += `</svg>`;
+            divP.innerHTML = svgPie;
+        }
+    }
 
     let touchStartX=0, touchStartY=0;
     document.addEventListener('touchstart', e => { touchStartX=e.changedTouches[0].screenX; touchStartY=e.changedTouches[0].screenY; }, {passive:true});
@@ -1718,147 +1645,6 @@
     window.toggleItemDB = async (col, docId, est) => await updateDoc(doc(db,'artifacts',appId,'users',userId,col,docId), {feita:est}); 
     window.apagarItemDB = async (col, docId) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,col,docId));
 
-    /* GARAGEM REESTRUTURADA */
-    window.adicionarCarroDB = async () => {
-        const nome = document.getElementById('input-carro-nome').value.trim();
-        const mat = document.getElementById('input-carro-mat').value.trim();
-        if(!nome) return window.mostrarAlerta("Preenche pelo menos o nome/modelo do veículo.");
-        
-        await addDoc(collection(db,'artifacts',appId,'users',userId,'carros'), { 
-            nome: nome, 
-            matricula: mat, 
-            foto: tempCarFoto || "",
-            timestamp: Date.now() 
-        });
-        
-        document.getElementById('input-carro-nome').value = '';
-        document.getElementById('input-carro-mat').value = '';
-        document.getElementById('preview-car-photo').style.display = 'none';
-        document.getElementById('msg-sem-car-photo').style.display = 'block';
-        tempCarFoto = "";
-        
-        window.voltarAtras();
-    };
-
-    function renderCarrosDB(carros) {
-        const c = document.getElementById('container-lista-carros');
-        if(!c) return;
-        if(carros.length === 0) { c.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);padding:20px 0;">Sem veículos registados. Clica em "+ Adicionar Veículo".</p>'; return; }
-        let h = '';
-        carros.forEach(car => {
-            h += `<div class="car-card-item" onclick="abrirDetalheCarro('${car.id}')">
-                <img src="${car.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf'}" class="car-card-img">
-                <div class="car-card-info">
-                    <div>
-                        <div style="font-weight:600;font-size:15px;">${car.nome}</div>
-                        ${car.matricula ? `<div style="font-size:12px;color:var(--text-muted);">${car.matricula}</div>` : ''}
-                    </div>
-                    <button class="btn-icon-list" onclick="event.stopPropagation(); apagarCarroDB('${car.id}')">${iconTrash}</button>
-                </div>
-            </div>`;
-        });
-        c.innerHTML = h;
-    }
-
-    window.abrirDetalheCarro = (id) => {
-        currentCarroId = id;
-        const carro = carrosData.find(c => c.id === id);
-        if(!carro) return;
-
-        document.getElementById('detalhe-carro-nome').innerText = carro.nome;
-        document.getElementById('detalhe-carro-mat').innerText = carro.matricula || 'Sem matrícula';
-        document.getElementById('detalhe-carro-img').src = carro.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf';
-
-        window.navegarMenu('page-detalhe-carro');
-
-        onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'carros', id, 'documentos'), s => {
-            carDocsList = []; s.forEach(d => carDocsList.push({id:d.id, ...d.data()}));
-            renderizarCarDocs();
-        });
-
-        onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'carros', id, 'pastas'), s => {
-            carPastasList = []; s.forEach(d => carPastasList.push({id:d.id, ...d.data()}));
-            renderizarCarPastas();
-        });
-    };
-
-    window.criarPastaCarro = async () => {
-        const nome = document.getElementById('input-nome-pasta-carro').value.trim();
-        if(!nome || !currentCarroId) return;
-        await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'pastas'), {
-            nome: nome,
-            timestamp: Date.now()
-        });
-        fecharModal('modal-criar-pasta-carro');
-        document.getElementById('input-nome-pasta-carro').value = '';
-    };
-
-    window.uploadDocumentoCarro = async (ev) => {
-        const file = ev.target.files[0];
-        if(!file || !currentCarroId) return;
-
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'documentos'), {
-                nome: file.name,
-                tipo: file.type,
-                conteudo: e.target.result,
-                timestamp: Date.now()
-            });
-            window.mostrarAlerta(`Ficheiro "${file.name}" associado ao veículo com sucesso.`);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    function renderizarCarPastas() {
-        const c = document.getElementById('container-pastas-carro');
-        if(!c) return;
-        let h = '';
-        carPastasList.forEach(p => {
-            h += `<div class="btn-acao" style="font-size:12px;justify-content:space-between;">
-                <span>📁 ${p.nome}</span>
-                <button class="btn-icon-list" onclick="apagarPastaCarro('${p.id}')">${iconTrash}</button>
-            </div>`;
-        });
-        c.innerHTML = h;
-    }
-
-    function renderizarCarDocs() {
-        const c = document.getElementById('container-docs-carro');
-        if(!c) return;
-        if(carDocsList.length === 0) {
-            c.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Sem ficheiros anexados a este veículo.</p>';
-            return;
-        }
-        let h = '';
-        carDocsList.forEach(d => {
-            h += `<div class="doc-item-card">
-                <svg class="icon-svg" style="width:20px;height:20px;margin:0;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                <div style="flex:1;overflow:hidden;">
-                    <div style="font-size:13px;font-weight:600;" class="expense-title-txt">${d.nome}</div>
-                </div>
-                <button class="btn-icon-list" onclick="apagarDocCarro('${d.id}')">${iconTrash}</button>
-            </div>`;
-        });
-        c.innerHTML = h;
-    }
-
-    window.apagarPastaCarro = async (pId) => {
-        if(confirm("Apagar pasta do veículo?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'pastas', pId));
-    };
-
-    window.apagarDocCarro = async (dId) => {
-        if(confirm("Apagar documento do veículo?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'documentos', dId));
-    };
-
-    window.partilharCarroAtual = () => {
-        window.mostrarAlerta("Documentos do Veículo partilhados com a tua rede de amigos.");
-    };
-
-    window.apagarCarroDB = async (carId) => {
-        if(confirm("Remover este veículo?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'carros',carId));
-    };
-
     const lojas = [ {id:'continente',nome:'Continente',logo:'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg',link:'https://folhetos.continente.pt/'}, {id:'pingodoce',nome:'Pingo Doce',logo:'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg',link:'https://www.pingodoce.pt/folhetos/'}, {id:'lidl',nome:'Lidl',logo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png',link:'https://www.lidl.pt/folhetos'}, {id:'auchan',nome:'Auchan',logo:'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg',link:'https://www.auchan.pt/pt/folhetos/'}, {id:'intermarche',nome:'Intermarché',logo:'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg',link:'https://www.intermarche.pt/folhetos/'} ];
     let hl=''; lojas.forEach(l => hl+=`<div class="logo-card" onclick="abrirDetalheSupermercado('${l.id}')"><img src="${l.logo}"></div>`); document.getElementById('container-logos').innerHTML=hl;
     
@@ -1908,7 +1694,7 @@
         if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} 
         let h=''; 
         amigos.forEach(a => {
-            h+=`<div class="user-card" style="justify-content:flex-start;gap:12px;"><div class="user-avatar-custom" style="width:34px;height:34px;font-size:12px;flex-shrink:0;">`;
+            h+=`<div class="user-card"><div class="user-avatar-custom" style="width:34px;height:34px;font-size:12px;flex-shrink:0;">`;
             if(a.avatarUrl) {
                 h+=`<img src="${a.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
             } else {
@@ -2250,15 +2036,15 @@
 
     window.switchTripTab = (n) => { 
         document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); 
-        document.getElementById('tab-btn-'+n).classList.add('active'); 
+        if(document.getElementById('tab-btn-'+n)) document.getElementById('tab-btn-'+n).classList.add('active'); 
         document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
-        document.getElementById('tab-'+n).classList.add('active'); 
+        if(document.getElementById('tab-'+n)) document.getElementById('tab-'+n).classList.add('active'); 
     };
     
     let unsubDespesas = null;
     let unsubTimeline = null;
 
-    /* ABERTURA TOTALMENTE DEFENSIVA E ROBUSTA DAS VIAGENS */
+    /* ABERTURA PROTEGIDA DAS VIAGENS */
     window.abrirDetalheViagem = (id) => {
         currentTripId = id; 
         currentTripDoc = viagensData.find(v => v.id === id); 
@@ -2268,15 +2054,13 @@
         if(elTit) elTit.innerText = currentTripDoc.nome || '';
         
         const elImg = document.getElementById('detalhe-viagem-img');
-        if(elImg) elImg.src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
+        if(elImg) elImg.src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
         
         const elDatas = document.getElementById('detalhe-viagem-datas');
         if(elDatas) elDatas.innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
         
         const elCount = document.getElementById('detalhe-viagem-pessoas-count');
-        if(elCount) {
-            elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
-        }
+        if(elCount) elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
 
         const inNome = document.getElementById('edit-trip-nome');
         if(inNome) inNome.value = currentTripDoc.nome || '';
@@ -2478,206 +2262,6 @@
             if(document.getElementById('summary-pagamento-membros')) document.getElementById('summary-pagamento-membros').innerHTML = htmlMembros;
         }
     }
-
-    function renderizarGraficosResumo(listaDespesas) {
-        const dpr = window.devicePixelRatio || 1;
-
-        const canvasL = document.getElementById('chart-linha-gastos');
-        if(canvasL && canvasL.parentElement) {
-            const ctxL = canvasL.getContext('2d');
-            const rectL = canvasL.parentElement.getBoundingClientRect();
-            
-            canvasL.width = (rectL.width - 30) * dpr;
-            canvasL.height = 150 * dpr;
-            ctxL.scale(dpr, dpr);
-            
-            ctxL.clearRect(0,0,rectL.width - 30,150);
-
-            let gastosPorDia = {};
-            listaDespesas.forEach(d => {
-                let dia = d.dataStr || 'Hoje';
-                gastosPorDia[dia] = (gastosPorDia[dia] || 0) + d.valor;
-            });
-
-            let diasKeys = Object.keys(gastosPorDia);
-            if(diasKeys.length === 0) diasKeys = ['Sem dados'];
-
-            let maxGasto = Math.max(...Object.values(gastosPorDia), 10);
-            let paddingLeft = 35, paddingBottom = 25, widthChart = (rectL.width - 30) - paddingLeft - 10, heightChart = 150 - paddingBottom - 10;
-
-            ctxL.strokeStyle = 'rgba(255,255,255,0.1)';
-            ctxL.lineWidth = 1;
-            ctxL.beginPath();
-            ctxL.moveTo(paddingLeft, 10);
-            ctxL.lineTo(paddingLeft, heightChart + 10);
-            ctxL.lineTo(paddingLeft + widthChart, heightChart + 10);
-            ctxL.stroke();
-
-            ctxL.fillStyle = 'rgba(255,255,255,0.5)';
-            ctxL.font = '10px Poppins';
-            ctxL.fillText(Math.round(maxGasto) + '€', 2, 15);
-            ctxL.fillText('0€', 12, heightChart + 10);
-
-            let stepX = widthChart / Math.max(diasKeys.length - 1, 1);
-            ctxL.strokeStyle = '#FF6B00';
-            ctxL.lineWidth = 2.5;
-            ctxL.beginPath();
-
-            diasKeys.forEach((dia, idx) => {
-                let val = gastosPorDia[dia] || 0;
-                let x = paddingLeft + (idx * stepX);
-                let y = (heightChart + 10) - ((val / maxGasto) * heightChart);
-
-                if(idx === 0) ctxL.moveTo(x, y);
-                else ctxL.lineTo(x, y);
-
-                ctxL.fillStyle = 'rgba(255,255,255,0.5)';
-                ctxL.fillText(dia.substring(0,5), x - 10, heightChart + 22);
-            });
-            ctxL.stroke();
-        }
-
-        const canvasP = document.getElementById('chart-pie-categorias');
-        if(canvasP && canvasP.parentElement) {
-            const ctxP = canvasP.getContext('2d');
-            const rectP = canvasP.parentElement.getBoundingClientRect();
-
-            canvasP.width = (rectP.width - 30) * dpr;
-            canvasP.height = 150 * dpr;
-            ctxP.scale(dpr, dpr);
-
-            ctxP.clearRect(0,0,rectP.width - 30,150);
-
-            let porCat = {};
-            listaDespesas.forEach(d => {
-                let c = d.categoria || 'Geral';
-                porCat[c] = (porCat[c] || 0) + d.valor;
-            });
-
-            let total = Object.values(porCat).reduce((a,b)=>a+b, 0);
-            if(total === 0) { porCat = {'Sem dados': 1}; total = 1; }
-
-            const cores = ['#FF6B00', '#007AFF', '#28CD41', '#AF52DE', '#FF3B30', '#FFCC00'];
-            let startAngle = 0;
-            let centerX = (rectP.width - 30) / 3, centerY = 75, radius = 50;
-
-            Object.keys(porCat).forEach((cat, idx) => {
-                let val = porCat[cat];
-                let sliceAngle = (val / total) * 2 * Math.PI;
-
-                ctxP.fillStyle = cores[idx % cores.length];
-                ctxP.beginPath();
-                ctxP.moveTo(centerX, centerY);
-                ctxP.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-                ctxP.closePath();
-                ctxP.fill();
-
-                let legendY = 25 + (idx * 20);
-                ctxP.fillRect((rectP.width - 30) / 2 + 10, legendY - 8, 10, 10);
-                ctxP.fillStyle = 'rgba(255,255,255,0.8)';
-                ctxP.font = '11px Poppins';
-                ctxP.fillText(`${cat}: ${val.toFixed(2)}€`, (rectP.width - 30) / 2 + 26, legendY);
-
-                startAngle += sliceAngle;
-            });
-        }
-    }
-
-    /* PLANEAMENTO */
-    window.processarFotoEvento = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image(); img.onload = () => {
-                const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height;
-                if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h;
-                canvas.getContext('2d').drawImage(img,0,0,w,h);
-                tempEventFoto = canvas.toDataURL('image/jpeg',0.6);
-                document.getElementById('preview-event-foto').src = tempEventFoto;
-                document.getElementById('preview-event-foto').style.display = 'block';
-            }; img.src = e.target.result;
-        }; reader.readAsDataURL(file);
-    };
-
-    function renderizarTimelineEvents() {
-        const container = document.getElementById('container-timeline-events');
-        if(!container) return;
-        if(timelineEventsData.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão acima!</p>';
-            return;
-        }
-
-        timelineEventsData.sort((a,b) => {
-            let keyA = (a.data || '') + ' ' + (a.hora || '');
-            let keyB = (b.data || '') + ' ' + (b.hora || '');
-            return keyA.localeCompare(keyB);
-        });
-
-        let html = '';
-        timelineEventsData.forEach(ev => {
-            html += `<div class="timeline-item">
-                <div class="timeline-header">
-                    <span class="timeline-time">${ev.data || ''} ${ev.hora ? '• ' + ev.hora : ''}</span>
-                    <div style="display:flex;gap:5px;">
-                        <button class="btn-icon-list" onclick="prepararEditarEvento('${ev.id}')">${iconEdit}</button>
-                        <button class="btn-icon-list" onclick="apagarEventoTimeline('${ev.id}')">${iconTrash}</button>
-                    </div>
-                </div>
-                <div class="timeline-title">${ev.titulo}</div>
-                ${ev.notas ? `<div class="timeline-notes">${ev.notas}</div>` : ''}
-                ${ev.foto ? `<img src="${ev.foto}" class="timeline-img">` : ''}
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-
-    window.guardarEventoTimeline = async () => {
-        const evId = document.getElementById('edit-event-id').value;
-        const dt = document.getElementById('input-event-data').value;
-        const hr = document.getElementById('input-event-hora').value;
-        const tit = document.getElementById('input-event-titulo').value.trim();
-        const nts = document.getElementById('input-event-notas').value.trim();
-
-        if(!tit) return window.mostrarAlerta("Insere um título ou localização.");
-
-        const payload = { data: dt, hora: hr, titulo: tit, notas: nts, foto: tempEventFoto || "", timestamp: Date.now() };
-
-        if(evId) {
-            await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline',evId), payload);
-        } else {
-            await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline'), payload);
-        }
-
-        fecharModal('modal-novo-evento');
-        document.getElementById('edit-event-id').value = '';
-        document.getElementById('input-event-titulo').value = '';
-        document.getElementById('input-event-notas').value = '';
-        document.getElementById('preview-event-foto').style.display = 'none';
-        tempEventFoto = "";
-    };
-
-    window.prepararEditarEvento = (id) => {
-        const ev = timelineEventsData.find(x => x.id === id);
-        if(!ev) return;
-        document.getElementById('edit-event-id').value = ev.id;
-        document.getElementById('input-event-data').value = ev.data || '';
-        document.getElementById('input-event-hora').value = ev.hora || '';
-        document.getElementById('input-event-titulo').value = ev.titulo || '';
-        document.getElementById('input-event-notas').value = ev.notas || '';
-        if(ev.foto) {
-            tempEventFoto = ev.foto;
-            document.getElementById('preview-event-foto').src = ev.foto;
-            document.getElementById('preview-event-foto').style.display = 'block';
-        }
-        document.getElementById('modal-evento-titulo-header').innerText = "Editar Passo";
-        abrirModal('modal-novo-evento');
-    };
-
-    window.apagarEventoTimeline = async (id) => {
-        if(confirm("Apagar esta atividade?")) {
-            await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'timeline',id));
-        }
-    };
 
     /* DESPESAS */
     window.adicionarDespesa = async () => {

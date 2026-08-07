@@ -300,7 +300,6 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE SIMPLES FIXO SOBRE A BARRA DA BIBLIOTECA */
     .btn-fab-simple{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 15px) !important;
@@ -358,13 +357,7 @@
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
     canvas{width:100% !important;max-height:180px}
 
-    /* ESTILOS LIVRO DE RECEITAS */
-    .books-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:15px;
-      width:100%;
-    }
+    .books-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%}
     .book-cover-card{
       background:var(--card-bg);
       border-radius:12px;
@@ -377,23 +370,8 @@
       height:200px;
       box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
     }
-    .book-cover-img{
-      width:100%;
-      height:140px;
-      object-fit:cover;
-      background:var(--accent);
-    }
-    .book-cover-title{
-      padding:10px;
-      font-size:13px;
-      font-weight:600;
-      color:var(--text-main);
-      text-align:center;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:1;
-    }
+    .book-cover-img{width:100%;height:140px;object-fit:cover;background:var(--accent)}
+    .book-cover-title{padding:10px;font-size:13px;font-weight:600;color:var(--text-main);text-align:center;display:flex;align-items:center;justify-content:center;flex:1}
 
     .recipe-book-reader{
       background:#FFFFFF;
@@ -407,14 +385,7 @@
       overflow:hidden;
     }
 
-    .recipe-page-touch-left, .recipe-page-touch-right{
-      position:absolute;
-      top:0;
-      bottom:0;
-      width:50%;
-      z-index:5;
-      cursor:pointer;
-    }
+    .recipe-page-touch-left, .recipe-page-touch-right{position:absolute;top:0;bottom:0;width:50%;z-index:5;cursor:pointer}
     .recipe-page-touch-left{ left:0 }
     .recipe-page-touch-right{ right:0 }
 
@@ -597,7 +568,7 @@
             <span style="font-size:12px;color:var(--text-muted);">Conta Pessoal</span>
           </div>
 
-          <div class="dashboard-widget" style="display:flex;align-items:center;justify-content:space-between;padding:18px 25px;cursor:pointer;" onclick="navegarMenu('menu-familia')">
+          <div class="dashboard-widget" style="display:flex;align-items:center;justify-style:space-between;padding:18px 25px;cursor:pointer;" onclick="navegarMenu('menu-familia')">
             <span style="font-size:14px;font-weight:500;">Amigos</span>
             <span class="stat-num" id="profile-friends-count">0</span>
           </div>
@@ -2033,7 +2004,7 @@
         }
     };
 
-    /* VIAGENS - CORREÇÃO DE ACESSO AOS DETALHES DA VIAGEM */
+    /* VIAGENS */
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); 
         if(!c) return;
@@ -2102,7 +2073,7 @@
     let unsubDespesas = null;
     let unsubTimeline = null;
 
-    window.abrirDetalheViagem = async (id) => {
+    window.abrirDetalheViagem = (id) => {
         currentTripId = id; 
         currentTripDoc = viagensData.find(v => v.id === id); 
         if(!currentTripDoc) return;

@@ -37,7 +37,24 @@
       --nav-grad-mid: rgba(242,242,242,0.85);
       --nav-grad-end: rgba(242,242,242,0);
     }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    
+    /* BLOQUEIO DE SELEÇÃO DE TEXTO PARA SINTONIA NATIVA */
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    input, textarea, select {
+      -webkit-user-select: text !important;
+      -moz-user-select: text !important;
+      -ms-user-select: text !important;
+      user-select: text !important;
+    }
+
     body{font-family:'Poppins',sans-serif;background-color:var(--bg-color);color:var(--text-main);margin:0;padding:0;display:flex;min-height:100vh;overflow-x:hidden;transition:background-color 0.3s,color 0.3s}
     
     #auth-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;transition:opacity 0.5s}
@@ -56,7 +73,7 @@
     
     .top-app-bar{width:100%;max-width:600px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 20px 10px 20px;display:flex;align-items:center;justify-content:space-between;z-index:8000;background:var(--bg-color)}
     .top-left-btn{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:34px;height:34px}
-    .top-profile-avatar{width:34px;height:34px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;border:1px solid var(--border-color)}
+    .top-profile-avatar{width:34px;height:34px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;border:1px solid var(--border-color);overflow:hidden}
     .top-title{font-weight:600;font-size:16px;letter-spacing:0.5px;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
 
     .page-container{flex:1;padding:10px 20px calc(var(--bottom-nav-height) + 20px) 20px;width:100%;max-width:600px;margin:0 auto;display:flex;flex-direction:column;align-items:center;overflow-y:auto;position:relative;}
@@ -154,7 +171,7 @@
     .viagem-header-card{
       position:relative;
       width:100%;
-      height:210px;
+      height:180px;
       border-radius:16px;
       overflow:hidden;
       margin-bottom:15px;
@@ -168,27 +185,11 @@
       background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.5) 100%);
       display:flex;
       flex-direction:column;
-      justify-content:space-between;
+      justify-content:flex-end;
       padding:15px;
     }
 
-    .viagem-hero-top-btns{display:flex;justify-content:flex-end;align-items:center;z-index:10}
-    .circle-icon-btn{
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      background:rgba(0,0,0,0.5);
-      backdrop-filter:blur(8px);
-      -webkit-backdrop-filter:blur(8px);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      cursor:pointer;
-      border:1px solid rgba(255,255,255,0.15);
-    }
-    .viagem-hero-content{display:flex;flex-direction:column;gap:8px;margin-top:auto}
-    .viagem-hero-title{font-size:22px;font-weight:700;color:white;margin:0;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.6)}
+    .viagem-hero-content{display:flex;flex-direction:column;gap:8px}
     .viagem-hero-badges{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .viagem-pill-badge{
       background:rgba(255,255,255,0.15);
@@ -282,28 +283,6 @@
     .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
-    
-    /* BOTÃO FLUTUANTE SIMPLES COR SECUNDÁRIA FIXO EM RELAÇÃO À BARRA DA BIBLIOTECA */
-    .btn-fab-simple{
-      position:fixed !important;
-      bottom:calc(var(--bottom-nav-height) + 15px) !important;
-      right:calc((100vw - min(100vw, 600px)) / 2 + 25px) !important;
-      width:52px !important;
-      height:52px !important;
-      border-radius:50% !important;
-      background-color:var(--accent) !important;
-      color:#121212 !important;
-      display:none;
-      align-items:center !important;
-      justify-content:center !important;
-      box-shadow:0 8px 25px rgba(0,0,0,0.5) !important;
-      border:none !important;
-      cursor:pointer !important;
-      z-index:9500 !important;
-      transition:transform 0.15s;
-    }
-    .btn-fab-simple:active{transform:scale(0.92)}
-    .btn-fab-simple svg{width:24px;height:24px;stroke:currentColor;stroke-width:2.8;fill:none}
 
     .switch-setting-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 0;border-bottom:1px solid var(--border-color)}
     .switch-setting-label{font-size:14px;font-weight:500;color:var(--text-main)}
@@ -323,7 +302,13 @@
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
     canvas{width:100% !important;max-height:180px}
 
-    .books-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%}
+    /* ESTILOS LIVRO DE RECEITAS */
+    .books-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:15px;
+      width:100%;
+    }
     .book-cover-card{
       background:var(--card-bg);
       border-radius:12px;
@@ -336,8 +321,23 @@
       height:200px;
       box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
     }
-    .book-cover-img{width:100%;height:140px;object-fit:cover;background:var(--accent)}
-    .book-cover-title{padding:10px;font-size:13px;font-weight:600;color:var(--text-main);text-align:center;display:flex;align-items:center;justify-content:center;flex:1}
+    .book-cover-img{
+      width:100%;
+      height:140px;
+      object-fit:cover;
+      background:var(--accent);
+    }
+    .book-cover-title{
+      padding:10px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--text-main);
+      text-align:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:1;
+    }
 
     .recipe-book-reader{
       background:#FFFFFF;
@@ -351,7 +351,14 @@
       overflow:hidden;
     }
 
-    .recipe-page-touch-left, .recipe-page-touch-right{position:absolute;top:0;bottom:0;width:50%;z-index:5;cursor:pointer}
+    .recipe-page-touch-left, .recipe-page-touch-right{
+      position:absolute;
+      top:0;
+      bottom:0;
+      width:50%;
+      z-index:5;
+      cursor:pointer;
+    }
     .recipe-page-touch-left{ left:0 }
     .recipe-page-touch-right{ right:0 }
 
@@ -450,7 +457,7 @@
           <div class="top-profile-avatar" id="top-user-avatar"></div>
         </div>
         <div class="top-title" id="top-title">Início</div>
-        <div style="width:34px;"></div>
+        <div style="width:34px;" id="top-right-gear-container"></div>
       </div>
 
       <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
@@ -622,7 +629,7 @@
           </div>
 
           <!-- BOTÃO FLUTUANTE EM COR SECUNDÁRIA FIXO -->
-          <button class="btn-fab-simple" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()" style="display:none;">
+          <button class="btn-fab-simple" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </div>
@@ -668,14 +675,7 @@
           <div class="viagem-header-card" onclick="verCapaViagemEmGrande()">
             <img id="detalhe-viagem-img" src="">
             <div class="viagem-header-overlay-box">
-              <div class="viagem-hero-top-btns">
-                <div class="circle-icon-btn" onclick="event.stopPropagation(); navegarMenu('page-detalhes-viagem-edit')">
-                  <svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                </div>
-              </div>
-              
               <div class="viagem-hero-content">
-                <h1 id="detalhe-viagem-titulo" class="viagem-hero-title">Título</h1>
                 <div class="viagem-hero-badges">
                   <div class="viagem-pill-badge">
                     <svg class="icon-svg" style="width:12px;height:12px;margin:0;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
@@ -750,7 +750,7 @@
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES SIMPLES NA COR SECUNDÁRIA FIXOS SOBRE A BARRA -->
+          <!-- BOTÕES FLUTUANTES SIMPLES NA COR SECUNDÁRIA EXATAMENTE NO MESMO SITIO -->
           <button class="btn-fab-simple" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
@@ -984,7 +984,7 @@
         </div>
       </div>
 
-      <!-- OCULTO AUTOMATICAMENTE EM MODO SIMPLES -->
+      <!-- APENAS APARECE NO MODO SPLITWISE -->
       <div id="container-campos-splitwise-mode" style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
         <span>Pago por</span>
         <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>
@@ -1059,6 +1059,7 @@
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
     const iconBackArrow = `<svg class="icon-svg" style="width:22px;height:22px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
+    const iconGear = `<div class="circle-icon-btn" onclick="navegarMenu('page-detalhes-viagem-edit')"><svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>`;
 
     const pageTitles = {
       'menu-principal': 'Início',
@@ -1330,17 +1331,21 @@
 
         const topLeftBtn = document.getElementById('top-left-btn');
         const topTitle = document.getElementById('top-title');
+        const gearContainer = document.getElementById('top-right-gear-container');
 
         if(idPagina === 'page-viagem-detalhe') {
             topLeftBtn.innerHTML = iconBackArrow;
             topTitle.innerText = currentTripDoc ? currentTripDoc.nome : 'Viagem';
+            gearContainer.innerHTML = iconGear;
         } else if(!mainPagesList.includes(idPagina)) {
             topLeftBtn.innerHTML = iconBackArrow;
             topTitle.innerText = pageTitles[idPagina] || 'Menu';
+            gearContainer.innerHTML = '';
         } else {
             topLeftBtn.innerHTML = `<div class="top-profile-avatar" id="top-user-avatar"></div>`;
             renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
             topTitle.innerText = pageTitles[idPagina] || 'App Casal';
+            gearContainer.innerHTML = '';
         }
 
         if(idPagina === 'menu-notificacoes') {
@@ -1685,7 +1690,15 @@
         if(document.getElementById('profile-friends-count')) document.getElementById('profile-friends-count').innerText = amigos.length;
         if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} 
         let h=''; 
-        amigos.forEach(a => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(a.name)}</div><p class="user-name">${a.name}</p></div></div>`); 
+        amigos.forEach(a => {
+            h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">`;
+            if(a.avatarUrl) {
+                h+=`<img src="${a.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            } else {
+                h+=obterIniciaisNome(a.name);
+            }
+            h+=`</div><p class="user-name">${a.name}</p></div></div>`;
+        }); 
         c.innerHTML=h; 
     }
 
@@ -2026,6 +2039,7 @@
         document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
         document.getElementById('tab-'+n).classList.add('active'); 
 
+        // CONTROLO DE BOTÃO FIXO EXCLUSIVO DA ABA ATIVA
         document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'inline-flex' : 'none';
         document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'inline-flex' : 'none';
     };
@@ -2108,7 +2122,13 @@
 
                  list+=`<div class="user-card" style="padding:10px;">
                     <div class="user-info">
-                        <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(p.nome)}</div>
+                        <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">`;
+                 if(p.avatarUrl) {
+                     list+=`<img src="${p.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                 } else {
+                     list+=obterIniciaisNome(p.nome);
+                 }
+                 list+=`</div>
                         <div>
                             <span style="font-size:14px;font-weight:500;">${p.nome}</span>
                             ${isCriador ? '<span style="font-size:10px;color:var(--accent);margin-left:6px;font-weight:600;">(Criador)</span>' : ''}
@@ -2152,7 +2172,15 @@
         document.getElementById('btn-liquidar-split-only').style.display = (val === 'splitwise') ? 'inline-flex' : 'none';
         
         const containerSplitBox = document.getElementById('container-campos-splitwise-mode');
-        if(containerSplitBox) containerSplitBox.style.display = (val === 'simples') ? 'none' : 'flex';
+        const splitParticipantesBox = document.getElementById('split-participantes-container');
+        
+        if(val === 'simples') {
+            if(containerSplitBox) containerSplitBox.style.display = 'none';
+            if(splitParticipantesBox) splitParticipantesBox.style.display = 'none';
+        } else {
+            if(containerSplitBox) containerSplitBox.style.display = 'flex';
+            if(splitParticipantesBox) splitParticipantesBox.style.display = 'block';
+        }
 
         renderizarDespesas(despesasData);
     };
@@ -2213,13 +2241,20 @@
         }
     }
 
+    /* GRÁFICOS HD SINTONIZADOS */
     function renderizarGraficosResumo(listaDespesas) {
+        const dpr = window.devicePixelRatio || 1;
+
         const canvasL = document.getElementById('chart-linha-gastos');
         if(canvasL) {
             const ctxL = canvasL.getContext('2d');
-            canvasL.width = canvasL.parentElement.clientWidth - 30;
-            canvasL.height = 150;
-            ctxL.clearRect(0,0,canvasL.width,canvasL.height);
+            const rectL = canvasL.parentElement.getBoundingClientRect();
+            
+            canvasL.width = (rectL.width - 30) * dpr;
+            canvasL.height = 150 * dpr;
+            ctxL.scale(dpr, dpr);
+            
+            ctxL.clearRect(0,0,rectL.width - 30,150);
 
             let gastosPorDia = {};
             listaDespesas.forEach(d => {
@@ -2231,7 +2266,7 @@
             if(diasKeys.length === 0) diasKeys = ['Sem dados'];
 
             let maxGasto = Math.max(...Object.values(gastosPorDia), 10);
-            let paddingLeft = 35, paddingBottom = 25, widthChart = canvasL.width - paddingLeft - 10, heightChart = canvasL.height - paddingBottom - 10;
+            let paddingLeft = 35, paddingBottom = 25, widthChart = (rectL.width - 30) - paddingLeft - 10, heightChart = 150 - paddingBottom - 10;
 
             ctxL.strokeStyle = 'rgba(255,255,255,0.1)';
             ctxL.lineWidth = 1;
@@ -2242,7 +2277,7 @@
             ctxL.stroke();
 
             ctxL.fillStyle = 'rgba(255,255,255,0.5)';
-            ctxL.font = '9px Poppins';
+            ctxL.font = '10px Poppins';
             ctxL.fillText(Math.round(maxGasto) + '€', 2, 15);
             ctxL.fillText('0€', 12, heightChart + 10);
 
@@ -2268,9 +2303,13 @@
         const canvasP = document.getElementById('chart-pie-categorias');
         if(canvasP) {
             const ctxP = canvasP.getContext('2d');
-            canvasP.width = canvasP.parentElement.clientWidth - 30;
-            canvasP.height = 150;
-            ctxP.clearRect(0,0,canvasP.width,canvasP.height);
+            const rectP = canvasP.parentElement.getBoundingClientRect();
+
+            canvasP.width = (rectP.width - 30) * dpr;
+            canvasP.height = 150 * dpr;
+            ctxP.scale(dpr, dpr);
+
+            ctxP.clearRect(0,0,rectP.width - 30,150);
 
             let porCat = {};
             listaDespesas.forEach(d => {
@@ -2283,7 +2322,7 @@
 
             const cores = ['#FF6B00', '#007AFF', '#28CD41', '#AF52DE', '#FF3B30', '#FFCC00'];
             let startAngle = 0;
-            let centerX = canvasP.width / 3, centerY = canvasP.height / 2, radius = 50;
+            let centerX = (rectP.width - 30) / 3, centerY = 75, radius = 50;
 
             Object.keys(porCat).forEach((cat, idx) => {
                 let val = porCat[cat];
@@ -2297,10 +2336,10 @@
                 ctxP.fill();
 
                 let legendY = 25 + (idx * 20);
-                ctxP.fillRect(canvasP.width / 2 + 10, legendY - 8, 10, 10);
+                ctxP.fillRect((rectP.width - 30) / 2 + 10, legendY - 8, 10, 10);
                 ctxP.fillStyle = 'rgba(255,255,255,0.8)';
                 ctxP.font = '11px Poppins';
-                ctxP.fillText(`${cat}: ${val.toFixed(2)}€`, canvasP.width / 2 + 26, legendY);
+                ctxP.fillText(`${cat}: ${val.toFixed(2)}€`, (rectP.width - 30) / 2 + 26, legendY);
 
                 startAngle += sliceAngle;
             });
@@ -2432,7 +2471,6 @@
         }
 
         if(!desc || !val || val<=0) return window.mostrarAlerta("Preenche a descrição e um valor válido.");
-        if(divididos.length === 0) return window.mostrarAlerta("Seleciona pelo menos uma pessoa para dividir.");
 
         const pObj = currentTripDoc ? currentTripDoc.membros_info.find(i => i.uid === uidP) : null;
         const cat = obterCategoriaPorTexto(desc);

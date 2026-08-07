@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="App Casal">
+  <meta name="apple-mobile-web-app-title" content="Gestão G&N">
   <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -183,7 +183,6 @@
     
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
     
-    /* CAPA DA VIAGEM */
     .viagem-header-card{
       position:relative;
       width:100%;
@@ -230,8 +229,9 @@
       display:flex;
       align-items:center;
       justify-content:flex-start;
-      gap:10px;
+      gap:8px;
       margin-bottom:15px;
+      flex-wrap:wrap;
     }
 
     .btn-pill-splitwise{
@@ -299,27 +299,6 @@
     .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
-    
-    .btn-fab-simple{
-      position:fixed !important;
-      bottom:calc(var(--bottom-nav-height) + 15px) !important;
-      right:calc((100vw - min(100vw, 600px)) / 2 + 25px) !important;
-      width:52px !important;
-      height:52px !important;
-      border-radius:50% !important;
-      background-color:var(--accent) !important;
-      color:#121212 !important;
-      display:none;
-      align-items:center !important;
-      justify-content:center !important;
-      box-shadow:0 8px 25px rgba(0,0,0,0.5) !important;
-      border:none !important;
-      cursor:pointer !important;
-      z-index:9500 !important;
-      transition:transform 0.15s;
-    }
-    .btn-fab-simple:active{transform:scale(0.92)}
-    .btn-fab-simple svg{width:24px;height:24px;stroke:currentColor;stroke-width:2.8;fill:none}
 
     .notif-push-card{
       background-color:var(--card-bg);
@@ -663,7 +642,6 @@
             </div>
           </div>
 
-          <!-- BOTÃO FLUTUANTE EM COR SECUNDÁRIA FIXO -->
           <button class="btn-fab-simple" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
@@ -784,7 +762,6 @@
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES SIMPLES NA COR SECUNDÁRIA FIXOS SOBRE A BARRA DA BIBLIOTECA -->
           <button class="btn-fab-simple" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
@@ -2027,9 +2004,7 @@
 
     /* VIAGENS */
     function renderViagensCards() { 
-        const c = document.getElementById('container-viagens'); 
-        if(!c) return;
-        if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
+        const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
         
         const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
@@ -2094,35 +2069,25 @@
     let unsubDespesas = null;
     let unsubTimeline = null;
 
-    /* ABERTURA TOTALMENTE DEFENSIVA DAS VIAGENS */
+    /* ABERTURA PROTEGIDA DAS VIAGENS */
     window.abrirDetalheViagem = (id) => {
         currentTripId = id; 
         currentTripDoc = viagensData.find(v => v.id === id); 
         if(!currentTripDoc) return;
 
-        const elTit = document.getElementById('detalhe-viagem-titulo');
-        if(elTit) elTit.innerText = currentTripDoc.nome || '';
-        
-        const elImg = document.getElementById('detalhe-viagem-img');
-        if(elImg) elImg.src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
-        
-        const elDatas = document.getElementById('detalhe-viagem-datas');
-        if(elDatas) elDatas.innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
+        if(document.getElementById('detalhe-viagem-titulo')) document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome || ''; 
+        if(document.getElementById('detalhe-viagem-img')) document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
+        if(document.getElementById('detalhe-viagem-datas')) document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
         
         const elCount = document.getElementById('detalhe-viagem-pessoas-count');
-        if(elCount) elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
+        if(elCount) {
+            elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
+        }
 
-        const inNome = document.getElementById('edit-trip-nome');
-        if(inNome) inNome.value = currentTripDoc.nome || '';
-        
-        const inDest = document.getElementById('edit-trip-destino');
-        if(inDest) inDest.value = currentTripDoc.paisCode || '';
-        
-        const inIni = document.getElementById('edit-trip-data-inicio');
-        if(inIni) inIni.value = currentTripDoc.dataInicio || '';
-        
-        const inFim = document.getElementById('edit-trip-data-fim');
-        if(inFim) inFim.value = currentTripDoc.dataFim || '';
+        if(document.getElementById('edit-trip-nome')) document.getElementById('edit-trip-nome').value = currentTripDoc.nome || '';
+        if(document.getElementById('edit-trip-destino')) document.getElementById('edit-trip-destino').value = currentTripDoc.paisCode || '';
+        if(document.getElementById('edit-trip-data-inicio')) document.getElementById('edit-trip-data-inicio').value = currentTripDoc.dataInicio || '';
+        if(document.getElementById('edit-trip-data-fim')) document.getElementById('edit-trip-data-fim').value = currentTripDoc.dataFim || '';
 
         renderMembrosSettings(); 
         window.switchTripTab('resumo'); 

@@ -174,7 +174,7 @@
     .logos-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%;margin-bottom:20px}
     .logo-card{background-color:#fff;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border-color);height:100px} .logo-card img{max-width:100%;max-height:100%;object-fit:contain}
     .cartao-desconto-container{width:100%;height:200px;background-color:var(--card-bg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;margin-bottom:15px;cursor:pointer;border:1px dashed var(--border-color);position:relative} .cartao-desconto-container img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2}
-    .textarea-obs{width:100%;min-height:120px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:vertical;} .textarea-obs:focus{outline:none;border-color:var(--accent)}
+    .textarea-obs{width:100%;height:100px;background-color:var(--bg-color);border:1px solid var(--border-color);color:var(--text-main);border-radius:12px;padding:15px;font-family:inherit;resize:none;margin-top:10px} .textarea-obs:focus{outline:none;border-color:var(--accent)}
 
     .stats-viagens{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:20px} 
     .stat-box{background-color:var(--card-bg);padding:15px 5px;border-radius:12px;text-align:center;border:1px solid var(--border-color)} 
@@ -220,11 +220,12 @@
     }
 
     .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} 
-    .trip-tab{flex:1;text-align:center;padding:10px;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} 
+    .trip-tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:0.2s} 
     .trip-tab.active{background-color:var(--btn-secondary);color:var(--accent)} 
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
+    /* BARRA DE DESPESAS COM BOTÃO + À ESQUERDA */
     .splitwise-resumo-bar{
       display:flex;
       align-items:center;
@@ -342,8 +343,7 @@
     .splitwise-input:focus{outline:none;border-bottom-color:var(--accent)}
 
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
-    
-    .svg-chart{width:100%;height:160px;overflow:visible;}
+    canvas{width:100% !important;max-height:180px}
 
     .books-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%}
     .book-cover-card{
@@ -388,6 +388,7 @@
       margin-bottom:10px;
     }
 
+    /* ESTILOS DE CARRO DA GARAGEM */
     .car-card-item{
       background:var(--card-bg);
       border-radius:16px;
@@ -398,17 +399,6 @@
     }
     .car-card-img{width:100%;height:160px;object-fit:cover}
     .car-card-info{padding:15px;display:flex;justify-content:space-between;align-items:center}
-    
-    .user-card{
-      display:flex;
-      align-items:center;
-      justify-content:flex-start;
-      gap:12px;
-      background-color:var(--card-bg);
-      padding:12px 15px;
-      border-radius:12px;
-      border:1px solid var(--border-color);
-    }
   </style>
 </head>
 <body>
@@ -531,8 +521,8 @@
               A Fazer Hoje
             </h3>
             <div class="input-row">
-              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') window.adicionarItemDB('tarefas', 'input-nova-tarefa')">
-              <button class="btn-add" onclick="window.adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
+              <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
             </div>
             <div class="lista-itens" id="container-tarefas"></div>
           </div>
@@ -573,9 +563,9 @@
               <div class="user-avatar-custom" id="profile-page-avatar" style="width:90px;height:90px;font-size:32px;"></div>
               <span style="position:absolute;bottom:0;right:0;background:var(--accent);color:#121212;padding:6px;border-radius:50%;display:flex;"><svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></span>
             </div>
-            <input type="file" id="input-direct-avatar-file" accept="image/*" style="display:none;" onchange="window.uploadFotoDiretaPerfil(event)">
+            <input type="file" id="input-direct-avatar-file" accept="image/*" style="display:none;" onchange="uploadFotoDiretaPerfil(event)">
             
-            <button id="btn-remover-foto-perfil" class="btn-pill-splitwise" style="margin-top:12px;display:none;background:#ff3b30;color:white;" onclick="window.removerFotoPerfil()">🗑️ Remover Foto</button>
+            <button id="btn-remover-foto-perfil" class="btn-pill-splitwise" style="margin-top:12px;display:none;background:#ff3b30;color:white;" onclick="removerFotoPerfil()">🗑️ Remover Foto</button>
 
             <h2 id="profile-page-name" style="margin-top:15px;margin-bottom:2px;font-weight:600;color:var(--text-main);">A carregar...</h2>
             <span style="font-size:12px;color:var(--text-muted);">Conta Pessoal</span>
@@ -593,7 +583,7 @@
             <div class="switch-setting-row">
               <span class="switch-setting-label">Permissão de Localização</span>
               <label class="ios-switch">
-                <input type="checkbox" id="switch-location" onchange="window.togglePermissaoLocalizacao(this.checked)">
+                <input type="checkbox" id="switch-location" onchange="togglePermissaoLocalizacao(this.checked)">
                 <span class="ios-slider"></span>
               </label>
             </div>
@@ -601,19 +591,19 @@
             <div class="switch-setting-row" style="border-bottom:none;">
               <span class="switch-setting-label">Notificações Push</span>
               <label class="ios-switch">
-                <input type="checkbox" id="switch-notifications" onchange="window.togglePermissaoNotificacoes(this.checked)">
+                <input type="checkbox" id="switch-notifications" onchange="togglePermissaoNotificacoes(this.checked)">
                 <span class="ios-slider"></span>
               </label>
             </div>
           </div>
 
-          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:flex-start;" onclick="window.alternarTema()">
+          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:flex-start;" onclick="alternarTema()">
             <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display:none;margin-right:10px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
             <span id="texto-tema-modal">Mudar para Modo Claro</span>
           </button>
 
-          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:space-between;" onclick="window.toggleGrelhaCores()">
+          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:space-between;" onclick="toggleGrelhaCores()">
             <span>Cor Secundária</span><div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
           </button>
           <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
@@ -624,14 +614,14 @@
         <!-- MÓDULO: DOCUMENTOS -->
         <div id="menu-documentos" class="page">
           <div class="trip-tabs">
-            <div class="trip-tab active" id="tab-doc-meus" onclick="window.switchDocTab('meus')">Meus Documentos</div>
-            <div class="trip-tab" id="tab-doc-partilhados" onclick="window.switchDocTab('partilhados')">Partilhados</div>
+            <div class="trip-tab active" id="tab-doc-meus" onclick="switchDocTab('meus')">Meus Documentos</div>
+            <div class="trip-tab" id="tab-doc-partilhados" onclick="switchDocTab('partilhados')">Partilhados</div>
           </div>
 
           <div style="display:flex;gap:10px;margin-bottom:15px;">
             <button class="btn-acao" onclick="abrirModal('modal-criar-pasta')" style="font-size:12px;">📁 Criar Pasta</button>
             <button class="btn-acao" onclick="document.getElementById('input-doc-file').click()" style="font-size:12px;background:var(--accent);color:#121212;">📄 Carregar Ficheiro</button>
-            <input type="file" id="input-doc-file" style="display:none;" onchange="window.uploadDocumento(event)">
+            <input type="file" id="input-doc-file" style="display:none;" onchange="uploadDocumento(event)">
           </div>
 
           <div id="container-pastas-docs" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
@@ -650,15 +640,15 @@
 
           <div id="receitas-view-reader" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <button class="btn-pill-splitwise" onclick="window.fecharLivroReceitas()">
+              <button class="btn-pill-splitwise" onclick="fecharLivroReceitas()">
                 <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Voltar aos Livros
               </button>
-              <button class="btn-pill-splitwise" onclick="window.partilharLivroAtual()">🔗 Partilhar Livro</button>
+              <button class="btn-pill-splitwise" onclick="partilharLivroAtual()">🔗 Partilhar Livro</button>
             </div>
 
             <div class="recipe-book-reader" id="book-reader-element">
-              <div class="recipe-page-touch-left" onclick="window.folhearPaginaReceita(-1)"></div>
-              <div class="recipe-page-touch-right" onclick="window.folhearPaginaReceita(1)"></div>
+              <div class="recipe-page-touch-left" onclick="folhearPaginaReceita(-1)"></div>
+              <div class="recipe-page-touch-right" onclick="folhearPaginaReceita(1)"></div>
 
               <div id="recipe-page-content-inside"></div>
             </div>
@@ -667,6 +657,10 @@
               <span style="font-size:12px;color:var(--text-muted);" id="recipe-reader-page-num">Página 1</span>
             </div>
           </div>
+
+          <button class="btn-fab-simple" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
         </div>
 
         <!-- MÓDULO GARAGEM & VEÍCULOS -->
@@ -686,12 +680,12 @@
             <span id="msg-sem-car-photo" style="color:var(--text-muted);font-size:14px;">📸 Adicionar Fotografia do Veículo</span>
             <img id="preview-car-photo" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
           </div>
-          <input type="file" id="input-direct-car-photo" accept="image/*" style="display:none;" onchange="window.uploadFotoDiretaCarro(event)">
+          <input type="file" id="input-direct-car-photo" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCarro(event)">
 
           <input type="text" id="input-carro-nome" class="auth-input" placeholder="Modelo do Veículo (ex: VW Golf, BMW Série 1)">
           <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (ex: AA-00-AA)">
 
-          <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;" onclick="window.adicionarCarroDB()">Guardar Veículo</button>
+          <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;" onclick="adicionarCarroDB()">Guardar Veículo</button>
         </div>
 
         <!-- PÁGINA DE DETALHES DO CARRO / DOCUMENTOS -->
@@ -703,41 +697,18 @@
                 <h3 id="detalhe-carro-nome" style="margin:0;">Modelo</h3>
                 <span id="detalhe-carro-mat" style="font-size:12px;color:var(--text-muted);">Matrícula</span>
               </div>
+              <button class="btn-pill-splitwise" onclick="partilharCarroAtual()">🔗 Partilhar Carro</button>
             </div>
           </div>
 
           <div style="display:flex;gap:10px;margin-bottom:15px;">
             <button class="btn-acao" onclick="abrirModal('modal-criar-pasta-carro')" style="font-size:12px;">📁 Nova Pasta</button>
             <button class="btn-acao" onclick="document.getElementById('input-car-doc-file').click()" style="font-size:12px;background:var(--accent);color:#121212;">📄 Carregar Ficheiro</button>
-            <input type="file" id="input-car-doc-file" style="display:none;" onchange="window.uploadDocumentoCarro(event)">
+            <input type="file" id="input-car-doc-file" style="display:none;" onchange="uploadDocumentoCarro(event)">
           </div>
 
           <div id="container-pastas-carro" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
           <div id="container-docs-carro" class="lista-itens"></div>
-        </div>
-
-        <!-- DEFINIÇÕES DO VEÍCULO -->
-        <div id="page-carro-edit" class="page">
-          <label style="font-size:12px;color:var(--text-muted);">Fotografia do Veículo:</label>
-          <button class="btn-acao" style="margin-bottom:15px;width:100%;" onclick="document.getElementById('input-direct-car-photo-existente').click()">📸 Alterar Fotografia</button>
-          <input type="file" id="input-direct-car-photo-existente" accept="image/*" style="display:none;" onchange="window.uploadFotoDiretaCarroExistente(event)">
-
-          <button class="btn-pill-splitwise" style="margin-bottom:15px;background:#ff3b30;color:white;width:100%;justify-content:center;" onclick="window.removerFotoCarro()">🗑️ Remover Foto</button>
-
-          <label style="font-size:12px;color:var(--text-muted);">Modelo do Veículo:</label>
-          <input type="text" id="edit-car-nome" class="auth-input">
-
-          <label style="font-size:12px;color:var(--text-muted);">Matrícula:</label>
-          <input type="text" id="edit-car-mat" class="auth-input">
-
-          <h3>Partilhar Veículo</h3>
-          <div style="display:flex;gap:10px;margin-bottom:25px;">
-            <select id="car-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
-            <button class="btn-acao" onclick="window.adicionarMembroCarro()" style="width:100px;">Adicionar</button>
-          </div>
-
-          <button class="btn-acao" onclick="window.guardarAlteracoesCarro()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;margin-bottom:15px;">Guardar Alterações</button>
-          <button class="btn-acao" onclick="window.apagarCarroDB(currentCarroId)" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;">Apagar Veículo</button>
         </div>
 
         <!-- VIAGENS MAIN -->
@@ -759,7 +730,7 @@
             <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
             <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
           </div>
-          <input type="file" id="input-direct-capa-nova" accept="image/*" style="display:none;" onchange="window.uploadFotoDiretaCapaNova(event)">
+          <input type="file" id="input-direct-capa-nova" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaNova(event)">
 
           <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
           <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
@@ -770,14 +741,14 @@
           <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data do Fim:</label>
           <input type="date" id="input-viagem-data-fim" class="auth-input" style="color:var(--text-main);">
           
-          <button id="btn-save-viagem" class="btn-acao" onclick="window.guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
+          <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
             Guardar Viagem
           </button>
         </div>
 
         <!-- DETALHE VIAGEM -->
         <div id="page-viagem-detalhe" class="page" style="position:relative;">
-          <div class="viagem-header-card" onclick="window.verCapaViagemEmGrande()">
+          <div class="viagem-header-card" onclick="verCapaViagemEmGrande()">
             <img id="detalhe-viagem-img" src="">
             <div class="viagem-header-overlay-box">
               <div class="viagem-hero-content">
@@ -796,10 +767,9 @@
           </div>
 
           <div class="trip-tabs">
-            <div class="trip-tab active" id="tab-btn-resumo" onclick="window.switchTripTab('resumo')">Resumo</div>
-            <div class="trip-tab" id="tab-btn-notas" onclick="window.switchTripTab('notas')">Notas</div>
-            <div class="trip-tab" id="tab-btn-planeador" onclick="window.switchTripTab('planeador')">Planeamento</div>
-            <div class="trip-tab" id="tab-btn-splitwise" onclick="window.switchTripTab('splitwise')">Despesas</div>
+            <div class="trip-tab active" id="tab-btn-resumo" onclick="switchTripTab('resumo')">Resumo</div>
+            <div class="trip-tab" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeamento</div>
+            <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Despesas</div>
           </div>
           
           <!-- RESUMO -->
@@ -821,22 +791,19 @@
               <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
             </div>
 
+            <div class="dashboard-widget" style="margin-bottom:15px;">
+              <h4 style="margin:0 0 8px 0;font-size:14px;color:var(--accent);">Notas / Detalhes da Viagem</h4>
+              <textarea id="trip-detalhes-notes-text" class="textarea-obs" placeholder="Escreve detalhes importantes da viagem..." onchange="guardarNotasGeraisViagem()"></textarea>
+            </div>
+
             <div class="chart-container">
               <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
-              <div id="svg-chart-linha" style="width:100%;"></div>
+              <canvas id="chart-linha-gastos"></canvas>
             </div>
 
             <div class="chart-container">
               <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
-              <div id="svg-chart-pie" style="width:100%;"></div>
-            </div>
-          </div>
-
-          <!-- NOTAS -->
-          <div id="tab-notas" class="trip-tab-content">
-            <div class="dashboard-widget" style="margin-bottom:15px;">
-              <h4 style="margin:0 0 12px 0;font-size:15px;color:var(--accent);">Anotações e Detalhes da Viagem</h4>
-              <textarea id="trip-detalhes-notes-text" class="textarea-obs" style="min-height:300px;font-size:14px;line-height:1.6;" placeholder="Escreve aqui tudo o que precisares sem limite de linhas..." onchange="window.guardarNotasGeraisViagem()"></textarea>
+              <canvas id="chart-pie-categorias"></canvas>
             </div>
           </div>
 
@@ -857,12 +824,12 @@
                 + Adicionar despesa
               </button>
 
-              <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="window.abrirModalLiquidação()">
+              <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
                 <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
                 Liquidar contas
               </button>
 
-              <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:12px;background:var(--btn-secondary);" onchange="window.alterarModoDespesasSelect(this.value)">
+              <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
                 <option value="splitwise">Modo Splitwise</option>
                 <option value="simples">Modo Simples</option>
               </select>
@@ -878,7 +845,7 @@
         <div id="page-detalhes-viagem-edit" class="page">
           <label style="font-size:12px;color:var(--text-muted);">Capa da Viagem:</label>
           <button class="btn-acao" style="margin-bottom:15px;width:100%;" onclick="document.getElementById('input-direct-capa-existente').click()">📸 Alterar Capa da Viagem</button>
-          <input type="file" id="input-direct-capa-existente" accept="image/*" style="display:none;" onchange="window.uploadFotoDiretaCapaExistente(event)">
+          <input type="file" id="input-direct-capa-existente" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaExistente(event)">
 
           <label style="font-size:12px;color:var(--text-muted);">Título da Viagem:</label>
           <input type="text" id="edit-trip-nome" class="auth-input">
@@ -898,12 +865,12 @@
           <h3>Convidar Amigo</h3>
           <div style="display:flex;gap:10px;margin-bottom:25px;">
             <select id="trip-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
-            <button class="btn-acao" onclick="window.adicionarMembroViagem()" style="width:100px;">Adicionar</button>
+            <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
           </div>
 
-          <button class="btn-acao" onclick="window.guardarAlteracoesViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;margin-bottom:15px;">Guardar Alterações</button>
+          <button class="btn-acao" onclick="guardarAlteracoesViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;margin-bottom:15px;">Guardar Alterações</button>
 
-          <button class="btn-acao" onclick="window.apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">
+          <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">
             <svg class="icon-svg" style="width:16px;height:16px;margin-bottom:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Apagar Viagem
           </button>
         </div>
@@ -921,34 +888,34 @@
         
         <div id="page-super-detail" class="page">
           <h1 id="detalhe-nome">Supermercado</h1>
-          <div class="cartao-desconto-container" id="cartao-container" onclick="window.cliqueCartao()">
+          <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
             <span id="msg-sem-cartao" style="color:var(--text-muted);font-size:14px;">Inserir cartão de cliente</span>
             <img id="detalhe-cartao-img" src="" style="display:none;">
           </div>
-          <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="window.processarFotoCartao(event)">
+          <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
           <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width:100%;margin-bottom:15px;">Fotografar / Inserir Cartão</button>
           <button class="btn-acao" id="btn-ver-folheto" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;">Abrir Folheto da Semana</button>
-          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Notas e Observações..." onchange="window.guardarObservacaoSuperDB()"></textarea>
+          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Notas e Observações..." onchange="guardarObservacaoSuperDB()"></textarea>
         </div>
         
         <div id="menu-compras-semanais" class="page">
           <div class="input-row">
-            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key==='Enter') window.adicionarItemDB('semanais', 'input-semanal')">
-            <button class="btn-add" onclick="window.adicionarItemDB('semanais', 'input-semanal')">+</button>
+            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key==='Enter') adicionarItemDB('semanais', 'input-semanal')">
+            <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">+</button>
           </div>
           <div class="lista-itens" id="container-semanais"></div>
         </div>
         
         <div id="menu-compras-rapidas" class="page">
           <div class="input-row">
-            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key==='Enter') window.adicionarItemDB('rapidas', 'input-rapidas')">
-            <button class="btn-add" onclick="window.adicionarItemDB('rapidas', 'input-rapidas')">+</button>
+            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key==='Enter') adicionarItemDB('rapidas', 'input-rapidas')">
+            <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">+</button>
           </div>
           <div class="lista-itens" id="container-rapidas"></div>
         </div>
 
         <div id="menu-familia" class="page">
-          <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="window.pesquisarUtilizadores()">
+          <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
           <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom:20px;"></div>
           <h3 style="margin-top:30px;text-align:center;">A Minha Rede</h3>
           <div class="lista-itens" id="container-amigos"></div>
@@ -988,7 +955,7 @@
       <input type="text" id="input-nome-pasta-carro" class="auth-input" placeholder="Nome da Pasta (ex: Manutenções, Seguros)">
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-criar-pasta-carro')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="window.criarPastaCarro()">Criar Pasta</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarPastaCarro()">Criar Pasta</button>
       </div>
     </div>
   </div>
@@ -1000,11 +967,11 @@
         <span id="msg-sem-capa-livro" style="color:var(--text-muted);font-size:13px;">📸 Foto/Capa do Livro (opcional)</span>
         <img id="preview-capa-livro-nova" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
       </div>
-      <input type="file" id="input-direct-capa-livro" accept="image/*" style="display:none;" onchange="window.uploadFotoDiretaCapaLivro(event)">
+      <input type="file" id="input-direct-capa-livro" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaLivro(event)">
       <input type="text" id="input-nome-livro" class="auth-input" placeholder="Nome do Livro (ex: Sobremesas, Italianas)">
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-criar-livro-receita')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="window.criarNovoLivroReceita()">Criar Livro</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarNovoLivroReceita()">Criar Livro</button>
       </div>
     </div>
   </div>
@@ -1017,7 +984,7 @@
         <span id="msg-sem-recipe-foto" style="color:var(--text-muted);font-size:13px;">📸 Foto da Receita</span>
         <img id="preview-recipe-foto" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
       </div>
-      <input type="file" id="input-recipe-foto" accept="image/*" style="display:none;" onchange="window.processarFotoReceita(event)">
+      <input type="file" id="input-recipe-foto" accept="image/*" style="display:none;" onchange="processarFotoReceita(event)">
 
       <input type="text" id="input-recipe-titulo" class="auth-input" placeholder="Título da Receita">
       <input type="text" id="input-recipe-tempo" class="auth-input" placeholder="Tempo de Preparo (ex: 45 min)">
@@ -1038,7 +1005,7 @@
 
       <div class="modal-btn-row" style="margin-top:20px;">
         <button class="btn-acao" onclick="fecharModal('modal-nova-receita')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="window.guardarNovaReceita()">Guardar Receita</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarNovaReceita()">Guardar Receita</button>
       </div>
     </div>
   </div>
@@ -1049,7 +1016,7 @@
       <input type="text" id="input-nome-pasta" class="auth-input" placeholder="Nome da Pasta (ex: Faturas, Viagens)">
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-criar-pasta')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="window.criarPastaDocumentos()">Criar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarPastaDocumentos()">Criar</button>
       </div>
     </div>
   </div>
@@ -1065,13 +1032,13 @@
       
       <div style="margin-top:10px;margin-bottom:15px;">
         <button class="btn-acao" style="width:100%;" onclick="document.getElementById('input-event-foto').click()">📸 Adicionar Foto</button>
-        <input type="file" id="input-event-foto" accept="image/*" style="display:none;" onchange="window.processarFotoEvento(event)">
+        <input type="file" id="input-event-foto" accept="image/*" style="display:none;" onchange="processarFotoEvento(event)">
         <img id="preview-event-foto" src="" style="display:none;width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-top:10px;">
       </div>
 
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-novo-evento')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="window.guardarEventoTimeline()">Guardar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarEventoTimeline()">Guardar</button>
       </div>
     </div>
   </div>
@@ -1085,7 +1052,7 @@
           <div class="splitwise-icon-box" id="exp-icon-box">
             <svg class="icon-svg" style="margin-bottom:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>
           </div>
-          <input type="text" id="exp-desc" class="splitwise-input" placeholder="Descrição (ex: Café, Jantar)" oninput="window.atualizarIconeCategoriaAutomático(this.value)">
+          <input type="text" id="exp-desc" class="splitwise-input" placeholder="Descrição (ex: Café, Jantar)" oninput="atualizarIconeCategoriaAutomático(this.value)">
         </div>
 
         <div class="splitwise-row">
@@ -1098,7 +1065,7 @@
         <span>Pago por</span>
         <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>
         <span>e dividido</span>
-        <select id="exp-modo-divisao" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;" onchange="window.alternarModoDivisaoUI()">
+        <select id="exp-modo-divisao" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;" onchange="alternarModoDivisaoUI()">
           <option value="iguais">em partes iguais</option>
           <option value="exatos">por valores exatos</option>
         </select>
@@ -1108,7 +1075,7 @@
 
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-nova-despesa')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="window.adicionarDespesa()">Guardar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="adicionarDespesa()">Guardar</button>
       </div>
     </div>
   </div>
@@ -1123,7 +1090,7 @@
 
       <div class="modal-btn-row">
         <button class="btn-acao" onclick="fecharModal('modal-liquidacao')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="window.confirmarLiquidaçãoPessoa()">Liquidar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="confirmarLiquidaçãoPessoa()">Liquidar</button>
       </div>
     </div>
   </div>
@@ -1163,14 +1130,67 @@
     let timelineEventsData = [], tempEventFoto = "", despesasData = [];
     let livrosReceitasData = [], currentLivroId = null, receitasLivroAtual = [], categoriasIndiceLivro = [], currentRecipePageIndex = 0, tempRecipeFoto = "", tempCapaLivroUrl = "";
     let documentosList = [], pastasList = [];
-    let carrosData = [], currentCarroId = null, tempCarFoto = "", carDocsList = [], carPastasList = [], currentCarroDoc = null;
+    let carrosData = [], currentCarroId = null, tempCarFoto = "", carDocsList = [], carPastasList = [];
     let modoDespesasAtivo = 'splitwise';
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     const iconEdit = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
     const iconBackArrow = `<svg class="icon-svg" style="width:22px;height:22px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
     const iconGear = `<div class="circle-icon-btn" onclick="navegarMenu('page-detalhes-viagem-edit')"><svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>`;
-    const iconCarGear = `<div class="circle-icon-btn" onclick="navegarMenu('page-carro-edit')"><svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>`;
+
+    const pageTitles = {
+      'menu-principal': 'Início',
+      'menu-viagens': 'Viagens',
+      'menu-supermercados': 'Supermercados',
+      'menu-familia': 'Amigos',
+      'menu-receitas': 'Livro de Receitas',
+      'menu-documentos': 'Meus Documentos',
+      'menu-carros': 'Garagem',
+      'page-add-carro': 'Adicionar Veículo',
+      'page-detalhe-carro': 'Documentos do Veículo',
+      'menu-notificacoes': 'Notificações',
+      'menu-biblioteca': 'Biblioteca',
+      'menu-perfil': 'Perfil',
+      'menu-definicoes': 'Definições',
+      'menu-nova-viagem': 'Nova Viagem',
+      'page-detalhes-viagem-edit': 'Detalhes da Viagem',
+      'menu-super-logos': 'Lojas & Cartões',
+      'menu-compras-semanais': 'Lista Semanal',
+      'menu-compras-rapidas': 'Lista Rápida'
+    };
+
+    const mainPagesList = ['menu-principal', 'menu-viagens', 'menu-supermercados', 'menu-familia', 'menu-carros', 'menu-notificacoes', 'menu-biblioteca', 'menu-receitas', 'menu-documentos'];
+
+    const svgCategorias = {
+        cafe: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`,
+        restaurante: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"></path></svg>`,
+        supermercado: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`,
+        compras: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>`,
+        casa: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
+        gasolina: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 22V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18"></path><path d="M14 13h4a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h0"></path></svg>`,
+        hotel: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"></path><path d="M4 10V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"></path></svg>`,
+        lazer: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>`,
+        geral: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>`
+    };
+
+    function obterCategoriaPorTexto(txt) {
+        if(!txt) return { nome: 'Geral', icon: svgCategorias.geral };
+        const t = txt.toLowerCase();
+        if(t.includes('café') || t.includes('cafe') || t.includes('galão')) return { nome: 'Café', icon: svgCategorias.cafe };
+        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza') || t.includes('ubereats') || t.includes('uber eats') || t.includes('bolt food')) return { nome: 'Restauração', icon: svgCategorias.restaurante };
+        if(t.includes('supermercado') || t.includes('continente') || t.includes('pingo') || t.includes('lidl') || t.includes('auchan')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
+        if(t.includes('roupa') || t.includes('zara') || t.includes('compras') || t.includes('sapatos')) return { nome: 'Vestuário', icon: svgCategorias.compras };
+        if(t.includes('mobília') || t.includes('mobilia') || t.includes('casa') || t.includes('ikea') || t.includes('decoração')) return { nome: 'Casa & Mobília', icon: svgCategorias.casa };
+        if(t.includes('gasolina') || t.includes('combustível') || t.includes('gasóleo') || t.includes('posto') || t.includes('portagem') || t.includes('uber') || t.includes('bolt')) return { nome: 'Transportes', icon: svgCategorias.gasolina };
+        if(t.includes('hotel') || t.includes('airbnb') || t.includes('alojamento') || t.includes('quarto')) return { nome: 'Alojamento', icon: svgCategorias.hotel };
+        if(t.includes('bilhete') || t.includes('museu') || t.includes('bar') || t.includes('festa') || t.includes('gin')) return { nome: 'Lazer', icon: svgCategorias.lazer };
+        return { nome: 'Geral', icon: svgCategorias.geral };
+    }
+
+    window.atualizarIconeCategoriaAutomático = (val) => {
+        const cat = obterCategoriaPorTexto(val);
+        document.getElementById('exp-icon-box').innerHTML = cat.icon;
+    };
 
     window.uploadFotoDiretaPerfil = (ev) => {
         const file = ev.target.files[0]; if(!file) return;
@@ -1407,6 +1427,298 @@
         }
     };
 
+    window.navegarMenu = (idPagina, isBack=false) => {
+        window.fecharSidebar(); 
+        if(!isBack && pageHistory[pageHistory.length-1] !== idPagina) pageHistory.push(idPagina);
+        document.querySelectorAll('.nav-btn, .sidebar-item').forEach(b => b.classList.remove('active'));
+        
+        let bottomId = 'nav-btn-' + idPagina.replace('menu-','');
+        if(document.getElementById(bottomId)) document.getElementById(bottomId).classList.add('active');
+        if(document.getElementById('sidebtn-'+idPagina)) document.getElementById('sidebtn-'+idPagina).classList.add('active');
+        
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+        setTimeout(() => { const np = document.getElementById(idPagina); if(np){np.classList.add('active'); window.scrollTo(0,0);} }, 50);
+
+        const topLeftBtn = document.getElementById('top-left-btn');
+        const topTitle = document.getElementById('top-title');
+        const gearContainer = document.getElementById('top-right-gear-container');
+
+        if(idPagina === 'page-viagem-detalhe') {
+            topLeftBtn.innerHTML = iconBackArrow;
+            topTitle.innerText = currentTripDoc ? currentTripDoc.nome : 'Viagem';
+            gearContainer.innerHTML = iconGear;
+        } else if(!mainPagesList.includes(idPagina)) {
+            topLeftBtn.innerHTML = iconBackArrow;
+            topTitle.innerText = pageTitles[idPagina] || 'Menu';
+            gearContainer.innerHTML = '';
+        } else {
+            topLeftBtn.innerHTML = `<div class="top-profile-avatar" id="top-user-avatar"></div>`;
+            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+            topTitle.innerText = pageTitles[idPagina] || 'Início';
+            gearContainer.innerHTML = '';
+        }
+
+        if(idPagina === 'menu-notificacoes') {
+            marcarNotificacoesLidas();
+        }
+    };
+
+    let touchStartX=0, touchStartY=0;
+    document.addEventListener('touchstart', e => { touchStartX=e.changedTouches[0].screenX; touchStartY=e.changedTouches[0].screenY; }, {passive:true});
+    document.addEventListener('touchend', e => {
+        let diffX = e.changedTouches[0].screenX - touchStartX;
+        if(Math.abs(diffX) > Math.abs(e.changedTouches[0].screenY - touchStartY)) {
+            if(diffX > 60 && touchStartX < 50) { 
+                const currentPage = pageHistory[pageHistory.length - 1];
+                if(!mainPagesList.includes(currentPage)) {
+                    voltarAtras();
+                } else {
+                    abrirSidebar(); 
+                }
+            }
+            else if(diffX < -60) fecharSidebar();
+        }
+    }, {passive:true});
+
+    const palette10 = ['#FF6B00','#FF3B30','#28CD41','#007AFF','#AF52DE','#FF2D55','#5AC8FA','#FFCC00','#5856D6','#2ECC71'];
+    
+    function renderColorPicker() {
+        const grid = document.getElementById('color-picker-grid'); if(!grid) return; grid.innerHTML = ''; 
+        const sColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        palette10.forEach(c => { 
+            const circle = document.createElement('div'); circle.className = 'color-circle';
+            if(c.toLowerCase() === sColor.toLowerCase()) circle.classList.add('selected');
+            circle.style.backgroundColor = c; 
+            circle.onclick = () => window.mudarCorApp(c);
+            grid.appendChild(circle); 
+        });
+    }
+
+    window.toggleGrelhaCores = () => {
+        const g = document.getElementById('color-picker-grid');
+        if(!g) return;
+        renderColorPicker();
+        g.style.display = (g.style.display === 'none' || g.style.display === '') ? 'grid' : 'none';
+    };
+
+    function aplicarCorInterface(nc) {
+        document.documentElement.style.setProperty('--accent', nc);
+        if(document.getElementById('cor-atual-bolinha')) document.getElementById('cor-atual-bolinha').style.backgroundColor = nc;
+        renderColorPicker();
+    }
+    
+    window.mudarCorApp = async (nc) => { 
+        aplicarCorInterface(nc);
+        if(userId && db) {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { accentColor: nc }, { merge: true });
+        }
+    };
+
+    function aplicarTemaInterface(tema) {
+        const isL = (tema === 'light');
+        if(isL) document.body.classList.add('light-mode');
+        else document.body.classList.remove('light-mode');
+        
+        if(document.getElementById('texto-tema-modal')) document.getElementById('texto-tema-modal').innerText = isL ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro'; 
+        if(document.getElementById('svg-moon')) document.getElementById('svg-moon').style.display = isL ? 'block' : 'none'; 
+        if(document.getElementById('svg-sun')) document.getElementById('svg-sun').style.display = isL ? 'none' : 'block'; 
+    }
+
+    window.alternarTema = async () => {
+        const novoTema = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+        aplicarTemaInterface(novoTema);
+        if(userId && db) {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { theme: novoTema }, { merge: true });
+        }
+    };
+
+    function atualizarRelogio() { 
+        const d = new Date(), ds = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"], nm = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; 
+        if(document.getElementById('data-atual')) document.getElementById('data-atual').innerText = `${ds[d.getDay()]}, ${d.getDate()} ${nm[d.getMonth()]}`; 
+        if(document.getElementById('hora-atual')) document.getElementById('hora-atual').innerText = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; 
+    } 
+    setInterval(atualizarRelogio, 1000); atualizarRelogio();
+    
+    const frases = [{t:"Entregue o seu caminho ao Senhor...",a:"Salmos 37:5"}, {t:"Tudo posso naquele que me fortalece.",a:"Filipenses 4:13"}, {t:"O amor é paciente, o amor é bondoso.",a:"1 Coríntios 13:4-7"}];
+    const ind = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0))/1000/60/60/24) % frases.length;
+    document.getElementById('frase-texto').innerText = `"${frases[ind].t}"`; document.getElementById('frase-autor').innerText = frases[ind].a; 
+    
+    window.carregarMeteorologia = async (forcar) => {
+        const req = async (lat, lon, nome) => { 
+            try { 
+                const res = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)).json(); 
+                document.getElementById('meteo-temp').innerText = Math.round(res.current_weather.temperature)+"°"; document.getElementById('meteo-desc').innerText="Atualizado"; document.getElementById('nome-cidade-texto').innerText=nome; 
+            } catch(e){ document.getElementById('meteo-desc').innerText="Sem dados"; } 
+        };
+        if(navigator.geolocation) navigator.geolocation.getCurrentPosition(async (pos) => { 
+            try { 
+                const geo = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=pt`)).json(); 
+                req(pos.coords.latitude, pos.coords.longitude, geo.city || geo.locality || "Local"); 
+            } catch(e){ req(pos.coords.latitude, pos.coords.longitude, "Local"); } 
+        }, () => req(38.5244, -8.8882, "Setúbal")); else req(38.5244, -8.8882, "Setúbal");
+    };
+    setTimeout(() => window.carregarMeteorologia(), 500);
+
+    function iniciarListenersFirebase() {
+        if(!db || !userId) return; 
+        unsusbscribes.forEach(f => f()); 
+        unsusbscribes = []; 
+        
+        const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
+        
+        const attachList = (col, ui) => unsusbscribes.push(onSnapshot(collection(userDocRef, col), s => {
+            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()})); 
+            renderListDB(arr, ui, col);
+        }));
+        attachList('tarefas', 'container-tarefas'); 
+        attachList('semanais', 'container-semanais'); 
+        attachList('rapidas', 'container-rapidas');
+        
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'carros'), s => {
+            carrosData = []; s.forEach(d => carrosData.push({id:d.id, ...d.data()}));
+            renderCarrosDB(carrosData);
+        }));
+
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'notifications'), s => {
+            let notifs = []; s.forEach(d => notifs.push({id:d.id, ...d.data()})); 
+            renderNotificationsDB(notifs); 
+        }));
+        
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'friends'), s => { minhaRede=[]; s.forEach(d => minhaRede.push({id:d.id, ...d.data()})); renderFriendsDB(minhaRede); }));
+
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'livros_receitas'), s => {
+            livrosReceitasData = []; s.forEach(d => livrosReceitasData.push({id:d.id, ...d.data()}));
+            renderizarLivrosReceitasGrelha();
+        }));
+
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'documentos'), s => {
+            documentosList = []; s.forEach(d => documentosList.push({id:d.id, ...d.data()}));
+            renderizarDocumentosList();
+        }));
+
+        unsusbscribes.push(onSnapshot(collection(userDocRef, 'pastas_docs'), s => {
+            pastasList = []; s.forEach(d => pastasList.push({id:d.id, ...d.data()}));
+            renderizarPastasDocsList();
+        }));
+
+        const qViagens = query(
+            collection(db, 'artifacts', appId, 'viagens_partilhadas'), 
+            where("membros_uids", "array-contains", userId)
+        );
+        unsusbscribes.push(onSnapshot(qViagens, s => {
+            viagensData = []; 
+            s.forEach(d => viagensData.push({id:d.id, ...d.data()}));
+            if(document.getElementById('stat-total-viagens')) document.getElementById('stat-total-viagens').innerText = viagensData.length; 
+            
+            const hoje = new Date().toISOString().split('T')[0];
+            const proximas = viagensData.filter(v => v.dataInicio && v.dataInicio >= hoje).sort((a,b) => a.dataInicio.localeCompare(b.dataInicio));
+            if(document.getElementById('stat-proxima-viagem')) {
+                document.getElementById('stat-proxima-viagem').innerText = proximas.length > 0 ? proximas[0].nome : '--';
+            }
+
+            renderViagensCards(); 
+            if(currentTripId){
+                const tripAtual = viagensData.find(v => v.id === currentTripId);
+                if(tripAtual){ 
+                    currentTripDoc = tripAtual; 
+                    if(document.getElementById('detalhe-viagem-titulo')) document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome || '';
+                    if(document.getElementById('detalhe-viagem-img')) document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
+                    if(document.getElementById('detalhe-viagem-datas')) document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
+                    if(document.getElementById('detalhe-viagem-pessoas-count')) document.getElementById('detalhe-viagem-pessoas-count').innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
+                    renderMembrosSettings(); 
+                    atualizarResumoInternoViagem();
+                }
+            }
+        }, err => {
+            console.error("Erro Viagens:", err);
+            window.mostrarAlerta("Erro a obter viagens: " + err.message);
+        }));
+    }
+
+    async function criarNotificacaoDB(targetUid, texto) {
+        if(!targetUid) return;
+        const agora = new Date();
+        const dataStr = `${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}/${agora.getFullYear()}`;
+        const horaStr = `${String(agora.getHours()).padStart(2,'0')}:${String(agora.getMinutes()).padStart(2,'0')}`;
+        
+        await addDoc(collection(db, 'artifacts', appId, 'users', targetUid, 'notifications'), {
+            texto: texto,
+            dataStr: dataStr,
+            horaStr: horaStr,
+            lida: false,
+            timestamp: Date.now()
+        });
+    }
+
+    function renderNotificationsDB(notifs) {
+        const c = document.getElementById('container-pedidos');
+        const badge = document.getElementById('badge-notificacoes-bottom');
+        
+        notifs.sort((a,b) => b.timestamp - a.timestamp);
+        const naoLidas = notifs.filter(n => !n.lida).length;
+
+        if(naoLidas > 0) {
+            badge.innerText = naoLidas;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        if(notifs.length === 0) {
+            c.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;">Sem notificações.</p>';
+            return;
+        }
+
+        const hojeStr = new Date().toLocaleDateString('pt-PT');
+
+        let html = '';
+        notifs.forEach(n => {
+            let dataNotif = new Date(n.timestamp || Date.now());
+            let isHoje = dataNotif.toLocaleDateString('pt-PT') === hojeStr;
+            let displayTime = isHoje ? (n.horaStr || 'Agora') : (n.dataStr || 'Outras datas');
+
+            html += `<div class="notif-push-card">
+                <div class="notif-push-header">
+                    <div class="notif-push-brand">
+                        <img src="logopreto_fundobranco.png" class="notif-push-app-icon" onerror="this.src='logobranco_semfundo.png'">
+                        <span class="notif-push-app-name">Gestão G&N</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="notif-push-time">${displayTime}</span>
+                        <button class="btn-icon-list" onclick="apagarNotificacaoDB('${n.id}')">${iconTrash}</button>
+                    </div>
+                </div>
+                <div class="notif-push-body">${n.texto}</div>
+            </div>`;
+        });
+        c.innerHTML = html;
+    }
+
+    async function marcarNotificacoesLidas() {
+        const snap = await getDocs(collection(db, 'artifacts', appId, 'users', userId, 'notifications'));
+        snap.forEach(d => {
+            if(!d.data().lida) {
+                updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'notifications', d.id), { lida: true });
+            }
+        });
+    }
+
+    window.apagarNotificacaoDB = async (notifId) => {
+        await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'notifications', notifId));
+    };
+
+    function renderListDB(arr, ui, col) { 
+        arr.sort((a,b) => (a.timestamp||0)-(b.timestamp||0)); let h='';
+        arr.forEach(i => h+=`<div class="list-item ${i.feita?'feita':''}"><div class="checkbox-custom" onclick="toggleItemDB('${col}','${i.id}',${!i.feita})"></div><span class="item-texto" onclick="toggleItemDB('${col}','${i.id}',${!i.feita})">${i.texto}</span><button class="btn-icon-list" onclick="apagarItemDB('${col}','${i.id}')">${iconTrash}</button></div>`); 
+        document.getElementById(ui).innerHTML = h;
+    }
+    
+    window.adicionarItemDB = async (col, idInp) => { const txt = document.getElementById(idInp).value.trim(); if(txt){ await addDoc(collection(db,'artifacts',appId,'users',userId,col), {texto:txt, feita:false, timestamp:Date.now()}); document.getElementById(idInp).value=''; } };
+    window.toggleItemDB = async (col, docId, est) => await updateDoc(doc(db,'artifacts',appId,'users',userId,col,docId), {feita:est}); 
+    window.apagarItemDB = async (col, docId) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,col,docId));
+
+    /* GARAGEM REESTRUTURADA */
     window.adicionarCarroDB = async () => {
         const nome = document.getElementById('input-carro-nome').value.trim();
         const mat = document.getElementById('input-carro-mat').value.trim();
@@ -1434,14 +1746,14 @@
         if(carros.length === 0) { c.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);padding:20px 0;">Sem veículos registados. Clica em "+ Adicionar Veículo".</p>'; return; }
         let h = '';
         carros.forEach(car => {
-            h += `<div class="car-card-item" onclick="window.abrirDetalheCarro('${car.id}')">
+            h += `<div class="car-card-item" onclick="abrirDetalheCarro('${car.id}')">
                 <img src="${car.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf'}" class="car-card-img">
                 <div class="car-card-info">
                     <div>
                         <div style="font-weight:600;font-size:15px;">${car.nome}</div>
                         ${car.matricula ? `<div style="font-size:12px;color:var(--text-muted);">${car.matricula}</div>` : ''}
                     </div>
-                    <button class="btn-icon-list" onclick="event.stopPropagation(); window.apagarCarroDB('${car.id}')">${iconTrash}</button>
+                    <button class="btn-icon-list" onclick="event.stopPropagation(); apagarCarroDB('${car.id}')">${iconTrash}</button>
                 </div>
             </div>`;
         });
@@ -1450,15 +1762,12 @@
 
     window.abrirDetalheCarro = (id) => {
         currentCarroId = id;
-        currentCarroDoc = carrosData.find(c => c.id === id);
-        if(!currentCarroDoc) return;
+        const carro = carrosData.find(c => c.id === id);
+        if(!carro) return;
 
-        document.getElementById('detalhe-carro-nome').innerText = currentCarroDoc.nome;
-        document.getElementById('detalhe-carro-mat').innerText = currentCarroDoc.matricula || 'Sem matrícula';
-        document.getElementById('detalhe-carro-img').src = currentCarroDoc.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf';
-
-        document.getElementById('edit-car-nome').value = currentCarroDoc.nome || '';
-        document.getElementById('edit-car-mat').value = currentCarroDoc.matricula || '';
+        document.getElementById('detalhe-carro-nome').innerText = carro.nome;
+        document.getElementById('detalhe-carro-mat').innerText = carro.matricula || 'Sem matrícula';
+        document.getElementById('detalhe-carro-img').src = carro.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf';
 
         window.navegarMenu('page-detalhe-carro');
 
@@ -1471,36 +1780,6 @@
             carPastasList = []; s.forEach(d => carPastasList.push({id:d.id, ...d.data()}));
             renderizarCarPastas();
         });
-    };
-
-    window.guardarAlteracoesCarro = async () => {
-        const novoNome = document.getElementById('edit-car-nome').value.trim();
-        const novaMat = document.getElementById('edit-car-mat').value.trim();
-        if(!novoNome) return window.mostrarAlerta("Insere um modelo válido.");
-
-        await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId), {
-            nome: novoNome,
-            matricula: novaMat
-        });
-        window.voltarAtras();
-    };
-
-    window.uploadFotoDiretaCarroExistente = (ev) => {
-        const file = ev.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const b64 = e.target.result;
-            document.getElementById('detalhe-carro-img').src = b64;
-            await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId), { foto: b64 });
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.removerFotoCarro = async () => {
-        if(confirm("Remover foto do veículo?")) {
-            await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId), { foto: "" });
-            document.getElementById('detalhe-carro-img').src = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf';
-        }
     };
 
     window.criarPastaCarro = async () => {
@@ -1538,7 +1817,7 @@
         carPastasList.forEach(p => {
             h += `<div class="btn-acao" style="font-size:12px;justify-content:space-between;">
                 <span>📁 ${p.nome}</span>
-                <button class="btn-icon-list" onclick="window.apagarPastaCarro('${p.id}')">${iconTrash}</button>
+                <button class="btn-icon-list" onclick="apagarPastaCarro('${p.id}')">${iconTrash}</button>
             </div>`;
         });
         c.innerHTML = h;
@@ -1558,7 +1837,7 @@
                 <div style="flex:1;overflow:hidden;">
                     <div style="font-size:13px;font-weight:600;" class="expense-title-txt">${d.nome}</div>
                 </div>
-                <button class="btn-icon-list" onclick="window.apagarDocCarro('${d.id}')">${iconTrash}</button>
+                <button class="btn-icon-list" onclick="apagarDocCarro('${d.id}')">${iconTrash}</button>
             </div>`;
         });
         c.innerHTML = h;
@@ -1572,8 +1851,78 @@
         if(confirm("Apagar documento do veículo?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'documentos', dId));
     };
 
+    window.partilharCarroAtual = () => {
+        window.mostrarAlerta("Documentos do Veículo partilhados com a tua rede de amigos.");
+    };
+
     window.apagarCarroDB = async (carId) => {
         if(confirm("Remover este veículo?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'carros',carId));
+    };
+
+    const lojas = [ {id:'continente',nome:'Continente',logo:'https://upload.wikimedia.org/wikipedia/commons/f/fd/Logo_Continente.svg',link:'https://folhetos.continente.pt/'}, {id:'pingodoce',nome:'Pingo Doce',logo:'https://upload.wikimedia.org/wikipedia/en/d/de/Pingo_Doce_logo.svg',link:'https://www.pingodoce.pt/folhetos/'}, {id:'lidl',nome:'Lidl',logo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/Lidl_logo.png',link:'https://www.lidl.pt/folhetos'}, {id:'auchan',nome:'Auchan',logo:'https://upload.wikimedia.org/wikipedia/commons/6/6e/Auchan_Retail_logo.svg',link:'https://www.auchan.pt/pt/folhetos/'}, {id:'intermarche',nome:'Intermarché',logo:'https://upload.wikimedia.org/wikipedia/commons/9/96/Intermarch%C3%A9_logo_2009_classic.svg',link:'https://www.intermarche.pt/folhetos/'} ];
+    let hl=''; lojas.forEach(l => hl+=`<div class="logo-card" onclick="abrirDetalheSupermercado('${l.id}')"><img src="${l.logo}"></div>`); document.getElementById('container-logos').innerHTML=hl;
+    
+    window.abrirDetalheSupermercado = async (id) => {
+        currentSuperId = id; const l = lojas.find(x => x.id === id); document.getElementById('detalhe-nome').innerText = l.nome; document.getElementById('btn-ver-folheto').onclick = () => window.open(l.link, '_blank');
+        const img = document.getElementById('detalhe-cartao-img'), txt = document.getElementById('msg-sem-cartao'); img.style.display='none'; img.src=''; txt.style.display='block'; document.getElementById('detalhe-obs').value="";
+        if(userId && db){ try{ const r = await getDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',id)); if(r.exists()){ const d = r.data(); if(d.notas) document.getElementById('detalhe-obs').value=d.notas; if(d.cartao_img){img.src=d.cartao_img; img.style.display='block'; txt.style.display='none';} } }catch(e){} } 
+        window.navegarMenu('page-super-detail');
+    };
+    
+    window.guardarObservacaoSuperDB = async () => await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {notas:document.getElementById('detalhe-obs').value}, {merge:true});
+    window.cliqueCartao = () => { const i=document.getElementById('detalhe-cartao-img'); if(i.style.display!=='none' && i.src){ document.getElementById('img-fullscreen-cartao').src=i.src; window.abrirModal('modal-cartao'); } else document.getElementById('input-foto-cartao').click(); };
+    
+    window.processarFotoCartao = (ev) => { 
+        const file = ev.target.files[0]; if(!file) return; 
+        const reader = new FileReader(); reader.onload = (e) => { 
+            const img = new Image(); img.onload = async () => { 
+                const canvas = document.createElement('canvas'); const max = 800; let w=img.width, h=img.height; 
+                if(w>h){if(w>max){h*=max/w; w=max;}}else{if(h>max){w*=max/h; h=max;}} canvas.width=w; canvas.height=h; 
+                canvas.getContext('2d').drawImage(img,0,0,w,h); const b64 = canvas.toDataURL('image/jpeg',0.6); 
+                document.getElementById('detalhe-cartao-img').src=b64; document.getElementById('detalhe-cartao-img').style.display='block'; document.getElementById('msg-sem-cartao').style.display='none'; 
+                await setDoc(doc(db,'artifacts',appId,'users',userId,'supermercados',currentSuperId), {cartao_img:b64}, {merge:true}); 
+            }; img.src = e.target.result; 
+        }; reader.readAsDataURL(file); 
+    };
+
+    window.pesquisarUtilizadores = async () => { 
+        const t = document.getElementById('input-search-users').value.toLowerCase(), c = document.getElementById('container-pesquisa-users'); 
+        if(t.length < 2) { c.innerHTML=''; return; } c.innerHTML='<p style="text-align:center;font-size:12px;">A procurar...</p>'; 
+        const res = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'profiles')); let arr=[]; 
+        res.forEach(d => { let p=d.data(); if(p.uid!==userId && p.searchName && p.searchName.includes(t)) arr.push(p); }); 
+        if(arr.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;">Ninguém encontrado.</p>'; return;} 
+        let h=''; arr.forEach(u => h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(u.username)}</div><p class="user-name" style="font-size:13px;">${u.username}</p></div><button class="btn-add" style="width:auto;padding:5px 15px;font-size:12px;" onclick="enviarPedido('${u.uid}', '${u.username}')">Adicionar</button></div>`); c.innerHTML=h;
+    };
+    
+    window.enviarPedido = async (id, nm) => { 
+        await setDoc(doc(db,'artifacts',appId,'users',id,'requests',userId), {fromUid:userId, fromName:userName, timestamp:Date.now()}); 
+        await criarNotificacaoDB(id, `${userName} enviou-te um pedido de amizade.`);
+        window.mostrarAlerta(nm+" convidado!"); 
+        document.getElementById('input-search-users').value=''; 
+        document.getElementById('container-pesquisa-users').innerHTML=''; 
+    };
+
+    function renderFriendsDB(amigos) { 
+        const c = document.getElementById('container-amigos'); 
+        if(document.getElementById('profile-friends-count')) document.getElementById('profile-friends-count').innerText = amigos.length;
+        if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} 
+        let h=''; 
+        amigos.forEach(a => {
+            h+=`<div class="user-card" style="justify-content:flex-start;gap:12px;"><div class="user-avatar-custom" style="width:34px;height:34px;font-size:12px;flex-shrink:0;">`;
+            if(a.avatarUrl) {
+                h+=`<img src="${a.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            } else {
+                h+=obterIniciaisNome(a.name);
+            }
+            h+=`</div><p class="user-name" style="margin:0;font-size:14px;font-weight:500;">${a.name}</p></div>`;
+        }); 
+        c.innerHTML=h; 
+    }
+
+    /* DOCUMENTOS */
+    window.switchDocTab = (tab) => {
+        document.getElementById('tab-doc-meus').classList.toggle('active', tab === 'meus');
+        document.getElementById('tab-doc-partilhados').classList.toggle('active', tab === 'partilhados');
     };
 
     window.criarPastaDocumentos = async () => {
@@ -1604,9 +1953,57 @@
         reader.readAsDataURL(file);
     };
 
+    function renderizarPastasDocsList() {
+        const c = document.getElementById('container-pastas-docs');
+        let h = '';
+        pastasList.forEach(p => {
+            h += `<div class="btn-acao" style="font-size:12px;">📁 ${p.nome}</div>`;
+        });
+        c.innerHTML = h;
+    }
+
+    function renderizarDocumentosList() {
+        const c = document.getElementById('container-lista-docs');
+        if(documentosList.length === 0) {
+            c.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Sem ficheiros guardados.</p>';
+            return;
+        }
+        let h = '';
+        documentosList.forEach(d => {
+            h += `<div class="doc-item-card">
+                <svg class="icon-svg" style="width:20px;height:20px;margin:0;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <div style="flex:1;overflow:hidden;">
+                    <div style="font-size:13px;font-weight:600;" class="expense-title-txt">${d.nome}</div>
+                </div>
+                <button class="btn-icon-list" onclick="apagarDocumento('${d.id}')">${iconTrash}</button>
+            </div>`;
+        });
+        c.innerHTML = h;
+    }
+
     window.apagarDocumento = async (id) => {
         if(confirm("Remover documento?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'documentos',id));
     };
+
+    /* MÓDULO LIVRO DE RECEITAS */
+    function renderizarLivrosReceitasGrelha() {
+        const c = document.getElementById('container-grid-livros-receitas');
+        if(!c) return;
+
+        if(livrosReceitasData.length === 0) {
+            c.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:13px;padding:20px 0;">Nenhum livro criado. Clica em "+ Criar Livro"!</p>';
+            return;
+        }
+
+        let html = '';
+        livrosReceitasData.forEach(livro => {
+            html += `<div class="book-cover-card" onclick="abrirLivroReceitas('${livro.id}')">
+                <img src="${livro.capa || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352'}" class="book-cover-img">
+                <div class="book-cover-title">${livro.nome}</div>
+            </div>`;
+        });
+        c.innerHTML = html;
+    }
 
     window.criarNovoLivroReceita = async () => {
         const nome = document.getElementById('input-nome-livro').value.trim();
@@ -1626,9 +2023,86 @@
         tempCapaLivroUrl = "";
     };
 
+    window.abrirLivroReceitas = async (livroId) => {
+        currentLivroId = livroId;
+        const livro = livrosReceitasData.find(l => l.id === livroId);
+        categoriasIndiceLivro = livro ? (livro.categorias || []) : [];
+        
+        document.getElementById('receitas-view-livros').style.display = 'none';
+        document.getElementById('receitas-view-reader').style.display = 'block';
+
+        const qRec = collection(db, 'artifacts', appId, 'users', userId, 'livros_receitas', livroId, 'itens');
+        onSnapshot(qRec, s => {
+            receitasLivroAtual = [];
+            s.forEach(d => receitasLivroAtual.push({id:d.id, ...d.data()}));
+            currentRecipePageIndex = 0;
+            renderizarPaginaAtualLivro();
+        });
+    };
+
     window.fecharLivroReceitas = () => {
         document.getElementById('receitas-view-reader').style.display = 'none';
         document.getElementById('receitas-view-livros').style.display = 'block';
+    };
+
+    function renderizarPaginaAtualLivro() {
+        const c = document.getElementById('recipe-page-content-inside');
+        const pageNum = document.getElementById('recipe-reader-page-num');
+        
+        if(currentRecipePageIndex === 0) {
+            pageNum.innerText = "Índice do Livro";
+            let catsHtml = '';
+            categoriasIndiceLivro.forEach(cat => {
+                catsHtml += `<div class="list-item" style="background:#F2F2F2;color:#121212;border:none;"><span>📌 ${cat}</span></div>`;
+            });
+
+            c.innerHTML = `
+                <h2 style="font-size:22px;font-weight:700;color:#121212;margin-bottom:15px;text-align:center;">📖 ÍNDICE</h2>
+                <div style="display:flex;gap:8px;margin-bottom:15px;">
+                    <input type="text" id="input-nova-cat-indice" class="input-text" style="background:#fff;color:#121212;border:1px solid #ccc;" placeholder="Nova Categoria...">
+                    <button class="btn-add" onclick="adicionarCategoriaIndice()">+</button>
+                </div>
+                <div class="lista-itens">${catsHtml || '<p style="font-size:12px;color:#777;text-align:center;">Sem categorias. Adiciona acima!</p>'}</div>
+            `;
+            return;
+        }
+
+        const rIndex = currentRecipePageIndex - 1;
+        if(receitasLivroAtual.length === 0 || !receitasLivroAtual[rIndex]) {
+            c.innerHTML = '<p style="text-align:center;color:#666;font-size:14px;padding-top:100px;">Nenhuma receita nesta página.</p>';
+            pageNum.innerText = "Página Vazia";
+            return;
+        }
+
+        const r = receitasLivroAtual[rIndex];
+        pageNum.innerText = `Página ${currentRecipePageIndex} de ${receitasLivroAtual.length}`;
+
+        c.innerHTML = `
+            ${r.foto ? `<img src="${r.foto}" style="width:100%;height:140px;object-fit:cover;border-radius:8px;margin-bottom:12px;">` : ''}
+            <span style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;">${r.categoria || 'Geral'}</span>
+            <h2 style="font-size:20px;font-weight:700;color:#121212;margin:2px 0 10px 0;text-align:left;">${r.titulo}</h2>
+            <div style="font-size:12px;color:#555;margin-bottom:10px;">⏱️ ${r.tempo || 'N/D'}</div>
+            
+            <div class="recipe-content-wrapper">
+                <strong style="font-size:13px;display:block;margin-bottom:4px;color:#121212;">Ingredientes:</strong>
+                <p style="font-size:12px;color:#333;white-space:pre-line;margin:0 0 10px 0;">${r.ingredientes || 'Sem ingredientes'}</p>
+                <strong style="font-size:13px;display:block;margin-bottom:4px;color:#121212;">Preparação:</strong>
+                <p style="font-size:12px;color:#333;white-space:pre-line;margin:0;">${r.preparo || 'Sem preparação'}</p>
+            </div>
+        `;
+    }
+
+    window.adicionarCategoriaIndice = async () => {
+        const inp = document.getElementById('input-nova-cat-indice');
+        const novaCat = inp.value.trim();
+        if(!novaCat) return;
+
+        categoriasIndiceLivro.push(novaCat);
+        await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'livros_receitas', currentLivroId), {
+            categorias: categoriasIndiceLivro
+        });
+        inp.value = '';
+        renderizarPaginaAtualLivro();
     };
 
     window.folhearPaginaReceita = (direcao) => {
@@ -1720,6 +2194,31 @@
         }
     };
 
+    /* VIAGENS */
+    function renderViagensCards() { 
+        const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
+        viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
+        
+        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
+
+        viagensData.forEach(v => {
+            let datasTxt = (v.dataInicio ? v.dataInicio : '') + (v.dataFim ? ' - ' + v.dataFim : '');
+            let isPartilhada = (v.membros_uids && v.membros_uids.length > 1);
+
+            h+=`<div class="trip-card" onclick="abrirDetalheViagem('${v.id}')">
+                <img class="trip-cover" src="${v.capa||'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'}">
+                <div class="trip-overlay">
+                    <h4 class="trip-title">${v.nome||'Sem Título'}</h4>
+                    <span class="trip-country">
+                        <span>${v.paisCode||''} • ${datasTxt || 'Sem datas'}</span>
+                        ${isPartilhada ? svgGroup : ''}
+                    </span>
+                </div>
+            </div>`; 
+        });
+        c.innerHTML=h; 
+    }
+    
     window.guardarNovaViagem = async () => {
         try {
             const tit = document.getElementById('input-viagem-nome').value.trim();
@@ -1751,11 +2250,15 @@
 
     window.switchTripTab = (n) => { 
         document.querySelectorAll('.trip-tab').forEach(e=>e.classList.remove('active')); 
-        if(document.getElementById('tab-btn-'+n)) document.getElementById('tab-btn-'+n).classList.add('active'); 
+        document.getElementById('tab-btn-'+n).classList.add('active'); 
         document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
-        if(document.getElementById('tab-'+n)) document.getElementById('tab-'+n).classList.add('active'); 
+        document.getElementById('tab-'+n).classList.add('active'); 
     };
+    
+    let unsubDespesas = null;
+    let unsubTimeline = null;
 
+    /* ABERTURA TOTALMENTE DEFENSIVA E ROBUSTA DAS VIAGENS */
     window.abrirDetalheViagem = (id) => {
         currentTripId = id; 
         currentTripDoc = viagensData.find(v => v.id === id); 
@@ -1765,13 +2268,15 @@
         if(elTit) elTit.innerText = currentTripDoc.nome || '';
         
         const elImg = document.getElementById('detalhe-viagem-img');
-        if(elImg) elImg.src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
+        if(elImg) elImg.src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
         
         const elDatas = document.getElementById('detalhe-viagem-datas');
         if(elDatas) elDatas.innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
         
         const elCount = document.getElementById('detalhe-viagem-pessoas-count');
-        if(elCount) elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
+        if(elCount) {
+            elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
+        }
 
         const inNome = document.getElementById('edit-trip-nome');
         if(inNome) inNome.value = currentTripDoc.nome || '';
@@ -1841,6 +2346,58 @@
         } 
     };
 
+    function renderMembrosSettings() {
+         let sel='', list='', dd='', checkboxes = '';
+         const donoId = currentTripDoc ? currentTripDoc.dono : null;
+
+         if(currentTripDoc && currentTripDoc.membros_info) {
+             currentTripDoc.membros_info.forEach(p => { 
+                 sel+=`<option value="${p.uid}">${p.nome}</option>`; 
+                 
+                 let isCriador = (p.uid === donoId);
+                 let btnRemover = (!isCriador && (userId === donoId || p.uid === userId)) ? 
+                    `<button class="btn-icon-list" onclick="removerMembroViagem('${p.uid}')" title="Remover das viagens">${iconTrash}</button>` : '';
+
+                 list+=`<div class="user-card" style="padding:10px;">
+                    <div class="user-info">
+                        <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;flex-shrink:0;">`;
+                 if(p.avatarUrl) {
+                     list+=`<img src="${p.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                 } else {
+                     list+=obterIniciaisNome(p.nome);
+                 }
+                 list+=`</div>
+                        <div>
+                            <span style="font-size:14px;font-weight:500;">${p.nome}</span>
+                            ${isCriador ? '<span style="font-size:10px;color:var(--accent);margin-left:6px;font-weight:600;">(Criador)</span>' : ''}
+                        </div>
+                    </div>
+                    ${btnRemover}
+                 </div>`; 
+
+                 checkboxes += `<div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:6px;">
+                    <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                        <input type="checkbox" class="chk-split-membro" value="${p.uid}" checked onchange="alternarModoDivisaoUI()"> ${p.nome}
+                    </label>
+                    <input type="number" class="val-split-exato auth-input" data-uid="${p.uid}" placeholder="€" style="display:none;width:80px;margin:0;padding:4px 8px;font-size:12px;">
+                 </div>`;
+             });
+         }
+
+         if(document.getElementById('exp-pagador')) document.getElementById('exp-pagador').innerHTML = sel; 
+         if(document.getElementById('trip-membros-list')) document.getElementById('trip-membros-list').innerHTML = list;
+         if(document.getElementById('split-participantes-container')) document.getElementById('split-participantes-container').innerHTML = checkboxes;
+
+         let conv=false; 
+         minhaRede.forEach(c => { 
+             if(currentTripDoc && !currentTripDoc.membros_uids.includes(c.uid)){ 
+                 dd+=`<option value="${c.uid}" data-nome="${c.name}">${c.name}</option>`; 
+                 conv=true; 
+             } 
+         });
+         if(document.getElementById('trip-amigos-disponiveis')) document.getElementById('trip-amigos-disponiveis').innerHTML = conv ? dd : '<option value="">Todos já adicionados!</option>';
+    }
+
     window.alternarModoDivisaoUI = () => {
         const modo = document.getElementById('exp-modo-divisao').value;
         document.querySelectorAll('.val-split-exato').forEach(inp => {
@@ -1885,6 +2442,148 @@
         }
     };
 
+    function atualizarResumoInternoViagem(despesasPassadas) {
+        if(!currentTripDoc) return;
+
+        let duracaoTxt = "Não definida";
+        if(currentTripDoc.dataInicio && currentTripDoc.dataFim) {
+            let d1 = new Date(currentTripDoc.dataInicio);
+            let d2 = new Date(currentTripDoc.dataFim);
+            let diffTime = Math.abs(d2 - d1);
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            duracaoTxt = diffDays + (diffDays === 1 ? " dia" : " dias");
+        }
+        if(document.getElementById('summary-duracao-dias')) document.getElementById('summary-duracao-dias').innerText = duracaoTxt;
+        if(document.getElementById('summary-total-locais')) document.getElementById('summary-total-locais').innerText = timelineEventsData.length + (timelineEventsData.length === 1 ? " sítio" : " sítios");
+
+        if(despesasPassadas) {
+            let totalGasto = 0;
+            let pagosPorPessoa = {};
+            currentTripDoc.membros_info.forEach(m => pagosPorPessoa[m.uid] = { nome: m.nome, total: 0 });
+
+            despesasPassadas.forEach(d => {
+                totalGasto += d.valor;
+                if(pagosPorPessoa[d.pagadorUid]) pagosPorPessoa[d.pagadorUid].total += d.valor;
+            });
+
+            if(document.getElementById('summary-total-gasto')) document.getElementById('summary-total-gasto').innerText = totalGasto.toFixed(2) + '€';
+
+            let htmlMembros = '';
+            Object.keys(pagosPorPessoa).forEach(u => {
+                htmlMembros += `<div class="summary-row">
+                    <span class="summary-label">Pago por ${pagosPorPessoa[u].nome}:</span>
+                    <span class="summary-val">${pagosPorPessoa[u].total.toFixed(2)}€</span>
+                </div>`;
+            });
+            if(document.getElementById('summary-pagamento-membros')) document.getElementById('summary-pagamento-membros').innerHTML = htmlMembros;
+        }
+    }
+
+    function renderizarGraficosResumo(listaDespesas) {
+        const dpr = window.devicePixelRatio || 1;
+
+        const canvasL = document.getElementById('chart-linha-gastos');
+        if(canvasL && canvasL.parentElement) {
+            const ctxL = canvasL.getContext('2d');
+            const rectL = canvasL.parentElement.getBoundingClientRect();
+            
+            canvasL.width = (rectL.width - 30) * dpr;
+            canvasL.height = 150 * dpr;
+            ctxL.scale(dpr, dpr);
+            
+            ctxL.clearRect(0,0,rectL.width - 30,150);
+
+            let gastosPorDia = {};
+            listaDespesas.forEach(d => {
+                let dia = d.dataStr || 'Hoje';
+                gastosPorDia[dia] = (gastosPorDia[dia] || 0) + d.valor;
+            });
+
+            let diasKeys = Object.keys(gastosPorDia);
+            if(diasKeys.length === 0) diasKeys = ['Sem dados'];
+
+            let maxGasto = Math.max(...Object.values(gastosPorDia), 10);
+            let paddingLeft = 35, paddingBottom = 25, widthChart = (rectL.width - 30) - paddingLeft - 10, heightChart = 150 - paddingBottom - 10;
+
+            ctxL.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctxL.lineWidth = 1;
+            ctxL.beginPath();
+            ctxL.moveTo(paddingLeft, 10);
+            ctxL.lineTo(paddingLeft, heightChart + 10);
+            ctxL.lineTo(paddingLeft + widthChart, heightChart + 10);
+            ctxL.stroke();
+
+            ctxL.fillStyle = 'rgba(255,255,255,0.5)';
+            ctxL.font = '10px Poppins';
+            ctxL.fillText(Math.round(maxGasto) + '€', 2, 15);
+            ctxL.fillText('0€', 12, heightChart + 10);
+
+            let stepX = widthChart / Math.max(diasKeys.length - 1, 1);
+            ctxL.strokeStyle = '#FF6B00';
+            ctxL.lineWidth = 2.5;
+            ctxL.beginPath();
+
+            diasKeys.forEach((dia, idx) => {
+                let val = gastosPorDia[dia] || 0;
+                let x = paddingLeft + (idx * stepX);
+                let y = (heightChart + 10) - ((val / maxGasto) * heightChart);
+
+                if(idx === 0) ctxL.moveTo(x, y);
+                else ctxL.lineTo(x, y);
+
+                ctxL.fillStyle = 'rgba(255,255,255,0.5)';
+                ctxL.fillText(dia.substring(0,5), x - 10, heightChart + 22);
+            });
+            ctxL.stroke();
+        }
+
+        const canvasP = document.getElementById('chart-pie-categorias');
+        if(canvasP && canvasP.parentElement) {
+            const ctxP = canvasP.getContext('2d');
+            const rectP = canvasP.parentElement.getBoundingClientRect();
+
+            canvasP.width = (rectP.width - 30) * dpr;
+            canvasP.height = 150 * dpr;
+            ctxP.scale(dpr, dpr);
+
+            ctxP.clearRect(0,0,rectP.width - 30,150);
+
+            let porCat = {};
+            listaDespesas.forEach(d => {
+                let c = d.categoria || 'Geral';
+                porCat[c] = (porCat[c] || 0) + d.valor;
+            });
+
+            let total = Object.values(porCat).reduce((a,b)=>a+b, 0);
+            if(total === 0) { porCat = {'Sem dados': 1}; total = 1; }
+
+            const cores = ['#FF6B00', '#007AFF', '#28CD41', '#AF52DE', '#FF3B30', '#FFCC00'];
+            let startAngle = 0;
+            let centerX = (rectP.width - 30) / 3, centerY = 75, radius = 50;
+
+            Object.keys(porCat).forEach((cat, idx) => {
+                let val = porCat[cat];
+                let sliceAngle = (val / total) * 2 * Math.PI;
+
+                ctxP.fillStyle = cores[idx % cores.length];
+                ctxP.beginPath();
+                ctxP.moveTo(centerX, centerY);
+                ctxP.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctxP.closePath();
+                ctxP.fill();
+
+                let legendY = 25 + (idx * 20);
+                ctxP.fillRect((rectP.width - 30) / 2 + 10, legendY - 8, 10, 10);
+                ctxP.fillStyle = 'rgba(255,255,255,0.8)';
+                ctxP.font = '11px Poppins';
+                ctxP.fillText(`${cat}: ${val.toFixed(2)}€`, (rectP.width - 30) / 2 + 26, legendY);
+
+                startAngle += sliceAngle;
+            });
+        }
+    }
+
+    /* PLANEAMENTO */
     window.processarFotoEvento = (ev) => {
         const file = ev.target.files[0]; if(!file) return;
         const reader = new FileReader();
@@ -1899,6 +2598,38 @@
             }; img.src = e.target.result;
         }; reader.readAsDataURL(file);
     };
+
+    function renderizarTimelineEvents() {
+        const container = document.getElementById('container-timeline-events');
+        if(!container) return;
+        if(timelineEventsData.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão acima!</p>';
+            return;
+        }
+
+        timelineEventsData.sort((a,b) => {
+            let keyA = (a.data || '') + ' ' + (a.hora || '');
+            let keyB = (b.data || '') + ' ' + (b.hora || '');
+            return keyA.localeCompare(keyB);
+        });
+
+        let html = '';
+        timelineEventsData.forEach(ev => {
+            html += `<div class="timeline-item">
+                <div class="timeline-header">
+                    <span class="timeline-time">${ev.data || ''} ${ev.hora ? '• ' + ev.hora : ''}</span>
+                    <div style="display:flex;gap:5px;">
+                        <button class="btn-icon-list" onclick="prepararEditarEvento('${ev.id}')">${iconEdit}</button>
+                        <button class="btn-icon-list" onclick="apagarEventoTimeline('${ev.id}')">${iconTrash}</button>
+                    </div>
+                </div>
+                <div class="timeline-title">${ev.titulo}</div>
+                ${ev.notas ? `<div class="timeline-notes">${ev.notas}</div>` : ''}
+                ${ev.foto ? `<img src="${ev.foto}" class="timeline-img">` : ''}
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
 
     window.guardarEventoTimeline = async () => {
         const evId = document.getElementById('edit-event-id').value;
@@ -1948,6 +2679,7 @@
         }
     };
 
+    /* DESPESAS */
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim();
         const val = parseFloat(document.getElementById('exp-valor').value);
@@ -2001,7 +2733,132 @@
         document.getElementById('exp-desc').value=''; 
         document.getElementById('exp-valor').value='';
     };
+    
+    function renderizarDespesas(listaExp) {
+        let saldos = {}, htmlD = '';
+        if(currentTripDoc && currentTripDoc.membros_info) {
+            currentTripDoc.membros_info.forEach(m => saldos[m.uid] = { nome: m.nome, pago: 0, deve: 0 });
+        }
 
+        listaExp.sort((a,b) => b.timestamp - a.timestamp);
+
+        let saldoIndividualTxt = "";
+        
+        listaExp.forEach(e => { 
+            if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago += e.valor;
+
+            let participantes = e.divididoPor || (currentTripDoc ? currentTripDoc.membros_uids : []);
+
+            if(e.modoDivisao === 'exatos' && e.quotasExatas) {
+                Object.keys(e.quotasExatas).forEach(pUid => {
+                    if(saldos[pUid]) saldos[pUid].deve += e.quotasExatas[pUid];
+                });
+            } else {
+                let quota = e.valor / Math.max(participantes.length, 1);
+                participantes.forEach(pUid => {
+                    if(saldos[pUid]) saldos[pUid].deve += quota;
+                });
+            }
+        });
+
+        const meuSaldo = (saldos[userId] ? (saldos[userId].pago - saldos[userId].deve) : 0);
+
+        Object.keys(saldos).forEach(u => {
+            if(u !== userId) {
+                let saldoPessoa = saldos[u].pago - saldos[u].deve;
+                let relacao = 0;
+                if(meuSaldo > 0 && saldoPessoa < 0) {
+                    relacao = Math.min(meuSaldo, Math.abs(saldoPessoa));
+                } else if(meuSaldo < 0 && saldoPessoa > 0) {
+                    relacao = -Math.min(Math.abs(meuSaldo), saldoPessoa);
+                }
+
+                if(relacao > 0.01) {
+                    saldoIndividualTxt += `<div style="color:var(--green-split);font-weight:700;">${saldos[u].nome} deve-lhe ${relacao.toFixed(2)} €</div>`;
+                } else if(relacao < -0.01) {
+                    saldoIndividualTxt += `<div style="color:var(--red-split);font-weight:700;">Deve a ${saldos[u].nome} ${Math.abs(relacao).toFixed(2)} €</div>`;
+                }
+            }
+        });
+
+        const debtHeader = document.getElementById('split-individual-debt-header');
+        if(debtHeader) {
+            if(modoDespesasAtivo === 'splitwise') {
+                debtHeader.innerHTML = saldoIndividualTxt || '<span style="color:var(--text-muted)">Sem dívidas ativas</span>';
+                debtHeader.style.display = 'block';
+            } else {
+                debtHeader.style.display = 'none';
+            }
+        }
+
+        let lastDateHeader = "";
+
+        listaExp.forEach(e => {
+            const catInfo = obterCategoriaPorTexto(e.desc);
+            let participantes = e.divididoPor || (currentTripDoc ? currentTripDoc.membros_uids : []);
+            let quota = e.valor / Math.max(participantes.length, 1);
+
+            let dateHeader = e.dataStr || "hoje";
+            if(dateHeader !== lastDateHeader) {
+                htmlD += `<div class="date-header-group">${dateHeader}</div>`;
+                lastDateHeader = dateHeader;
+            }
+
+            if(modoDespesasAtivo === 'simples') {
+                htmlD += `<div class="expense-item-split">
+                    <div class="expense-left">
+                        <div class="expense-icon-box">${catInfo.icon}</div>
+                        <div class="expense-details">
+                            <span class="expense-title-txt">${e.desc}</span>
+                        </div>
+                    </div>
+                    <div class="expense-right">
+                        <span class="expense-split-val" style="color:var(--text-main);">${e.valor.toFixed(2)} €</span>
+                    </div>
+                </div>`;
+            } else {
+                let isPagadorEu = (e.pagadorUid === userId);
+                let estaNaDivisaoEu = participantes.includes(userId);
+
+                let tagTexto = "", tagClasse = "", valTexto = "";
+
+                if(isPagadorEu) {
+                    let emprestado = e.valor - (estaNaDivisaoEu ? quota : 0);
+                    tagTexto = "emprestou";
+                    tagClasse = "emprestou";
+                    valTexto = `${emprestado.toFixed(2)} €`;
+                } else if(estaNaDivisaoEu) {
+                    tagTexto = "emprestaram-lhe";
+                    tagClasse = "emprestaram";
+                    valTexto = `${quota.toFixed(2)} €`;
+                } else {
+                    tagTexto = "não envolvido";
+                    tagClasse = "";
+                    valTexto = "0.00 €";
+                }
+
+                htmlD += `<div class="expense-item-split">
+                    <div class="expense-left">
+                        <div class="expense-icon-box">${catInfo.icon}</div>
+                        <div class="expense-details">
+                            <span class="expense-title-txt">${e.desc}</span>
+                            <span class="expense-subtitle-txt">${isPagadorEu ? 'Pagou' : e.pagadorNome + ' pagou'} ${e.valor.toFixed(2)} €</span>
+                        </div>
+                    </div>
+                    <div class="expense-right">
+                        <span class="expense-split-tag ${tagClasse}">${tagTexto}</span>
+                        <span class="expense-split-val ${tagClasse}">${valTexto}</span>
+                    </div>
+                </div>`;
+            }
+        });
+
+        if(document.getElementById('container-despesas')) {
+            document.getElementById('container-despesas').innerHTML = htmlD || '<p style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px 0;">Sem despesas registadas.</p>';
+        }
+    }
+
+    /* LIQUIDAÇÃO DIRECIONADA DE CONTAS */
     window.abrirModalLiquidação = () => {
         let options = '';
         if(currentTripDoc && currentTripDoc.membros_info) {
@@ -2032,7 +2889,7 @@
         fecharModal('modal-liquidacao');
         window.mostrarAlerta(`Contas liquidadas com ${targetObj ? targetObj.nome : ''}.`);
     };
-
+    
     window.apagarDespesa = async (id) => { if(currentTripId) await deleteDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas',id)); };
     window.abrirModal = (id) => document.getElementById(id).classList.add('active'); 
     window.fecharModal = (id) => document.getElementById(id).classList.remove('active'); 

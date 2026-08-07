@@ -183,6 +183,7 @@
     
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
     
+    /* CAPA DA VIAGEM */
     .viagem-header-card{
       position:relative;
       width:100%;
@@ -229,8 +230,9 @@
       display:flex;
       align-items:center;
       justify-content:flex-start;
-      gap:10px;
+      gap:8px;
       margin-bottom:15px;
+      flex-wrap:wrap;
     }
 
     .btn-pill-splitwise{
@@ -286,7 +288,7 @@
       text-transform:lowercase;
     }
 
-    .modal-overlay{display:none;position destruction:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
+    .modal-overlay{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)} .modal-overlay.active{display:flex;animation:fadeIn 0.2s forwards}
     .modal-content{background-color:var(--card-bg);width:100%;max-width:350px;padding:25px;border-radius:20px;text-align:center;border:1px solid var(--border-color);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal-btn-row{display:flex;gap:10px;margin-top:15px} .fullscreen-img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain}
 
     .timeline-container{position:relative;padding-left:25px;margin-top:15px;margin-bottom:100px;width:100%}
@@ -299,7 +301,6 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE SIMPLES COR SECUNDÁRIA FIXO EMBUTIDO */
     .btn-fab-simple{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 15px) !important;
@@ -570,11 +571,14 @@
               <span style="position:absolute;bottom:0;right:0;background:var(--accent);color:#121212;padding:6px;border-radius:50%;display:flex;"><svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></span>
             </div>
             <input type="file" id="input-direct-avatar-file" accept="image/*" style="display:none;" onchange="uploadFotoDiretaPerfil(event)">
+            
+            <button id="btn-remover-foto-perfil" class="btn-pill-splitwise" style="margin-top:12px;display:none;background:#ff3b30;color:white;" onclick="removerFotoPerfil()">🗑️ Remover Foto</button>
+
             <h2 id="profile-page-name" style="margin-top:15px;margin-bottom:2px;font-weight:600;color:var(--text-main);">A carregar...</h2>
             <span style="font-size:12px;color:var(--text-muted);">Conta Pessoal</span>
           </div>
 
-          <div class="dashboard-widget" style="display:flex;align-items:center;justify-content:space-between;padding:18px 25px;cursor:pointer;" onclick="navegarMenu('menu-familia')">
+          <div class="dashboard-widget" style="display:flex;align-items:center;justify-style:space-between;padding:18px 25px;cursor:pointer;" onclick="navegarMenu('menu-familia')">
             <span style="font-size:14px;font-weight:500;">Amigos</span>
             <span class="stat-num" id="profile-friends-count">0</span>
           </div>
@@ -760,6 +764,11 @@
 
           <!-- PLANEAMENTO -->
           <div id="tab-planeador" class="trip-tab-content">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:15px;">
+              <button class="btn-pill-splitwise" style="background:var(--accent);color:#121212;border:none;" onclick="abrirModal('modal-novo-evento')">
+                + Adicionar passo
+              </button>
+            </div>
             <div class="timeline-container" id="container-timeline-events"></div>
           </div>
           
@@ -775,21 +784,16 @@
                 <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
                 Liquidar contas
               </button>
+
+              <button class="btn-pill-splitwise" style="background:var(--accent);color:#121212;border:none;" onclick="abrirModal('modal-nova-despesa')">
+                + Adicionar despesa
+              </button>
             </div>
 
             <div id="split-individual-debt-header" style="font-size:14px;margin-bottom:15px;font-weight:600;"></div>
             
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
-
-          <!-- BOTÕES FLUTUANTES SIMPLES NA COR SECUNDÁRIA FIXOS SOBRE A BARRA DA BIBLIOTECA -->
-          <button class="btn-fab-simple" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
-
-          <button class="btn-fab-simple" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
         </div>
 
         <!-- EDITAR DETALHES DA VIAGEM -->
@@ -1016,6 +1020,7 @@
         </div>
       </div>
 
+      <!-- APENAS APARECE NO MODO SPLITWISE -->
       <div id="container-campos-splitwise-mode" style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
         <span>Pago por</span>
         <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>
@@ -1148,9 +1153,21 @@
             renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
             renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
             renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
+            if(document.getElementById('btn-remover-foto-perfil')) document.getElementById('btn-remover-foto-perfil').style.display = 'inline-flex';
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: userAvatarUrl }, { merge: true });
         };
         reader.readAsDataURL(file);
+    };
+
+    window.removerFotoPerfil = async () => {
+        if(confirm("Remover a tua foto de perfil?")) {
+            userAvatarUrl = "";
+            renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
+            renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
+            if(document.getElementById('btn-remover-foto-perfil')) document.getElementById('btn-remover-foto-perfil').style.display = 'none';
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: "" }, { merge: true });
+        }
     };
 
     window.uploadFotoDiretaCapaNova = (ev) => {
@@ -1255,6 +1272,10 @@
                         renderAvatarElement(document.getElementById('sidebar-user-avatar'), userName, userAvatarUrl);
                         renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
                         renderAvatarElement(document.getElementById('profile-page-avatar'), userName, userAvatarUrl);
+
+                        if(document.getElementById('btn-remover-foto-perfil')) {
+                            document.getElementById('btn-remover-foto-perfil').style.display = (userAvatarUrl && userAvatarUrl.length > 5) ? 'inline-flex' : 'none';
+                        }
 
                         if(pData.theme) aplicarTemaInterface(pData.theme);
                         if(pData.accentColor) aplicarCorInterface(pData.accentColor);
@@ -1404,7 +1425,7 @@
     const palette10 = ['#FF6B00','#FF3B30','#28CD41','#007AFF','#AF52DE','#FF2D55','#5AC8FA','#FFCC00','#5856D6','#2ECC71'];
     
     function renderColorPicker() {
-        const grid = document.getElementById('color-picker-grid'); grid.innerHTML = ''; 
+        const grid = document.getElementById('color-picker-grid'); if(!grid) return; grid.innerHTML = ''; 
         const sColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
         palette10.forEach(c => { 
             const circle = document.createElement('div'); circle.className = 'color-circle';
@@ -1542,7 +1563,7 @@
                 const tripAtual = viagensData.find(v => v.id === currentTripId);
                 if(tripAtual){ 
                     currentTripDoc = tripAtual; 
-                    if(document.getElementById('detalhe-viagem-titulo')) document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome;
+                    if(document.getElementById('detalhe-viagem-titulo')) document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome || '';
                     if(document.getElementById('detalhe-viagem-img')) document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
                     if(document.getElementById('detalhe-viagem-datas')) document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
                     if(document.getElementById('detalhe-viagem-pessoas-count')) document.getElementById('detalhe-viagem-pessoas-count').innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
@@ -2012,7 +2033,7 @@
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
         
-        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
+        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
 
         viagensData.forEach(v => {
             let datasTxt = (v.dataInicio ? v.dataInicio : '') + (v.dataFim ? ' - ' + v.dataFim : '');
@@ -2074,7 +2095,7 @@
     let unsubDespesas = null;
     let unsubTimeline = null;
 
-    /* FUNÇÃO DE ABERTURA PROTEGIDA COM VERIFICAÇÃO DEFENSIVA */
+    /* ABERTURA TOTALMENTE SAFE DAS VIAGENS */
     window.abrirDetalheViagem = (id) => {
         currentTripId = id; 
         currentTripDoc = viagensData.find(v => v.id === id); 
@@ -2083,7 +2104,11 @@
         if(document.getElementById('detalhe-viagem-titulo')) document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome || ''; 
         if(document.getElementById('detalhe-viagem-img')) document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
         if(document.getElementById('detalhe-viagem-datas')) document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
-        if(document.getElementById('detalhe-viagem-pessoas-count')) document.getElementById('detalhe-viagem-pessoas-count').innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
+        
+        const elCount = document.getElementById('detalhe-viagem-pessoas-count');
+        if(elCount) {
+            elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
+        }
 
         if(document.getElementById('edit-trip-nome')) document.getElementById('edit-trip-nome').value = currentTripDoc.nome || '';
         if(document.getElementById('edit-trip-destino')) document.getElementById('edit-trip-destino').value = currentTripDoc.paisCode || '';

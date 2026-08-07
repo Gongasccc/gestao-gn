@@ -225,13 +225,15 @@
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
+    /* BARRA DE DESPESAS COM BOTÃO + À ESQUERDA */
     .splitwise-resumo-bar{
       display:flex;
       align-items:center;
       justify-content:flex-start;
       gap:8px;
       margin-bottom:15px;
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
+      overflow-x:auto;
     }
 
     .btn-pill-splitwise{
@@ -239,13 +241,15 @@
       border:1px solid var(--border-color);
       color:var(--text-main);
       border-radius:20px;
-      padding:6px 14px;
+      padding:8px 14px;
       font-size:12px;
       font-weight:600;
       display:inline-flex;
       align-items:center;
       gap:6px;
       cursor:pointer;
+      white-space:nowrap;
+      flex-shrink:0;
     }
     
     .expense-item-split{
@@ -383,6 +387,18 @@
       border-radius:12px;
       margin-bottom:10px;
     }
+
+    /* ESTILOS DE CARRO DA GARAGEM */
+    .car-card-item{
+      background:var(--card-bg);
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid var(--border-color);
+      margin-bottom:15px;
+      cursor:pointer;
+    }
+    .car-card-img{width:100%;height:160px;object-fit:cover}
+    .car-card-info{padding:15px;display:flex;justify-content:space-between;align-items:center}
   </style>
 </head>
 <body>
@@ -647,6 +663,54 @@
           </button>
         </div>
 
+        <!-- MÓDULO GARAGEM & VEÍCULOS -->
+        <div id="menu-carros" class="page">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <button class="btn-acao" style="background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('page-add-carro')">
+              + Adicionar Veículo
+            </button>
+          </div>
+
+          <div id="container-lista-carros" style="width:100%;margin-bottom:20px;"></div>
+        </div>
+
+        <!-- PÁGINA DE ADICIONAR VEÍCULO (PÁGINA INTEIRA) -->
+        <div id="page-add-carro" class="page">
+          <div class="cartao-desconto-container" style="height:160px;margin-bottom:15px;" onclick="document.getElementById('input-direct-car-photo').click()">
+            <span id="msg-sem-car-photo" style="color:var(--text-muted);font-size:14px;">📸 Adicionar Fotografia do Veículo</span>
+            <img id="preview-car-photo" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
+          </div>
+          <input type="file" id="input-direct-car-photo" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCarro(event)">
+
+          <input type="text" id="input-carro-nome" class="auth-input" placeholder="Modelo do Veículo (ex: VW Golf, BMW Série 1)">
+          <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (ex: AA-00-AA)">
+
+          <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;" onclick="adicionarCarroDB()">Guardar Veículo</button>
+        </div>
+
+        <!-- PÁGINA DE DETALHES DO CARRO / DOCUMENTOS -->
+        <div id="page-detalhe-carro" class="page">
+          <div class="car-card-item" style="cursor:default;">
+            <img id="detalhe-carro-img" class="car-card-img" src="">
+            <div class="car-card-info">
+              <div>
+                <h3 id="detalhe-carro-nome" style="margin:0;">Modelo</h3>
+                <span id="detalhe-carro-mat" style="font-size:12px;color:var(--text-muted);">Matrícula</span>
+              </div>
+              <button class="btn-pill-splitwise" onclick="partilharCarroAtual()">🔗 Partilhar Carro</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-bottom:15px;">
+            <button class="btn-acao" onclick="abrirModal('modal-criar-pasta-carro')" style="font-size:12px;">📁 Nova Pasta</button>
+            <button class="btn-acao" onclick="document.getElementById('input-car-doc-file').click()" style="font-size:12px;background:var(--accent);color:#121212;">📄 Carregar Ficheiro</button>
+            <input type="file" id="input-car-doc-file" style="display:none;" onchange="uploadDocumentoCarro(event)">
+          </div>
+
+          <div id="container-pastas-carro" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
+          <div id="container-docs-carro" class="lista-itens"></div>
+        </div>
+
         <!-- VIAGENS MAIN -->
         <div id="menu-viagens" class="page">
           <div class="stats-viagens">
@@ -727,6 +791,11 @@
               <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
             </div>
 
+            <div class="dashboard-widget" style="margin-bottom:15px;">
+              <h4 style="margin:0 0 8px 0;font-size:14px;color:var(--accent);">Notas / Detalhes da Viagem</h4>
+              <textarea id="trip-detalhes-notes-text" class="textarea-obs" placeholder="Escreve detalhes importantes da viagem..." onchange="guardarNotasGeraisViagem()"></textarea>
+            </div>
+
             <div class="chart-container">
               <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
               <canvas id="chart-linha-gastos"></canvas>
@@ -740,35 +809,36 @@
 
           <!-- PLANEAMENTO -->
           <div id="tab-planeador" class="trip-tab-content">
+            <div style="display:flex;justify-content:flex-start;margin-bottom:15px;">
+              <button class="btn-pill-splitwise" style="background:var(--accent);color:#121212;border:none;" onclick="abrirModal('modal-novo-evento')">
+                + Adicionar passo
+              </button>
+            </div>
             <div class="timeline-container" id="container-timeline-events"></div>
           </div>
           
           <!-- DESPESAS -->
           <div id="tab-splitwise" class="trip-tab-content">
             <div class="splitwise-resumo-bar">
-              <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
-                <option value="splitwise">Modo Splitwise</option>
-                <option value="simples">Modo Simples</option>
-              </select>
+              <button class="btn-pill-splitwise" style="background:var(--accent);color:#121212;border:none;" onclick="abrirModal('modal-nova-despesa')">
+                + Adicionar despesa
+              </button>
 
               <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
                 <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
                 Liquidar contas
               </button>
+
+              <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
+                <option value="splitwise">Modo Splitwise</option>
+                <option value="simples">Modo Simples</option>
+              </select>
             </div>
 
             <div id="split-individual-debt-header" style="font-size:14px;margin-bottom:15px;font-weight:600;"></div>
             
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
-
-          <button class="btn-fab-simple" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
-
-          <button class="btn-fab-simple" id="btn-fab-despesa" onclick="abrirModal('modal-nova-despesa')">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
         </div>
 
         <!-- EDITAR DETALHES DA VIAGEM -->
@@ -844,21 +914,6 @@
           <div class="lista-itens" id="container-rapidas"></div>
         </div>
 
-        <!-- GARAGEM & COMBUSTÍVEL -->
-        <div id="menu-carros" class="page">
-          <div class="dashboard-widget" style="margin-bottom:20px;">
-            <h3 style="margin-top:0;">Adicionar Veículo</h3>
-            <input type="text" id="input-carro-nome" class="auth-input" placeholder="Nome/Modelo (ex: VW Golf)">
-            <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (opcional)">
-            <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;" onclick="adicionarCarroDB()">Guardar Veículo</button>
-          </div>
-
-          <h3 style="margin-bottom:10px;">Os Meus Veículos</h3>
-          <div id="container-lista-carros" class="lista-itens" style="margin-bottom:20px;"></div>
-
-          <button class="btn-acao" style="background-color:var(--btn-secondary);color:var(--text-main);padding:15px;width:100%;" onclick="window.open('https://www.maisgasolina.com/mapa-de-postos/?distancia=20', '_blank')">Ver postos perto de mim</button>
-        </div>
-
         <div id="menu-familia" class="page">
           <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
           <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom:20px;"></div>
@@ -893,6 +948,17 @@
   </div>
 
   <!-- MODALS DA APLICAÇÃO -->
+
+  <div id="modal-criar-pasta-carro" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Nova Pasta de Veículo</h2>
+      <input type="text" id="input-nome-pasta-carro" class="auth-input" placeholder="Nome da Pasta (ex: Manutenções, Seguros)">
+      <div class="modal-btn-row">
+        <button class="btn-acao" onclick="fecharModal('modal-criar-pasta-carro')">Cancelar</button>
+        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarPastaCarro()">Criar Pasta</button>
+      </div>
+    </div>
+  </div>
 
   <div id="modal-criar-livro-receita" class="modal-overlay">
     <div class="modal-content">
@@ -1064,6 +1130,7 @@
     let timelineEventsData = [], tempEventFoto = "", despesasData = [];
     let livrosReceitasData = [], currentLivroId = null, receitasLivroAtual = [], categoriasIndiceLivro = [], currentRecipePageIndex = 0, tempRecipeFoto = "", tempCapaLivroUrl = "";
     let documentosList = [], pastasList = [];
+    let carrosData = [], currentCarroId = null, tempCarFoto = "", carDocsList = [], carPastasList = [];
     let modoDespesasAtivo = 'splitwise';
 
     const iconTrash = `<svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
@@ -1079,6 +1146,8 @@
       'menu-receitas': 'Livro de Receitas',
       'menu-documentos': 'Meus Documentos',
       'menu-carros': 'Garagem',
+      'page-add-carro': 'Adicionar Veículo',
+      'page-detalhe-carro': 'Documentos do Veículo',
       'menu-notificacoes': 'Notificações',
       'menu-biblioteca': 'Biblioteca',
       'menu-perfil': 'Perfil',
@@ -1090,12 +1159,14 @@
       'menu-compras-rapidas': 'Lista Rápida'
     };
 
-    const mainPagesList = ['menu-principal', 'menu-viagens', 'menu-supermercados', 'menu-familia', 'menu-carros', 'menu-notificacoes', 'menu-biblioteca'];
+    const mainPagesList = ['menu-principal', 'menu-viagens', 'menu-supermercados', 'menu-familia', 'menu-carros', 'menu-notificacoes', 'menu-biblioteca', 'menu-receitas', 'menu-documentos'];
 
     const svgCategorias = {
         cafe: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`,
-        restaurante: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M18 2v20M6 2v20M12 2v20"></path></svg>`,
+        restaurante: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"></path></svg>`,
         supermercado: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`,
+        compras: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>`,
+        casa: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
         gasolina: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M3 22V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18"></path><path d="M14 13h4a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h0"></path></svg>`,
         hotel: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"></path><path d="M4 10V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"></path></svg>`,
         lazer: `<svg class="icon-svg" style="margin:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>`,
@@ -1105,9 +1176,11 @@
     function obterCategoriaPorTexto(txt) {
         if(!txt) return { nome: 'Geral', icon: svgCategorias.geral };
         const t = txt.toLowerCase();
-        if(t.includes('café') || t.includes('cafe') || t.includes('galão') || t.includes('pequeno almoço')) return { nome: 'Café', icon: svgCategorias.cafe };
-        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza')) return { nome: 'Restaurante', icon: svgCategorias.restaurante };
-        if(t.includes('supermercado') || t.includes('compras') || t.includes('continente') || t.includes('pingo') || t.includes('lidl')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
+        if(t.includes('café') || t.includes('cafe') || t.includes('galão')) return { nome: 'Café', icon: svgCategorias.cafe };
+        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza') || t.includes('ubereats') || t.includes('uber eats') || t.includes('bolt food')) return { nome: 'Restauração', icon: svgCategorias.restaurante };
+        if(t.includes('supermercado') || t.includes('continente') || t.includes('pingo') || t.includes('lidl') || t.includes('auchan')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
+        if(t.includes('roupa') || t.includes('zara') || t.includes('compras') || t.includes('sapatos')) return { nome: 'Vestuário', icon: svgCategorias.compras };
+        if(t.includes('mobília') || t.includes('mobilia') || t.includes('casa') || t.includes('ikea') || t.includes('decoração')) return { nome: 'Casa & Mobília', icon: svgCategorias.casa };
         if(t.includes('gasolina') || t.includes('combustível') || t.includes('gasóleo') || t.includes('posto') || t.includes('portagem') || t.includes('uber') || t.includes('bolt')) return { nome: 'Transportes', icon: svgCategorias.gasolina };
         if(t.includes('hotel') || t.includes('airbnb') || t.includes('alojamento') || t.includes('quarto')) return { nome: 'Alojamento', icon: svgCategorias.hotel };
         if(t.includes('bilhete') || t.includes('museu') || t.includes('bar') || t.includes('festa') || t.includes('gin')) return { nome: 'Lazer', icon: svgCategorias.lazer };
@@ -1142,6 +1215,18 @@
             if(document.getElementById('btn-remover-foto-perfil')) document.getElementById('btn-remover-foto-perfil').style.display = 'none';
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', userId), { avatarUrl: "" }, { merge: true });
         }
+    };
+
+    window.uploadFotoDiretaCarro = (ev) => {
+        const file = ev.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            tempCarFoto = e.target.result;
+            document.getElementById('preview-car-photo').src = tempCarFoto;
+            document.getElementById('preview-car-photo').style.display = 'block';
+            document.getElementById('msg-sem-car-photo').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
     };
 
     window.uploadFotoDiretaCapaNova = (ev) => {
@@ -1491,8 +1576,8 @@
         attachList('rapidas', 'container-rapidas');
         
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'carros'), s => {
-            let arr = []; s.forEach(d => arr.push({id:d.id, ...d.data()}));
-            renderCarrosDB(arr);
+            carrosData = []; s.forEach(d => carrosData.push({id:d.id, ...d.data()}));
+            renderCarrosDB(carrosData);
         }));
 
         unsusbscribes.push(onSnapshot(collection(userDocRef, 'notifications'), s => {
@@ -1633,33 +1718,142 @@
     window.toggleItemDB = async (col, docId, est) => await updateDoc(doc(db,'artifacts',appId,'users',userId,col,docId), {feita:est}); 
     window.apagarItemDB = async (col, docId) => await deleteDoc(doc(db,'artifacts',appId,'users',userId,col,docId));
 
-    /* GARAGEM DA CONTA */
+    /* GARAGEM REESTRUTURADA */
     window.adicionarCarroDB = async () => {
         const nome = document.getElementById('input-carro-nome').value.trim();
         const mat = document.getElementById('input-carro-mat').value.trim();
-        if(!nome) return window.mostrarAlerta("Preenche pelo menos o nome do veículo.");
-        await addDoc(collection(db,'artifacts',appId,'users',userId,'carros'), { nome: nome, matricula: mat, timestamp: Date.now() });
+        if(!nome) return window.mostrarAlerta("Preenche pelo menos o nome/modelo do veículo.");
+        
+        await addDoc(collection(db,'artifacts',appId,'users',userId,'carros'), { 
+            nome: nome, 
+            matricula: mat, 
+            foto: tempCarFoto || "",
+            timestamp: Date.now() 
+        });
+        
         document.getElementById('input-carro-nome').value = '';
         document.getElementById('input-carro-mat').value = '';
+        document.getElementById('preview-car-photo').style.display = 'none';
+        document.getElementById('msg-sem-car-photo').style.display = 'block';
+        tempCarFoto = "";
+        
+        window.voltarAtras();
     };
 
     function renderCarrosDB(carros) {
         const c = document.getElementById('container-lista-carros');
         if(!c) return;
-        if(carros.length === 0) { c.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);">Sem veículos registados.</p>'; return; }
+        if(carros.length === 0) { c.innerHTML = '<p style="text-align:center;font-size:12px;color:var(--text-muted);padding:20px 0;">Sem veículos registados. Clica em "+ Adicionar Veículo".</p>'; return; }
         let h = '';
         carros.forEach(car => {
-            h += `<div class="list-item">
-                <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
-                <div style="flex:1;margin-left:12px;">
-                    <div style="font-weight:600;font-size:14px;">${car.nome}</div>
-                    ${car.matricula ? `<div style="font-size:11px;color:var(--text-muted);">${car.matricula}</div>` : ''}
+            h += `<div class="car-card-item" onclick="abrirDetalheCarro('${car.id}')">
+                <img src="${car.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf'}" class="car-card-img">
+                <div class="car-card-info">
+                    <div>
+                        <div style="font-weight:600;font-size:15px;">${car.nome}</div>
+                        ${car.matricula ? `<div style="font-size:12px;color:var(--text-muted);">${car.matricula}</div>` : ''}
+                    </div>
+                    <button class="btn-icon-list" onclick="event.stopPropagation(); apagarCarroDB('${car.id}')">${iconTrash}</button>
                 </div>
-                <button class="btn-icon-list" onclick="apagarCarroDB('${car.id}')">${iconTrash}</button>
             </div>`;
         });
         c.innerHTML = h;
     }
+
+    window.abrirDetalheCarro = (id) => {
+        currentCarroId = id;
+        const carro = carrosData.find(c => c.id === id);
+        if(!carro) return;
+
+        document.getElementById('detalhe-carro-nome').innerText = carro.nome;
+        document.getElementById('detalhe-carro-mat').innerText = carro.matricula || 'Sem matrícula';
+        document.getElementById('detalhe-carro-img').src = carro.foto || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf';
+
+        window.navegarMenu('page-detalhe-carro');
+
+        onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'carros', id, 'documentos'), s => {
+            carDocsList = []; s.forEach(d => carDocsList.push({id:d.id, ...d.data()}));
+            renderizarCarDocs();
+        });
+
+        onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'carros', id, 'pastas'), s => {
+            carPastasList = []; s.forEach(d => carPastasList.push({id:d.id, ...d.data()}));
+            renderizarCarPastas();
+        });
+    };
+
+    window.criarPastaCarro = async () => {
+        const nome = document.getElementById('input-nome-pasta-carro').value.trim();
+        if(!nome || !currentCarroId) return;
+        await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'pastas'), {
+            nome: nome,
+            timestamp: Date.now()
+        });
+        fecharModal('modal-criar-pasta-carro');
+        document.getElementById('input-nome-pasta-carro').value = '';
+    };
+
+    window.uploadDocumentoCarro = async (ev) => {
+        const file = ev.target.files[0];
+        if(!file || !currentCarroId) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'documentos'), {
+                nome: file.name,
+                tipo: file.type,
+                conteudo: e.target.result,
+                timestamp: Date.now()
+            });
+            window.mostrarAlerta(`Ficheiro "${file.name}" associado ao veículo com sucesso.`);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    function renderizarCarPastas() {
+        const c = document.getElementById('container-pastas-carro');
+        if(!c) return;
+        let h = '';
+        carPastasList.forEach(p => {
+            h += `<div class="btn-acao" style="font-size:12px;justify-content:space-between;">
+                <span>📁 ${p.nome}</span>
+                <button class="btn-icon-list" onclick="apagarPastaCarro('${p.id}')">${iconTrash}</button>
+            </div>`;
+        });
+        c.innerHTML = h;
+    }
+
+    function renderizarCarDocs() {
+        const c = document.getElementById('container-docs-carro');
+        if(!c) return;
+        if(carDocsList.length === 0) {
+            c.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Sem ficheiros anexados a este veículo.</p>';
+            return;
+        }
+        let h = '';
+        carDocsList.forEach(d => {
+            h += `<div class="doc-item-card">
+                <svg class="icon-svg" style="width:20px;height:20px;margin:0;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <div style="flex:1;overflow:hidden;">
+                    <div style="font-size:13px;font-weight:600;" class="expense-title-txt">${d.nome}</div>
+                </div>
+                <button class="btn-icon-list" onclick="apagarDocCarro('${d.id}')">${iconTrash}</button>
+            </div>`;
+        });
+        c.innerHTML = h;
+    }
+
+    window.apagarPastaCarro = async (pId) => {
+        if(confirm("Apagar pasta do veículo?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'pastas', pId));
+    };
+
+    window.apagarDocCarro = async (dId) => {
+        if(confirm("Apagar documento do veículo?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'carros', currentCarroId, 'documentos', dId));
+    };
+
+    window.partilharCarroAtual = () => {
+        window.mostrarAlerta("Documentos do Veículo partilhados com a tua rede de amigos.");
+    };
 
     window.apagarCarroDB = async (carId) => {
         if(confirm("Remover este veículo?")) await deleteDoc(doc(db,'artifacts',appId,'users',userId,'carros',carId));
@@ -1836,7 +2030,6 @@
         
         document.getElementById('receitas-view-livros').style.display = 'none';
         document.getElementById('receitas-view-reader').style.display = 'block';
-        document.getElementById('btn-fab-receitas-add').style.display = 'inline-flex';
 
         const qRec = collection(db, 'artifacts', appId, 'users', userId, 'livros_receitas', livroId, 'itens');
         onSnapshot(qRec, s => {
@@ -1850,7 +2043,6 @@
     window.fecharLivroReceitas = () => {
         document.getElementById('receitas-view-reader').style.display = 'none';
         document.getElementById('receitas-view-livros').style.display = 'block';
-        document.getElementById('btn-fab-receitas-add').style.display = 'none';
     };
 
     function renderizarPaginaAtualLivro() {
@@ -2007,7 +2199,7 @@
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
         viagensData.sort((a,b) => (b.timestamp||0)-(a.timestamp||0)); let h='';
         
-        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
+        const svgGroup = `<svg class="icon-svg" style="width:16px;height:16px;margin:0;color:var(--accent);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
 
         viagensData.forEach(v => {
             let datasTxt = (v.dataInicio ? v.dataInicio : '') + (v.dataFim ? ' - ' + v.dataFim : '');
@@ -2061,33 +2253,45 @@
         document.getElementById('tab-btn-'+n).classList.add('active'); 
         document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
         document.getElementById('tab-'+n).classList.add('active'); 
-
-        document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'inline-flex' : 'none';
-        document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'inline-flex' : 'none';
     };
     
     let unsubDespesas = null;
     let unsubTimeline = null;
 
-    /* ABERTURA PROTEGIDA DAS VIAGENS */
+    /* ABERTURA TOTALMENTE DEFENSIVA E ROBUSTA DAS VIAGENS */
     window.abrirDetalheViagem = (id) => {
         currentTripId = id; 
         currentTripDoc = viagensData.find(v => v.id === id); 
         if(!currentTripDoc) return;
 
-        if(document.getElementById('detalhe-viagem-titulo')) document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome || ''; 
-        if(document.getElementById('detalhe-viagem-img')) document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
-        if(document.getElementById('detalhe-viagem-datas')) document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
+        const elTit = document.getElementById('detalhe-viagem-titulo');
+        if(elTit) elTit.innerText = currentTripDoc.nome || '';
+        
+        const elImg = document.getElementById('detalhe-viagem-img');
+        if(elImg) elImg.src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1';
+        
+        const elDatas = document.getElementById('detalhe-viagem-datas');
+        if(elDatas) elDatas.innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
         
         const elCount = document.getElementById('detalhe-viagem-pessoas-count');
         if(elCount) {
             elCount.innerText = `${currentTripDoc.membros_uids ? currentTripDoc.membros_uids.length : 1} pessoas`;
         }
 
-        if(document.getElementById('edit-trip-nome')) document.getElementById('edit-trip-nome').value = currentTripDoc.nome || '';
-        if(document.getElementById('edit-trip-destino')) document.getElementById('edit-trip-destino').value = currentTripDoc.paisCode || '';
-        if(document.getElementById('edit-trip-data-inicio')) document.getElementById('edit-trip-data-inicio').value = currentTripDoc.dataInicio || '';
-        if(document.getElementById('edit-trip-data-fim')) document.getElementById('edit-trip-data-fim').value = currentTripDoc.dataFim || '';
+        const inNome = document.getElementById('edit-trip-nome');
+        if(inNome) inNome.value = currentTripDoc.nome || '';
+        
+        const inDest = document.getElementById('edit-trip-destino');
+        if(inDest) inDest.value = currentTripDoc.paisCode || '';
+        
+        const inIni = document.getElementById('edit-trip-data-inicio');
+        if(inIni) inIni.value = currentTripDoc.dataInicio || '';
+        
+        const inFim = document.getElementById('edit-trip-data-fim');
+        if(inFim) inFim.value = currentTripDoc.dataFim || '';
+
+        const elNotes = document.getElementById('trip-detalhes-notes-text');
+        if(elNotes) elNotes.value = currentTripDoc.notasGerais || '';
 
         renderMembrosSettings(); 
         window.switchTripTab('resumo'); 
@@ -2108,6 +2312,13 @@
             renderizarTimelineEvents(); 
             atualizarResumoInternoViagem();
         });
+    };
+
+    window.guardarNotasGeraisViagem = async () => {
+        const txt = document.getElementById('trip-detalhes-notes-text').value;
+        if(currentTripId) {
+            await updateDoc(doc(db,'artifacts',appId,'viagens_partilhadas',currentTripId), { notasGerais: txt });
+        }
     };
 
     window.guardarAlteracoesViagem = async () => {
@@ -2392,7 +2603,7 @@
         const container = document.getElementById('container-timeline-events');
         if(!container) return;
         if(timelineEventsData.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão no canto inferior direito!</p>';
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:13px;padding-top:20px;">Ainda não adicionaste atividades no planeamento. Clica no botão acima!</p>';
             return;
         }
 

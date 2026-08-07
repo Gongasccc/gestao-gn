@@ -144,7 +144,7 @@
     
     .trip-card{background-color:var(--card-bg);border-radius:16px;overflow:hidden;margin-bottom:15px;border:1px solid var(--border-color);cursor:pointer;transition:transform 0.2s;position:relative;height:160px;width:100%} .trip-card:active{transform:scale(0.97)} .trip-cover{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1} .trip-overlay{position:absolute;bottom:0;left:0;right:0;padding:30px 15px 15px 15px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);z-index:2;display:flex;flex-direction:column;justify-content:flex-end} .trip-title{color:white;font-size:18px;font-weight:600;margin:0;text-shadow:0 2px 4px rgba(0,0,0,0.5)} .trip-country{color:#ddd;font-size:12px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between}
     
-    /* CAPA FIXA DA VIAGEM */
+    /* CAPA DA VIAGEM */
     .viagem-header-card{
       position:relative;
       width:100%;
@@ -163,6 +163,37 @@
       flex-direction:column;
       justify-content:space-between;
       padding:15px;
+    }
+
+    .viagem-hero-top-btns{display:flex;justify-content:space-between;align-items:center;z-index:10}
+    .circle-icon-btn{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.15);
+    }
+    .viagem-hero-content{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+    .viagem-hero-title{font-size:22px;font-weight:700;color:white;margin:0;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.6)}
+    .viagem-hero-badges{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .viagem-pill-badge{
+      background:rgba(255,255,255,0.15);
+      backdrop-filter:blur(10px);
+      padding:4px 12px;
+      border-radius:20px;
+      font-size:12px;
+      color:white;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid rgba(255,255,255,0.1);
     }
 
     .trip-tabs{display:flex;background-color:var(--card-bg);border-radius:12px;padding:5px;margin-bottom:20px;border:1px solid var(--border-color);width:100%} 
@@ -245,7 +276,7 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE ESTILO SPLITWISE */
+    /* BOTÃO FLUTUANTE SPLITWISE */
     .btn-fab-splitwise{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 15px) !important;
@@ -548,7 +579,7 @@
         <div id="menu-perfil" class="page">
           <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:30px;">
             <div id="profile-avatar-container" onclick="document.getElementById('input-direct-avatar-file').click()" style="cursor:pointer;position:relative;" title="Editar Foto de Perfil">
-              <div class="user-avatar-custom" id="profile-page-avatar" style="width:90px;height:90px;font-size:32px;">?</div>
+              <div class="user-avatar-custom" id="profile-page-avatar" style="width:90px;height:90px;font-size:32px;"></div>
               <span style="position:absolute;bottom:0;right:0;background:var(--accent);color:#121212;padding:6px;border-radius:50%;display:flex;"><svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></span>
             </div>
             <input type="file" id="input-direct-avatar-file" accept="image/*" style="display:none;" onchange="uploadFotoDiretaPerfil(event)">
@@ -643,7 +674,6 @@
             </div>
           </div>
 
-          <!-- BOTÃO FLUTUANTE ESTILO SPLITWISE FIXO EM VERDE -->
           <button class="btn-fab-splitwise" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()" style="display:none;">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;stroke-width:3;fill:none;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Adicionar receita
@@ -757,7 +787,7 @@
             <div class="timeline-container" id="container-timeline-events"></div>
           </div>
           
-          <!-- DESPESAS ESTILO SPLITWISE EXACTO -->
+          <!-- DESPESAS -->
           <div id="tab-splitwise" class="trip-tab-content">
             <div id="split-individual-debt-header" style="font-size:14px;margin-bottom:15px;font-weight:600;"></div>
 
@@ -775,7 +805,7 @@
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES ESTILO SPLITWISE FIXOS EM VERDE -->
+          <!-- BOTÕES FLUTUANTES SPLITWISE FIXOS -->
           <button class="btn-fab-splitwise" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" style="display:none;">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;stroke-width:3;fill:none;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Adicionar passo
@@ -1134,7 +1164,6 @@
         document.getElementById('exp-icon-box').innerHTML = cat.icon;
     };
 
-    /* UPLOAD DIRETO DE FOTOS SEM CROP */
     window.uploadFotoDiretaPerfil = (ev) => {
         const file = ev.target.files[0]; if(!file) return;
         const reader = new FileReader();
@@ -1190,6 +1219,13 @@
         document.getElementById('auth-confirm-password').style.display = isLoginMode ? 'none' : 'block';
     };
 
+    function obterIniciaisNome(nomeCompleto) {
+        if(!nomeCompleto) return "U";
+        const partes = nomeCompleto.trim().split(/\s+/);
+        if(partes.length === 1) return partes[0].charAt(0).toUpperCase();
+        return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
+    }
+
     window.handleAuth = async () => {
         const userTyped = document.getElementById('auth-username').value.trim(); 
         const pass = document.getElementById('auth-password').value; 
@@ -1234,7 +1270,7 @@
                     const profileSnap = await getDoc(profileRef);
                     if (profileSnap.exists()) { 
                         const pData = profileSnap.data();
-                        userName = pData.username || ""; 
+                        userName = pData.username || "Utilizador"; 
                         userAvatarUrl = pData.avatarUrl || "";
                         
                         document.getElementById('sidebar-account-name').innerText = userName; 
@@ -1271,7 +1307,7 @@
 
     function renderAvatarElement(elem, nome, urlFoto) {
         if(!elem) return;
-        if(urlFoto) {
+        if(urlFoto && urlFoto.length > 5) {
             elem.innerHTML = `<img src="${urlFoto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
         } else {
             elem.innerHTML = obterIniciaisNome(nome);
@@ -1533,7 +1569,6 @@
                     renderMembrosSettings(); 
                     atualizarResumoInternoViagem();
                 }
-                else navegarMenu('menu-viagens');
             }
         }, err => {
             console.error("Erro Viagens:", err);
@@ -1814,7 +1849,7 @@
     window.abrirLivroReceitas = async (livroId) => {
         currentLivroId = livroId;
         const livro = livrosReceitasData.find(l => l.id === livroId);
-        categoriasIndiceLivro = livro.categorias || [];
+        categoriasIndiceLivro = livro ? (livro.categorias || []) : [];
         
         document.getElementById('receitas-view-livros').style.display = 'none';
         document.getElementById('receitas-view-reader').style.display = 'block';
@@ -2044,7 +2079,10 @@
     let unsubTimeline = null;
 
     window.abrirDetalheViagem = async (id) => {
-        currentTripId = id; currentTripDoc = viagensData.find(v => v.id === id); if(!currentTripDoc) return;
+        currentTripId = id; 
+        currentTripDoc = viagensData.find(v => v.id === id); 
+        if(!currentTripDoc) return;
+
         document.getElementById('detalhe-viagem-titulo').innerText = currentTripDoc.nome; 
         document.getElementById('detalhe-viagem-img').src = currentTripDoc.capa || 'https://images.unsplash.com/photo-1488646953014-c8bf089f81d1'; 
         document.getElementById('detalhe-viagem-datas').innerText = (currentTripDoc.dataInicio ? currentTripDoc.dataInicio : '') + (currentTripDoc.dataFim ? ' - ' + currentTripDoc.dataFim : '');
@@ -2150,7 +2188,6 @@
         modoDespesasAtivo = val;
         document.getElementById('btn-liquidar-split-only').style.display = (val === 'splitwise') ? 'inline-flex' : 'none';
         
-        // No modo simples oculta opções de split
         const containerSplitBox = document.getElementById('container-campos-splitwise-mode');
         if(containerSplitBox) containerSplitBox.style.display = (val === 'simples') ? 'none' : 'flex';
 
@@ -2402,17 +2439,17 @@
         }
     };
 
-    /* DESPESAS COM VIZUALIZAÇÃO SPLITWISE EXATA */
+    /* DESPESAS */
     window.adicionarDespesa = async () => {
         const desc = document.getElementById('exp-desc').value.trim();
         const val = parseFloat(document.getElementById('exp-valor').value);
         
         let uidP = userId;
         let modo = 'iguais';
-        let divididos = currentTripDoc.membros_uids;
+        let divididos = currentTripDoc ? currentTripDoc.membros_uids : [userId];
         let quotasExatas = {};
 
-        if(modoDespesasAtivo === 'splitwise') {
+        if(modoDespesasAtivo === 'splitwise' && currentTripDoc) {
             uidP = document.getElementById('exp-pagador').value; 
             modo = document.getElementById('exp-modo-divisao').value;
             divididos = [];
@@ -2434,7 +2471,7 @@
         if(!desc || !val || val<=0) return window.mostrarAlerta("Preenche a descrição e um valor válido.");
         if(divididos.length === 0) return window.mostrarAlerta("Seleciona pelo menos uma pessoa para dividir.");
 
-        const pObj = currentTripDoc.membros_info.find(i => i.uid === uidP);
+        const pObj = currentTripDoc ? currentTripDoc.membros_info.find(i => i.uid === uidP) : null;
         const cat = obterCategoriaPorTexto(desc);
         
         const agora = new Date();
@@ -2444,7 +2481,7 @@
             desc: desc, 
             valor: val, 
             pagadorUid: uidP, 
-            pagadorNome: (pObj?pObj.nome:"Desconhecido"), 
+            pagadorNome: (pObj?pObj.nome:userName), 
             divididoPor: divididos,
             modoDivisao: modo,
             quotasExatas: quotasExatas,
@@ -2460,7 +2497,9 @@
     
     function renderizarDespesas(listaExp) {
         let saldos = {}, htmlD = '';
-        currentTripDoc.membros_info.forEach(m => saldos[m.uid] = { nome: m.nome, pago: 0, deve: 0 });
+        if(currentTripDoc && currentTripDoc.membros_info) {
+            currentTripDoc.membros_info.forEach(m => saldos[m.uid] = { nome: m.nome, pago: 0, deve: 0 });
+        }
 
         listaExp.sort((a,b) => b.timestamp - a.timestamp);
 
@@ -2469,14 +2508,14 @@
         listaExp.forEach(e => { 
             if(saldos[e.pagadorUid]) saldos[e.pagadorUid].pago += e.valor;
 
-            let participantes = e.divididoPor || currentTripDoc.membros_uids;
+            let participantes = e.divididoPor || (currentTripDoc ? currentTripDoc.membros_uids : []);
 
             if(e.modoDivisao === 'exatos' && e.quotasExatas) {
                 Object.keys(e.quotasExatas).forEach(pUid => {
                     if(saldos[pUid]) saldos[pUid].deve += e.quotasExatas[pUid];
                 });
             } else {
-                let quota = e.valor / participantes.length;
+                let quota = e.valor / Math.max(participantes.length, 1);
                 participantes.forEach(pUid => {
                     if(saldos[pUid]) saldos[pUid].deve += quota;
                 });
@@ -2514,8 +2553,8 @@
 
         listaExp.forEach(e => {
             const catInfo = obterCategoriaPorTexto(e.desc);
-            let participantes = e.divididoPor || currentTripDoc.membros_uids;
-            let quota = e.valor / participantes.length;
+            let participantes = e.divididoPor || (currentTripDoc ? currentTripDoc.membros_uids : []);
+            let quota = e.valor / Math.max(participantes.length, 1);
 
             let dateHeader = e.dataStr || "hoje";
             if(dateHeader !== lastDateHeader) {
@@ -2578,11 +2617,13 @@
     /* LIQUIDAÇÃO DIRECIONADA DE CONTAS */
     window.abrirModalLiquidação = () => {
         let options = '';
-        currentTripDoc.membros_info.forEach(m => {
-            if(m.uid !== userId) {
-                options += `<option value="${m.uid}">${m.nome}</option>`;
-            }
-        });
+        if(currentTripDoc && currentTripDoc.membros_info) {
+            currentTripDoc.membros_info.forEach(m => {
+                if(m.uid !== userId) {
+                    options += `<option value="${m.uid}">${m.nome}</option>`;
+                }
+            });
+        }
         if(!options) return window.mostrarAlerta("Não há outros membros para liquidar.");
         document.getElementById('select-liquidar-pessoa').innerHTML = options;
         abrirModal('modal-liquidacao');
@@ -2590,7 +2631,7 @@
 
     window.confirmarLiquidaçãoPessoa = async () => {
         const targetUid = document.getElementById('select-liquidar-pessoa').value;
-        const targetObj = currentTripDoc.membros_info.find(m => m.uid === targetUid);
+        const targetObj = currentTripDoc ? currentTripDoc.membros_info.find(m => m.uid === targetUid) : null;
         
         await addDoc(collection(db,'artifacts',appId,'viagens_partilhadas',currentTripId,'despesas'), {
             desc: `Liquidação com ${targetObj ? targetObj.nome : ''}`,

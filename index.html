@@ -22,6 +22,9 @@
       --bottom-nav-height:65px;
       --green-split:#20C997;
       --red-split:#FF4D4D;
+      --nav-grad-start: rgba(24,24,24,1);
+      --nav-grad-mid: rgba(24,24,24,0.85);
+      --nav-grad-end: rgba(24,24,24,0);
     }
     body.light-mode{
       --bg-color:#FFFFFF;
@@ -30,6 +33,9 @@
       --text-muted:rgba(0,0,0,0.55);
       --btn-secondary:#E5E5E5;
       --border-color:rgba(0,0,0,0.08);
+      --nav-grad-start: rgba(242,242,242,1);
+      --nav-grad-mid: rgba(242,242,242,0.85);
+      --nav-grad-end: rgba(242,242,242,0);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{font-family:'Poppins',sans-serif;background-color:var(--bg-color);color:var(--text-main);margin:0;padding:0;display:flex;min-height:100vh;overflow-x:hidden;transition:background-color 0.3s,color 0.3s}
@@ -80,6 +86,7 @@
     .icon-svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:24px;height:24px;margin-bottom:4px}
     .sidebar-icon-svg{width:20px;height:20px;flex-shrink:0;margin-bottom:0}
     
+    /* BARRA INFERIOR GRADUAL PARA AMBOS OS MODOS (CLARO E ESCURO) */
     #bottom-nav{
       position:fixed;
       bottom:0;
@@ -87,7 +94,7 @@
       right:0;
       height:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
       padding-bottom:env(safe-area-inset-bottom);
-      background: linear-gradient(to top, rgba(24,24,24,1) 35%, rgba(24,24,24,0.85) 75%, rgba(24,24,24,0) 100%);
+      background: linear-gradient(to top, var(--nav-grad-start) 35%, var(--nav-grad-mid) 75%, var(--nav-grad-end) 100%);
       backdrop-filter:blur(10px);
       -webkit-backdrop-filter:blur(10px);
       display:flex;
@@ -153,6 +160,7 @@
       overflow:hidden;
       margin-bottom:15px;
       border:1px solid var(--border-color);
+      cursor:pointer;
     }
     .viagem-header-card img{width:100%;height:100%;object-fit:cover}
     .viagem-header-overlay-box{
@@ -165,7 +173,7 @@
       padding:15px;
     }
 
-    .viagem-hero-top-btns{display:flex;justify-content:space-between;align-items:center;z-index:10}
+    .viagem-hero-top-btns{display:flex;justify-content:flex-end;align-items:center;z-index:10}
     .circle-icon-btn{
       width:38px;
       height:38px;
@@ -205,7 +213,7 @@
     .splitwise-resumo-bar{
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:flex-start;
       gap:10px;
       margin-bottom:15px;
     }
@@ -276,11 +284,11 @@
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
     
-    /* BOTÃO FLUTUANTE SPLITWISE */
+    /* BOTÕES FLUTUANTES PARALELOS EM CIMA DE BIBLIOTECA */
     .btn-fab-splitwise{
       position:fixed !important;
       bottom:calc(var(--bottom-nav-height) + 15px) !important;
-      right:20px !important;
+      right:25px !important;
       background-color:#20C997 !important;
       color:#121212 !important;
       display:inline-flex !important;
@@ -288,7 +296,7 @@
       gap:8px !important;
       padding:12px 20px !important;
       border-radius:30px !important;
-      font-size:14px !important;
+      font-size:13px !important;
       font-weight:700 !important;
       box-shadow:0 8px 25px rgba(0,0,0,0.5) !important;
       border:none !important;
@@ -297,38 +305,6 @@
       transition:transform 0.15s;
     }
     .btn-fab-splitwise:active{transform:scale(0.95)}
-    
-    .viagem-stats-summary{background-color:var(--card-bg);border-radius:16px;padding:15px;border:1px solid var(--border-color);margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
-    .summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
-    .summary-label{color:var(--text-muted)}
-    .summary-val{font-weight:600;color:var(--text-main)}
-
-    .color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:10px 0}
-    .color-circle{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;margin:auto;transition:transform 0.2s}
-    .color-circle:active{transform:scale(0.85)}
-    .color-circle.selected{border-color:var(--text-main)}
-
-    .user-avatar-custom{width:36px;height:36px;border-radius:50%;background-color:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;object-fit:cover;}
-    .user-card{display:flex;align-items:center;justify-content:space-between;background-color:var(--card-bg);padding:12px 15px;border-radius:14px;border:1px solid var(--border-color);margin-bottom:8px}
-    .user-info{display:flex;align-items:center;gap:12px}
-
-    .notif-push-card{
-      background-color:var(--card-bg);
-      border-radius:16px;
-      padding:14px 16px;
-      margin-bottom:12px;
-      border:1px solid var(--border-color);
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-    }
-    .notif-push-header{display:flex;align-items:center;justify-content:space-between}
-    .notif-push-brand{display:flex;align-items:center;gap:8px}
-    .notif-push-app-icon{width:18px;height:18px;border-radius:4px;object-fit:cover}
-    .notif-push-app-name{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
-    .notif-push-time{font-size:10px;color:var(--text-muted)}
-    .notif-push-body{font-size:13px;color:var(--text-main);line-height:1.4}
 
     .switch-setting-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 0;border-bottom:1px solid var(--border-color)}
     .switch-setting-label{font-size:14px;font-weight:500;color:var(--text-main)}
@@ -348,7 +324,7 @@
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
     canvas{width:100% !important;max-height:180px}
 
-    /* ESTILOS LIVRO DE RECEITAS */
+    /* LIVRO DE RECEITAS */
     .books-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -451,7 +427,7 @@
     <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
     <div id="sidebar">
       <div class="sidebar-header-account" onclick="navegarMenu('menu-perfil')">
-        <div class="top-profile-avatar" id="sidebar-user-avatar">?</div>
+        <div class="top-profile-avatar" id="sidebar-user-avatar"></div>
         <div class="sidebar-account-info">
           <span class="sidebar-account-name" id="sidebar-account-name">A carregar...</span>
           <span class="sidebar-account-sub">Ver perfil</span>
@@ -500,7 +476,7 @@
       <!-- TOP APP BAR -->
       <div class="top-app-bar" id="main-top-bar">
         <div class="top-left-btn" id="top-left-btn" onclick="handleTopLeftClick()">
-          <div class="top-profile-avatar" id="top-user-avatar">?</div>
+          <div class="top-profile-avatar" id="top-user-avatar"></div>
         </div>
         <div class="top-title" id="top-title">Início</div>
         <div style="width:34px;"></div>
@@ -674,6 +650,7 @@
             </div>
           </div>
 
+          <!-- BOTÃO FLUTUANTE ESTILO SPLITWISE FIXO -->
           <button class="btn-fab-splitwise" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()" style="display:none;">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;stroke-width:3;fill:none;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Adicionar receita
@@ -718,14 +695,11 @@
 
         <!-- DETALHE VIAGEM -->
         <div id="page-viagem-detalhe" class="page" style="position:relative;">
-          <div class="viagem-header-card">
+          <div class="viagem-header-card" onclick="verCapaViagemEmGrande()">
             <img id="detalhe-viagem-img" src="">
             <div class="viagem-header-overlay-box">
               <div class="viagem-hero-top-btns">
-                <div class="circle-icon-btn" onclick="voltarAtras()">
-                  <svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                </div>
-                <div class="circle-icon-btn" onclick="navegarMenu('page-detalhes-viagem-edit')">
+                <div class="circle-icon-btn" onclick="event.stopPropagation(); navegarMenu('page-detalhes-viagem-edit')">
                   <svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </div>
               </div>
@@ -792,20 +766,20 @@
             <div id="split-individual-debt-header" style="font-size:14px;margin-bottom:15px;font-weight:600;"></div>
 
             <div class="splitwise-resumo-bar">
-              <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
-                ⚡ Liquidar contas
-              </button>
-
               <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
                 <option value="splitwise">Modo Splitwise</option>
                 <option value="simples">Modo Simples</option>
               </select>
+
+              <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
+                ⚡ Liquidar contas
+              </button>
             </div>
             
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES SPLITWISE FIXOS -->
+          <!-- BOTÕES FLUTUANTES SPLITWISE FIXOS SOBRE O ÍCONE DA BIBLIOTECA -->
           <button class="btn-fab-splitwise" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')" style="display:none;">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;stroke-width:3;fill:none;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Adicionar passo
@@ -1387,7 +1361,10 @@
         const topLeftBtn = document.getElementById('top-left-btn');
         const topTitle = document.getElementById('top-title');
 
-        if(!mainPagesList.includes(idPagina)) {
+        if(idPagina === 'page-viagem-detalhe') {
+            topLeftBtn.innerHTML = iconBackArrow;
+            topTitle.innerText = currentTripDoc ? currentTripDoc.nome : 'Viagem';
+        } else if(!mainPagesList.includes(idPagina)) {
             topLeftBtn.innerHTML = iconBackArrow;
             topTitle.innerText = pageTitles[idPagina] || 'Menu';
         } else {
@@ -2011,6 +1988,14 @@
         window.mostrarAlerta("Link do Livro copiado!");
     };
 
+    window.verCapaViagemEmGrande = () => {
+        const img = document.getElementById('detalhe-viagem-img');
+        if(img && img.src) {
+            document.getElementById('img-fullscreen-cartao').src = img.src;
+            abrirModal('modal-cartao');
+        }
+    };
+
     /* VIAGENS */
     function renderViagensCards() { 
         const c = document.getElementById('container-viagens'); if(viagensData.length===0){c.innerHTML='<p style="text-align:center;font-size:13px;color:var(--text-muted);">Sem viagens.</p>'; return;} 
@@ -2141,39 +2126,47 @@
 
     function renderMembrosSettings() {
          let sel='', list='', dd='', checkboxes = '';
-         const donoId = currentTripDoc.dono;
+         const donoId = currentTripDoc ? currentTripDoc.dono : null;
 
-         currentTripDoc.membros_info.forEach(p => { 
-             sel+=`<option value="${p.uid}">${p.nome}</option>`; 
-             
-             let isCriador = (p.uid === donoId);
-             let btnRemover = (!isCriador && (userId === donoId || p.uid === userId)) ? 
-                `<button class="btn-icon-list" onclick="removerMembroViagem('${p.uid}')" title="Remover das viagens">${iconTrash}</button>` : '';
+         if(currentTripDoc && currentTripDoc.membros_info) {
+             currentTripDoc.membros_info.forEach(p => { 
+                 sel+=`<option value="${p.uid}">${p.nome}</option>`; 
+                 
+                 let isCriador = (p.uid === donoId);
+                 let btnRemover = (!isCriador && (userId === donoId || p.uid === userId)) ? 
+                    `<button class="btn-icon-list" onclick="removerMembroViagem('${p.uid}')" title="Remover das viagens">${iconTrash}</button>` : '';
 
-             list+=`<div class="user-card" style="padding:10px;">
-                <div class="user-info">
-                    <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(p.nome)}</div>
-                    <div>
-                        <span style="font-size:14px;font-weight:500;">${p.nome}</span>
-                        ${isCriador ? '<span style="font-size:10px;color:var(--accent);margin-left:6px;font-weight:600;">(Criador)</span>' : ''}
+                 list+=`<div class="user-card" style="padding:10px;">
+                    <div class="user-info">
+                        <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">${obterIniciaisNome(p.nome)}</div>
+                        <div>
+                            <span style="font-size:14px;font-weight:500;">${p.nome}</span>
+                            ${isCriador ? '<span style="font-size:10px;color:var(--accent);margin-left:6px;font-weight:600;">(Criador)</span>' : ''}
+                        </div>
                     </div>
-                </div>
-                ${btnRemover}
-             </div>`; 
+                    ${btnRemover}
+                 </div>`; 
 
-             checkboxes += `<div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:6px;">
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
-                    <input type="checkbox" class="chk-split-membro" value="${p.uid}" checked onchange="alternarModoDivisaoUI()"> ${p.nome}
-                </label>
-                <input type="number" class="val-split-exato auth-input" data-uid="${p.uid}" placeholder="€" style="display:none;width:80px;margin:0;padding:4px 8px;font-size:12px;">
-             </div>`;
-         });
+                 checkboxes += `<div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:6px;">
+                    <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                        <input type="checkbox" class="chk-split-membro" value="${p.uid}" checked onchange="alternarModoDivisaoUI()"> ${p.nome}
+                    </label>
+                    <input type="number" class="val-split-exato auth-input" data-uid="${p.uid}" placeholder="€" style="display:none;width:80px;margin:0;padding:4px 8px;font-size:12px;">
+                 </div>`;
+             });
+         }
 
          document.getElementById('exp-pagador').innerHTML = sel; 
          document.getElementById('trip-membros-list').innerHTML = list;
          document.getElementById('split-participantes-container').innerHTML = checkboxes;
 
-         let conv=false; minhaRede.forEach(c => { if(!currentTripDoc.membros_uids.includes(c.uid)){ dd+=`<option value="${c.uid}" data-nome="${c.name}">${c.name}</option>`; conv=true; } });
+         let conv=false; 
+         minhaRede.forEach(c => { 
+             if(currentTripDoc && !currentTripDoc.membros_uids.includes(c.uid)){ 
+                 dd+=`<option value="${c.uid}" data-nome="${c.name}">${c.name}</option>`; 
+                 conv=true; 
+             } 
+         });
          document.getElementById('trip-amigos-disponiveis').innerHTML = conv ? dd : '<option value="">Todos já adicionados!</option>';
     }
 

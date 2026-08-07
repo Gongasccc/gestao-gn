@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="App Casal">
+  <meta name="apple-mobile-web-app-title" content="Gestão G&N">
   <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -38,7 +38,6 @@
       --nav-grad-end: rgba(242,242,242,0);
     }
     
-    /* BLOQUEIO DE SELEÇÃO DE TEXTO PARA SINTONIA NATIVA */
     *{
       box-sizing:border-box;
       -webkit-tap-highlight-color:transparent;
@@ -283,6 +282,47 @@
     .timeline-title{font-size:15px;font-weight:600;margin:2px 0}
     .timeline-notes{font-size:13px;color:var(--text-muted);white-space:pre-line}
     .timeline-img{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:8px}
+    
+    /* BOTÃO FLUTUANTE SIMPLES COR SECUNDÁRIA FIXO EM RELAÇÃO À BARRA DA BIBLIOTECA */
+    .btn-fab-simple{
+      position:fixed !important;
+      bottom:calc(var(--bottom-nav-height) + 15px) !important;
+      right:calc((100vw - min(100vw, 600px)) / 2 + 25px) !important;
+      width:52px !important;
+      height:52px !important;
+      border-radius:50% !important;
+      background-color:var(--accent) !important;
+      color:#121212 !important;
+      display:none;
+      align-items:center !important;
+      justify-content:center !important;
+      box-shadow:0 8px 25px rgba(0,0,0,0.5) !important;
+      border:none !important;
+      cursor:pointer !important;
+      z-index:9500 !important;
+      transition:transform 0.15s;
+    }
+    .btn-fab-simple:active{transform:scale(0.92)}
+    .btn-fab-simple svg{width:24px;height:24px;stroke:currentColor;stroke-width:2.8;fill:none}
+
+    /* ESTILO PUSH DE NOTIFICAÇÃO LIMPO E TAMANHO CORRETO */
+    .notif-push-card{
+      background-color:var(--card-bg);
+      border-radius:16px;
+      padding:14px 16px;
+      margin-bottom:12px;
+      border:1px solid var(--border-color);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    }
+    .notif-push-header{display:flex;align-items:center;justify-content:space-between}
+    .notif-push-brand{display:flex;align-items:center;gap:8px}
+    .notif-push-app-icon{width:20px;height:20px;border-radius:4px;object-fit:cover}
+    .notif-push-app-name{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+    .notif-push-time{font-size:10px;color:var(--text-muted)}
+    .notif-push-body{font-size:13px;color:var(--text-main);line-height:1.4}
 
     .switch-setting-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 0;border-bottom:1px solid var(--border-color)}
     .switch-setting-label{font-size:14px;font-weight:500;color:var(--text-main)}
@@ -302,13 +342,7 @@
     .chart-container{width:100%;background:var(--bg-color);border:1px solid var(--border-color);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center}
     canvas{width:100% !important;max-height:180px}
 
-    /* ESTILOS LIVRO DE RECEITAS */
-    .books-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:15px;
-      width:100%;
-    }
+    .books-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%}
     .book-cover-card{
       background:var(--card-bg);
       border-radius:12px;
@@ -321,23 +355,8 @@
       height:200px;
       box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
     }
-    .book-cover-img{
-      width:100%;
-      height:140px;
-      object-fit:cover;
-      background:var(--accent);
-    }
-    .book-cover-title{
-      padding:10px;
-      font-size:13px;
-      font-weight:600;
-      color:var(--text-main);
-      text-align:center;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:1;
-    }
+    .book-cover-img{width:100%;height:140px;object-fit:cover;background:var(--accent)}
+    .book-cover-title{padding:10px;font-size:13px;font-weight:600;color:var(--text-main);text-align:center;display:flex;align-items:center;justify-content:center;flex:1}
 
     .recipe-book-reader{
       background:#FFFFFF;
@@ -351,14 +370,7 @@
       overflow:hidden;
     }
 
-    .recipe-page-touch-left, .recipe-page-touch-right{
-      position:absolute;
-      top:0;
-      bottom:0;
-      width:50%;
-      z-index:5;
-      cursor:pointer;
-    }
+    .recipe-page-touch-left, .recipe-page-touch-right{position:absolute;top:0;bottom:0;width:50%;z-index:5;cursor:pointer}
     .recipe-page-touch-left{ left:0 }
     .recipe-page-touch-right{ right:0 }
 
@@ -457,7 +469,7 @@
           <div class="top-profile-avatar" id="top-user-avatar"></div>
         </div>
         <div class="top-title" id="top-title">Início</div>
-        <div style="width:34px;" id="top-right-gear-container"></div>
+        <div style="width:34px;display:flex;justify-content:flex-end;" id="top-right-gear-container"></div>
       </div>
 
       <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
@@ -750,7 +762,7 @@
             <div id="container-despesas" style="margin-bottom:100px;"></div>
           </div>
 
-          <!-- BOTÕES FLUTUANTES SIMPLES NA COR SECUNDÁRIA EXATAMENTE NO MESMO SITIO -->
+          <!-- BOTÕES FLUTUANTES SIMPLES NA COR SECUNDÁRIA FIXOS SOBRE A BARRA DA BIBLIOTECA -->
           <button class="btn-fab-simple" id="btn-fab-planeador" onclick="abrirModal('modal-novo-evento')">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
@@ -1062,7 +1074,7 @@
     const iconGear = `<div class="circle-icon-btn" onclick="navegarMenu('page-detalhes-viagem-edit')"><svg class="icon-svg" style="margin:0;width:18px;height:18px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>`;
 
     const pageTitles = {
-      'menu-principal': 'Início',
+      'menu-principal': 'Gestão G&N',
       'menu-viagens': 'Viagens',
       'menu-supermercados': 'Supermercados',
       'menu-familia': 'Amigos',
@@ -1344,7 +1356,7 @@
         } else {
             topLeftBtn.innerHTML = `<div class="top-profile-avatar" id="top-user-avatar"></div>`;
             renderAvatarElement(document.getElementById('top-user-avatar'), userName, userAvatarUrl);
-            topTitle.innerText = pageTitles[idPagina] || 'App Casal';
+            topTitle.innerText = pageTitles[idPagina] || 'Gestão G&N';
             gearContainer.innerHTML = '';
         }
 
@@ -1574,7 +1586,7 @@
                 <div class="notif-push-header">
                     <div class="notif-push-brand">
                         <img src="logopreto_fundobranco.png" class="notif-push-app-icon" onerror="this.src='logobranco_semfundo.png'">
-                        <span class="notif-push-app-name">App Casal</span>
+                        <span class="notif-push-app-name">Gestão G&N</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span class="notif-push-time">${displayTime}</span>
@@ -1691,13 +1703,13 @@
         if(amigos.length===0){c.innerHTML='<p style="text-align:center;font-size:12px;color:var(--text-muted);">Ainda não adicionaste ninguém.</p>'; return;} 
         let h=''; 
         amigos.forEach(a => {
-            h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">`;
+            h+=`<div class="user-card"><div class="user-info"><div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;flex-shrink:0;">`;
             if(a.avatarUrl) {
                 h+=`<img src="${a.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
             } else {
                 h+=obterIniciaisNome(a.name);
             }
-            h+=`</div><p class="user-name">${a.name}</p></div></div>`;
+            h+=`</div><p class="user-name" style="margin:0;font-size:14px;font-weight:500;">${a.name}</p></div></div>`;
         }); 
         c.innerHTML=h; 
     }
@@ -2022,7 +2034,7 @@
                 capa: tempCapaUrl||"", 
                 timestamp: Date.now(), 
                 membros_uids: [userId], 
-                membros_info: [{uid:userId, nome:userName||"Eu"}], 
+                membros_info: [{uid:userId, nome:userName||"Eu", avatarUrl:userAvatarUrl}], 
                 dono: userId 
             });
             
@@ -2039,7 +2051,6 @@
         document.querySelectorAll('.trip-tab-content').forEach(e=>e.classList.remove('active')); 
         document.getElementById('tab-'+n).classList.add('active'); 
 
-        // CONTROLO DE BOTÃO FIXO EXCLUSIVO DA ABA ATIVA
         document.getElementById('btn-fab-planeador').style.display = (n === 'planeador') ? 'inline-flex' : 'none';
         document.getElementById('btn-fab-despesa').style.display = (n === 'splitwise') ? 'inline-flex' : 'none';
     };
@@ -2122,7 +2133,7 @@
 
                  list+=`<div class="user-card" style="padding:10px;">
                     <div class="user-info">
-                        <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;">`;
+                        <div class="user-avatar-custom" style="width:30px;height:30px;font-size:12px;flex-shrink:0;">`;
                  if(p.avatarUrl) {
                      list+=`<img src="${p.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
                  } else {
@@ -2241,7 +2252,6 @@
         }
     }
 
-    /* GRÁFICOS HD SINTONIZADOS */
     function renderizarGraficosResumo(listaDespesas) {
         const dpr = window.devicePixelRatio || 1;
 

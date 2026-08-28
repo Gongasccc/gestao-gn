@@ -225,7 +225,6 @@
     .trip-tab-content{display:none;width:100%;animation:fadeIn 0.3s forwards} 
     .trip-tab-content.active{display:block}
 
-    /* BARRA DE DESPESAS COM BOTÃO + À ESQUERDA */
     .splitwise-resumo-bar{
       display:flex;
       align-items:center;
@@ -388,7 +387,6 @@
       margin-bottom:10px;
     }
 
-    /* ESTILOS DE CARRO DA GARAGEM */
     .car-card-item{
       background:var(--card-bg);
       border-radius:16px;
@@ -909,7 +907,7 @@
 
           <div id="ocr-loading" style="display:none; text-align:center; margin-bottom:20px; padding:20px; background:var(--card-bg); border-radius:12px;">
             <div class="loading-spinner" style="margin:0 auto; border-top-color:var(--accent);"></div>
-            <p style="font-size:13px;color:var(--text-muted);margin-top:10px;" id="ocr-status-txt">A ler o recibo...</p>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:10px;" id="ocr-status-txt">A processar imagem...</p>
           </div>
 
           <label style="font-size:12px;color:var(--accent);font-weight:600;">Valor Total Detetado (€):</label>
@@ -1223,7 +1221,7 @@
         if(!txt) return { nome: 'Geral', icon: svgCategorias.geral };
         const t = txt.toLowerCase();
         if(t.includes('café') || t.includes('cafe') || t.includes('galão')) return { nome: 'Café', icon: svgCategorias.cafe };
-        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza') || t.includes('ubereats') || t.includes('uber eats') || t.includes('bolt food')) return { nome: 'Restauração', icon: svgCategorias.restaurante };
+        if(t.includes('jantar') || t.includes('almoço') || t.includes('restaurante') || t.includes('comida') || t.includes('pizza') || t.includes('ubereats') || t.includes('uber eats') || t.includes('bolt food') || t.includes('choco')) return { nome: 'Restauração', icon: svgCategorias.restaurante };
         if(t.includes('supermercado') || t.includes('continente') || t.includes('pingo') || t.includes('lidl') || t.includes('auchan')) return { nome: 'Supermercado', icon: svgCategorias.supermercado };
         if(t.includes('roupa') || t.includes('zara') || t.includes('compras') || t.includes('sapatos')) return { nome: 'Vestuário', icon: svgCategorias.compras };
         if(t.includes('mobília') || t.includes('mobilia') || t.includes('casa') || t.includes('ikea') || t.includes('decoração')) return { nome: 'Casa & Mobília', icon: svgCategorias.casa };
@@ -2941,57 +2939,123 @@
     window.fecharModal = (id) => document.getElementById(id).classList.remove('active'); 
     window.mostrarAlerta = (msg) => { document.getElementById('mensagem-alerta').innerText=msg; window.abrirModal('modal-alerta'); };
 
-    // --- LÓGICA DE LEITURA DE RECIBOS (OCR) ---
+    // --- LÓGICA DE LEITURA DE RECIBOS (OCR AVANÇADO) ---
     window.processarFotoRecibo = async (ev) => {
         const file = ev.target.files[0];
         if(!file) return;
 
         const preview = document.getElementById('preview-recibo');
         const msg = document.getElementById('msg-sem-recibo');
-        preview.src = URL.createObjectURL(file);
+        
+        // Criar URL temporário para mostrar a foto original
+        const imgUrl = URL.createObjectURL(file);
+        preview.src = imgUrl;
         preview.style.display = 'block';
         msg.style.display = 'none';
 
         document.getElementById('ocr-loading').style.display = 'block';
         document.getElementById('ocr-total-val').value = '';
         document.getElementById('ocr-texto-bruto').value = '';
-        document.getElementById('ocr-status-txt').innerText = "A iniciar inteligência artificial...";
+        document.getElementById('ocr-status-txt').innerText = "A aplicar filtro de alto contraste...";
 
         try {
-            const worker = await Tesseract.createWorker('por');
+            // Processamento de imagem em Canvas (Filtro Oculto para limpar sombras)
+            const img = new Image();
+            img.src = imgUrl;
+            await new Promise(r => img.onload = r);
             
-            document.getElementById('ocr-status-txt').innerText = "A procurar texto na imagem...";
-            const ret = await worker.recognize(file);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Redimensionar para não bloquear a memória (max 1500px)
+            let w = img.width;
+            let h = img.height;
+            const MAX_DIM = 1500;
+            if(w > h && w > MAX_DIM) { h *= MAX_DIM / w; w = MAX_DIM; }
+            else if(h > MAX_DIM) { w *= MAX_DIM / h; h = MAX_DIM; }
+            
+            canvas.width = w;
+            canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+            
+            // Aplicar Filtro Preto e Branco (Grayscale) e Aumentar Contraste
+            let imgData = ctx.getImageData(0, 0, w, h);
+            let data = imgData.data;
+            for(let i = 0; i < data.length; i += 4) {
+                let r = data[i], g = data[i+1], b = data[i+2];
+                // Luma (tons de cinza)
+                let luma = (r * 0.299 + g * 0.587 + b * 0.114);
+                // Aumentar contraste agressivamente
+                let color = luma > 110 ? 255 : 0; 
+                data[i] = color;
+                data[i+1] = color;
+                data[i+2] = color;
+            }
+            ctx.putImageData(imgData, 0, 0);
+            const imagemTratadaB64 = canvas.toDataURL('image/jpeg', 0.8);
+
+            document.getElementById('ocr-status-txt').innerText = "A extrair texto (Tesseract)...";
+            const worker = await Tesseract.createWorker('por');
+            const ret = await worker.recognize(imagemTratadaB64);
             const textoExtraido = ret.data.text;
 
             document.getElementById('ocr-texto-bruto').value = textoExtraido;
-            document.getElementById('ocr-status-txt').innerText = "A calcular o valor total...";
+            document.getElementById('ocr-status-txt').innerText = "A procurar o valor exato...";
             
-            const valorFinal = procurarTotalComRegex(textoExtraido);
+            const valorFinal = procurarTotalAvancado(textoExtraido);
 
             if(valorFinal) {
                 document.getElementById('ocr-total-val').value = valorFinal;
+                
+                // Mostrar botão para enviar para a Viagem se houver uma ativa
+                if(currentTripId && currentTripDoc) {
+                    if(confirm(`Valor detetado: ${valorFinal} €.\n\nQueres adicionar este valor diretamente como Despesa na viagem ativa ("${currentTripDoc.nome}")?`)) {
+                        document.getElementById('exp-valor').value = valorFinal;
+                        document.getElementById('exp-desc').value = "Despesa (Recibo)";
+                        abrirModal('modal-nova-despesa');
+                        navegarMenu('page-viagem-detalhe');
+                        switchTripTab('splitwise');
+                    }
+                }
+                
             } else {
-                window.mostrarAlerta("Não foi possível detetar o total automaticamente. Podes inserir manualmente.");
+                window.mostrarAlerta("Não foi possível detetar o total automaticamente. Podes rever o texto ou inserir o valor à mão.");
             }
 
             await worker.terminate();
         } catch(err) {
             console.error("Erro OCR:", err);
-            window.mostrarAlerta("Ocorreu um erro ao ler o recibo.");
+            window.mostrarAlerta("Ocorreu um erro ao processar o recibo.");
         } finally {
             document.getElementById('ocr-loading').style.display = 'none';
         }
     };
 
-    function procurarTotalComRegex(texto) {
-        const txt = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const regex = /(?:total|pago|valor|multibanco|numerario|pagar)[\s\S]{0,35}?(\d+[\.,]\d{2})/i;
-
-        const match = txt.match(regex);
+    function procurarTotalAvancado(texto) {
+        // Limpar lixo comum de recibos portugueses e normalizar
+        let txt = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        
+        // 1ª Tentativa: Procura por "total", "pagar", "multibanco", etc. com folga para erros de leitura
+        const regexKeywords = /(?:total|tota1|pagar|pago|multibanco|muttibanco|numerario|cartao|visa)[\s\S]{0,40}?(\d+[\.,]\d{2})/i;
+        const match = txt.match(regexKeywords);
+        
         if(match && match[1]) {
             return parseFloat(match[1].replace(',', '.')).toFixed(2);
         }
+
+        // 2ª Tentativa (Plano B): Extrair TODOS os valores monetários (ex: 12,34) e assumir que o Total é o MAIOR valor do talão
+        const regexAllNumbers = /(\d+[\.,]\d{2})/g;
+        let numbersMatch = txt.match(regexAllNumbers);
+        
+        if(numbersMatch && numbersMatch.length > 0) {
+            let maxVal = 0;
+            numbersMatch.forEach(numStr => {
+                let val = parseFloat(numStr.replace(',', '.'));
+                if(val > maxVal) maxVal = val;
+            });
+            if(maxVal > 0) return maxVal.toFixed(2);
+        }
+        
         return null;
     }
   </script>

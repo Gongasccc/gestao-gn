@@ -7,6 +7,7 @@ import { toISODate, parseISODate } from '../core/dates.js';
 import { isoToShort } from '../core/format.js';
 import { setDoc, deleteDoc, getDocs, addDoc, onSnapshot } from '../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../services/paths.js';
+import { parseIngredients, shoppingText } from './recipes/parse.js';
 
 const scope = createScope();
 const SLOTS = [{ id: 'almoco', label: 'Almoço' }, { id: 'jantar', label: 'Jantar' }];
@@ -26,10 +27,7 @@ const weekDays = () => Array.from({ length: 7 }, (_, i) => { const d = new Date(
 
 async function loadRecipes() {
   if (recipesCache) return recipesCache;
-  const books = snapToList(await getDocs(sharedCol('livros_receitas')));
-  const all = await Promise.all(books.map(async (b) => snapToList(await getDocs(sharedCol('livros_receitas', b.id, 'itens')))
-    .map((r) => ({ ...r, livroId: b.id, livro: b.nome }))));
-  recipesCache = all.flat().sort((a, b) => String(a.titulo).localeCompare(String(b.titulo)));
+  recipesCache = snapToList(await getDocs(sharedCol('receitas'))).sort((a, b) => String(a.titulo).localeCompare(String(b.titulo), 'pt'));
   return recipesCache;
 }
 
@@ -100,20 +98,20 @@ export default {
       openModal('meals-modal');
       const recipes = await loadRecipes();
       render('meals-recipe', html`<option value="">— Escrever à mão —</option>${recipes.map((r) => html`
-        <option value="${r.livroId}/${r.id}" ${m?.receita?.id === r.id ? 'selected' : ''}>${r.titulo} (${r.livro})</option>`)}`);
+        <option value="${r.id}" ${m?.receita?.id === r.id ? 'selected' : ''}>${r.titulo}</option>`)}`);
     },
     'meals:pick': ({ value }) => {
-      const r = recipesCache?.find((x) => `${x.livroId}/${x.id}` === value);
+      const r = recipesCache?.find((x) => x.id === value);
       if (r) byId('meals-text').value = r.titulo;
     },
     'meals:save': async () => {
       const texto = byId('meals-text').value.trim();
       const sel = byId('meals-recipe').value;
-      const r = recipesCache?.find((x) => `${x.livroId}/${x.id}` === sel);
+      const r = recipesCache?.find((x) => x.id === sel);
       if (!texto) return deleteDoc(sharedDoc('refeicoes', editing)).then(() => closeModal('meals-modal'));
       await setDoc(sharedDoc('refeicoes', editing), {
         texto,
-        receita: r ? { livroId: r.livroId, id: r.id, titulo: r.titulo } : null,
+        receita: r ? { id: r.id, titulo: r.titulo } : null,
         updatedBy: session.uid,
         timestamp: Date.now(),
       });
@@ -130,7 +128,7 @@ export default {
       const ingredients = new Map();
       planned.forEach((m) => {
         const r = recipes.find((x) => x.id === m.receita.id);
-        (r?.ingredientes || '').split('\n').map((l) => l.trim()).filter(Boolean)
+        parseIngredients(r?.ingredientes).filter((i) => !i.header).map((i) => shoppingText(i))
           .forEach((l) => { if (!ingredients.has(l.toLowerCase())) ingredients.set(l.toLowerCase(), l); });
       });
       const existing = new Set(snapToList(await getDocs(sharedCol('semanais'))).filter((i) => !i.feita).map((i) => String(i.texto).toLowerCase()));

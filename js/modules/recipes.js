@@ -91,6 +91,7 @@ function sorted(list) {
 function listRecipes() {
   let list = recipes;
   if (listCtx.kind === 'collection') list = list.filter((r) => (r.colecoes || []).includes(listCtx.id));
+  if (listCtx.kind === 'queue') list = list.filter((r) => r.fila);
   if (listCtx.kind === 'source') list = list.filter((r) => (sourceOf(r) || 'Criadas por nós') === listCtx.id);
   return sorted(list.filter((r) => matches(r, listQuery)));
 }
@@ -103,13 +104,15 @@ const thumbTpl = (r) => (r.foto
 
 function cardTpl(r) {
   return html`
-    <button class="rc-card pressable" data-action="rc:open" data-id="${r.id}">
-      <span class="rc-card__img">${thumbTpl(r)}</span>
+    <div class="rc-card pressable" role="button" tabindex="0" data-action="rc:open" data-id="${r.id}">
+      <span class="rc-card__img">${thumbTpl(r)}
+        <button class="rc-card__more" data-action="rc:card-menu" data-id="${r.id}" aria-label="Opções">${icon('more', 18)}</button>
+      </span>
       <span class="rc-card__body">
         <span class="rc-card__title">${r.titulo}</span>
         <span class="rc-card__sub">${sourceOf(r) || (r.tempoPrep ? r.tempoPrep : ' ')}</span>
       </span>
-    </button>`;
+    </div>`;
 }
 
 function rowTpl({ action, data = {}, emoji, iconName, title, sub, more }) {
@@ -144,11 +147,13 @@ function drawHome() {
     return;
   }
   const nSources = sources().length;
+  const queued = recipes.filter((r) => r.fila).length;
   render(el, html`
     <p class="rc-label">Receitas</p>
     <div class="rc-group">
-      ${rowTpl({ action: 'rc:list', data: { kind: 'all' }, iconName: 'book', title: 'Todas as receitas', sub: plural(recipes.length, 'receita', 'receitas') })}
-      ${rowTpl({ action: 'rc:sources', iconName: 'globe', title: 'Por fonte', sub: plural(nSources, 'fonte', 'fontes') })}
+      ${rowTpl({ action: 'rc:list', data: { kind: 'all' }, emoji: '🗃️', title: 'Ver todas as receitas', sub: plural(recipes.length, 'receita', 'receitas') })}
+      ${rowTpl({ action: 'rc:sources', emoji: '📚', title: 'Ver por fonte', sub: plural(nSources, 'fonte', 'fontes') })}
+      ${queued ? rowTpl({ action: 'rc:list', data: { kind: 'queue' }, emoji: '⏳', title: 'Fila para cozinhar', sub: plural(queued, 'receita', 'receitas') }) : ''}
     </div>
     <p class="rc-label">Coleções</p>
     <div class="rc-group">
@@ -165,8 +170,6 @@ function drawList() {
   const grid = byId('rc-grid');
   if (!grid) return;
   const list = listRecipes();
-  byId('rc-sort-label').textContent = SORTS.find((s) => s.id === sortBy)?.label || 'Nome';
-  byId('rc-list-count').textContent = plural(list.length, 'receita', 'receitas');
   byId('rc-list-search').placeholder = `Pesquisar em ${listCtx.title}`;
   render(grid, list.length ? list.map(cardTpl) : emptyState(
     listQuery ? 'Nenhuma receita encontrada.' : listCtx.kind === 'collection' ? 'Esta coleção está vazia. Toca em + para adicionar receitas.' : 'Sem receitas.',
@@ -257,7 +260,7 @@ function drawDetail() {
       <div><small>Confeção</small><span>${r.tempoCozedura || '–'}</span></div>
       <div><small>Porções</small><span>${servingsText}</span></div>
     </div>
-    <button class="btn btn--block rc-cook-btn pressable" data-action="rc:cook">${icon('restaurant', 18)} Cozinhar</button>
+    <button class="btn btn--block rc-cook-btn pressable" data-action="rc:cook">${icon('utensils', 20)} Cozinhar receita</button>
     <div class="rc-tabs" role="tablist">
       ${[['ingredientes', 'Ingredientes'], ['passos', 'Passos'], ['notas', 'Notas']].map(([id, label]) => html`
         <button class="rc-tab ${tab === id ? 'is-active' : ''}" role="tab" data-action="rc:tab" data-tab="${id}">${label}</button>`)}
@@ -423,12 +426,86 @@ async function shareRecipe(r) {
   }
 }
 
+async function toggleQueue(r) {
+  await updateDoc(sharedDoc(RECIPES, r.id), { fila: r.fila ? null : Date.now() });
+  toast(r.fila ? 'Removida da fila' : 'Adicionada à fila para cozinhar');
+}
+
+function printRecipe(r) {
+  const ings = parseIngredients(r.ingredientes);
+  const steps = parseSteps(r.passos);
+  const doc = String(html`<!doctype html><html lang="pt"><head><meta charset="utf-8"><title>${r.titulo}</title>
+    <style>body{font:15px/1.5 system-ui,sans-serif;max-width:680px;margin:32px auto;padding:0 20px;color:#111}
+    h1{margin:0}.src{color:#666}img{max-width:100%;max-height:300px;border-radius:10px;margin:14px 0}
+    h2{font-size:16px;margin:22px 0 6px;text-transform:uppercase;letter-spacing:.05em}li{margin:4px 0}</style></head><body>
+    <h1>${r.titulo}</h1>${r.fonte ? html`<div class="src">${r.fonte}</div>` : ''}
+    ${r.foto ? html`<img src="${r.foto}" alt="">` : ''}
+    <p>${[r.tempoPrep && `Preparação: ${r.tempoPrep}`, r.tempoCozedura && `Confeção: ${r.tempoCozedura}`, r.porcoes && `Porções: ${r.porcoes}`].filter(Boolean).join(' · ')}</p>
+    <h2>Ingredientes</h2><ul>${ings.map((i) => (i.header ? html`</ul><b>${i.header}</b><ul>` : html`<li>${shoppingText(i, scale)}</li>`))}</ul>
+    <h2>Passos</h2><ol>${steps.map((st) => (st.header ? html`</ol><b>${st.header}</b><ol>` : html`<li>${st.text}</li>`))}</ol>
+    ${r.notas ? html`<h2>Notas</h2><p style="white-space:pre-line">${r.notas}</p>` : ''}
+    <script>window.onload=()=>setTimeout(()=>window.print(),300)</script></body></html>`);
+  const w = window.open('', '_blank');
+  if (!w) return toast('Permite janelas para imprimir.', 'error');
+  w.document.write(doc);
+  w.document.close();
+}
+
+async function shareMenu(r) {
+  const choice = await actionSheet([
+    { id: 'share', label: 'Partilhar…', icon: 'share' },
+    { id: 'email', label: 'Enviar por email', icon: 'mail' },
+    { id: 'print', label: 'Imprimir', icon: 'printer' },
+    { id: 'copy', label: 'Copiar texto', icon: 'copy' },
+  ], { title: r.titulo });
+  if (choice === 'share') shareRecipe(r);
+  if (choice === 'email') window.location.href = `mailto:?subject=${encodeURIComponent(r.titulo)}&body=${encodeURIComponent(shareText(r))}`;
+  if (choice === 'print') printRecipe(r);
+  if (choice === 'copy') {
+    try { await navigator.clipboard.writeText(shareText(r)); toast('Receita copiada'); } catch { toast('Não foi possível copiar.', 'error'); }
+  }
+}
+
+async function pickCollectionFor(r) {
+  if (!collections.length) return openCollectionModal();
+  const has = new Set(r.colecoes || []);
+  const choice = await actionSheet([
+    ...collections.map((c) => ({ id: c.id, label: `${c.emoji || '📖'} ${c.nome}`, active: has.has(c.id) })),
+    { id: '__new', label: 'Nova coleção', icon: 'plus' },
+  ], { title: 'Coleções' });
+  if (!choice) return;
+  if (choice === '__new') return openCollectionModal();
+  await updateDoc(sharedDoc(RECIPES, r.id), { colecoes: has.has(choice) ? arrayRemove(choice) : arrayUnion(choice) });
+}
+
+async function cardMenu(id) {
+  const r = recipes.find((x) => x.id === id);
+  if (!r) return;
+  const inCollection = listCtx.kind === 'collection' && currentPage() === 'page-receitas-lista';
+  const choice = await actionSheet([
+    { id: 'edit', label: 'Editar receita', icon: 'edit' },
+    { id: 'cols', label: 'Coleções…', icon: 'folder' },
+    { id: 'queue', label: r.fila ? 'Remover da fila' : 'Adicionar à fila', icon: 'queue' },
+    { id: 'share', label: 'Email, imprimir e partilhar', icon: 'share' },
+    inCollection ? { id: 'out', label: 'Remover desta coleção', icon: 'close', danger: true } : { id: 'delete', label: 'Apagar receita', icon: 'trash', danger: true },
+  ], { title: r.titulo });
+  if (choice === 'edit') { currentId = r.id; openEditor(r, r.id); }
+  if (choice === 'cols') pickCollectionFor(r);
+  if (choice === 'queue') toggleQueue(r);
+  if (choice === 'share') shareMenu(r);
+  if (choice === 'out') await updateDoc(sharedDoc(RECIPES, r.id), { colecoes: arrayRemove(listCtx.id) });
+  if (choice === 'delete') {
+    if (!(await confirmDialog('Esta ação não pode ser desfeita.', { title: `Apagar "${r.titulo}"?`, confirmLabel: 'Apagar', danger: true }))) return;
+    await deleteDoc(sharedDoc(RECIPES, r.id));
+  }
+}
+
 async function collectionMenu(id) {
   const c = collectionById(id);
   if (!c) return;
   const choice = await actionSheet([
     { id: 'edit', label: 'Editar coleção', icon: 'edit' },
-    { id: 'add', label: 'Adicionar receitas', icon: 'plus' },
+    { id: 'add', label: 'Adicionar receitas à coleção', icon: 'check' },
     { id: 'delete', label: 'Apagar coleção', icon: 'trash', danger: true },
   ], { title: `${c.emoji || '📖'} ${c.nome}` });
   if (choice === 'edit') openCollectionModal(c);
@@ -477,7 +554,7 @@ async function addMenu() {
   const inCollection = currentPage() === 'page-receitas-lista' && listCtx.kind === 'collection';
   const choice = await actionSheet([
     { id: 'new', label: 'Criar receita', icon: 'plus' },
-    { id: 'import', label: 'Importar da web', icon: 'download' },
+    { id: 'import', label: 'Importar receitas da web', icon: 'download' },
     inCollection ? { id: 'pick', label: 'Adicionar receitas à coleção', icon: 'check' } : { id: 'col', label: 'Nova coleção', icon: 'folder' },
   ]);
   if (choice === 'new') openEditor();
@@ -492,6 +569,16 @@ function openImport() {
   openModal('rc-import');
 }
 
+const moreBtn = (action) => html`<button class="icon-btn glass-chip pressable" data-action="${action}" aria-label="Opções">${icon('more', 20)}</button>`;
+
+/** Título de duas linhas como no AnyList ("Bolos" / "Ordenar receitas"). O router repõe-no ao mudar de página. */
+function headerSubtitle(label, action) {
+  const title = byId('topbar-title');
+  if (!title || title.querySelector('.rc-subtitle')) return;
+  title.classList.add('has-subtitle');
+  title.insertAdjacentHTML('beforeend', String(html`<button class="rc-subtitle" data-action="${action}">${label}</button>`));
+}
+
 const plusBtn = () => html`<button class="icon-btn glass-chip pressable" data-action="rc:add-menu" aria-label="Adicionar">${icon('plus', 20)}</button>`;
 
 export default {
@@ -501,7 +588,7 @@ export default {
       id: 'menu-receitas',
       title: 'Receitas',
       root: true,
-      headerAction: plusBtn,
+      headerAction: () => html`<span class="rc-head-actions">${plusBtn()}${moreBtn('rc:home-menu')}</span>`,
       template: () => html`
         <label class="search-field glass-soft rc-search">${icon('search', 18)}
           <input type="search" id="rc-home-search" class="search-field__input" placeholder="Pesquisar receitas" data-input="rc:home-search" autocomplete="off" enterkeyhint="search">
@@ -512,17 +599,13 @@ export default {
     {
       id: 'page-receitas-lista',
       title: () => listCtx.title,
-      headerAction: plusBtn,
+      headerAction: () => html`<span class="rc-head-actions">${plusBtn()}${moreBtn('rc:list-menu')}</span>`,
       template: () => html`
         <label class="search-field glass-soft rc-search">${icon('search', 18)}
           <input type="search" id="rc-list-search" class="search-field__input" placeholder="Pesquisar" data-input="rc:list-search" autocomplete="off" enterkeyhint="search">
         </label>
-        <div class="rc-toolbar">
-          <span class="rc-muted" id="rc-list-count"></span>
-          <button class="rc-sort pressable" data-action="rc:sort">Ordenar: <b id="rc-sort-label">Nome</b></button>
-        </div>
         <div class="rc-grid" id="rc-grid"></div>`,
-      onEnter: () => drawList(),
+      onEnter: () => { headerSubtitle('Ordenar receitas', 'rc:sort'); drawList(); },
     },
     {
       id: 'page-receitas-fontes',
@@ -532,7 +615,7 @@ export default {
     },
     {
       id: 'page-receita',
-      title: 'Receita',
+      title: 'Detalhes da receita',
       headerAction: () => html`<button class="icon-btn glass-chip pressable" data-action="rc:recipe-menu" aria-label="Opções">${icon('more', 20)}</button>`,
       template: () => html`<div id="rc-detail" class="rc-detail"></div>`,
       onEnter: () => drawDetail(),
@@ -601,9 +684,30 @@ export default {
     'rc:home-search': ({ value }) => { homeQuery = value.trim(); drawHome(); },
     'rc:list-search': ({ value }) => { listQuery = value.trim(); drawList(); },
     'rc:add-menu': () => addMenu(),
+    'rc:card-menu': ({ data }) => cardMenu(data.id),
+    'rc:home-menu': async () => {
+      const choice = await actionSheet([
+        { id: 'col', label: 'Nova coleção', icon: 'folder' },
+        { id: 'import', label: 'Importar receitas da web', icon: 'download' },
+        { id: 'sources', label: 'Ver por fonte', icon: 'globe' },
+      ]);
+      if (choice === 'col') openCollectionModal();
+      if (choice === 'import') openImport();
+      if (choice === 'sources') navigate('page-receitas-fontes');
+    },
+    'rc:list-menu': async () => {
+      if (listCtx.kind === 'collection') return collectionMenu(listCtx.id);
+      const choice = await actionSheet([
+        { id: 'sort', label: 'Ordenar receitas', icon: 'menu' },
+        { id: 'import', label: 'Importar receitas da web', icon: 'download' },
+      ]);
+      if (choice === 'sort') document.querySelector('.rc-subtitle')?.click();
+      if (choice === 'import') openImport();
+    },
     'rc:list': ({ data }) => {
       if (data.kind === 'collection') listCtx = { kind: 'collection', id: data.id, title: collectionById(data.id)?.nome || 'Coleção' };
       else if (data.kind === 'source') listCtx = { kind: 'source', id: data.id, title: data.id };
+      else if (data.kind === 'queue') listCtx = { kind: 'queue', id: '', title: 'Fila para cozinhar' };
       else listCtx = { kind: 'all', id: '', title: 'Todas as receitas' };
       listQuery = '';
       byId('rc-list-search').value = '';
@@ -684,11 +788,12 @@ export default {
       const choice = await actionSheet([
         { id: 'edit', label: 'Editar receita', icon: 'edit' },
         { id: 'dup', label: 'Duplicar receita', icon: 'copy' },
-        { id: 'share', label: 'Partilhar', icon: 'share' },
-        { id: 'plan', label: 'Adicionar ao plano de refeições', icon: 'calendar' },
-        { id: 'done', label: 'Marcar como feita hoje', icon: 'check' },
+        { id: 'share', label: 'Email, imprimir e partilhar', icon: 'share' },
+        { id: 'queue', label: r.fila ? 'Remover da fila' : 'Adicionar à fila', icon: 'queue' },
+        { id: 'plan', label: 'Adicionar ao calendário', icon: 'calendarPlus' },
         { id: 'delete', label: 'Apagar receita', icon: 'trash', danger: true },
       ]);
+      if (choice === 'queue') toggleQueue(r);
       if (choice === 'edit') openEditor(r, r.id);
       if (choice === 'dup') {
         const { id, ...copy } = r;
@@ -697,12 +802,11 @@ export default {
         drawDetail();
         toast('Receita duplicada');
       }
-      if (choice === 'share') shareRecipe(r);
+      if (choice === 'share') shareMenu(r);
       if (choice === 'plan') {
         byId('rc-plan-date').value = toISODate(new Date());
         openModal('rc-plan');
       }
-      if (choice === 'done') { await updateDoc(sharedDoc(RECIPES, r.id), { ultimaVez: Date.now() }); toast('Marcada como feita'); }
       if (choice === 'delete') {
         if (!(await confirmDialog('Esta ação não pode ser desfeita.', { title: `Apagar "${r.titulo}"?`, confirmLabel: 'Apagar', danger: true }))) return;
         back();
@@ -722,7 +826,7 @@ export default {
       toast('Adicionada ao plano de refeições');
     },
     'rc:edit': () => { const r = current(); if (r) openEditor(r, r.id); },
-    'rc:edit-collections': () => { const r = current(); if (r) openEditor(r, r.id); },
+    'rc:edit-collections': () => { const r = current(); if (r) pickCollectionFor(r); },
     'rc:new': () => openEditor(),
     'rc:edit-col': ({ data }) => {
       if (editCols.has(data.id)) editCols.delete(data.id); else editCols.add(data.id);
@@ -798,7 +902,11 @@ export default {
       await withLoading(el, () => (editingCollectionId
         ? updateDoc(sharedDoc(COLLECTIONS, editingCollectionId), { nome, emoji: collectionEmoji })
         : addDoc(sharedCol(COLLECTIONS), { nome, emoji: collectionEmoji, timestamp: Date.now() })));
-      if (editingCollectionId && listCtx.id === editingCollectionId) { listCtx.title = nome; refreshHeader(); }
+      if (editingCollectionId && listCtx.id === editingCollectionId) {
+        listCtx.title = nome;
+        refreshHeader();
+        if (currentPage() === 'page-receitas-lista') headerSubtitle('Ordenar receitas', 'rc:sort');
+      }
       closeModal('rc-col');
     },
     'rc:pick': ({ data }) => {

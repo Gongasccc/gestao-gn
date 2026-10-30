@@ -13,6 +13,15 @@ import recipes from './recipes.js';
 import documents from './documents.js';
 import garage from './garage.js';
 import supermarkets from './supermarkets.js';
+import couple from './couple.js';
+import finances from './finances.js';
+import calendar from './calendar.js';
+import dates from './dates.js';
+import goals from './goals.js';
+import meals from './meals.js';
+import home from './home.js';
+import wishlist from './wishlist.js';
+import memories from './memories.js';
 
 export const MODULES = [
   dashboard,
@@ -25,4 +34,13 @@ export const MODULES = [
   documents,
   garage,
   supermarkets,
+  couple,
+  finances,
+  calendar,
+  dates,
+  goals,
+  meals,
+  home,
+  wishlist,
+  memories,
 ];

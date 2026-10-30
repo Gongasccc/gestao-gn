@@ -1,13 +1,17 @@
 // Inicialização única do Firebase. Todos os módulos importam daqui.
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+import {
+  initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
 
 export {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  verifyBeforeUpdateEmail,
 } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
 
 export {
@@ -24,6 +28,10 @@ export {
   where,
   writeBatch,
   arrayUnion,
+  arrayRemove,
+  orderBy,
+  limit,
+  serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
 
 // A configuração web do Firebase é pública por natureza; a segurança vem das regras do Firestore.
@@ -36,6 +44,9 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+// Cache local persistente: a app abre e mostra os dados mesmo sem rede, e sincroniza depois.
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+});
 export const auth = getAuth(app);
 export const APP_ID = 'gestao-gn-app';

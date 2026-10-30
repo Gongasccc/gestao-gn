@@ -10,10 +10,15 @@
 
 export const MENU = [
   { page: 'menu-principal', label: 'Início', icon: 'home' },
+  { page: 'menu-casal', label: 'O nosso casal', icon: 'heart', library: true },
+  { page: 'menu-calendario', label: 'Calendário', icon: 'calendar', library: true },
+  { page: 'menu-financas', label: 'Finanças', icon: 'wallet', library: true },
+  { page: 'menu-datas', label: 'Datas importantes', icon: 'gift', library: true },
+  { page: 'menu-metas', label: 'Metas e poupanças', icon: 'target', library: true },
   { page: 'menu-viagens', label: 'Viagens', icon: 'map', library: true },
   { page: 'menu-familia', label: 'Amigos', icon: 'users', library: true },
   { page: 'menu-receitas', label: 'Livro de Receitas', icon: 'book', library: true },
-  { page: 'menu-documentos', label: 'Meus Documentos', icon: 'file', library: true },
+  { page: 'menu-documentos', label: 'Documentos', icon: 'file', library: true },
   { page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications' },
   {
     page: 'menu-supermercados',
@@ -26,6 +31,10 @@ export const MENU = [
       { page: 'menu-compras-rapidas', label: 'Lista Rápida' },
     ],
   },
+  { page: 'menu-refeicoes', label: 'Plano de refeições', icon: 'restaurant', library: true },
+  { page: 'menu-casa', label: 'Casa', icon: 'tool', library: true },
+  { page: 'menu-desejos', label: 'Desejos e ideias', icon: 'star', library: true },
+  { page: 'menu-memorias', label: 'Memórias', icon: 'image', library: true },
   { page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
 ];
 

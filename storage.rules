@@ -1,0 +1,33 @@
+rules_version = '2';
+
+// Ficheiros (fotos, PDFs) guardados no Firebase Storage em vez de base64 no Firestore.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function okSize() { return request.resource.size < 20 * 1024 * 1024; }
+    function okType() {
+      return request.resource.contentType.matches('image/.*')
+        || request.resource.contentType == 'application/pdf';
+    }
+    function isMember(hid) {
+      return signedIn() && request.auth.uid in
+        firestore.get(/databases/(default)/documents/artifacts/gestao-gn-app/households/$(hid)).data.members;
+    }
+
+    match /users/{uid}/{path=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid && (request.resource == null || (okSize() && okType()));
+    }
+
+    match /households/{hid}/{path=**} {
+      allow read: if isMember(hid);
+      allow write: if isMember(hid) && (request.resource == null || (okSize() && okType()));
+    }
+
+    match /trips/{tripId}/{path=**} {
+      allow read, write: if signedIn()
+        && request.auth.uid in firestore.get(/databases/(default)/documents/artifacts/gestao-gn-app/viagens_partilhadas/$(tripId)).data.membros_uids
+        && (request.resource == null || (okSize() && okType()));
+    }
+  }
+}

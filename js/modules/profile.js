@@ -2,13 +2,14 @@
 import { html, byId, render } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { session, emit } from '../core/state.js';
-import { toast, confirmDialog } from '../core/ui.js';
+import { toast, confirmDialog, promptDialog, alertDialog } from '../core/ui.js';
 import { compressImage, takeFile } from '../core/images.js';
 import { applyTheme, applyAccent, currentTheme, ACCENTS } from '../core/theme.js';
 import { setDoc } from '../services/firebase.js';
 import { profileDoc } from '../services/paths.js';
 import { hasPhoto } from '../components/avatar.js';
-import { logout } from '../app/auth.js';
+import { logout, hasRecoveryEmail, setRecoveryEmail } from '../app/auth.js';
+import { auth } from '../services/firebase.js';
 
 const saveProfile = (data) => setDoc(profileDoc(), data, { merge: true });
 
@@ -23,6 +24,9 @@ function drawSettings() {
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toLowerCase();
   render('accent-grid', ACCENTS.map((c) => html`
     <button class="swatch pressable ${c.toLowerCase() === accent ? 'is-selected' : ''}" style="--swatch:${c}" data-action="settings:accent" data-color="${c}" aria-label="Cor ${c}"></button>`));
+  render('recovery-email-label', hasRecoveryEmail()
+    ? html`${icon('check', 18)} Email de recuperação: ${auth.currentUser.email}`
+    : html`${icon('shield', 18)} Adicionar email de recuperação`);
   const p = session.profile || {};
   const loc = byId('switch-location');
   const notif = byId('switch-notifications');
@@ -47,6 +51,9 @@ export default {
           <span class="muted">Conta pessoal</span>
           <button class="btn btn--small btn--danger-soft" id="profile-remove-photo" data-action="profile:remove-photo" hidden>${icon('trash', 14)} Remover foto</button>
         </div>
+        <button class="row-link glass pressable" data-action="nav:go" data-page="menu-casal">
+          <span>${icon('heart', 18)} O nosso casal</span>${icon('chevronRight', 18)}
+        </button>
         <button class="row-link glass pressable" data-action="nav:go" data-page="menu-familia">
           <span>${icon('users', 18)} Amigos</span>
           <span class="stat-num" id="profile-friends-count">0</span>
@@ -69,6 +76,7 @@ export default {
           </div>
         </div>
         <button class="row-link glass pressable" data-action="settings:theme"><span id="theme-toggle-label"></span></button>
+        <button class="row-link glass pressable" data-action="settings:recovery"><span id="recovery-email-label"></span>${icon('chevronRight', 18)}</button>
         <div class="card glass">
           <h3 class="card__title">${icon('palette', 18)} Cor de destaque</h3>
           <div class="swatch-grid" id="accent-grid"></div>
@@ -122,6 +130,18 @@ export default {
       }
       session.profile.allowNotifications = el.checked;
       await saveProfile({ allowNotifications: el.checked });
+    },
+    'settings:recovery': async () => {
+      const email = await promptDialog('Vais receber um link para confirmar. Depois disso podes entrar com este email e recuperar a password se a esqueceres.', {
+        title: 'Email de recuperação', type: 'email', placeholder: 'nome@exemplo.com', confirmLabel: 'Enviar confirmação',
+      });
+      if (!email) return;
+      try {
+        await setRecoveryEmail(email);
+        alertDialog(`Enviámos um link para ${email}. Abre-o para concluir. A partir daí, entra com esse email.`, 'Confirma o teu email');
+      } catch (err) {
+        toast(err.code === 'auth/requires-recent-login' ? 'Termina sessão e volta a entrar antes de mudar o email.' : (err.message || 'Não foi possível.'), 'error', 4000);
+      }
     },
     'settings:logout': async () => {
       if (await confirmDialog('Vais precisar de entrar outra vez.', { title: 'Terminar sessão?', confirmLabel: 'Sair', danger: true })) logout();

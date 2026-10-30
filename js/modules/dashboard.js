@@ -1,9 +1,17 @@
 // Início: relógio, meteorologia, frase do dia e tarefas de hoje.
 import { html, setText, byId, render } from '../core/dom.js';
 import { icon, iconSvg } from '../core/icons.js';
-import { createScope, session } from '../core/state.js';
-import { longDate, timeHM } from '../core/format.js';
+import { createScope, session, on } from '../core/state.js';
+import { longDate, timeHM, money, todayISO, daysBetween } from '../core/format.js';
+import { daysUntil, countdownLabel, parseISODate } from '../core/dates.js';
 import { checklistTpl, subscribeChecklist } from '../components/checklist.js';
+import { upcomingDates } from './dates.js';
+import { upcomingEvents } from './calendar.js';
+import finances, { pendingBills } from './finances.js';
+import { homeAlerts } from './home.js';
+import { garageAlerts } from './garage.js';
+import { onThisDay } from './memories.js';
+import { tripState } from './trips/store.js';
 
 const scope = createScope();
 let clockTimer = null;
@@ -75,6 +83,86 @@ function loadWeather() {
   }, () => fetchWeather(FALLBACK.lat, FALLBACK.lon, FALLBACK.name), { timeout: 8000, maximumAge: 600000 });
 }
 
+/** Junta os avisos de todos os módulos numa lista ordenada por data. */
+function collectUpcoming() {
+  const items = [
+    ...upcomingEvents(7),
+    ...upcomingDates(30),
+    ...homeAlerts(),
+    ...garageAlerts(),
+  ];
+  const today = new Date();
+  pendingBills(finances.bills.items()).forEach((b) => {
+    const last = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const due = new Date(today.getFullYear(), today.getMonth(), Math.min(Number(b.dia) || 1, last));
+    const days = daysUntil(due);
+    if (days <= 5) items.push({ date: due, days, title: `Pagar ${b.nome}${b.valor ? ` (${money(b.valor)})` : ''}`, icon: 'bolt', page: 'menu-financas' });
+  });
+  const next = tripState.trips.filter((t) => t.dataInicio && t.dataInicio >= todayISO()).sort((a, b) => a.dataInicio.localeCompare(b.dataInicio))[0];
+  if (next) {
+    const days = daysBetween(todayISO(), next.dataInicio);
+    if (days <= 60) items.push({ date: parseISODate(next.dataInicio), days, title: `Viagem: ${next.nome || next.destino || 'próxima viagem'}`, icon: 'map', page: 'menu-viagens' });
+  }
+  return items.sort((a, b) => a.days - b.days).slice(0, 8);
+}
+
+function drawUpcoming() {
+  const items = collectUpcoming();
+  const memories = onThisDay();
+  render('dash-upcoming', items.length || memories.length
+    ? html`
+      ${memories.map((m) => html`
+        <button class="upcoming upcoming--memory pressable" data-action="nav:go" data-page="menu-memorias">
+          <span class="upcoming__icon">${icon('heart', 16)}</span>
+          <span class="upcoming__title">Neste dia, há ${new Date().getFullYear() - Number(m.data.slice(0, 4))} ano(s): ${m.titulo}</span>
+        </button>`)}
+      ${items.map((i) => html`
+        <button class="upcoming pressable ${i.days < 0 ? 'is-late' : i.days === 0 ? 'is-today' : ''}" data-action="nav:go" data-page="${i.page}">
+          <span class="upcoming__icon">${icon(i.icon, 16)}</span>
+          <span class="upcoming__title">${i.title}</span>
+          <span class="upcoming__when">${i.days < 0 ? 'Atrasado' : countdownLabel(i.days)}</span>
+        </button>`)}`
+    : html`<p class="muted small">Nada para os próximos dias. Aproveitem! ✨</p>`);
+  remindOncePerDay(items);
+}
+
+let upcomingTimer = null;
+const scheduleUpcoming = () => { clearTimeout(upcomingTimer); upcomingTimer = setTimeout(drawUpcoming, 150); };
+
+/** Notificação local (uma vez por dia) com o que vence hoje ou amanhã. */
+function remindOncePerDay(items) {
+  if (!session.profile?.allowNotifications || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const due = items.filter((i) => i.days <= 1);
+  if (!due.length) return;
+  const key = `gn-reminder-${session.uid}-${todayISO()}`;
+  try {
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, '1');
+  } catch { return; }
+  const body = due.map((i) => `• ${i.title} (${i.days < 0 ? 'atrasado' : countdownLabel(i.days).toLowerCase()})`).join('\n');
+  navigator.serviceWorker?.ready
+    .then((reg) => reg.showNotification('Gestão G&N', { body, icon: 'assets/brand/logopreto_fundobranco.png', tag: 'daily' }))
+    .catch(() => { try { new Notification('Gestão G&N', { body }); } catch { /* sem suporte */ } });
+}
+
+function drawCouple() {
+  const h = session.household;
+  if (!h) {
+    render('dash-couple', html`
+      <button class="card glass glass--interactive couple-banner pressable" data-action="nav:go" data-page="menu-casal">
+        <span class="couple-banner__icon">${icon('heart', 22)}</span>
+        <span><strong>Liga a tua conta à do teu parceiro(a)</strong><br><span class="muted small">Partilhem tarefas, compras, finanças e calendário.</span></span>
+        ${icon('chevronRight', 18)}
+      </button>`);
+    return;
+  }
+  const days = h.desde ? -daysUntil(parseISODate(h.desde)) : null;
+  render('dash-couple', days != null ? html`
+    <button class="couple-strip pressable" data-action="nav:go" data-page="menu-casal">
+      ${icon('heart', 14)} <span>${days.toLocaleString('pt-PT')} dias juntos</span>
+    </button>` : '');
+}
+
 function dailyQuote() {
   const now = new Date();
   const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
@@ -87,10 +175,12 @@ export default {
     id: 'menu-principal',
     title: 'Início',
     root: true,
+    onEnter: () => { drawCouple(); drawUpcoming(); },
     template: () => {
       const q = dailyQuote();
       return html`
         <p class="greeting" id="dash-greeting"></p>
+        <div id="dash-couple"></div>
         <div class="widget-grid">
           <div class="card glass glass--interactive widget-clock">
             <span class="eyebrow" id="dash-date"></span>
@@ -101,6 +191,10 @@ export default {
             <span class="weather-desc" id="meteo-desc">A localizar…</span>
             <span class="eyebrow weather-city">${icon('pin', 11)} <span id="meteo-city">GPS</span></span>
           </button>
+        </div>
+        <div class="card glass">
+          <h3 class="card__title">${icon('calendar', 20)} Próximos dias</h3>
+          <div class="list" id="dash-upcoming"></div>
         </div>
         <div class="card glass widget-quote">
           <span class="quote-mark">${icon('quote', 22)}</span>
@@ -122,6 +216,10 @@ export default {
     scope.add(() => clearInterval(clockTimer));
     subscribeChecklist(scope, 'tarefas');
     loadWeather();
+    drawCouple();
+    scope.add(on('records:update', scheduleUpcoming));
+    scope.add(on('household:update', drawCouple));
+    scope.add(() => clearTimeout(upcomingTimer));
   },
   stop() {
     scope.clear();

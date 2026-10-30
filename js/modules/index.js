@@ -22,6 +22,7 @@ import meals from './meals.js';
 import home from './home.js';
 import wishlist from './wishlist.js';
 import memories from './memories.js';
+import farmacia from './farmacia/index.js';
 
 export const MODULES = [
   dashboard,
@@ -43,4 +44,5 @@ export const MODULES = [
   home,
   wishlist,
   memories,
+  farmacia,
 ];

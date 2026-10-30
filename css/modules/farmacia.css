@@ -1,0 +1,182 @@
+/* Farmácia */
+.farm {
+  --farm-ok: #30d158;
+  --farm-alerta: #ff9f0a;
+  --farm-expirado: #ff453a;
+  --farm-raio: var(--radius-lg, 22px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+
+/* Hero */
+.farm-hero { padding: 20px; border-radius: var(--farm-raio); display: flex; flex-direction: column; gap: 16px; position: relative; overflow: hidden; }
+.farm-hero::before {
+  content: ""; position: absolute; inset: -40% -20% auto auto; width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, transparent), transparent 70%);
+  filter: blur(10px); animation: farm-flutuar 9s ease-in-out infinite; pointer-events: none;
+}
+.farm-hero__topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; position: relative; }
+.farm-hero h2 { margin: 0 0 4px; font-size: 22px; }
+.farm-hero p { margin: 0; color: var(--text-muted); font-size: 13px; }
+.farm-icone-btn {
+  flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: var(--soft-bg); border: 1px solid var(--glass-border); color: var(--text);
+  transition: transform .4s var(--ease-spring, cubic-bezier(.34,1.56,.64,1));
+}
+.farm-icone-btn:active { transform: scale(.9) rotate(45deg); }
+.farm-icone-btn svg { width: 18px; height: 18px; margin: 0; }
+.farm-resumo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: relative; }
+.farm-resumo > div { padding: 12px 14px; border-radius: 16px; background: var(--soft-bg); display: flex; flex-direction: column; }
+.farm-resumo strong { font-size: 24px; line-height: 1.1; }
+.farm-resumo span { font-size: 12px; color: var(--text-muted); }
+.farm-resumo .farm-resumo--alerta strong { color: var(--farm-alerta); }
+.farm-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: relative; }
+.farm-acoes .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.farm-acoes svg { width: 18px; height: 18px; margin: 0; }
+.farm-btn-foto { position: relative; overflow: hidden; }
+.farm-btn-foto::after {
+  content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+  transform: translateX(-100%); animation: farm-brilho 3.2s ease-in-out infinite;
+}
+
+.farm-pesquisa { width: 100%; }
+.farm-titulo-secao { margin: 4px 2px 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--farm-alerta); }
+
+/* Alertas de validade */
+.farm-alertas-lista { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+.farm-alerta {
+  flex: 0 0 auto; scroll-snap-align: start; display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px;
+  border-radius: 18px; cursor: pointer; color: inherit; font: inherit; text-align: left; animation: farm-entrar .5s var(--ease-spring, ease) both;
+}
+.farm-alerta__nome { font-weight: 600; font-size: 14px; }
+.farm-foto--mini { width: 40px !important; height: 40px !important; }
+
+/* Grelha */
+.farm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.farm-card {
+  display: flex; flex-direction: column; text-align: left; padding: 0; border-radius: var(--farm-raio); overflow: hidden;
+  cursor: pointer; color: inherit; font: inherit; border: 1px solid var(--glass-border);
+  animation: farm-entrar .55s var(--ease-spring, ease) both; animation-delay: calc(var(--i, 0) * 45ms);
+  transition: transform .35s var(--ease-spring, ease), box-shadow .35s;
+}
+.farm-card:active { transform: scale(.96); }
+@media (hover: hover) { .farm-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,.25); } }
+.farm-card__palco {
+  aspect-ratio: 1; display: grid; place-items: center; padding: 14px;
+  background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+}
+.farm-card--alerta .farm-card__palco { background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--farm-alerta) 30%, transparent), transparent 70%); }
+.farm-card--expirado .farm-card__palco { background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--farm-expirado) 30%, transparent), transparent 70%); }
+.farm-card--expirado .farm-foto { filter: grayscale(.7); }
+.farm-card__info { padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-width: 0; }
+.farm-card__nome { font-size: 15px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.farm-card__sub { font-size: 12px; color: var(--text-muted); }
+
+.farm-foto { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+.farm-foto--vazia { display: grid; place-items: center; color: var(--text-muted); filter: none; }
+.farm-foto--vazia svg { width: 40%; height: 40%; opacity: .5; margin: 0; }
+.farm-card:hover .farm-foto { animation: farm-flutuar 3s ease-in-out infinite; }
+
+/* Chips */
+.farm-chip { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); font-size: 11px; }
+.farm-chip--receita { background: color-mix(in srgb, var(--farm-expirado) 16%, transparent); color: var(--farm-expirado); }
+.farm-chip--livre { background: color-mix(in srgb, var(--farm-ok) 16%, transparent); color: var(--farm-ok); }
+.farm-validade { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 999px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.farm-validade--ok { color: var(--farm-ok); background: color-mix(in srgb, var(--farm-ok) 14%, transparent); }
+.farm-validade--alerta { color: var(--farm-alerta); background: color-mix(in srgb, var(--farm-alerta) 16%, transparent); animation: farm-pulsar 2s ease-in-out infinite; }
+.farm-validade--expirado { color: #fff; background: var(--farm-expirado); }
+.farm-validade--sem { color: var(--text-muted); background: var(--soft-bg); }
+
+.farm-vazio { grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.farm-vazio svg { width: 48px; height: 48px; opacity: .4; animation: farm-flutuar 4s ease-in-out infinite; }
+
+/* Palco da foto (novo/detalhe) */
+.farm-palco {
+  position: relative; aspect-ratio: 4 / 3; border-radius: var(--farm-raio); overflow: hidden; display: grid; place-items: center;
+  background:
+    radial-gradient(circle at 50% 65%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 65%),
+    var(--soft-bg);
+  border: 1px solid var(--glass-border);
+}
+.farm-palco > * { grid-area: 1 / 1; }
+.farm-palco__original { width: 100%; height: 100%; object-fit: cover; filter: saturate(.6) brightness(.8); }
+.farm-palco__recorte {
+  max-width: 78%; max-height: 82%; object-fit: contain; filter: drop-shadow(0 18px 22px rgba(0,0,0,.4));
+  animation: farm-revelar .8s var(--ease-spring, ease) both, farm-flutuar 5s ease-in-out .8s infinite;
+}
+.farm-scan {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--accent) 55%, transparent) 50%, transparent 52%);
+  background-size: 100% 220%; animation: farm-scan 1.8s linear infinite; mix-blend-mode: screen;
+}
+
+.farm-passos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.farm-passos li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; }
+.farm-passos li small { margin-left: auto; font-variant-numeric: tabular-nums; }
+.farm-passos li.ativo { color: var(--text); }
+.farm-passos li.feito { color: var(--farm-ok); }
+.farm-passo__ponto { width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: .5; }
+.farm-passos li.ativo .farm-passo__ponto { opacity: 1; background: var(--accent); animation: farm-pulsar 1s ease-in-out infinite; }
+.farm-passos li.feito .farm-passo__ponto { opacity: 1; }
+
+/* Ficha */
+.farm-cabecalho { display: flex; flex-wrap: wrap; gap: 6px; }
+.farm-descricao { font-size: 15px; line-height: 1.5; margin: 0; }
+.farm-bloco { padding: 16px; border-radius: var(--farm-raio); animation: farm-entrar .5s var(--ease-spring, ease) both; }
+.farm-bloco h3 { margin: 0 0 10px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.farm-bloco h3 svg { width: 16px; height: 16px; margin: 0; color: var(--accent); }
+.farm-bloco--aviso h3 svg { color: var(--farm-alerta); }
+.farm-pontos { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.4; }
+.farm-doses { display: flex; flex-direction: column; gap: 8px; }
+.farm-dose { display: grid; grid-template-columns: minmax(90px, 38%) 1fr; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--soft-bg); font-size: 13px; }
+.farm-dose span { color: var(--text-muted); }
+.farm-dose strong { font-weight: 500; }
+
+.farm-contagem { padding: 18px; border-radius: var(--farm-raio); display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.farm-contagem__rotulo { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); }
+.farm-contagem .farm-validade { font-size: 20px; padding: 8px 16px; }
+.farm-contagem .farm-validade--ok { font-size: 15px; }
+.farm-contagem small { color: var(--text-muted); }
+.farm-contagem--alerta { box-shadow: 0 0 0 1px color-mix(in srgb, var(--farm-alerta) 50%, transparent), 0 10px 40px color-mix(in srgb, var(--farm-alerta) 25%, transparent); }
+.farm-contagem--expirado { box-shadow: 0 0 0 1px color-mix(in srgb, var(--farm-expirado) 50%, transparent); }
+
+.farm-links { display: flex; flex-direction: column; gap: 8px; }
+.farm-link {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px;
+  background: var(--soft-bg); color: inherit; text-decoration: none; font-size: 14px;
+  transition: transform .3s var(--ease-spring, ease);
+}
+.farm-link:active { transform: scale(.97); }
+.farm-link small { color: var(--text-muted); font-size: 11px; }
+.farm-link svg { width: 14px; height: 14px; margin: 0; color: var(--accent); }
+.farm-contactos { display: grid; gap: 8px; margin-top: 10px; }
+.farm-contactos .btn { text-align: center; text-decoration: none; font-size: 13px; }
+
+.farm-detalhe__nome { margin: 4px 0 0; font-size: 26px; text-align: center; }
+.farm-detalhe__sub { margin: 0; text-align: center; color: var(--text-muted); font-size: 13px; }
+.farm-detalhe .farm-cabecalho { justify-content: center; }
+
+.farm-campo { display: flex; flex-direction: column; gap: 6px; }
+.farm-campo label { font-size: 12px; color: var(--text-muted); }
+.farm-linha { display: flex; gap: 8px; }
+.farm-linha .input { flex: 1; min-width: 0; }
+.farm-validade-input { display: grid; grid-template-columns: .8fr 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+.farm-dica { font-size: 12px; color: var(--text-muted); margin: 0 0 10px; line-height: 1.4; }
+.farm-erro { padding: 14px; border-radius: 16px; font-size: 14px; border-left: 3px solid var(--farm-alerta); }
+.farm-legal { font-size: 11px; color: var(--text-muted); text-align: center; margin: 0; line-height: 1.4; }
+.farm-guardar { width: 100%; }
+.farm-apagar { color: var(--farm-expirado); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.farm-apagar svg { width: 16px; height: 16px; margin: 0; }
+
+@keyframes farm-entrar { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes farm-revelar { from { opacity: 0; transform: scale(.6) rotate(-6deg); filter: blur(8px); } to { opacity: 1; transform: none; } }
+@keyframes farm-flutuar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes farm-pulsar { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+@keyframes farm-scan { from { background-position: 0 120%; } to { background-position: 0 -120%; } }
+@keyframes farm-brilho { 0%, 60% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .farm *, .farm *::before, .farm *::after, .farm-hero::before { animation: none !important; transition: none !important; }
+}

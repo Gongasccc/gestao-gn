@@ -36,6 +36,7 @@ export const MENU = [
   { page: 'menu-desejos', label: 'Desejos e ideias', icon: 'star', library: true },
   { page: 'menu-memorias', label: 'Memórias', icon: 'image', library: true },
   { page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
+  { page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true },
 ];
 
 export const MENU_FOOTER = [

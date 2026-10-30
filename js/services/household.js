@@ -19,6 +19,7 @@ const MIGRATE = {
   pastas_docs: [],
   carros: ['documentos', 'pastas'],
   livros_receitas: ['itens'],
+  farmacia: [],
 };
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

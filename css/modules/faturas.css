@@ -1,0 +1,147 @@
+/* Supermercado: gastos e faturas. Só usa variáveis do tema (tokens.css). */
+.fat { display: flex; flex-direction: column; gap: 14px; padding-bottom: 40px; }
+.fat .card__title { margin-bottom: 12px; }
+.fat .section-title { margin: 6px 2px 0; }
+.fat-verde { color: var(--green); }
+.fat-erro { color: var(--red); }
+.fat-meta { margin: 0; font-size: 12.5px; color: var(--text-muted); }
+.fat-nada { margin: 0; padding: 18px 4px; text-align: center; color: var(--text-muted); font-size: 13.5px; }
+.fat-carregar { display: grid; place-items: center; padding: 60px 0; }
+
+/* Resumo na página Supermercados */
+.fat-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.fat-hero__label { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); }
+.fat-hero__valor { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+.fat-hero__sub { font-size: 12.5px; color: var(--text-muted); }
+.fat-scan-btn { gap: 8px; }
+
+/* Estado vazio */
+.fat-vazio { display: flex; flex-direction: column; gap: 12px; }
+.fat-vazio__grafico {
+  height: 110px; display: flex; align-items: flex-end; justify-content: space-around; padding: 14px 24px;
+  border-radius: var(--radius-lg); background: var(--soft-bg); filter: blur(3px); opacity: .7;
+}
+.fat-vazio__grafico span { width: 26px; border-radius: 8px 8px 3px 3px; background: rgba(var(--accent-rgb), .45); }
+.fat-vazio__titulo { margin: -70px 0 30px; text-align: center; font-weight: 600; font-size: 16px; position: relative; }
+.fat-func { display: flex; gap: 14px; align-items: center; }
+.fat-func strong { display: block; font-size: 15px; }
+.fat-func p { margin: 2px 0 0; font-size: 13px; color: var(--text-muted); }
+.fat-func__icone, .fat-item__icone {
+  flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px;
+  color: var(--accent); background: rgba(var(--accent-rgb), .12);
+}
+.fat-privado { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 0; font-size: 12px; color: var(--text-faint); }
+
+/* Mês e totais */
+.fat-mes { display: flex; align-items: center; justify-content: space-between; }
+.fat-mes strong { font-size: 16px; }
+.fat-mes .icon-btn[disabled] { opacity: .3; pointer-events: none; }
+.fat-total { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.fat-total__label { font-size: 12.5px; color: var(--text-muted); }
+.fat-total__valor { font-size: 36px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.fat-variacao { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-pill); background: var(--soft-bg); }
+.fat-variacao.is-subiu { color: var(--red); }
+.fat-variacao.is-desceu { color: var(--green); }
+.fat-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 10px; }
+.fat-kpis > div { display: flex; flex-direction: column; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--soft-bg); min-width: 0; }
+.fat-kpis strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fat-kpis span { font-size: 11.5px; color: var(--text-muted); }
+
+/* Gráfico de barras */
+.fat-grafico { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; height: 150px; }
+.fat-barra { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; padding: 0; border: 0; background: none; color: var(--text-muted); font: inherit; cursor: pointer; }
+.fat-barra__valor { font-size: 10.5px; min-height: 14px; }
+.fat-barra__col { flex: 1; width: 100%; max-width: 34px; display: flex; align-items: flex-end; }
+.fat-barra__col span { width: 100%; border-radius: 8px 8px 3px 3px; background: var(--soft-bg-hover); transition: height var(--dur-slow) var(--ease-out), background var(--dur); }
+.fat-barra__mes { font-size: 11.5px; }
+.fat-barra.is-ativa { color: var(--text); font-weight: 600; }
+.fat-barra.is-ativa .fat-barra__col span { background: var(--accent); }
+
+/* Linhas com barra (lojas, categorias) */
+.fat-linha + .fat-linha { margin-top: 12px; }
+.fat-linha__topo { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.fat-linha__barra { height: 6px; margin-top: 6px; border-radius: 6px; background: var(--soft-bg); overflow: hidden; }
+.fat-linha__barra span { display: block; height: 100%; border-radius: 6px; background: var(--accent); }
+.fat-linha small { font-size: 11.5px; color: var(--text-muted); }
+.fat-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px; }
+.fat-top + .fat-top { border-top: 1px solid var(--hairline); }
+.fat-top span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.fat-top small { flex: none; color: var(--text-muted); font-size: 12.5px; }
+.fat-top small.fat-verde { color: var(--green); }
+
+/* Lista de faturas */
+.fat-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.fat-item__info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fat-item__info small, .fat-item__valor small { font-size: 12px; color: var(--text-muted); }
+.fat-item__valor { display: flex; flex-direction: column; align-items: flex-end; }
+.fat-item__valor small.fat-verde { color: var(--green); }
+
+/* Digitalizar */
+.fat-scan { gap: 16px; }
+.fat-moldura {
+  position: relative; aspect-ratio: 4 / 4.2; max-height: 52vh; width: 100%; margin: 0 auto; overflow: hidden;
+  border-radius: var(--radius-lg); background: var(--bg-elevated); display: grid; place-items: center;
+}
+#fat-moldura-conteudo { position: absolute; inset: 14px; display: grid; place-items: center; }
+#fat-moldura-conteudo img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius-sm); }
+.fat-moldura__vazio { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-faint); font-size: 13px; text-align: center; padding: 0 20px; word-break: break-all; }
+.fat-canto { position: absolute; width: 34px; height: 34px; border: 3px solid var(--accent); z-index: 2; }
+.fat-canto--tl { top: 18px; left: 18px; border-right: 0; border-bottom: 0; border-top-left-radius: 6px; }
+.fat-canto--tr { top: 18px; right: 18px; border-left: 0; border-bottom: 0; border-top-right-radius: 6px; }
+.fat-canto--bl { bottom: 18px; left: 18px; border-right: 0; border-top: 0; border-bottom-left-radius: 6px; }
+.fat-canto--br { bottom: 18px; right: 18px; border-left: 0; border-top: 0; border-bottom-right-radius: 6px; }
+.fat-moldura__linha {
+  position: absolute; left: 30px; right: 30px; top: 30px; height: 2px; z-index: 3; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 14px rgba(var(--accent-rgb), .8);
+  animation: fat-varrer 2.6s ease-in-out infinite alternate;
+}
+.fat-moldura.is-a-ler .fat-moldura__linha { animation-duration: 1s; }
+@keyframes fat-varrer { from { top: 30px; } to { top: calc(100% - 32px); } }
+@media (prefers-reduced-motion: reduce) { .fat-moldura__linha { animation: none; } }
+
+.fat-scan__estado { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; min-height: 44px; }
+.fat-scan__estado strong { font-size: 16px; }
+.fat-scan__estado span { font-size: 13px; color: var(--text-muted); }
+.fat-dicas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.fat-dicas span {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; text-align: center;
+  border-radius: var(--radius-md); background: var(--soft-bg); border: 1px solid var(--hairline); font-size: 12px; color: var(--text-muted);
+}
+.fat-dicas .icon { color: var(--accent); }
+.fat-scan__acoes { display: flex; flex-direction: column; gap: 10px; transition: opacity var(--dur); }
+.fat-scan__acoes.is-bloqueado { opacity: .4; pointer-events: none; }
+.fat-scan__acoes .btn { gap: 8px; cursor: pointer; }
+.fat-ou { display: flex; align-items: center; gap: 12px; color: var(--text-faint); font-size: 13px; }
+.fat-ou::before, .fat-ou::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+
+/* Detalhe da fatura */
+.fat-aviso { display: flex; align-items: center; gap: 10px; padding: 12px 14px; font-size: 13px; color: var(--text-muted); }
+.fat-aviso .icon { flex: none; color: var(--accent); }
+.fat-aviso--alerta .icon { color: var(--red); }
+.fat-cabecalho { cursor: pointer; }
+.fat-cabecalho__topo { display: flex; justify-content: space-between; gap: 12px; }
+.fat-cabecalho__loja { display: block; font-size: 20px; }
+.fat-cabecalho__topo small { font-size: 12.5px; color: var(--text-muted); }
+.fat-cabecalho__img { flex: none; width: 54px; height: 70px; object-fit: cover; border-radius: var(--radius-xs); border: 1px solid var(--hairline); cursor: zoom-in; }
+.fat-cartao { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; font-size: 13px; color: var(--accent); }
+.fat-cabecalho .fat-meta { margin-top: 8px; }
+.fat-produtos { padding-bottom: 8px; }
+.fat-produto {
+  display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 10px 0; text-align: left;
+  border: 0; background: none; color: inherit; font: inherit; cursor: pointer;
+}
+.fat-produto + .fat-produto { border-top: 1px solid var(--hairline); }
+.fat-produto__info { display: flex; flex-direction: column; min-width: 0; }
+.fat-produto__info strong { font-size: 14px; font-weight: 500; }
+.fat-produto__info small, .fat-produto__preco small { font-size: 12px; color: var(--text-muted); }
+.fat-produto__preco { display: flex; flex-direction: column; align-items: flex-end; flex: none; }
+.fat-produto__preco small.fat-verde { color: var(--green); }
+
+/* Comparar preços */
+.fat-preco { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 14px; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.fat-preco__topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.fat-preco__topo strong { font-size: 14.5px; font-weight: 600; }
+.fat-preco__lojas { display: flex; flex-wrap: wrap; gap: 6px; }
+.fat-preco small { font-size: 12px; color: var(--text-muted); }
+.fat-preco small.fat-verde { color: var(--green); }

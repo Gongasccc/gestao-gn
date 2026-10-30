@@ -12,11 +12,6 @@
 
 /* Hero */
 .farm-hero { padding: 20px; border-radius: var(--farm-raio); display: flex; flex-direction: column; gap: 16px; position: relative; overflow: hidden; }
-.farm-hero::before {
-  content: ""; position: absolute; inset: -40% -20% auto auto; width: 220px; height: 220px; border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, transparent), transparent 70%);
-  filter: blur(10px); animation: farm-flutuar 9s ease-in-out infinite; pointer-events: none;
-}
 .farm-hero__topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; position: relative; }
 .farm-hero h2 { margin: 0 0 4px; font-size: 22px; }
 .farm-hero p { margin: 0; color: var(--text-muted); font-size: 13px; }
@@ -65,7 +60,7 @@
 @media (hover: hover) { .farm-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,.25); } }
 .farm-card__palco {
   aspect-ratio: 1; display: grid; place-items: center; padding: 14px;
-  background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+  background: var(--soft-bg);
 }
 .farm-card--alerta .farm-card__palco { background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--farm-alerta) 30%, transparent), transparent 70%); }
 .farm-card--expirado .farm-card__palco { background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--farm-expirado) 30%, transparent), transparent 70%); }
@@ -96,7 +91,6 @@
 .farm-palco {
   position: relative; aspect-ratio: 4 / 3; border-radius: var(--farm-raio); overflow: hidden; display: grid; place-items: center;
   background:
-    radial-gradient(circle at 50% 65%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 65%),
     var(--soft-bg);
   border: 1px solid var(--glass-border);
 }

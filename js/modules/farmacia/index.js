@@ -5,10 +5,10 @@ import { sharedCol, sharedDoc, snapToList } from '../../services/paths.js';
 import { notifyUser } from '../../services/notifications.js';
 import { navigate, back } from '../../core/router.js';
 import { html, raw, byId, render } from '../../core/dom.js';
-import { toast, confirmDialog, openModal, closeModal, modalTemplate, withLoading } from '../../core/ui.js';
+import { toast, confirmDialog, withLoading } from '../../core/ui.js';
 import { icon } from '../../core/icons.js';
 import { session, createScope } from '../../core/state.js';
-import { analisarFoto, analisarNome, temChavePessoal, guardarChavePessoal } from './ai.js';
+import { analisarFoto, analisarNome } from './ai.js';
 import { removerFundo, prepararParaIA, miniatura, preCarregarRemocaoFundo } from './imagem.js';
 import { estadoValidade, textoContagem, formatarData, linksOficiais, DIAS_ALERTA } from './util.js';
 
@@ -166,7 +166,6 @@ const templateLista = () => html`
           <h2>A vossa farmácia</h2>
           <p>Fotografa a embalagem e a IA diz-te o essencial.</p>
         </div>
-        <button class="farm-icone-btn" data-action="farmacia:definicoes" aria-label="Definições da IA">${icon('settings', 18)}</button>
       </div>
       <div class="farm-resumo" id="farm-resumo"></div>
       <div class="farm-acoes">
@@ -376,14 +375,6 @@ export default {
     },
   ],
 
-  modals: () => modalTemplate('modal-farmacia-ia', 'IA da Farmácia', html`
-    <p class="farm-dica">Por defeito a app usa o Gemini através do Firebase AI Logic do projeto. Se preferires, cola aqui uma chave pessoal da Gemini API (aistudio.google.com). Fica guardada só neste dispositivo.</p>
-    <input class="input" id="farm-chave" type="password" autocomplete="off" placeholder="Chave da Gemini API (opcional)">
-    <div class="btn-row">
-      <button class="btn pressable" data-action="modal:close" data-modal="modal-farmacia-ia">Cancelar</button>
-      <button class="btn btn--primary pressable" data-action="farmacia:guardarChave">Guardar</button>
-    </div>`),
-
   actions: {
     'farmacia:foto': ({ el }) => {
       const ficheiro = el.files?.[0];
@@ -429,19 +420,6 @@ export default {
       if (!ok) return;
       await deleteDoc(sharedDoc(COLECAO, m.id));
       back();
-    },
-
-    'farmacia:definicoes': () => {
-      const input = byId('farm-chave');
-      if (input) input.placeholder = temChavePessoal() ? 'Chave guardada (vazio para apagar)' : 'Chave da Gemini API (opcional)';
-      openModal('modal-farmacia-ia');
-    },
-    'farmacia:guardarChave': () => {
-      const input = byId('farm-chave');
-      guardarChavePessoal(input?.value || '');
-      if (input) input.value = '';
-      closeModal('modal-farmacia-ia');
-      toast(temChavePessoal() ? 'Chave guardada neste dispositivo' : 'A usar o Firebase AI Logic', 'info');
     },
   },
 

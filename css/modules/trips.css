@@ -16,7 +16,7 @@
   bottom: 8px;
   width: 2px;
   border-radius: 2px;
-  background: linear-gradient(to bottom, rgba(var(--accent-rgb), .9), rgba(var(--accent-rgb), .1));
+  background: var(--hairline);
 }
 
 .timeline__day {
@@ -47,7 +47,7 @@
   height: 12px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px rgba(var(--accent-rgb), .25);
+  box-shadow: 0 0 0 3px var(--bg);
 }
 
 .timeline__head { display: flex; align-items: center; justify-content: space-between; }

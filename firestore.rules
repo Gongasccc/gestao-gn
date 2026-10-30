@@ -88,6 +88,18 @@ service cloud.firestore {
         allow delete: if signedIn() && isMember(resource.data.householdId);
       }
 
+      // Nome de utilizador -> email de recuperação. Lido antes do login (entrar com o
+      // nome de utilizador depois de associar um email e pedir nova password).
+      // Só se lê pela chave exata; cada conta só escreve a sua própria entrada.
+      match /logins/{key} {
+        allow get: if true;
+        allow list: if false;
+        allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+        allow update: if signedIn() && resource.data.uid == request.auth.uid
+          && request.resource.data.uid == request.auth.uid;
+        allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      }
+
       // ---------- Viagens partilhadas (com amigos, não só o casal) ----------
       match /viagens_partilhadas/{tripId} {
         allow read: if signedIn() && request.auth.uid in resource.data.membros_uids;

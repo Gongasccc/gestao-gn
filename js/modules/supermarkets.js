@@ -52,7 +52,7 @@ export default {
         <div class="stagger-on-enter list">
           ${resumoTpl()}
           ${SHORTCUTS.map((s) => html`
-            <button class="row-link glass glass--interactive pressable" data-action="nav:go" data-page="${s.page}">
+            <button class="row-link glass pressable" data-action="nav:go" data-page="${s.page}">
               <span>${icon(s.icon, 20)} ${s.label}</span>${icon('chevronRight', 18)}
             </button>`)}
         </div>`,

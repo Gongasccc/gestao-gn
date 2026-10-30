@@ -1,6 +1,6 @@
 # Gestão G&N
 
-A app de organização do casal: um espaço partilhado pelos dois com tarefas, finanças, calendário, datas importantes, metas, plano de refeições, casa, desejos, memórias, viagens, receitas, documentos, garagem e listas de compras.
+A app de organização do casal: um espaço partilhado pelos dois com tarefas, finanças, plano de refeições, viagens, receitas, garagem, farmácia e listas de compras. Pensada para o telemóvel: tema escuro e simples, sem zoom.
 
 Site estático (GitHub Pages) com Firebase (Auth + Firestore). Não há passo de build: o browser carrega os ES modules diretamente.
 
@@ -31,7 +31,7 @@ Para registos simples (lista + formulário), usa `components/record-list.js`, qu
 
 1. **Regras**: publica `firestore.rules` e `storage.rules` (Firestore > Regras e Storage > Regras), ou `firebase deploy --only firestore:rules,storage`.
 2. **Storage** (ficheiros grandes, fotos): ativa o Firebase Storage. Em projetos novos exige o plano Blaze; sem ele, a app continua a guardar ficheiros até ~900 KB dentro do Firestore.
-3. **Recuperar password**: em Authentication > Templates, confirma o email de "redefinição de password". Cada pessoa associa o seu email em Definições > Email de recuperação.
+3. **Recuperar password**: em Authentication > Templates, confirma o email de "redefinição de password". Cada pessoa associa o seu email em Definições > Email de recuperação (ou no registo). A coleção `logins/{utilizador}` guarda esse email para se poder continuar a entrar e recuperar a password com o nome de utilizador; precisa das regras atualizadas publicadas.
 
 ## Faturas do supermercado
 

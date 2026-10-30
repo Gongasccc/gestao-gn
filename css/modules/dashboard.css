@@ -1,46 +1,8 @@
 /* Início */
 
 .greeting {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
   letter-spacing: -.01em;
-  padding: 2px 4px 4px;
-  background: linear-gradient(90deg, var(--text), rgba(var(--accent-rgb), 1));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  padding: 4px 2px 2px;
 }
-
-.widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-.widget-clock,
-.widget-weather {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: 130px;
-  text-align: center;
-}
-
-.clock { font-size: 40px; font-weight: 300; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-
-.weather-row { display: flex; align-items: center; gap: 8px; }
-.weather-icon { color: var(--accent); display: grid; animation: float 5s var(--ease-soft) infinite; }
-.weather-temp { font-size: 32px; font-weight: 300; line-height: 1; }
-.weather-desc { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-.weather-city { font-size: 10px; }
-.widget-weather.is-loading .weather-icon { animation: spin 2s linear infinite; opacity: .6; }
-
-.widget-quote {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 26px 22px;
-  text-align: center;
-}
-
-.quote-mark { color: var(--accent); opacity: .5; display: grid; }
-.quote-text { font-size: 16px; font-style: italic; font-weight: 300; line-height: 1.55; }

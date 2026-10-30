@@ -8,12 +8,27 @@ import { applyTheme, applyAccent, DEFAULT_ACCENT } from '../core/theme.js';
 import {
   auth, getDoc, setDoc,
   signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged,
+  sendPasswordResetEmail, verifyBeforeUpdateEmail,
 } from '../services/firebase.js';
 import { profileDoc } from '../services/paths.js';
+import { loadHousehold } from '../services/household.js';
 
 let isLoginMode = true;
 
-const usernameToEmail = (username) => `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@gestaogn.app`;
+// Contas antigas usam um email interno; quem associar um email real pode entrar com ele.
+const INTERNAL_DOMAIN = '@gestaogn.app';
+const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+const usernameToEmail = (username) => (isEmail(username)
+  ? username.toLowerCase()
+  : `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}${INTERNAL_DOMAIN}`);
+
+export const hasRecoveryEmail = () => !!auth.currentUser?.email && !auth.currentUser.email.endsWith(INTERNAL_DOMAIN);
+
+/** Associa um email real à conta (o Firebase envia um link de confirmação antes de o trocar). */
+export async function setRecoveryEmail(email) {
+  if (!isEmail(email)) throw new Error('Email inválido.');
+  await verifyBeforeUpdateEmail(auth.currentUser, email.trim().toLowerCase());
+}
 
 const ERRORS = {
   'auth/invalid-credential': 'Utilizador ou password incorretos.',
@@ -23,6 +38,8 @@ const ERRORS = {
   'auth/weak-password': 'A password deve ter pelo menos 6 caracteres.',
   'auth/too-many-requests': 'Demasiadas tentativas. Tenta daqui a pouco.',
   'auth/network-request-failed': 'Sem ligação à internet.',
+  'auth/invalid-email': 'Email inválido.',
+  'auth/requires-recent-login': 'Por segurança, termina sessão e volta a entrar antes de mudar o email.',
 };
 
 function showError(msg) {
@@ -51,6 +68,7 @@ async function submit() {
   const password = byId('auth-password').value;
   if (!username || !password) return showError('Preenche o utilizador e a password.');
   if (!/[a-z0-9]/i.test(username)) return showError('O utilizador deve ter letras ou números.');
+  if (!isLoginMode && isEmail(username)) return showError('No registo usa um nome de utilizador. O email de recuperação adiciona-se depois nas Definições.');
 
   const btn = byId('auth-submit');
   btn.disabled = true;
@@ -97,9 +115,21 @@ async function loadProfile(user) {
     } else {
       session.name = 'Utilizador';
     }
+    await loadHousehold(session.profile);
   } catch (err) {
     console.error('[auth] perfil', err);
   }
+}
+
+async function forgot() {
+  const typed = byId('auth-username').value.trim();
+  if (!isEmail(typed)) {
+    return alertDialog('Escreve no campo de utilizador o email de recuperação que associaste à conta (Definições > Email de recuperação) e carrega outra vez aqui. Se nunca associaste um email, pede ao teu parceiro(a) para te ajudar a criar uma conta nova.', 'Recuperar password');
+  }
+  try {
+    await sendPasswordResetEmail(auth, typed.toLowerCase());
+  } catch { /* não revelar se o email existe */ }
+  return alertDialog(`Se existir uma conta com ${typed}, vais receber um email para definir uma nova password.`, 'Email enviado');
 }
 
 export async function logout() {
@@ -110,7 +140,7 @@ export function initAuth({ onLogin, onLogout }) {
   registerActions({
     'auth:submit': submit,
     'auth:toggle': () => setMode(!isLoginMode),
-    'auth:forgot': () => alertDialog('Se te esqueceste da password, pede ao administrador para a repor.', 'Recuperar password'),
+    'auth:forgot': forgot,
   });
 
   let loggedIn = false;
@@ -126,7 +156,7 @@ export function initAuth({ onLogin, onLogout }) {
     } else {
       if (loggedIn) onLogout();
       loggedIn = false;
-      Object.assign(session, { uid: null, name: '', avatar: '', profile: {} });
+      Object.assign(session, { uid: null, name: '', avatar: '', profile: {}, householdId: null, household: null, members: [] });
       document.body.classList.remove('is-authed');
       overlay.hidden = false;
       show('auth-loading', false);

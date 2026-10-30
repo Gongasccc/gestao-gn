@@ -44,3 +44,11 @@ export function takeFile(ev) {
 }
 
 export const dataUrlBytes = (dataUrl) => Math.ceil((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
+
+/** Igual a compressImage, mas devolve um File JPEG (para enviar para o Firebase Storage). */
+export async function compressImageBlob(file, { maxSize = 2000, quality = 0.82 } = {}) {
+  const dataUrl = await compressImage(file, { maxSize, quality });
+  const blob = await (await fetch(dataUrl)).blob();
+  const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+  return new File([blob], name, { type: 'image/jpeg' });
+}

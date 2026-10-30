@@ -1,0 +1,11 @@
+{
+  "name": "gestao-gn",
+  "private": true,
+  "type": "module",
+  "description": "Gestão G&N: a app de organização do casal.",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node --test tests/*.mjs",
+    "check": "for f in $(git ls-files 'js/**.js' sw.js); do node --check --input-type=module < \"$f\" || exit 1; done"
+  }
+}

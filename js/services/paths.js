@@ -14,6 +14,25 @@ export const userDoc = (...segments) => doc(db, ...root, 'users', session.uid, .
 export const otherUserCol = (uid, ...segments) => collection(db, ...root, 'users', uid, ...segments);
 export const otherUserDoc = (uid, ...segments) => doc(db, ...root, 'users', uid, ...segments);
 
+/**
+ * Espaço partilhado do casal. Se o utilizador ainda não tem casal, cai no espaço pessoal,
+ * por isso os módulos funcionam igual nos dois casos.
+ */
+export const spaceSegments = () => (session.householdId
+  ? ['households', session.householdId]
+  : ['users', session.uid]);
+export const sharedCol = (...segments) => collection(db, ...root, ...spaceSegments(), ...segments);
+export const sharedDoc = (...segments) => doc(db, ...root, ...spaceSegments(), ...segments);
+/** Pasta no Firebase Storage correspondente ao espaço atual (ver storage.rules). */
+export const storageScope = () => spaceSegments().join('/');
+
+export const householdsCol = () => collection(db, ...root, 'households');
+export const householdDoc = (hid = session.householdId) => doc(db, ...root, 'households', hid);
+export const householdColOf = (hid, ...segments) => collection(db, ...root, 'households', hid, ...segments);
+export const householdDocOf = (hid, ...segments) => doc(db, ...root, 'households', hid, ...segments);
+export const inviteDoc = (code) => doc(db, ...root, 'invites', code);
+export const userColOf = (uid, ...segments) => collection(db, ...root, 'users', uid, ...segments);
+
 export const tripsCol = () => collection(db, ...root, 'viagens_partilhadas');
 export const tripDoc = (tripId) => doc(db, ...root, 'viagens_partilhadas', tripId);
 export const tripCol = (tripId, sub) => collection(db, ...root, 'viagens_partilhadas', tripId, sub);

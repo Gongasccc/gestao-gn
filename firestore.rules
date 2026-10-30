@@ -1,0 +1,104 @@
+rules_version = '2';
+
+// Regras do Firestore da Gestão G&N.
+// Todos os dados vivem em /artifacts/{appId}/... (prefixo herdado da versão original).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+
+    match /artifacts/{appId} {
+
+      function household(hid) {
+        return get(/databases/$(database)/documents/artifacts/$(appId)/households/$(hid)).data;
+      }
+      function isMember(hid) {
+        return signedIn() && request.auth.uid in household(hid).members;
+      }
+
+      // ---------- Perfis (pesquisáveis por outros utilizadores autenticados) ----------
+      match /public/data/profiles/{uid} {
+        allow read: if signedIn();
+        allow create, update: if isSelf(uid)
+          && request.resource.data.uid == uid;
+        allow delete: if isSelf(uid);
+      }
+
+      // ---------- Dados pessoais ----------
+      match /users/{uid} {
+        allow read, write: if isSelf(uid);
+
+        // Pedidos de amizade e notificações podem ser criados por outros utilizadores.
+        match /notifications/{nid} {
+          allow read, update, delete: if isSelf(uid);
+          allow create: if signedIn();
+        }
+        // Pedidos de amizade: quem envia escreve na caixa do destinatário com o seu próprio uid.
+        match /requests/{fromUid} {
+          allow read, delete: if isSelf(uid);
+          allow create, update: if isSelf(fromUid);
+        }
+        match /friends/{fid} {
+          allow read, update, delete: if isSelf(uid) || isSelf(fid);
+          allow create: if isSelf(uid) || isSelf(fid);
+        }
+        match /{col}/{docId=**} {
+          allow read, write: if isSelf(uid);
+        }
+      }
+
+      // ---------- Casal (household) ----------
+      match /households/{hid} {
+        allow read: if signedIn() && request.auth.uid in resource.data.members;
+
+        // Quem cria fica como único membro.
+        allow create: if signedIn()
+          && request.resource.data.members == [request.auth.uid]
+          && request.resource.data.ownerUid == request.auth.uid;
+
+        // Membros podem editar nome/definições, mas não mexer na lista de membros
+        // a não ser para sair (removerem-se a si próprios).
+        allow update: if isMember(hid) && (
+            request.resource.data.members == resource.data.members
+            || request.resource.data.members == resource.data.members.removeAll([request.auth.uid])
+          )
+          // Entrar com código de convite: só se o casal tiver 1 membro e o código bater certo.
+          || (signedIn()
+            && !(request.auth.uid in resource.data.members)
+            && resource.data.members.size() == 1
+            && resource.data.inviteCode != null
+            && request.resource.data.joinCode == resource.data.inviteCode
+            && request.resource.data.members == resource.data.members.concat([request.auth.uid])
+            && request.resource.data.ownerUid == resource.data.ownerUid);
+
+        allow delete: if signedIn() && request.auth.uid == resource.data.ownerUid;
+
+        // Todas as subcoleções do casal (tarefas, compras, finanças, calendário, ...).
+        match /{col}/{docId=**} {
+          allow read, write: if isMember(hid);
+        }
+      }
+
+      // Códigos de convite: quem conhece o código consegue descobrir o casal.
+      match /invites/{code} {
+        allow get: if signedIn();
+        allow list: if false;
+        allow create: if signedIn() && isMember(request.resource.data.householdId);
+        allow delete: if signedIn() && isMember(resource.data.householdId);
+      }
+
+      // ---------- Viagens partilhadas (com amigos, não só o casal) ----------
+      match /viagens_partilhadas/{tripId} {
+        allow read: if signedIn() && request.auth.uid in resource.data.membros_uids;
+        allow create: if signedIn() && request.auth.uid in request.resource.data.membros_uids;
+        allow update, delete: if signedIn() && request.auth.uid in resource.data.membros_uids;
+
+        match /{col}/{docId=**} {
+          allow read, write: if signedIn()
+            && request.auth.uid in get(/databases/$(database)/documents/artifacts/$(appId)/viagens_partilhadas/$(tripId)).data.membros_uids;
+        }
+      }
+    }
+  }
+}

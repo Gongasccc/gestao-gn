@@ -1,7 +1,7 @@
 // Farmácia: fotografar um medicamento, remover o fundo, obter a informação essencial com IA
 // e acompanhar a validade com contagem decrescente no último mês.
 import { onSnapshot, addDoc, updateDoc, deleteDoc } from '../../services/firebase.js';
-import { userCol, userDoc, snapToList } from '../../services/paths.js';
+import { sharedCol, sharedDoc, snapToList } from '../../services/paths.js';
 import { notifyUser } from '../../services/notifications.js';
 import { navigate, back } from '../../core/router.js';
 import { html, raw, byId, render } from '../../core/dom.js';
@@ -347,7 +347,7 @@ async function notificarValidades() {
       ? `💊 ${m.nome} passou da validade. Entrega-o numa farmácia (Valormed).`
       : `💊 ${m.nome} expira a ${formatarData(m.validade)}. Falta menos de um mês.`;
     try {
-      await updateDoc(userDoc(COLECAO, m.id), { avisadoValidade: marca });
+      await updateDoc(sharedDoc(COLECAO, m.id), { avisadoValidade: marca });
       await notifyUser(session.uid, texto);
     } catch (e) {
       console.warn('[farmacia] notificação de validade falhou', e);
@@ -403,7 +403,7 @@ export default {
       const { info, foto } = rascunho || {};
       if (!info) return;
       const nome = byId('farm-nome')?.value.trim() || info.nome;
-      const ref = await withLoading(el, () => addDoc(userCol(COLECAO), {
+      const ref = await withLoading(el, () => addDoc(sharedCol(COLECAO), {
         ...info,
         nome,
         foto: foto || '',
@@ -418,7 +418,7 @@ export default {
 
     'farmacia:guardarValidade': async ({ el }) => {
       if (!atualId) return;
-      await withLoading(el, () => updateDoc(userDoc(COLECAO, atualId), { validade: lerValidade() }));
+      await withLoading(el, () => updateDoc(sharedDoc(COLECAO, atualId), { validade: lerValidade() }));
       toast('Validade atualizada');
     },
 
@@ -427,7 +427,7 @@ export default {
       if (!m) return;
       const ok = await confirmDialog(`${m.nome} vai ser removido da farmácia.`, { title: 'Remover medicamento?', confirmLabel: 'Remover', danger: true });
       if (!ok) return;
-      await deleteDoc(userDoc(COLECAO, m.id));
+      await deleteDoc(sharedDoc(COLECAO, m.id));
       back();
     },
 
@@ -446,7 +446,7 @@ export default {
   },
 
   start() {
-    scope.add(onSnapshot(userCol(COLECAO), (snap) => {
+    scope.add(onSnapshot(sharedCol(COLECAO), (snap) => {
       medicamentos = snapToList(snap);
       renderLista();
       if (atualId && byId(PAGINA_DETALHE)?.classList.contains('is-active')) renderDetalhe();

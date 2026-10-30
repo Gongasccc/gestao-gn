@@ -6,7 +6,7 @@ import { navigate } from '../core/router.js';
 import { toast, showImage } from '../core/ui.js';
 import { compressImage, takeFile } from '../core/images.js';
 import { getDoc, setDoc } from '../services/firebase.js';
-import { userDoc } from '../services/paths.js';
+import { sharedDoc } from '../services/paths.js';
 import { checklistTpl, subscribeChecklist } from '../components/checklist.js';
 
 const scope = createScope();
@@ -102,7 +102,7 @@ export default {
       drawCard();
       navigate('page-super-detail');
       try {
-        const snap = await getDoc(userDoc('supermercados', data.id));
+        const snap = await getDoc(sharedDoc('supermercados', data.id));
         if (snap.exists() && currentStoreId === data.id) {
           const d = snap.data();
           byId('store-notes').value = d.notas || '';
@@ -120,12 +120,12 @@ export default {
       if (!file) return;
       currentCard = await compressImage(file, { maxSize: 900, quality: 0.7 });
       drawCard();
-      await setDoc(userDoc('supermercados', currentStoreId), { cartao_img: currentCard }, { merge: true });
+      await setDoc(sharedDoc('supermercados', currentStoreId), { cartao_img: currentCard }, { merge: true });
       toast('Cartão guardado');
     },
     'stores:flyer': () => { const s = store(); if (s) window.open(s.link, '_blank', 'noopener'); },
     'stores:notes': async ({ value }) => {
-      await setDoc(userDoc('supermercados', currentStoreId), { notas: value }, { merge: true });
+      await setDoc(sharedDoc('supermercados', currentStoreId), { notas: value }, { merge: true });
       toast('Notas guardadas');
     },
   },

@@ -5,7 +5,7 @@ import { createScope } from '../core/state.js';
 import { navigate } from '../core/router.js';
 import { modalTemplate, openModal, closeModal, toast, confirmDialog, withLoading } from '../core/ui.js';
 import { addDoc, updateDoc, deleteDoc, onSnapshot, arrayUnion } from '../services/firebase.js';
-import { userCol, userDoc, snapToList } from '../services/paths.js';
+import { sharedCol, sharedDoc, snapToList } from '../services/paths.js';
 import { photoPickerTpl, getPhoto, clearPhoto } from '../components/photo-picker.js';
 
 const scope = createScope();
@@ -174,7 +174,7 @@ export default {
     'recipes:create-book': async ({ el }) => {
       const nome = byId('book-name').value.trim();
       if (!nome) return;
-      await withLoading(el, () => addDoc(userCol('livros_receitas'), { nome, capa: getPhoto('book-cover') || FALLBACK_COVER, categorias: [], timestamp: Date.now() }));
+      await withLoading(el, () => addDoc(sharedCol('livros_receitas'), { nome, capa: getPhoto('book-cover') || FALLBACK_COVER, categorias: [], timestamp: Date.now() }));
       byId('book-name').value = '';
       clearPhoto('book-cover');
       closeModal('modal-new-book');
@@ -185,7 +185,7 @@ export default {
       recipes = [];
       pageIndex = 0;
       bookScope.clear();
-      bookScope.add(onSnapshot(userCol('livros_receitas', data.id, 'itens'), (s) => {
+      bookScope.add(onSnapshot(sharedCol('livros_receitas', data.id, 'itens'), (s) => {
         recipes = sortRecipes(snapToList(s));
         drawPage();
       }));
@@ -201,7 +201,7 @@ export default {
       const cat = input.value.trim();
       if (!cat || categories().includes(cat)) return;
       input.value = '';
-      await updateDoc(userDoc('livros_receitas', currentBookId), { categorias: arrayUnion(cat) });
+      await updateDoc(sharedDoc('livros_receitas', currentBookId), { categorias: arrayUnion(cat) });
     },
     'recipes:new': () => {
       const cats = categories();
@@ -212,7 +212,7 @@ export default {
     'recipes:save': async ({ el }) => {
       const titulo = byId('recipe-title').value.trim();
       if (!titulo) return toast('Indica pelo menos o título da receita.', 'error');
-      await withLoading(el, () => addDoc(userCol('livros_receitas', currentBookId, 'itens'), {
+      await withLoading(el, () => addDoc(sharedCol('livros_receitas', currentBookId, 'itens'), {
         titulo,
         tempo: byId('recipe-time').value.trim(),
         categoria: categories().length ? byId('recipe-category').value : 'Geral',
@@ -228,18 +228,18 @@ export default {
     },
     'recipes:delete': async ({ data }) => {
       if (!(await confirmDialog('A receita será apagada do livro.', { title: 'Apagar receita?', confirmLabel: 'Apagar', danger: true }))) return;
-      await deleteDoc(userDoc('livros_receitas', currentBookId, 'itens', data.id));
+      await deleteDoc(sharedDoc('livros_receitas', currentBookId, 'itens', data.id));
     },
     'recipes:delete-book': async () => {
       if (!(await confirmDialog('O livro deixa de aparecer na tua biblioteca.', { title: 'Apagar livro?', confirmLabel: 'Apagar', danger: true }))) return;
       const id = currentBookId;
       bookScope.clear();
       navigate('menu-receitas');
-      await deleteDoc(userDoc('livros_receitas', id));
+      await deleteDoc(sharedDoc('livros_receitas', id));
     },
   },
   start() {
-    scope.add(onSnapshot(userCol('livros_receitas'), (s) => {
+    scope.add(onSnapshot(sharedCol('livros_receitas'), (s) => {
       books = snapToList(s).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
       drawBooks();
       if (currentBookId) drawPage();

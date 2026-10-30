@@ -1,7 +1,7 @@
 // Viagens partilhadas: lista, criação, detalhe (resumo / planeamento / despesas) e edição.
 import { html, render, byId, emptyState, setText, countUp } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
-import { createScope, session, on } from '../../core/state.js';
+import { createScope, session, on, emit } from '../../core/state.js';
 import { navigate, back, currentPage, refreshHeader } from '../../core/router.js';
 import { toast, confirmDialog, withLoading, showImage } from '../../core/ui.js';
 import { compressImage, takeFile } from '../../core/images.js';
@@ -337,6 +337,7 @@ export default {
     const q = query(tripsCol(), where('membros_uids', 'array-contains', session.uid));
     scope.add(onSnapshot(q, (s) => {
       tripState.trips = snapToList(s);
+      emit('records:update', 'viagens');
       drawTripsList();
       if (tripState.currentTripId) {
         if (!currentTrip()) {

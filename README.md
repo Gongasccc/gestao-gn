@@ -1,6 +1,6 @@
 # Gestão G&N
 
-A app de organização do casal: tarefas, viagens partilhadas com despesas, receitas, documentos, garagem, listas de compras e amigos.
+A app de organização do casal: um espaço partilhado pelos dois com tarefas, finanças, calendário, datas importantes, metas, plano de refeições, casa, desejos, memórias, viagens, receitas, documentos, garagem e listas de compras.
 
 Site estático (GitHub Pages) com Firebase (Auth + Firestore). Não há passo de build: o browser carrega os ES modules diretamente.
 
@@ -10,6 +10,28 @@ Site estático (GitHub Pages) com Firebase (Auth + Firestore). Não há passo de
 python3 -m http.server 8080
 # abre http://localhost:8080
 ```
+
+## Testes
+
+```bash
+npm test        # testes das contas (datas, saldos) com o test runner do Node
+npm run check   # verifica a sintaxe de todos os módulos
+```
+
+## O casal (dados partilhados)
+
+Cada conta pode pertencer a um **casal** (`artifacts/gestao-gn-app/households/{id}`, com `members: [uid, uid]`).
+Um cria o casal em "O nosso casal" e recebe um código de 6 caracteres; o outro escreve o código e entra.
+Ao entrar, os dados pessoais antigos (tarefas, listas, receitas, documentos, garagem) são copiados uma vez para o casal.
+
+Nos módulos usa sempre `sharedCol(...)` / `sharedDoc(...)` (em `services/paths.js`): apontam para o casal se existir, ou para o espaço pessoal se ainda não houver casal.
+Para registos simples (lista + formulário), usa `components/record-list.js`, que já trata do modal de criar/editar/apagar e do upload de fotos.
+
+## Firebase: passos na consola
+
+1. **Regras**: publica `firestore.rules` e `storage.rules` (Firestore > Regras e Storage > Regras), ou `firebase deploy --only firestore:rules,storage`.
+2. **Storage** (ficheiros grandes, fotos): ativa o Firebase Storage. Em projetos novos exige o plano Blaze; sem ele, a app continua a guardar ficheiros até ~900 KB dentro do Firestore.
+3. **Recuperar password**: em Authentication > Templates, confirma o email de "redefinição de password". Cada pessoa associa o seu email em Definições > Email de recuperação.
 
 ## Estrutura
 
@@ -42,10 +64,12 @@ js/
     firebase.js            inicialização única do Firebase
     paths.js               todos os caminhos do Firestore
     notifications.js       enviar notificações a outro utilizador
+    household.js           casal: criar, convidar, entrar, sair e migrar dados antigos
+    storage.js             upload para o Firebase Storage (com alternativa base64)
   navigation/
     menu.js                configuração do menu lateral, Biblioteca e barra inferior
     sidebar.js             renderização do menu e gestos
-  components/              checklist, explorador de ficheiros, foto, tabs, avatar
+  components/              checklist, explorador de ficheiros, foto, tabs, avatar, record-list
   modules/                 uma pasta/ficheiro por secção da app
 ```
 
@@ -87,4 +111,6 @@ export default {
 - Nada é exposto em `window`; os cliques usam `data-action="modulo:acao"`.
 - Cada módulo limpa as suas subscrições do Firestore no logout (`createScope`).
 - Imagens são comprimidas antes de ir para o Firestore (limite de 1 MB por documento).
-- Os caminhos de dados são os mesmos da versão anterior, por isso os dados existentes continuam a funcionar.
+- Os dados antigos continuam a funcionar: sem casal, a app lê do espaço pessoal como antes.
+- Ficheiros vão para o Firebase Storage; o Firestore guarda só o link.
+- `sw.js` guarda a app para abrir offline e o Firestore tem cache local persistente.

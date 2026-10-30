@@ -5,7 +5,23 @@ export const session = {
   name: '',
   avatar: '',
   profile: {},
+  householdId: null,
+  /** { id, name, members: [uid], ownerUid, inviteCode, ... } */
+  household: null,
+  /** Perfis dos membros do casal: [{ uid, name, avatar }] */
+  members: [],
 };
+
+/** Nome curto de um membro do casal (ou "Eu"). */
+export function memberName(uid, { short = true } = {}) {
+  if (!uid) return '';
+  const m = session.members.find((x) => x.uid === uid);
+  const name = m?.name || (uid === session.uid ? session.name : 'Parceiro(a)');
+  return short ? name.split(' ')[0] : name;
+}
+
+/** uid do outro membro do casal, se existir. */
+export const partnerUid = () => session.members.find((m) => m.uid !== session.uid)?.uid || null;
 
 const listeners = new Map();
 

@@ -92,6 +92,40 @@ export const confirmDialog = (message, { title = 'Confirmar', confirmLabel = 'Co
     ],
   });
 
+/** Pede um valor ao utilizador. Devolve a string escrita ou null se cancelar. */
+export function promptDialog(message, { title = '', value = '', type = 'text', placeholder = '', confirmLabel = 'Guardar' } = {}) {
+  const id = `prompt-${Date.now()}`;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = String(html`
+    <div class="modal modal--dialog" id="${id}" role="dialog" aria-modal="true">
+      <div class="modal__backdrop"></div>
+      <div class="modal__sheet modal__sheet--dialog glass">
+        <h2 class="modal__title">${title || message}</h2>
+        ${title && message ? html`<p class="dialog__message">${message}</p>` : ''}
+        <input class="input" type="${type}" value="${value}" placeholder="${placeholder}">
+        <div class="btn-row">
+          <button class="btn" data-v="0">Cancelar</button>
+          <button class="btn btn--primary" data-v="1">${confirmLabel}</button>
+        </div>
+      </div>
+    </div>`);
+  const el = wrapper.firstElementChild;
+  document.body.appendChild(el);
+  const input = el.querySelector('input');
+  requestAnimationFrame(() => { openModal(id); setTimeout(() => input.focus(), 150); });
+  return new Promise((resolve) => {
+    const finish = async (ok) => {
+      const v = input.value;
+      await closeModal(id);
+      el.remove();
+      resolve(ok ? v : null);
+    };
+    el.querySelectorAll('button[data-v]').forEach((b) => b.addEventListener('click', () => finish(b.dataset.v === '1')));
+    el.querySelector('.modal__backdrop').addEventListener('click', () => finish(false));
+    input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') finish(true); });
+  });
+}
+
 /** Notificação temporária em vidro no topo do ecrã. */
 export function toast(message, type = 'success', duration = 2600) {
   let stack = byId('toast-stack');

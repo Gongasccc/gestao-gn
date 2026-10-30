@@ -3,9 +3,10 @@ import { html, byId, render, emptyState } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { registerActions } from '../core/events.js';
 import { modalTemplate, openModal, closeModal, confirmDialog, toast, showImage } from '../core/ui.js';
-import { compressImage, readAsDataURL, takeFile, dataUrlBytes, MAX_FILE_BYTES } from '../core/images.js';
+import { compressImageBlob, takeFile } from '../core/images.js';
 import { addDoc, deleteDoc, updateDoc, onSnapshot } from '../services/firebase.js';
-import { snapToList } from '../services/paths.js';
+import { snapToList, storageScope } from '../services/paths.js';
+import { saveFile, removeFile, MAX_UPLOAD_BYTES } from '../services/storage.js';
 import { relativeTime } from '../core/format.js';
 
 const browsers = new Map();
@@ -109,12 +110,19 @@ export function createFileBrowser(cfg) {
 }
 
 async function openFile(file) {
-  if (!file?.conteudo) return;
+  const src = file?.url || file?.conteudo;
+  if (!src) return;
   if (file.tipo?.startsWith('image/')) {
-    showImage(file.conteudo);
+    showImage(src);
     return;
   }
-  const blob = await (await fetch(file.conteudo)).blob();
+  // Ficheiros novos estão no Firebase Storage: abre diretamente o link.
+  if (file.url && !file.url.startsWith('data:')) {
+    window.open(file.url, '_blank', 'noopener');
+    return;
+  }
+  // Ficheiros antigos estão guardados em base64 dentro do Firestore.
+  const blob = await (await fetch(src)).blob();
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
   if (!win) {
@@ -153,19 +161,27 @@ registerActions({
   },
   'fb:upload': async ({ data, ev }) => {
     const b = browsers.get(data.browser);
-    const file = takeFile(ev);
+    let file = takeFile(ev);
     if (!file) return;
-    const conteudo = file.type.startsWith('image/')
-      ? await compressImage(file, { maxSize: 1600, quality: 0.75 })
-      : await readAsDataURL(file);
-    if (dataUrlBytes(conteudo) > MAX_FILE_BYTES) {
-      toast('Ficheiro demasiado grande (máx. ~900 KB).', 'error', 3500);
+    if (file.type.startsWith('image/')) file = await compressImageBlob(file, { maxSize: 2000, quality: 0.82 });
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast('Ficheiro demasiado grande (máx. 20 MB).', 'error', 3500);
+      return;
+    }
+    toast(`A enviar "${file.name}"…`, 'info');
+    let up;
+    try {
+      up = await saveFile(storageScope(), b.cfg.key, file);
+    } catch (err) {
+      toast(err.message, 'error', 4000);
       return;
     }
     await addDoc(b.cfg.filesCol(), {
       nome: file.name,
-      tipo: file.type.startsWith('image/') ? 'image/jpeg' : file.type,
-      conteudo,
+      tipo: up.type,
+      url: up.url,
+      path: up.path,
+      tamanho: up.size,
       pastaId: b.state.folderId || null,
       timestamp: Date.now(),
     });
@@ -179,6 +195,9 @@ registerActions({
   'fb:delete-file': async ({ data }) => {
     const b = browsers.get(data.browser);
     const ok = await confirmDialog('Esta ação não pode ser desfeita.', { title: 'Apagar ficheiro?', confirmLabel: 'Apagar', danger: true });
-    if (ok) await deleteDoc(b.cfg.fileDoc(data.id));
+    if (!ok) return;
+    const file = b.state.files.find((f) => f.id === data.id);
+    await deleteDoc(b.cfg.fileDoc(data.id));
+    if (file?.path) await removeFile(file.path).catch((err) => console.warn('[storage]', err));
   },
 });

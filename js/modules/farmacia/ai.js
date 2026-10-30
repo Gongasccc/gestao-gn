@@ -1,11 +1,9 @@
-// Identificação de medicamentos com Gemini.
-// Caminho principal: Firebase AI Logic (sem chave no código, usa o projeto Firebase).
-// Alternativa: chave pessoal da Gemini API guardada só neste dispositivo (localStorage).
+// Identificação de medicamentos com Gemini através do Firebase AI Logic
+// (sem chave no código: usa o projeto Firebase e exige sessão iniciada).
 import { app } from '../../services/firebase.js';
 
 const FIREBASE_SDK = '11.10.0';
 export const MODELOS = ['gemini-3.6-flash', 'gemini-flash-latest'];
-const CHAVE_LOCAL = 'gn.farmacia.geminiKey';
 
 const PROMPT_BASE = `És um farmacêutico em Portugal. Responde SEMPRE em português de Portugal, de forma curta e direta, sem texto desnecessário.
 Identifica o medicamento e devolve APENAS um objeto JSON com esta forma exata:
@@ -25,16 +23,6 @@ Identifica o medicamento e devolve APENAS um objeto JSON com esta forma exata:
   "interacoes": ["interações relevantes a evitar, máx. 3"]
 }
 Regras: a posologia deve cobrir as faixas etárias relevantes (bebés, crianças, adolescentes, adultos, idosos) e dizer "Não recomendado" quando for o caso; usa as doses do folheto informativo aprovado (RCM/Infarmed). Se não conseguires identificar, devolve {"identificado": false, "confianca": "baixa"} e mais nada. Nunca inventes.`;
-
-export const temChavePessoal = () => {
-  try { return !!localStorage.getItem(CHAVE_LOCAL); } catch { return false; }
-};
-export const guardarChavePessoal = (chave) => {
-  try { chave ? localStorage.setItem(CHAVE_LOCAL, chave.trim()) : localStorage.removeItem(CHAVE_LOCAL); } catch { /* modo privado */ }
-};
-const lerChavePessoal = () => {
-  try { return localStorage.getItem(CHAVE_LOCAL) || ''; } catch { return ''; }
-};
 
 function extrairJson(texto) {
   const limpo = String(texto || '').replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
@@ -88,31 +76,11 @@ async function pedirFirebase(nomeModelo, partes) {
   return res.response.text();
 }
 
-async function pedirRest(nomeModelo, partes, chave) {
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${nomeModelo}:generateContent`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
-      body: JSON.stringify({
-        contents: [{
-          parts: partes.map((p) => (p.texto ? { text: p.texto } : { inline_data: { mime_type: p.mime, data: p.base64 } })),
-        }],
-        generationConfig: { responseMimeType: 'application/json', temperature: 0.2 },
-      }),
-    },
-  );
-  const json = await resp.json().catch(() => ({}));
-  if (!resp.ok) throw new Error(json?.error?.message || `Erro ${resp.status} da Gemini API.`);
-  return json?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
-}
-
 async function pedir(partes) {
-  const chave = lerChavePessoal();
   let ultimoErro;
   for (const nome of MODELOS) {
     try {
-      const texto = chave ? await pedirRest(nome, partes, chave) : await pedirFirebase(nome, partes);
+      const texto = await pedirFirebase(nome, partes);
       return normalizar(extrairJson(texto));
     } catch (e) {
       ultimoErro = e;
@@ -126,9 +94,8 @@ async function pedir(partes) {
 function traduzirErro(e) {
   const msg = e?.message || String(e);
   if (/api-not-enabled|firebasevertexai|firebaseml|AI Logic|has not been used|PERMISSION_DENIED/i.test(msg)) {
-    return new Error('A IA ainda não está ativa no projeto Firebase. Ativa o "Firebase AI Logic" (Gemini Developer API) na consola Firebase, ou define uma chave pessoal da Gemini API nas definições da Farmácia.');
+    return new Error('A IA ainda não está ativa no projeto Firebase. Ativa o "Firebase AI Logic" (Gemini Developer API) na consola Firebase.');
   }
-  if (/API key not valid|API_KEY_INVALID/i.test(msg)) return new Error('A chave da Gemini API não é válida.');
   if (/quota|429|RESOURCE_EXHAUSTED/i.test(msg)) return new Error('Limite de pedidos à IA atingido. Tenta de novo daqui a um minuto.');
   if (/Failed to fetch|NetworkError/i.test(msg)) return new Error('Sem ligação à internet.');
   return new Error(`Não foi possível analisar o medicamento: ${msg}`);

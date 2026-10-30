@@ -10,12 +10,13 @@ export default {
     title: 'Biblioteca',
     root: true,
     template: () => html`
-      <div class="tile-grid stagger-on-enter">
+      <nav class="menu-list glass">
         ${MENU.filter((m) => m.library).map((m) => html`
-          <button class="tile glass glass--interactive pressable" data-action="nav:go" data-page="${m.page}">
-            <span class="tile__icon">${icon(m.icon, 26)}</span>
-            <span class="tile__label">${m.label}</span>
+          <button class="menu-list__row pressable" data-action="nav:go" data-page="${m.page}">
+            <span class="menu-list__icon">${icon(m.icon, 20)}</span>
+            <span class="menu-list__label">${m.label}</span>
+            ${icon('chevronRight', 16)}
           </button>`)}
-      </div>`,
+      </nav>`,
   }],
 };

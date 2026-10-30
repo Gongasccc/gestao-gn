@@ -47,7 +47,7 @@ function renderSidebar() {
 
 function renderBottomNav() {
   byId('bottom-nav').innerHTML = String(html`
-    <div class="bottom-nav__bar glass glass--refract">
+    <div class="bottom-nav__bar glass--bar">
       <span class="bottom-nav__indicator" id="bottom-nav-indicator"></span>
       ${BOTTOM_NAV.map((item) => html`
         <button class="bottom-nav__btn" data-nav-page="${item.page}" data-action="nav:go" data-page="${item.page}" aria-label="${item.label}">

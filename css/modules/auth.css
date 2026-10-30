@@ -23,26 +23,9 @@
   position: relative;
   display: grid;
   place-items: center;
-  animation: float 6s var(--ease-soft) infinite;
 }
 
-.auth__logo-wrap::before {
-  content: '';
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(var(--accent-rgb), .45), transparent 65%);
-  filter: blur(10px);
-  animation: glow 4s var(--ease-soft) infinite alternate;
-}
-
-@keyframes glow {
-  from { opacity: .5; transform: scale(.9); }
-  to { opacity: 1; transform: scale(1.1); }
-}
-
-.auth__logo { position: relative; width: 120px; animation: pop-in .9s var(--ease-spring); }
+.auth__logo { position: relative; width: 96px; animation: pop-in .9s var(--ease-spring); }
 .auth__logo--light { display: none; }
 [data-theme="light"] .auth__logo--dark { display: none; }
 [data-theme="light"] .auth__logo--light { display: block; }
@@ -76,4 +59,5 @@
 .auth__confirm.is-open { grid-template-rows: 1fr; opacity: 1; margin-top: 0; }
 
 .auth__card .btn--primary { margin-top: 6px; }
+.auth__hint { font-size: 13px; color: var(--text-muted); text-align: left; }
 .auth__error { color: var(--red); font-size: 13px; animation: fade-in var(--dur); }

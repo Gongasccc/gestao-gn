@@ -1,37 +1,18 @@
-// Efeitos "liquid glass": reflexo que segue o dedo/rato e refração (apenas em browsers Chromium).
+// Comportamento "de app" no telemóvel: sem zoom, imagens partidas escondidas e um toque discreto nos botões.
 
-const REFRACTION_FILTER = `
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <filter id="liquid-refraction" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="11" result="noise"/>
-    <feGaussianBlur in="noise" stdDeviation="2.5" result="soft"/>
-    <feDisplacementMap in="SourceGraphic" in2="soft" scale="38" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</svg>`;
-
-function supportsRefraction() {
-  // backdrop-filter com url(#svg) só funciona bem em Chromium (Chrome, Edge, Android).
-  const brands = navigator.userAgentData?.brands?.map((b) => b.brand) || [];
-  return brands.some((b) => /Chromium|Google Chrome|Microsoft Edge/.test(b));
+function blockZoom() {
+  // O iOS ignora user-scalable=no no viewport, por isso cortamos os gestos de pinça aqui.
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach((type) => {
+    document.addEventListener(type, (ev) => ev.preventDefault(), { passive: false });
+  });
+  document.addEventListener('touchmove', (ev) => {
+    if (ev.touches.length > 1 || (ev.scale && ev.scale !== 1)) ev.preventDefault();
+  }, { passive: false });
+  // O duplo toque é tratado em CSS (touch-action no html), sem atrasar os cliques.
 }
 
 export function initGlassEffects() {
-  document.body.insertAdjacentHTML('beforeend', REFRACTION_FILTER);
-  if (supportsRefraction()) document.documentElement.classList.add('can-refract');
-
-  // Reflexo dinâmico: atualiza --mx/--my no elemento de vidro sob o ponteiro.
-  let raf = 0;
-  document.addEventListener('pointermove', (ev) => {
-    if (raf) return;
-    raf = requestAnimationFrame(() => {
-      raf = 0;
-      const el = ev.target.closest?.('.glass--interactive, .pressable.glass');
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${((ev.clientX - r.left) / r.width) * 100}%`);
-      el.style.setProperty('--my', `${((ev.clientY - r.top) / r.height) * 100}%`);
-    });
-  }, { passive: true });
+  blockZoom();
 
   // Imagens partidas (ex.: sem rede) não mostram o ícone do browser.
   document.addEventListener('error', (ev) => {

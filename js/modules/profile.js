@@ -28,9 +28,7 @@ function drawSettings() {
     ? html`${icon('check', 18)} Email de recuperação: ${auth.currentUser.email}`
     : html`${icon('shield', 18)} Adicionar email de recuperação`);
   const p = session.profile || {};
-  const loc = byId('switch-location');
   const notif = byId('switch-notifications');
-  if (loc) loc.checked = !!p.allowLocation;
   if (notif) notif.checked = !!p.allowNotifications;
 }
 
@@ -66,10 +64,6 @@ export default {
       root: true,
       template: () => html`
         <div class="card glass">
-          <div class="setting-row">
-            <span>${icon('pin', 18)} Localização</span>
-            <label class="switch"><input type="checkbox" id="switch-location" data-change="settings:location"><span class="switch__track"></span></label>
-          </div>
           <div class="setting-row">
             <span>${icon('bell', 18)} Notificações push</span>
             <label class="switch"><input type="checkbox" id="switch-notifications" data-change="settings:notifications"><span class="switch__track"></span></label>
@@ -112,16 +106,6 @@ export default {
       drawSettings();
       await saveProfile({ accentColor: data.color });
     },
-    'settings:location': async ({ el }) => {
-      if (el.checked && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          () => toast('Localização concedida'),
-          () => { el.checked = false; toast('Permissão de localização recusada', 'error'); saveProfile({ allowLocation: false }); },
-        );
-      }
-      session.profile.allowLocation = el.checked;
-      await saveProfile({ allowLocation: el.checked });
-    },
     'settings:notifications': async ({ el }) => {
       if (el.checked && 'Notification' in window) {
         const permission = await Notification.requestPermission();
@@ -132,13 +116,13 @@ export default {
       await saveProfile({ allowNotifications: el.checked });
     },
     'settings:recovery': async () => {
-      const email = await promptDialog('Vais receber um link para confirmar. Depois disso podes entrar com este email e recuperar a password se a esqueceres.', {
+      const email = await promptDialog('Vais receber um link para confirmar. Depois disso continuas a entrar com o teu utilizador (ou com o email) e, se te esqueceres da password, recebes aqui o link para a mudar.', {
         title: 'Email de recuperação', type: 'email', placeholder: 'nome@exemplo.com', confirmLabel: 'Enviar confirmação',
       });
       if (!email) return;
       try {
         await setRecoveryEmail(email);
-        alertDialog(`Enviámos um link para ${email}. Abre-o para concluir. A partir daí, entra com esse email.`, 'Confirma o teu email');
+        alertDialog(`Enviámos um link para ${email}. Abre-o para concluir; depois disso a app pede-te para voltares a entrar.`, 'Confirma o teu email');
       } catch (err) {
         toast(err.code === 'auth/requires-recent-login' ? 'Termina sessão e volta a entrar antes de mudar o email.' : (err.message || 'Não foi possível.'), 'error', 4000);
       }

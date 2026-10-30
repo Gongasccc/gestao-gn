@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Gestão G&amp;N</title>
   <meta name="description" content="Gestão G&N: a app de organização do casal.">
-  <meta name="theme-color" content="#0b0b0f">
+  <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -35,14 +35,6 @@
   <link rel="stylesheet" href="css/modules/faturas.css">
 </head>
 <body>
-  <!-- Fundo animado: dá cor e profundidade ao vidro -->
-  <div class="ambient" aria-hidden="true">
-    <span class="ambient__blob ambient__blob--1"></span>
-    <span class="ambient__blob ambient__blob--2"></span>
-    <span class="ambient__blob ambient__blob--3"></span>
-    <span class="ambient__noise"></span>
-  </div>
-
   <!-- Entrada / registo -->
   <div id="auth-overlay" class="auth">
     <div class="auth__logo-wrap">
@@ -62,20 +54,24 @@
       <div class="auth__confirm" id="auth-confirm-wrap">
         <input type="password" id="auth-confirm" class="input" placeholder="Confirmar password" autocomplete="new-password" data-enter="auth:submit">
       </div>
+      <div class="auth__confirm" id="auth-email-wrap">
+        <input type="email" id="auth-email" class="input" placeholder="Email para recuperar a password (opcional)" autocomplete="email" autocapitalize="none" data-enter="auth:submit">
+      </div>
+      <p class="auth__hint" id="auth-hint" hidden>Escreve o teu utilizador ou o email que associaste à conta. Enviamos um link para definires uma nova password.</p>
       <button type="button" class="btn btn--primary btn--block btn--large pressable" id="auth-submit" data-action="auth:submit">Entrar</button>
       <p class="auth__error" id="auth-error" hidden></p>
       <button type="button" class="link" id="auth-toggle" data-action="auth:toggle">Não tens conta? Cria uma aqui.</button>
-      <button type="button" class="link link--muted" data-action="auth:forgot">Esqueceste-te da password?</button>
+      <button type="button" class="link link--muted" id="auth-forgot" data-action="auth:forgot">Esqueceste-te da password?</button>
     </form>
   </div>
 
   <!-- App -->
   <div id="app" class="app">
     <div id="sidebar-overlay" class="sidebar-overlay" data-action="sidebar:close"></div>
-    <aside id="sidebar" class="sidebar glass glass--strong" aria-label="Menu"></aside>
+    <aside id="sidebar" class="sidebar glass--strong" aria-label="Menu"></aside>
 
     <div class="app__main">
-      <header class="topbar glass glass--bar glass--refract" id="topbar">
+      <header class="topbar glass glass--bar" id="topbar">
         <div class="topbar__side" id="topbar-left"></div>
         <h1 class="topbar__title" id="topbar-title">Início</h1>
         <div class="topbar__side topbar__side--right" id="topbar-right"></div>

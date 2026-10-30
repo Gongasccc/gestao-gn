@@ -31,6 +31,8 @@ export const householdDoc = (hid = session.householdId) => doc(db, ...root, 'hou
 export const householdColOf = (hid, ...segments) => collection(db, ...root, 'households', hid, ...segments);
 export const householdDocOf = (hid, ...segments) => doc(db, ...root, 'households', hid, ...segments);
 export const inviteDoc = (code) => doc(db, ...root, 'invites', code);
+/** Nome de utilizador -> email de recuperação (lido antes de iniciar sessão). */
+export const loginDoc = (key) => doc(db, ...root, 'logins', key);
 export const userColOf = (uid, ...segments) => collection(db, ...root, 'users', uid, ...segments);
 
 export const tripsCol = () => collection(db, ...root, 'viagens_partilhadas');

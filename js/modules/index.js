@@ -13,6 +13,7 @@ import recipes from './recipes.js';
 import documents from './documents.js';
 import garage from './garage.js';
 import supermarkets from './supermarkets.js';
+import farmacia from './farmacia/index.js';
 
 export const MODULES = [
   dashboard,
@@ -25,4 +26,5 @@ export const MODULES = [
   documents,
   garage,
   supermarkets,
+  farmacia,
 ];

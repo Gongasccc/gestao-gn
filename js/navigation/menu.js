@@ -27,6 +27,7 @@ export const MENU = [
     ],
   },
   { page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
+  { page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true },
 ];
 
 export const MENU_FOOTER = [

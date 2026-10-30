@@ -1,0 +1,90 @@
+# Gestão G&N
+
+A app de organização do casal: tarefas, viagens partilhadas com despesas, receitas, documentos, garagem, listas de compras e amigos.
+
+Site estático (GitHub Pages) com Firebase (Auth + Firestore). Não há passo de build: o browser carrega os ES modules diretamente.
+
+## Correr localmente
+
+```bash
+python3 -m http.server 8080
+# abre http://localhost:8080
+```
+
+## Estrutura
+
+```
+index.html                 casca da app (overlay de login, topbar, menu, barra inferior)
+manifest.webmanifest       instalação como app (PWA)
+assets/brand/              logótipos
+css/
+  tokens.css               variáveis: cores, vidro, raios, movimento (tema claro/escuro)
+  base.css                 reset + fundo ambiente animado
+  glass.css                sistema "liquid glass" (.glass, .glass-soft, .glass-chip…)
+  layout.css               topbar, menu lateral, páginas, barra inferior, desktop
+  components.css           botões, campos, listas, cartões, modais, toasts…
+  animations.css           keyframes e transições (respeita prefers-reduced-motion)
+  modules/*.css            estilos específicos de cada secção
+js/
+  main.js                  ponto de entrada: monta módulos, navegação e autenticação
+  app/auth.js              login, registo e ciclo de vida da sessão
+  core/
+    dom.js                 html`` com escape automático (anti-XSS), render, countUp
+    events.js              delegação de eventos via data-action / data-change / data-input / data-enter
+    router.js              navegação por stack, integrada com o botão "voltar" do sistema
+    ui.js                  modais, diálogos, toasts, visualizador de imagens
+    state.js               sessão, event bus (on/emit) e scopes de subscrições
+    theme.js               tema e cor de destaque
+    glass.js               reflexo que segue o dedo, refração (Chromium), ripple
+    images.js              compressão de imagens antes de guardar
+    format.js, icons.js
+  services/
+    firebase.js            inicialização única do Firebase
+    paths.js               todos os caminhos do Firestore
+    notifications.js       enviar notificações a outro utilizador
+  navigation/
+    menu.js                configuração do menu lateral, Biblioteca e barra inferior
+    sidebar.js             renderização do menu e gestos
+  components/              checklist, explorador de ficheiros, foto, tabs, avatar
+  modules/                 uma pasta/ficheiro por secção da app
+```
+
+## Adicionar um módulo (ex.: Farmácia)
+
+1. Cria `js/modules/farmacia.js`:
+
+```js
+import { html } from '../core/dom.js';
+import { createScope } from '../core/state.js';
+
+const scope = createScope();
+
+export default {
+  id: 'farmacia',
+  pages: [{
+    id: 'menu-farmacia',
+    title: 'Farmácia',
+    root: true, // página de topo (mostra avatar em vez de "voltar")
+    template: () => html`<button class="btn btn--primary" data-action="farmacia:foto">Fotografar</button>`,
+    onEnter: () => {},
+  }],
+  modals: () => html``,
+  actions: {
+    'farmacia:foto': ({ el, ev, data, value }) => { /* … */ },
+  },
+  start() { /* subscrições Firestore: scope.add(onSnapshot(...)) */ },
+  stop() { scope.clear(); },
+};
+```
+
+2. Importa-o em `js/modules/index.js` e junta-o ao array `MODULES`.
+3. Acrescenta `{ page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true }` em `js/navigation/menu.js`.
+4. (Opcional) Estilos em `css/modules/farmacia.css`, ligado no `index.html`.
+
+## Boas práticas usadas
+
+- Todo o texto vindo da base de dados passa por `html```, que escapa HTML automaticamente.
+- Nada é exposto em `window`; os cliques usam `data-action="modulo:acao"`.
+- Cada módulo limpa as suas subscrições do Firestore no logout (`createScope`).
+- Imagens são comprimidas antes de ir para o Firestore (limite de 1 MB por documento).
+- Os caminhos de dados são os mesmos da versão anterior, por isso os dados existentes continuam a funcionar.

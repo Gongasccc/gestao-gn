@@ -1,0 +1,16 @@
+{
+  "name": "Gestão G&N",
+  "short_name": "G&N",
+  "description": "A app de organização do casal.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0b0f",
+  "theme_color": "#0b0b0f",
+  "lang": "pt-PT",
+  "icons": [
+    { "src": "assets/brand/logopreto_fundobranco.png", "sizes": "1200x1200", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/logobranco_fundopreto.png", "sizes": "1200x1200", "type": "image/png", "purpose": "maskable" }
+  ]
+}

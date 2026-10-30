@@ -1,726 +1,92 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-PT" data-theme="dark">
 <head>
+  <meta charset="UTF-8">
   <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gestão G&amp;N</title>
+  <meta name="description" content="Gestão G&N: a app de organização do casal.">
+  <meta name="theme-color" content="#0b0b0f">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Gestão G&N">
-  <link rel="apple-touch-icon" href="logopreto_fundobranco.png">
+  <meta name="apple-mobile-web-app-title" content="Gestão G&amp;N">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="assets/brand/logopreto_fundobranco.png">
+  <link rel="apple-touch-icon" href="assets/brand/logopreto_fundobranco.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Ligação ao ficheiro CSS separado -->
-  <link rel="stylesheet" href="css/style.css">
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/modules/auth.css">
+  <link rel="stylesheet" href="css/modules/dashboard.css">
+  <link rel="stylesheet" href="css/modules/trips.css">
+  <link rel="stylesheet" href="css/modules/recipes.css">
+  <link rel="stylesheet" href="css/modules/misc.css">
 </head>
 <body>
-
-  <!-- OVERLAY DE LOGIN / REGISTO -->
-  <div id="auth-overlay">
-    <img src="logobranco_semfundo.png" class="main-auth-logo dark-logo" onerror="this.style.display='none'">
-    <img src="logopreto_semfundo.png" class="main-auth-logo light-logo" onerror="this.style.display='none'" style="display:none;">
-    
-    <div id="auth-loading-state" style="display:flex;flex-direction:column;align-items:center;">
-      <div class="loading-spinner"></div>
-      <p style="font-size:13px;color:var(--text-muted);margin-top:15px;">A verificar sessão...</p>
-    </div>
-
-    <div class="auth-box" id="auth-box-form" style="display:none;">
-      <h2 style="margin-bottom:25px;color:var(--text-main);" id="auth-title">Entrar na App</h2>
-      <input type="text" id="auth-username" class="auth-input" placeholder="Nome de Utilizador">
-      <input type="password" id="auth-password" class="auth-input" placeholder="Password Secreta">
-      <input type="password" id="auth-confirm-password" class="auth-input" placeholder="Confirmar Password" style="display:none;">
-      <button class="auth-btn" id="btn-login-submit" onclick="handleAuth()">Entrar</button>
-      <p class="auth-link" id="auth-toggle-mode" onclick="toggleAuthMode()">Não tens conta? Cria uma aqui.</p>
-      <p class="auth-link" style="margin-top:5px;" onclick="mostrarAlerta('Se te esqueceste da password, avisa o admin.')">Esqueceste-te da password?</p>
-      <p id="auth-error" style="color:#ff4d4d;font-size:13px;margin-top:15px;display:none;"></p>
-    </div>
+  <!-- Fundo animado: dá cor e profundidade ao vidro -->
+  <div class="ambient" aria-hidden="true">
+    <span class="ambient__blob ambient__blob--1"></span>
+    <span class="ambient__blob ambient__blob--2"></span>
+    <span class="ambient__blob ambient__blob--3"></span>
+    <span class="ambient__noise"></span>
   </div>
 
-  <!-- CONTAINER PRINCIPAL DA APP -->
-  <div id="app-container">
-    
-    <!-- MENU LATERAL (SIDEBAR) -->
-    <div id="sidebar-overlay" onclick="fecharSidebar()"></div>
-    <div id="sidebar">
-      <div class="sidebar-header-account" onclick="navegarMenu('menu-perfil')">
-        <div class="top-profile-avatar" id="sidebar-user-avatar"></div>
-        <div class="sidebar-account-info">
-          <span class="sidebar-account-name" id="sidebar-account-name">A carregar...</span>
-          <span class="sidebar-account-sub">Ver perfil</span>
-        </div>
-      </div>
-      <div style="flex:1;overflow-y:auto;padding-top:10px;">
-        <div class="sidebar-item" id="sidebtn-menu-principal" onclick="navegarMenu('menu-principal')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Início
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-viagens" onclick="navegarMenu('menu-viagens')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg> Viagens
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-familia" onclick="navegarMenu('menu-familia')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Amigos
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-receitas" onclick="navegarMenu('menu-receitas')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Livro de Receitas
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-documentos" onclick="navegarMenu('menu-documentos')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Meus Documentos
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-notificacoes" onclick="navegarMenu('menu-notificacoes')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Notificações
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-supermercados" onclick="toggleSubmenu('submenu-supermercados', 'menu-supermercados')">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Supermercados
-        </div>
-        <div class="sidebar-submenu" id="submenu-supermercados">
-          <div class="sidebar-subitem" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</div>
-          <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</div>
-          <div class="sidebar-subitem" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</div>
-        </div>
-        <div class="sidebar-item" id="sidebtn-menu-carros" onclick="navegarMenu('menu-carros')">
-           <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg> Garagem
-        </div>
-      </div>
-      <div class="sidebar-footer">
-        <div class="sidebar-item" onclick="navegarMenu('menu-definicoes')" style="border-bottom:none;justify-content:center;margin:10px;">
-          <svg class="icon-svg sidebar-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Definições
-        </div>
-      </div>
+  <!-- Entrada / registo -->
+  <div id="auth-overlay" class="auth">
+    <div class="auth__logo-wrap">
+      <img src="assets/brand/logobranco_semfundo.png" class="auth__logo auth__logo--dark" alt="G&amp;N">
+      <img src="assets/brand/logopreto_semfundo.png" class="auth__logo auth__logo--light" alt="G&amp;N">
     </div>
 
-    <!-- MAIN WRAPPER -->
-    <div style="flex:1;display:flex;flex-direction:column;width:100%;overflow:hidden;">
-      <!-- TOP APP BAR -->
-      <div class="top-app-bar" id="main-top-bar">
-        <div class="top-left-btn" id="top-left-btn" onclick="handleTopLeftClick()">
-          <div class="top-profile-avatar" id="top-user-avatar"></div>
-        </div>
-        <div class="top-title" id="top-title">Início</div>
-        <div style="width:34px;display:flex;justify-content:flex-end;" id="top-right-gear-container"></div>
-      </div>
-
-      <!-- ÁREA DAS PÁGINAS DA APLICAÇÃO -->
-      <div class="page-container" id="main-page-container">
-        
-        <!-- DASHBOARD (INÍCIO) -->
-        <div id="menu-principal" class="page active">
-          <div class="top-widgets-grid">
-            <div class="dashboard-widget widget-relogio">
-              <span id="data-atual">A carregar...</span><h1 id="hora-atual">00:00</h1>
-            </div>
-            <div class="dashboard-widget widget-meteorologia" onclick="carregarMeteorologia(true)">
-              <div class="meteo-top-row">
-                <div id="meteo-icone" style="color:var(--accent);"><svg class="icon-svg" style="width:26px;height:26px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg></div>
-                <span id="meteo-temp">--°</span>
-              </div>
-              <span id="meteo-desc">A localizar...</span>
-              <span id="meteo-local-texto"><svg class="icon-svg" style="width:11px;height:11px;margin-bottom:0;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="nome-cidade-texto">GPS</span></span>
-            </div>
-          </div>
-
-          <div class="dashboard-widget widget-frase">
-            <svg class="icon-svg" style="opacity:0.2;width:24px;margin-bottom:12px;color:var(--text-main);" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
-            <p class="frase-texto" id="frase-texto">"Carregando..."</p><span class="frase-autor" id="frase-autor"></span>
-          </div>
-
-          <div class="dashboard-widget widget-tarefas">
-            <h3>
-              <svg class="icon-svg" style="width:20px;height:20px;margin-bottom:0;" viewBox="0 0 24 24">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                <path d="M18 11.5l-5 5-2 0 0-2 5-5 2 2z"></path>
-              </svg> 
-              A Fazer Hoje
-            </h3>
-            <div class="input-row">
-              <input type="text" id="input-nova-tarefa" class="input-text" placeholder="Nova tarefa..." onkeypress="if(event.key==='Enter') adicionarItemDB('tarefas', 'input-nova-tarefa')">
-              <button class="btn-add" onclick="adicionarItemDB('tarefas', 'input-nova-tarefa')"><svg class="icon-svg" style="margin:auto;display:block;width:18px;height:18px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-            </div>
-            <div class="lista-itens" id="container-tarefas"></div>
-          </div>
-        </div>
-
-        <!-- BIBLIOTECA -->
-        <div id="menu-biblioteca" class="page">
-          <button class="btn" onclick="navegarMenu('menu-viagens')">
-            <span>Viagens</span>
-            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon></svg>
-          </button>
-          <button class="btn" onclick="navegarMenu('menu-receitas')">
-            <span>Livro de Receitas</span>
-            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          </button>
-          <button class="btn" onclick="navegarMenu('menu-documentos')">
-            <span>Meus Documentos</span>
-            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-          </button>
-          <button class="btn" onclick="navegarMenu('menu-supermercados')">
-            <span>Supermercados</span>
-            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-          </button>
-          <button class="btn" onclick="navegarMenu('menu-familia')">
-            <span>Amigos</span>
-            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-          </button>
-          <button class="btn" onclick="navegarMenu('menu-carros')">
-            <span>Garagem & Veículos</span>
-            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3v-6l2-5h9l4 5h3v6h-2"></path></svg>
-          </button>
-        </div>
-
-        <!-- PÁGINA DE PERFIL -->
-        <div id="menu-perfil" class="page">
-          <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:30px;">
-            <div id="profile-avatar-container" onclick="document.getElementById('input-direct-avatar-file').click()" style="cursor:pointer;position:relative;" title="Editar Foto de Perfil">
-              <div class="user-avatar-custom" id="profile-page-avatar" style="width:90px;height:90px;font-size:32px;"></div>
-              <span style="position:absolute;bottom:0;right:0;background:var(--accent);color:#121212;padding:6px;border-radius:50%;display:flex;"><svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></span>
-            </div>
-            <input type="file" id="input-direct-avatar-file" accept="image/*" style="display:none;" onchange="uploadFotoDiretaPerfil(event)">
-            
-            <button id="btn-remover-foto-perfil" class="btn-pill-splitwise" style="margin-top:12px;display:none;background:#ff3b30;color:white;" onclick="removerFotoPerfil()">🗑️ Remover Foto</button>
-
-            <h2 id="profile-page-name" style="margin-top:15px;margin-bottom:2px;font-weight:600;color:var(--text-main);">A carregar...</h2>
-            <span style="font-size:12px;color:var(--text-muted);">Conta Pessoal</span>
-          </div>
-
-          <div class="dashboard-widget" style="display:flex;align-items:center;justify-content:space-between;padding:18px 25px;cursor:pointer;" onclick="navegarMenu('menu-familia')">
-            <span style="font-size:14px;font-weight:500;">Amigos</span>
-            <span class="stat-num" id="profile-friends-count">0</span>
-          </div>
-        </div>
-
-        <!-- PÁGINA DE DEFINIÇÕES -->
-        <div id="menu-definicoes" class="page">
-          <div class="dashboard-widget" style="margin-bottom:20px;">
-            <div class="switch-setting-row">
-              <span class="switch-setting-label">Permissão de Localização</span>
-              <label class="ios-switch">
-                <input type="checkbox" id="switch-location" onchange="togglePermissaoLocalizacao(this.checked)">
-                <span class="ios-slider"></span>
-              </label>
-            </div>
-
-            <div class="switch-setting-row" style="border-bottom:none;">
-              <span class="switch-setting-label">Notificações Push</span>
-              <label class="ios-switch">
-                <input type="checkbox" id="switch-notifications" onchange="togglePermissaoNotificacoes(this.checked)">
-                <span class="ios-slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:flex-start;" onclick="alternarTema()">
-            <svg id="svg-moon" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="margin-right:10px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <svg id="svg-sun" class="icon-svg btn-icon-svg" viewBox="0 0 24 24" style="display:none;margin-right:10px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <span id="texto-tema-modal">Mudar para Modo Claro</span>
-          </button>
-
-          <button class="btn-acao" style="width:100%;margin-bottom:15px;padding:15px;background-color:var(--card-bg);justify-content:space-between;" onclick="toggleGrelhaCores()">
-            <span>Cor Secundária</span><div id="cor-atual-bolinha" style="width:20px;height:20px;border-radius:50%;background-color:var(--accent);"></div>
-          </button>
-          <div class="color-grid" id="color-picker-grid" style="display:none;margin-top:0;"></div>
-
-          <button class="btn-acao" style="background-color:#ff3b30;color:white;width:100%;padding:15px;margin-top:20px;" onclick="abrirModal('modal-logout')">Terminar Sessão</button>
-        </div>
-
-        <!-- MÓDULO: DOCUMENTOS -->
-        <div id="menu-documentos" class="page">
-          <div class="trip-tabs">
-            <div class="trip-tab active" id="tab-doc-meus" onclick="switchDocTab('meus')">Meus Documentos</div>
-            <div class="trip-tab" id="tab-doc-partilhados" onclick="switchDocTab('partilhados')">Partilhados</div>
-          </div>
-
-          <div style="display:flex;gap:10px;margin-bottom:15px;">
-            <button class="btn-acao" onclick="abrirModal('modal-criar-pasta')" style="font-size:12px;">📁 Criar Pasta</button>
-            <button class="btn-acao" onclick="document.getElementById('input-doc-file').click()" style="font-size:12px;background:var(--accent);color:#121212;">📄 Carregar Ficheiro</button>
-            <input type="file" id="input-doc-file" style="display:none;" onchange="uploadDocumento(event)">
-          </div>
-
-          <div id="container-pastas-docs" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
-          <div id="container-lista-docs" class="lista-itens"></div>
-        </div>
-
-        <!-- MÓDULO: LIVRO DE RECEITAS -->
-        <div id="menu-receitas" class="page">
-          <div id="receitas-view-livros">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-              <span style="font-size:14px;font-weight:600;">Biblioteca de Receitas</span>
-              <button class="btn-pill-splitwise" onclick="abrirModal('modal-criar-livro-receita')" style="background:var(--accent);color:#121212;border:none;">+ Criar Livro</button>
-            </div>
-            <div class="books-grid" id="container-grid-livros-receitas"></div>
-          </div>
-
-          <div id="receitas-view-reader" style="display:none;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <button class="btn-pill-splitwise" onclick="fecharLivroReceitas()">
-                <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Voltar aos Livros
-              </button>
-              <button class="btn-pill-splitwise" onclick="partilharLivroAtual()">🔗 Partilhar Livro</button>
-            </div>
-
-            <div class="recipe-book-reader" id="book-reader-element">
-              <div class="recipe-page-touch-left" onclick="folhearPaginaReceita(-1)"></div>
-              <div class="recipe-page-touch-right" onclick="folhearPaginaReceita(1)"></div>
-
-              <div id="recipe-page-content-inside"></div>
-            </div>
-
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:0 10px;">
-              <span style="font-size:12px;color:var(--text-muted);" id="recipe-reader-page-num">Página 1</span>
-            </div>
-          </div>
-
-          <button class="btn-fab-simple" id="btn-fab-receitas-add" onclick="abrirModalNovaReceita()">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
-        </div>
-
-        <!-- MÓDULO GARAGEM & VEÍCULOS -->
-        <div id="menu-carros" class="page">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-            <button class="btn-acao" style="background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('page-add-carro')">
-              + Adicionar Veículo
-            </button>
-          </div>
-
-          <div id="container-lista-carros" style="width:100%;margin-bottom:20px;"></div>
-        </div>
-
-        <!-- PÁGINA DE ADICIONAR VEÍCULO (PÁGINA INTEIRA) -->
-        <div id="page-add-carro" class="page">
-          <div class="cartao-desconto-container" style="height:160px;margin-bottom:15px;" onclick="document.getElementById('input-direct-car-photo').click()">
-            <span id="msg-sem-car-photo" style="color:var(--text-muted);font-size:14px;">📸 Adicionar Fotografia do Veículo</span>
-            <img id="preview-car-photo" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
-          </div>
-          <input type="file" id="input-direct-car-photo" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCarro(event)">
-
-          <input type="text" id="input-carro-nome" class="auth-input" placeholder="Modelo do Veículo (ex: VW Golf, BMW Série 1)">
-          <input type="text" id="input-carro-mat" class="auth-input" placeholder="Matrícula (ex: AA-00-AA)">
-
-          <button class="btn-acao" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;" onclick="adicionarCarroDB()">Guardar Veículo</button>
-        </div>
-
-        <!-- PÁGINA DE DETALHES DO CARRO / DOCUMENTOS -->
-        <div id="page-detalhe-carro" class="page">
-          <div class="car-card-item" style="cursor:default;">
-            <img id="detalhe-carro-img" class="car-card-img" src="">
-            <div class="car-card-info">
-              <div>
-                <h3 id="detalhe-carro-nome" style="margin:0;">Modelo</h3>
-                <span id="detalhe-carro-mat" style="font-size:12px;color:var(--text-muted);">Matrícula</span>
-              </div>
-              <button class="btn-pill-splitwise" onclick="partilharCarroAtual()">🔗 Partilhar Carro</button>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:10px;margin-bottom:15px;">
-            <button class="btn-acao" onclick="abrirModal('modal-criar-pasta-carro')" style="font-size:12px;">📁 Nova Pasta</button>
-            <button class="btn-acao" onclick="document.getElementById('input-car-doc-file').click()" style="font-size:12px;background:var(--accent);color:#121212;">📄 Carregar Ficheiro</button>
-            <input type="file" id="input-car-doc-file" style="display:none;" onchange="uploadDocumentoCarro(event)">
-          </div>
-
-          <div id="container-pastas-carro" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
-          <div id="container-docs-carro" class="lista-itens"></div>
-        </div>
-
-        <!-- VIAGENS MAIN -->
-        <div id="menu-viagens" class="page">
-          <div class="stats-viagens">
-            <div class="stat-box"><span class="stat-num" id="stat-total-viagens">0</span><span class="stat-lbl">Viagens Registadas</span></div>
-            <div class="stat-box"><span class="stat-num" id="stat-proxima-viagem">--</span><span class="stat-lbl">Próxima Aventura</span></div>
-          </div>
-          <button class="btn-acao" style="width:100%;margin-bottom:20px;padding:15px;background-color:var(--accent);color:#121212;font-weight:600;" onclick="navegarMenu('menu-nova-viagem')">
-            <svg class="icon-svg btn-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Adicionar Nova Viagem
-          </button>
-
-          <div id="container-viagens" style="width:100%;margin-bottom:25px;"></div>
-        </div>
-
-        <!-- NOVA VIAGEM -->
-        <div id="menu-nova-viagem" class="page">
-          <div class="cartao-desconto-container" style="height:150px; margin-bottom:20px;" onclick="document.getElementById('input-direct-capa-nova').click()">
-            <span id="msg-sem-capa" style="color:var(--text-muted);font-size:14px;">📸 Clica para adicionar Capa da Viagem</span>
-            <img id="preview-capa-viagem" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px;">
-          </div>
-          <input type="file" id="input-direct-capa-nova" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaNova(event)">
-
-          <input type="text" id="input-viagem-nome" class="auth-input" placeholder="Título (ex: Férias de Verão)">
-          <input type="text" id="input-viagem-destino" class="auth-input" placeholder="Destino (ex: Paris, França)">
-          
-          <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data de Início:</label>
-          <input type="date" id="input-viagem-data-inicio" class="auth-input" style="color:var(--text-main);">
-          
-          <label style="font-size:12px;color:var(--text-muted);display:block;text-align:left;margin-bottom:5px;">Data do Fim:</label>
-          <input type="date" id="input-viagem-data-fim" class="auth-input" style="color:var(--text-main);">
-          
-          <button id="btn-save-viagem" class="btn-acao" onclick="guardarNovaViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;margin-top:10px;">
-            Guardar Viagem
-          </button>
-        </div>
-
-        <!-- DETALHE VIAGEM -->
-        <div id="page-viagem-detalhe" class="page" style="position:relative;">
-          <div class="viagem-header-card" onclick="verCapaViagemEmGrande()">
-            <img id="detalhe-viagem-img" src="">
-            <div class="viagem-header-overlay-box">
-              <div class="viagem-hero-content">
-                <div class="viagem-hero-badges">
-                  <div class="viagem-pill-badge">
-                    <svg class="icon-svg" style="width:12px;height:12px;margin:0;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    <span id="detalhe-viagem-datas">Datas</span>
-                  </div>
-                  <div class="viagem-pill-badge">
-                    <svg class="icon-svg" style="width:12px;height:12px;margin:0;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                    <span id="detalhe-viagem-pessoas-count">1 pessoa</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="trip-tabs">
-            <div class="trip-tab active" id="tab-btn-resumo" onclick="switchTripTab('resumo')">Resumo</div>
-            <div class="trip-tab" id="tab-btn-planeador" onclick="switchTripTab('planeador')">Planeamento</div>
-            <div class="trip-tab" id="tab-btn-splitwise" onclick="switchTripTab('splitwise')">Despesas</div>
-          </div>
-          
-          <!-- RESUMO -->
-          <div id="tab-resumo" class="trip-tab-content active">
-            <div class="viagem-stats-summary">
-              <h4 style="margin:0 0 5px 0;font-size:15px;color:var(--accent);">Resumo da Viagem</h4>
-              <div class="summary-row">
-                <span class="summary-label">Duração da Viagem:</span>
-                <span class="summary-val" id="summary-duracao-dias">-- dias</span>
-              </div>
-              <div class="summary-row">
-                <span class="summary-label">Locais / Atividades Planeadas:</span>
-                <span class="summary-val" id="summary-total-locais">0 sítios</span>
-              </div>
-              <div class="summary-row">
-                <span class="summary-label">Total Gasto na Viagem:</span>
-                <span class="summary-val" id="summary-total-gasto" style="font-size:16px;color:var(--accent);">0.00€</span>
-              </div>
-              <div id="summary-pagamento-membros" style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:5px;display:flex;flex-direction:column;gap:4px;"></div>
-            </div>
-
-            <div class="dashboard-widget" style="margin-bottom:15px;">
-              <h4 style="margin:0 0 8px 0;font-size:14px;color:var(--accent);">Notas / Detalhes da Viagem</h4>
-              <textarea id="trip-detalhes-notes-text" class="textarea-obs" placeholder="Escreve detalhes importantes da viagem..." onchange="guardarNotasGeraisViagem()"></textarea>
-            </div>
-
-            <div class="chart-container">
-              <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Evolução Diária de Gastos (€)</span>
-              <canvas id="chart-linha-gastos"></canvas>
-            </div>
-
-            <div class="chart-container">
-              <span style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px;align-self:flex-start;">Gastos por Categoria</span>
-              <canvas id="chart-pie-categorias"></canvas>
-            </div>
-          </div>
-
-          <!-- PLANEAMENTO -->
-          <div id="tab-planeador" class="trip-tab-content">
-            <div style="display:flex;justify-content:flex-start;margin-bottom:15px;">
-              <button class="btn-pill-splitwise" style="background:var(--accent);color:#121212;border:none;" onclick="abrirModal('modal-novo-evento')">
-                + Adicionar passo
-              </button>
-            </div>
-            <div class="timeline-container" id="container-timeline-events"></div>
-          </div>
-          
-          <!-- DESPESAS -->
-          <div id="tab-splitwise" class="trip-tab-content">
-            <div class="splitwise-resumo-bar">
-              <button class="btn-pill-splitwise" style="background:var(--accent);color:#121212;border:none;" onclick="abrirModal('modal-nova-despesa')">
-                + Adicionar despesa
-              </button>
-
-              <button class="btn-pill-splitwise" id="btn-liquidar-split-only" onclick="abrirModalLiquidação()">
-                <svg class="icon-svg" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                Liquidar contas
-              </button>
-
-              <select id="select-modo-despesas-view" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:12px;background:var(--btn-secondary);" onchange="alterarModoDespesasSelect(this.value)">
-                <option value="splitwise">Modo Splitwise</option>
-                <option value="simples">Modo Simples</option>
-              </select>
-            </div>
-
-            <div id="split-individual-debt-header" style="font-size:14px;margin-bottom:15px;font-weight:600;"></div>
-            
-            <div id="container-despesas" style="margin-bottom:100px;"></div>
-          </div>
-        </div>
-
-        <!-- EDITAR DETALHES DA VIAGEM -->
-        <div id="page-detalhes-viagem-edit" class="page">
-          <label style="font-size:12px;color:var(--text-muted);">Capa da Viagem:</label>
-          <button class="btn-acao" style="margin-bottom:15px;width:100%;" onclick="document.getElementById('input-direct-capa-existente').click()">📸 Alterar Capa da Viagem</button>
-          <input type="file" id="input-direct-capa-existente" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaExistente(event)">
-
-          <label style="font-size:12px;color:var(--text-muted);">Título da Viagem:</label>
-          <input type="text" id="edit-trip-nome" class="auth-input">
-
-          <label style="font-size:12px;color:var(--text-muted);">Destino:</label>
-          <input type="text" id="edit-trip-destino" class="auth-input">
-
-          <label style="font-size:12px;color:var(--text-muted);">Data Início:</label>
-          <input type="date" id="edit-trip-data-inicio" class="auth-input">
-
-          <label style="font-size:12px;color:var(--text-muted);">Data Fim:</label>
-          <input type="date" id="edit-trip-data-fim" class="auth-input">
-
-          <h3>Pessoas nesta Viagem</h3>
-          <div id="trip-membros-list" style="margin-bottom:20px;"></div>
-          
-          <h3>Convidar Amigo</h3>
-          <div style="display:flex;gap:10px;margin-bottom:25px;">
-            <select id="trip-amigos-disponiveis" class="auth-input" style="margin:0;"></select>
-            <button class="btn-acao" onclick="adicionarMembroViagem()" style="width:100px;">Adicionar</button>
-          </div>
-
-          <button class="btn-acao" onclick="guardarAlteracoesViagem()" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;font-weight:600;margin-bottom:15px;">Guardar Alterações</button>
-
-          <button class="btn-acao" onclick="apagarViagem()" style="background-color:#ff3b30;color:white;width:100%;padding:12px;font-weight:600;margin-bottom:15px;">
-            <svg class="icon-svg" style="width:16px;height:16px;margin-bottom:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Apagar Viagem
-          </button>
-        </div>
-
-        <!-- SUPERMERCADOS -->
-        <div id="menu-supermercados" class="page">
-          <button class="btn" onclick="navegarMenu('menu-super-logos')">Lojas & Cartões</button>
-          <button class="btn" onclick="navegarMenu('menu-compras-semanais')">Lista Semanal</button>
-          <button class="btn" onclick="navegarMenu('menu-compras-rapidas')">Lista Rápida</button>
-        </div>
-
-        <div id="menu-super-logos" class="page">
-          <div class="logos-grid" id="container-logos"></div>
-        </div>
-        
-        <div id="page-super-detail" class="page">
-          <h1 id="detalhe-nome">Supermercado</h1>
-          <div class="cartao-desconto-container" id="cartao-container" onclick="cliqueCartao()">
-            <span id="msg-sem-cartao" style="color:var(--text-muted);font-size:14px;">Inserir cartão de cliente</span>
-            <img id="detalhe-cartao-img" src="" style="display:none;">
-          </div>
-          <input type="file" id="input-foto-cartao" accept="image/*" style="display:none;" onchange="processarFotoCartao(event)">
-          <button class="btn-acao" onclick="document.getElementById('input-foto-cartao').click()" style="width:100%;margin-bottom:15px;">Fotografar / Inserir Cartão</button>
-          <button class="btn-acao" id="btn-ver-folheto" style="background-color:var(--accent);color:#121212;width:100%;padding:15px;">Abrir Folheto da Semana</button>
-          <textarea id="detalhe-obs" class="textarea-obs" placeholder="Notas e Observações..." onchange="guardarObservacaoSuperDB()"></textarea>
-        </div>
-        
-        <div id="menu-compras-semanais" class="page">
-          <div class="input-row">
-            <input type="text" id="input-semanal" class="input-text" placeholder="Adicionar item..." onkeypress="if(event.key==='Enter') adicionarItemDB('semanais', 'input-semanal')">
-            <button class="btn-add" onclick="adicionarItemDB('semanais', 'input-semanal')">+</button>
-          </div>
-          <div class="lista-itens" id="container-semanais"></div>
-        </div>
-        
-        <div id="menu-compras-rapidas" class="page">
-          <div class="input-row">
-            <input type="text" id="input-rapidas" class="input-text" placeholder="Item urgente..." onkeypress="if(event.key==='Enter') adicionarItemDB('rapidas', 'input-rapidas')">
-            <button class="btn-add" onclick="adicionarItemDB('rapidas', 'input-rapidas')">+</button>
-          </div>
-          <div class="lista-itens" id="container-rapidas"></div>
-        </div>
-
-        <div id="menu-familia" class="page">
-          <input type="text" id="input-search-users" class="input-text" style="width:100%" placeholder="Procurar (mínimo 3 letras)..." oninput="pesquisarUtilizadores()">
-          <div class="lista-itens" id="container-pesquisa-users" style="margin-bottom:20px;"></div>
-          <h3 style="margin-top:30px;text-align:center;">A Minha Rede</h3>
-          <div class="lista-itens" id="container-amigos"></div>
-        </div>
-        
-        <!-- NOTIFICAÇÕES -->
-        <div id="menu-notificacoes" class="page">
-          <div class="lista-itens" id="container-pedidos"></div>
-        </div>
-      </div>
+    <div id="auth-loading" class="auth__loading">
+      <span class="spinner"></span>
+      <p class="muted small">A verificar sessão…</p>
     </div>
 
-    <!-- BARRA INFERIOR SPOTIFY GRADUAL -->
-    <div id="bottom-nav">
-      <div class="nav-btn active" id="nav-btn-principal" onclick="navegarMenu('menu-principal')">
-        <svg class="icon-svg" style="margin-bottom:0;" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span class="nav-lbl">Início</span>
+    <form id="auth-card" class="auth__card glass" style="display:none" onsubmit="return false" novalidate>
+      <h2 class="auth__title" id="auth-title">Bem-vindos de volta</h2>
+      <input type="text" id="auth-username" class="input" placeholder="Nome de utilizador" autocomplete="username" autocapitalize="none" data-enter="auth:submit">
+      <input type="password" id="auth-password" class="input" placeholder="Password" autocomplete="current-password" data-enter="auth:submit">
+      <div class="auth__confirm" id="auth-confirm-wrap">
+        <input type="password" id="auth-confirm" class="input" placeholder="Confirmar password" autocomplete="new-password" data-enter="auth:submit">
       </div>
-      <div class="nav-btn" id="nav-btn-notificacoes" onclick="navegarMenu('menu-notificacoes')">
-        <div class="nav-badge" id="badge-notificacoes-bottom">0</div>
-        <svg class="icon-svg" style="margin-bottom:0;" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        <span class="nav-lbl">Notificações</span>
-      </div>
-      <div class="nav-btn" id="nav-btn-biblioteca" onclick="navegarMenu('menu-biblioteca')">
-        <svg class="icon-svg" style="margin-bottom:0;" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
-        <span class="nav-lbl">Biblioteca</span>
-      </div>
-    </div>
-
+      <button type="button" class="btn btn--primary btn--block btn--large pressable" id="auth-submit" data-action="auth:submit">Entrar</button>
+      <p class="auth__error" id="auth-error" hidden></p>
+      <button type="button" class="link" id="auth-toggle" data-action="auth:toggle">Não tens conta? Cria uma aqui.</button>
+      <button type="button" class="link link--muted" data-action="auth:forgot">Esqueceste-te da password?</button>
+    </form>
   </div>
 
-  <!-- MODALS DA APLICAÇÃO -->
+  <!-- App -->
+  <div id="app" class="app">
+    <div id="sidebar-overlay" class="sidebar-overlay" data-action="sidebar:close"></div>
+    <aside id="sidebar" class="sidebar glass glass--strong" aria-label="Menu"></aside>
 
-  <div id="modal-criar-pasta-carro" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Nova Pasta de Veículo</h2>
-      <input type="text" id="input-nome-pasta-carro" class="auth-input" placeholder="Nome da Pasta (ex: Manutenções, Seguros)">
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-criar-pasta-carro')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarPastaCarro()">Criar Pasta</button>
-      </div>
+    <div class="app__main">
+      <header class="topbar glass glass--bar glass--refract" id="topbar">
+        <div class="topbar__side" id="topbar-left"></div>
+        <h1 class="topbar__title" id="topbar-title">Início</h1>
+        <div class="topbar__side topbar__side--right" id="topbar-right"></div>
+      </header>
+
+      <!-- As páginas são geradas pelos módulos em js/modules -->
+      <main id="page-container" class="page-container"></main>
     </div>
+
+    <nav id="bottom-nav" class="bottom-nav" aria-label="Navegação principal"></nav>
   </div>
 
-  <div id="modal-criar-livro-receita" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Novo Livro de Receitas</h2>
-      <div class="cartao-desconto-container" style="height:120px;margin-bottom:15px;" onclick="document.getElementById('input-direct-capa-livro').click()">
-        <span id="msg-sem-capa-livro" style="color:var(--text-muted);font-size:13px;">📸 Foto/Capa do Livro (opcional)</span>
-        <img id="preview-capa-livro-nova" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
-      </div>
-      <input type="file" id="input-direct-capa-livro" accept="image/*" style="display:none;" onchange="uploadFotoDiretaCapaLivro(event)">
-      <input type="text" id="input-nome-livro" class="auth-input" placeholder="Nome do Livro (ex: Sobremesas, Italianas)">
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-criar-livro-receita')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarNovoLivroReceita()">Criar Livro</button>
-      </div>
-    </div>
-  </div>
+  <div id="modal-root"></div>
 
-  <div id="modal-nova-receita" class="modal-overlay">
-    <div class="modal-content" style="max-width:500px;text-align:left;height:95vh;">
-      <h2 style="text-align:center;margin-bottom:15px;" id="modal-receita-title">Nova Receita</h2>
-      
-      <div class="cartao-desconto-container" style="height:140px;margin-bottom:15px;" onclick="document.getElementById('input-recipe-foto').click()">
-        <span id="msg-sem-recipe-foto" style="color:var(--text-muted);font-size:13px;">📸 Foto da Receita</span>
-        <img id="preview-recipe-foto" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
-      </div>
-      <input type="file" id="input-recipe-foto" accept="image/*" style="display:none;" onchange="processarFotoReceita(event)">
-
-      <input type="text" id="input-recipe-titulo" class="auth-input" placeholder="Título da Receita">
-      <input type="text" id="input-recipe-tempo" class="auth-input" placeholder="Tempo de Preparo (ex: 45 min)">
-      
-      <div id="container-select-categoria-receita-box" style="margin-bottom:15px;display:none;">
-        <label style="font-size:12px;color:var(--text-muted);">Categoria (do Índice):</label>
-        <select id="select-recipe-categoria" class="auth-input" style="margin-top:4px;margin-bottom:0;"></select>
-      </div>
-
-      <label style="font-size:12px;color:var(--text-muted);">Ingredientes:</label>
-      <textarea id="input-recipe-ingredientes" class="textarea-obs" placeholder="Escreve um ingrediente por linha..."></textarea>
-
-      <label style="font-size:12px;color:var(--text-muted);margin-top:10px;display:block;">Modo de Preparação:</label>
-      <textarea id="input-recipe-preparo" class="textarea-obs" style="height:120px;" placeholder="Passos de preparação..."></textarea>
-
-      <label style="font-size:12px;color:var(--text-muted);margin-top:10px;display:block;">Observações:</label>
-      <textarea id="input-recipe-obs" class="textarea-obs" placeholder="Dicas extra..."></textarea>
-
-      <div class="modal-btn-row" style="margin-top:20px;">
-        <button class="btn-acao" onclick="fecharModal('modal-nova-receita')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarNovaReceita()">Guardar Receita</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-criar-pasta" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Nova Pasta de Documentos</h2>
-      <input type="text" id="input-nome-pasta" class="auth-input" placeholder="Nome da Pasta (ex: Faturas, Viagens)">
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-criar-pasta')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="criarPastaDocumentos()">Criar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-novo-evento" class="modal-overlay">
-    <div class="modal-content">
-      <h2 id="modal-evento-titulo-header">Novo Passo no Planeamento</h2>
-      <input type="hidden" id="edit-event-id">
-      <input type="date" id="input-event-data" class="auth-input">
-      <input type="time" id="input-event-hora" class="auth-input">
-      <input type="text" id="input-event-titulo" class="auth-input" placeholder="Título / Localização (ex: Museu do Louvre)">
-      <textarea id="input-event-notas" class="textarea-obs" placeholder="Descrição / Observações..."></textarea>
-      
-      <div style="margin-top:10px;margin-bottom:15px;">
-        <button class="btn-acao" style="width:100%;" onclick="document.getElementById('input-event-foto').click()">📸 Adicionar Foto</button>
-        <input type="file" id="input-event-foto" accept="image/*" style="display:none;" onchange="processarFotoEvento(event)">
-        <img id="preview-event-foto" src="" style="display:none;width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-top:10px;">
-      </div>
-
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-novo-evento')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="guardarEventoTimeline()">Guardar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-nova-despesa" class="modal-overlay">
-    <div class="modal-content" style="text-align:left;">
-      <h2 style="text-align:center;margin-bottom:15px;">Adicionar uma Despesa</h2>
-      
-      <div class="splitwise-card">
-        <div class="splitwise-row">
-          <div class="splitwise-icon-box" id="exp-icon-box">
-            <svg class="icon-svg" style="margin-bottom:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 10H8.5a2.5 2.5 0 0 1 0-5H12"></path></svg>
-          </div>
-          <input type="text" id="exp-desc" class="splitwise-input" placeholder="Descrição (ex: Café, Jantar)" oninput="atualizarIconeCategoriaAutomático(this.value)">
-        </div>
-
-        <div class="splitwise-row">
-          <div class="splitwise-icon-box" style="font-weight:600;font-size:18px;">€</div>
-          <input type="number" id="exp-valor" class="splitwise-input" placeholder="0.00" style="font-size:22px;font-weight:600;">
-        </div>
-      </div>
-
-      <div id="container-campos-splitwise-mode" style="margin-bottom:15px;display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;">
-        <span>Pago por</span>
-        <select id="exp-pagador" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;"></select>
-        <span>e dividido</span>
-        <select id="exp-modo-divisao" class="auth-input" style="width:auto;margin:0;padding:6px 12px;font-size:13px;" onchange="alternarModoDivisaoUI()">
-          <option value="iguais">em partes iguais</option>
-          <option value="exatos">por valores exatos</option>
-        </select>
-      </div>
-
-      <div id="split-participantes-container" style="margin-bottom:20px;"></div>
-
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-nova-despesa')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="adicionarDespesa()">Guardar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-liquidacao" class="modal-overlay">
-    <div class="modal-content" style="text-align:left;">
-      <h2 style="text-align:center;margin-bottom:15px;">Liquidação de Contas</h2>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:15px;">Escolhe a pessoa com quem queres liquidar totalmente o saldo pendente:</p>
-      
-      <label style="font-size:12px;color:var(--text-muted);">Liquidar contas com:</label>
-      <select id="select-liquidar-pessoa" class="auth-input"></select>
-
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-liquidacao')">Cancelar</button>
-        <button class="btn-acao" style="background-color:var(--accent);color:#121212;" onclick="confirmarLiquidaçãoPessoa()">Liquidar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-logout" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Sair?</h2>
-      <div class="modal-btn-row">
-        <button class="btn-acao" onclick="fecharModal('modal-logout')">Cancelar</button>
-        <button class="btn-acao" style="background-color:#ff3b30;color:white;" onclick="fazerLogout()">Sair</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-cartao" class="modal-overlay" onclick="fecharModal('modal-cartao')"><img id="img-fullscreen-cartao" class="fullscreen-img" src=""></div>
-  <div id="modal-alerta" class="modal-overlay"><div class="modal-content"><h2>Aviso</h2><p id="mensagem-alerta" style="margin-top:15px;margin-bottom:25px;color:var(--text-muted);font-size:14px;"></p><button class="btn-acao" onclick="fecharModal('modal-alerta')" style="background-color:var(--accent);color:#121212;width:100%;">OK</button></div></div>
-
-  <!-- Ligação ao ficheiro JavaScript separado -->
-  <script type="module" src="js/app.js"></script>
-
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

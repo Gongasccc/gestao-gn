@@ -1,0 +1,79 @@
+/* Ecrã de entrada */
+
+.auth {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: calc(var(--safe-top) + 24px) 24px calc(var(--safe-bottom) + 24px);
+  overflow-y: auto;
+}
+
+.auth.is-leaving { animation: auth-leave .6s var(--ease-out) forwards; }
+
+@keyframes auth-leave {
+  to { opacity: 0; transform: scale(1.06); filter: blur(10px); }
+}
+
+.auth__logo-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  animation: float 6s var(--ease-soft) infinite;
+}
+
+.auth__logo-wrap::before {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), .45), transparent 65%);
+  filter: blur(10px);
+  animation: glow 4s var(--ease-soft) infinite alternate;
+}
+
+@keyframes glow {
+  from { opacity: .5; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1.1); }
+}
+
+.auth__logo { position: relative; width: 120px; animation: pop-in .9s var(--ease-spring); }
+.auth__logo--light { display: none; }
+[data-theme="light"] .auth__logo--dark { display: none; }
+[data-theme="light"] .auth__logo--light { display: block; }
+
+.auth__loading { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+.auth__card {
+  width: 100%;
+  max-width: 360px;
+  padding: 28px 24px 22px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+  animation: pop-in .7s var(--ease-spring) .1s both;
+}
+
+.auth__title { font-size: 21px; font-weight: 600; margin-bottom: 8px; }
+
+.auth__confirm {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: -10px;
+  transition: grid-template-rows var(--dur) var(--ease-out), opacity var(--dur), margin var(--dur);
+}
+
+.auth__confirm > .input { min-height: 0; overflow: hidden; }
+.auth__confirm:not(.is-open) > .input { padding-top: 0; padding-bottom: 0; border-width: 0; }
+.auth__confirm.is-open { grid-template-rows: 1fr; opacity: 1; margin-top: 0; }
+
+.auth__card .btn--primary { margin-top: 6px; }
+.auth__error { color: var(--red); font-size: 13px; animation: fade-in var(--dur); }

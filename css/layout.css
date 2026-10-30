@@ -7,15 +7,17 @@ body.is-authed .app { display: block; }
 .topbar {
   position: fixed;
   z-index: 800;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: calc(var(--safe-top) + var(--topbar-height));
-  padding: var(--safe-top) 8px 0;
+  top: calc(var(--safe-top) + 8px);
+  left: 12px;
+  right: 12px;
+  max-width: calc(var(--content-max) - 8px);
+  margin: 0 auto;
+  height: var(--topbar-height);
+  padding: 0 8px;
   display: grid;
   grid-template-columns: 52px 1fr 52px;
   align-items: center;
-  border-bottom: 1px solid var(--hairline) !important;
+  border-radius: var(--radius-pill);
 }
 
 .topbar__side { display: flex; align-items: center; }
@@ -43,9 +45,9 @@ body.is-authed .app { display: block; }
   max-width: var(--content-max);
   margin: 0 auto;
   padding:
-    calc(var(--safe-top) + var(--topbar-height) + 16px)
+    calc(var(--safe-top) + var(--topbar-height) + 24px)
     16px
-    calc(var(--safe-bottom) + var(--bottom-nav-height) + 28px);
+    calc(var(--safe-bottom) + var(--bottom-nav-height) + 40px);
 }
 
 .page { display: none; }
@@ -122,7 +124,8 @@ body.is-authed .app { display: block; }
 
 .sidebar__item.is-active {
   color: var(--accent);
-  background: var(--soft-bg);
+  background: rgba(var(--accent-rgb), .1);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .18);
 }
 
 .sidebar__icon { display: grid; place-items: center; width: 24px; }
@@ -157,40 +160,63 @@ body.is-authed .app { display: block; }
 .sidebar__subitem:hover { background: var(--soft-bg); color: var(--text); }
 .sidebar__subitem.is-active { color: var(--accent); }
 
-/* ---------- Barra inferior ---------- */
+/* ---------- Barra inferior ----------
+   Flutua acima da margem de baixo: assim o Safari não pinta uma barra preta por baixo. */
 .bottom-nav {
   position: fixed;
   z-index: 900;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: calc(max(var(--safe-bottom), 8px) + 6px);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .bottom-nav__bar {
-  height: calc(var(--safe-bottom) + var(--bottom-nav-height));
-  padding: 0 8px var(--safe-bottom);
+  position: relative;
+  pointer-events: auto;
+  width: min(440px, calc(100% - 28px));
+  height: var(--bottom-nav-height);
+  padding: 5px;
   display: flex;
-  border-top: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
 }
 
-.bottom-nav__indicator { display: none; }
+.bottom-nav__indicator {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 0;
+  z-index: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--accent-rgb), .14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), inset 0 0 0 1px rgba(var(--accent-rgb), .22);
+  transition: transform var(--dur-slow) var(--ease-spring), width var(--dur-slow) var(--ease-spring), opacity var(--dur);
+  opacity: 0;
+}
+
+.bottom-nav__indicator.is-stretching { animation: liquid-stretch var(--dur-slow) var(--ease-spring); }
 
 .bottom-nav__btn {
   position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  color: var(--text-faint);
-  transition: color var(--dur-fast);
+  gap: 2px;
+  color: var(--text-muted);
+  border-radius: var(--radius-pill);
+  transition: color var(--dur), transform var(--dur) var(--ease-spring);
 }
 
-.bottom-nav__btn:active { opacity: .6; }
+.bottom-nav__btn:active { transform: scale(.9); }
 .bottom-nav__btn.is-active { color: var(--accent); }
+.bottom-nav__btn.is-active .bottom-nav__icon { animation: icon-bounce var(--dur-slow) var(--ease-spring); }
 .bottom-nav__icon { position: relative; display: grid; }
-.bottom-nav__label { font-size: 10.5px; font-weight: 500; }
+.bottom-nav__label { font-size: 10px; font-weight: 500; }
 
 /* ---------- Desktop ---------- */
 @media (min-width: 960px) {
@@ -205,7 +231,12 @@ body.is-authed .app { display: block; }
   .sidebar-overlay { display: none; }
   .bottom-nav { display: none; }
 
-  .topbar { left: calc(var(--sidebar-width) + 24px); }
+  .topbar {
+    left: calc(var(--sidebar-width) + 24px);
+    right: 12px;
+    top: 12px;
+    max-width: none;
+  }
 
   .page-container {
     max-width: calc(var(--content-max) + 120px);

@@ -1,6 +1,6 @@
 // Service worker da Gestão G&N.
 // Estratégia: rede primeiro (para receber sempre a versão mais recente) e cache como reserva offline.
-const CACHE = 'gn-shell-v2';
+const CACHE = 'gn-shell-v3';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {

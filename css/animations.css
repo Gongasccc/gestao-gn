@@ -27,6 +27,18 @@
   to { opacity: 1; transform: none; filter: none; }
 }
 
+/* Os blocos de cada página entram em cascata */
+.page.enter-fade > *,
+.page.enter-forward > * { animation: rise var(--dur-slow) var(--ease-out) both; }
+.page > :nth-child(2) { animation-delay: 50ms; }
+.page > :nth-child(3) { animation-delay: 100ms; }
+.page > :nth-child(4) { animation-delay: 150ms; }
+.page > :nth-child(n+5) { animation-delay: 200ms; }
+
+/* Cartões tocáveis afundam ligeiramente */
+.card.pressable { transition: transform var(--dur) var(--ease-spring); }
+.card.pressable:active { transform: scale(.97); }
+
 /* ---------- Entrada em cascata ---------- */
 .anim-rise {
   animation: rise var(--dur-slow) var(--ease-out) both;
@@ -130,6 +142,25 @@
   100% { scale: 1 1; }
 }
 
+/* Fundo ambiente */
+@keyframes blob-drift-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(16vw, 14vh) scale(1.12); }
+  100% { transform: translate(6vw, 30vh) scale(.95); }
+}
+
+@keyframes blob-drift-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-14vw, -12vh) scale(1.1); }
+  100% { transform: translate(-24vw, -26vh) scale(1.18); }
+}
+
+@keyframes blob-drift-3 {
+  0% { transform: translate(0, 0) scale(.9); }
+  50% { transform: translate(-20vw, 10vh) scale(1.15); }
+  100% { transform: translate(12vw, -16vh) scale(1); }
+}
+
 /* Folhear páginas do livro de receitas */
 .flip-next { animation: flip-next .55s var(--ease-out); transform-origin: left center; }
 .flip-prev { animation: flip-prev .55s var(--ease-out); transform-origin: right center; }
@@ -153,4 +184,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+
+  .ambient__blob { animation: none !important; }
 }

@@ -5,4 +5,8 @@
   font-weight: 600;
   letter-spacing: -.01em;
   padding: 4px 2px 2px;
+  background: linear-gradient(90deg, var(--text) 40%, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }

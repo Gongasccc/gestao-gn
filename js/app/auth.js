@@ -6,7 +6,7 @@ import { byId, show } from '../core/dom.js';
 import { registerActions } from '../core/events.js';
 import { session } from '../core/state.js';
 import { alertDialog } from '../core/ui.js';
-import { applyTheme, applyAccent, DEFAULT_ACCENT } from '../core/theme.js';
+import { applyTheme, DEFAULT_ACCENT } from '../core/theme.js';
 import {
   auth, getDoc, setDoc,
   signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged,
@@ -184,7 +184,6 @@ async function loadProfile(user) {
       session.name = p.username || 'Utilizador';
       session.avatar = p.avatarUrl || '';
       if (p.theme) applyTheme(p.theme);
-      if (p.accentColor) applyAccent(p.accentColor);
       syncLoginEmail(user, p);
     } else {
       session.name = 'Utilizador';

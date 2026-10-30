@@ -39,6 +39,8 @@ export const MENU_FOOTER = [
 
 export const BOTTOM_NAV = [
   { page: 'menu-principal', label: 'Início', icon: 'home' },
-  { page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications' },
-  { page: 'menu-biblioteca', label: 'Biblioteca', icon: 'grid' },
+  { page: 'menu-compras-semanais', label: 'Lista', icon: 'cart' },
+  { page: 'menu-receitas', label: 'Receitas', icon: 'book' },
+  { page: 'menu-refeicoes', label: 'Refeições', icon: 'restaurant' },
+  { page: 'menu-biblioteca', label: 'Mais', icon: 'grid', badge: 'notifications' },
 ];

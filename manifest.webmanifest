@@ -6,8 +6,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0b0b0f",
-  "theme_color": "#0b0b0f",
+  "background_color": "#07070a",
+  "theme_color": "#07070a",
   "lang": "pt-PT",
   "icons": [
     { "src": "assets/brand/logopreto_fundobranco.png", "sizes": "1200x1200", "type": "image/png", "purpose": "any" },

@@ -1,0 +1,55 @@
+/* Perfil, notificações, amigos e supermercados */
+
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 18px;
+}
+
+.profile-hero__avatar { position: relative; cursor: pointer; border-radius: 50%; overflow: visible; }
+.profile-hero__avatar .avatar { animation: pop-in .7s var(--ease-spring); }
+
+.profile-hero__cam {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--on-accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg), 0 4px 12px rgba(var(--accent-rgb), .4);
+}
+
+.profile-hero__name { font-size: 22px; font-weight: 600; margin-top: 6px; }
+
+/* Notificações */
+.notif { padding: 12px 10px 12px 14px; border-radius: var(--radius-md); }
+.notif.is-unread { border-color: rgba(var(--accent-rgb), .35); background: rgba(var(--accent-rgb), .07); }
+.notif.is-removing { opacity: 0; transform: translateX(30px); }
+.notif__head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.notif__brand { flex: 1; display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); }
+.notif__brand img { width: 20px; height: 20px; border-radius: 6px; }
+.notif__time { font-size: 11px; color: var(--text-faint); }
+.notif__row { display: flex; align-items: center; gap: 10px; }
+.notif__body { font-size: 14px; line-height: 1.45; }
+
+/* Supermercados */
+.store-tile {
+  display: grid;
+  place-items: center;
+  height: 100px;
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18), inset 0 1px 0 #fff, inset 0 0 0 1px rgba(0, 0, 0, .05);
+  transition: transform var(--dur) var(--ease-spring);
+}
+
+.store-tile:hover { transform: translateY(-3px); }
+.store-tile:active { transform: scale(.95); }
+.store-tile img { max-height: 100%; max-width: 100%; object-fit: contain; }

@@ -33,6 +33,13 @@ Para registos simples (lista + formulário), usa `components/record-list.js`, qu
 2. **Storage** (ficheiros grandes, fotos): ativa o Firebase Storage. Em projetos novos exige o plano Blaze; sem ele, a app continua a guardar ficheiros até ~900 KB dentro do Firestore.
 3. **Recuperar password**: em Authentication > Templates, confirma o email de "redefinição de password". Cada pessoa associa o seu email em Definições > Email de recuperação.
 
+## Faturas do supermercado
+
+Em Supermercados > Digitalizar fatura tira-se uma foto ao talão (ou escolhe-se da galeria / importa-se um PDF).
+O Gemini (Firebase AI Logic, `services/gemini.js`) lê a loja, data, produtos, preços e descontos; o utilizador confirma e a fatura fica em `sharedCol('faturas')`.
+A página Gastos mostra o total por mês, a evolução, gastos por loja e categoria e quanto se poupou; Comparar preços mostra em que loja cada produto ficou mais barato.
+As contas estão em `js/modules/faturas/stats.js` (testadas em `tests/faturas.test.mjs`).
+
 ## Estrutura
 
 ```

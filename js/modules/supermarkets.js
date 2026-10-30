@@ -1,4 +1,4 @@
-// Supermercados: cartões de cliente, folhetos e listas de compras.
+// Supermercados: gastos e faturas, cartões de cliente, folhetos e listas de compras.
 import { html, byId } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { createScope } from '../core/state.js';
@@ -8,6 +8,7 @@ import { compressImage, takeFile } from '../core/images.js';
 import { getDoc, setDoc } from '../services/firebase.js';
 import { sharedDoc } from '../services/paths.js';
 import { checklistTpl, subscribeChecklist } from '../components/checklist.js';
+import faturas, { resumoTpl, PAG_GASTOS } from './faturas/index.js';
 
 const scope = createScope();
 let currentStoreId = null;
@@ -33,6 +34,8 @@ function drawCard() {
 }
 
 const SHORTCUTS = [
+  { page: PAG_GASTOS, label: 'Gastos e faturas', icon: 'chart' },
+  { page: 'page-precos', label: 'Comparar preços', icon: 'compare' },
   { page: 'menu-super-logos', label: 'Lojas & Cartões', icon: 'wallet' },
   { page: 'menu-compras-semanais', label: 'Lista Semanal', icon: 'calendar' },
   { page: 'menu-compras-rapidas', label: 'Lista Rápida', icon: 'bolt' },
@@ -47,6 +50,7 @@ export default {
       root: true,
       template: () => html`
         <div class="stagger-on-enter list">
+          ${resumoTpl()}
           ${SHORTCUTS.map((s) => html`
             <button class="row-link glass glass--interactive pressable" data-action="nav:go" data-page="${s.page}">
               <span>${icon(s.icon, 20)} ${s.label}</span>${icon('chevronRight', 18)}
@@ -93,8 +97,11 @@ export default {
       title: 'Lista Rápida',
       template: () => html`<div class="card glass">${checklistTpl('rapidas', 'Item urgente…')}</div>`,
     },
+    ...faturas.pages,
   ],
+  modals: faturas.modals,
   actions: {
+    ...faturas.actions,
     'stores:open': async ({ data }) => {
       currentStoreId = data.id;
       currentCard = '';
@@ -130,10 +137,12 @@ export default {
     },
   },
   start() {
+    faturas.start();
     subscribeChecklist(scope, 'semanais');
     subscribeChecklist(scope, 'rapidas');
   },
   stop() {
+    faturas.stop();
     scope.clear();
   },
 };

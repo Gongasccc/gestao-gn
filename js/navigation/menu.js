@@ -26,6 +26,7 @@ export const MENU = [
     icon: 'cart',
     library: true,
     children: [
+      { page: 'page-gastos', label: 'Gastos e faturas' },
       { page: 'menu-super-logos', label: 'Lojas & Cartões' },
       { page: 'menu-compras-semanais', label: 'Lista Semanal' },
       { page: 'menu-compras-rapidas', label: 'Lista Rápida' },

@@ -1,7 +1,6 @@
-// Tema claro/escuro e cor de destaque. Guardado também em localStorage para evitar "flash" ao abrir a app.
+// Tema claro/escuro. A cor de destaque é sempre o amarelo da app (sem escolha de cores).
 
-export const ACCENTS = ['#FF6B00', '#FF3B30', '#28CD41', '#007AFF', '#AF52DE', '#FF2D55', '#5AC8FA', '#FFCC00', '#5856D6', '#2ECC71'];
-export const DEFAULT_ACCENT = '#FF6B00';
+export const DEFAULT_ACCENT = '#FFD60A';
 
 function store(key, value) {
   try { localStorage.setItem(key, value); } catch { /* modo privado */ }
@@ -18,7 +17,7 @@ function hexToRgb(hex) {
 export function applyTheme(theme) {
   const t = theme === 'light' ? 'light' : 'dark';
   document.documentElement.dataset.theme = t;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t === 'light' ? '#f4f1ee' : '#0b0b0f');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t === 'light' ? '#f4f3ef' : '#07070a');
   store('gn-theme', t);
   return t;
 }
@@ -30,12 +29,11 @@ export function applyAccent(color = DEFAULT_ACCENT) {
   root.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   root.setProperty('--on-accent', luminance > 0.6 ? '#141414' : '#ffffff');
-  store('gn-accent', color);
 }
 
 export const currentTheme = () => document.documentElement.dataset.theme || 'dark';
 
 export function restoreThemeFromCache() {
   applyTheme(read('gn-theme') || 'dark');
-  applyAccent(read('gn-accent') || DEFAULT_ACCENT);
+  applyAccent(DEFAULT_ACCENT);
 }

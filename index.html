@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Gestão G&amp;N</title>
   <meta name="description" content="Gestão G&N: a app de organização do casal.">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#07070a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -35,6 +35,12 @@
   <link rel="stylesheet" href="css/modules/faturas.css">
 </head>
 <body>
+  <!-- Brilho amarelo a mexer por baixo do vidro -->
+  <div class="ambient" aria-hidden="true">
+    <span class="ambient__blob ambient__blob--1"></span>
+    <span class="ambient__blob ambient__blob--2"></span>
+    <span class="ambient__blob ambient__blob--3"></span>
+  </div>
   <!-- Entrada / registo -->
   <div id="auth-overlay" class="auth">
     <div class="auth__logo-wrap">
@@ -68,7 +74,7 @@
   <!-- App -->
   <div id="app" class="app">
     <div id="sidebar-overlay" class="sidebar-overlay" data-action="sidebar:close"></div>
-    <aside id="sidebar" class="sidebar glass--strong" aria-label="Menu"></aside>
+    <aside id="sidebar" class="sidebar glass glass--strong" aria-label="Menu"></aside>
 
     <div class="app__main">
       <header class="topbar glass glass--bar" id="topbar">

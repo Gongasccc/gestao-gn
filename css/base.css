@@ -23,7 +23,7 @@ body {
   font-size: 15px;
   line-height: 1.45;
   color: var(--text);
-  background: var(--bg);
+  background: transparent;
   overflow-x: hidden;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
@@ -91,3 +91,43 @@ h1, h2, h3, h4, p { margin: 0; }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 8px; }
+
+/* Fundo: brilho amarelo suave a mexer por baixo do vidro.
+   Usa 100lvh para cobrir também a zona da barra do Safari. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  height: 100lvh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--ambient-opacity);
+}
+
+.ambient__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  will-change: transform;
+}
+
+.ambient__blob--1 {
+  width: 80vmax; height: 80vmax;
+  top: -38vmax; left: -30vmax;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), .55) 0%, rgba(var(--accent-rgb), 0) 65%);
+  animation: blob-drift-1 26s var(--ease-soft) infinite alternate;
+}
+
+.ambient__blob--2 {
+  width: 70vmax; height: 70vmax;
+  bottom: -36vmax; right: -30vmax;
+  background: radial-gradient(circle, rgba(255, 170, 0, .42) 0%, rgba(255, 170, 0, 0) 65%);
+  animation: blob-drift-2 32s var(--ease-soft) infinite alternate;
+}
+
+.ambient__blob--3 {
+  width: 45vmax; height: 45vmax;
+  top: 35%; left: 30%;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), .22) 0%, rgba(var(--accent-rgb), 0) 65%);
+  animation: blob-drift-3 38s var(--ease-soft) infinite alternate;
+}

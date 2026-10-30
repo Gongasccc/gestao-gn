@@ -4,7 +4,7 @@ import { icon } from '../core/icons.js';
 import { session, emit } from '../core/state.js';
 import { toast, confirmDialog, promptDialog, alertDialog } from '../core/ui.js';
 import { compressImage, takeFile } from '../core/images.js';
-import { applyTheme, applyAccent, currentTheme, ACCENTS } from '../core/theme.js';
+import { applyTheme, currentTheme } from '../core/theme.js';
 import { setDoc } from '../services/firebase.js';
 import { profileDoc } from '../services/paths.js';
 import { hasPhoto } from '../components/avatar.js';
@@ -21,9 +21,6 @@ function drawProfile() {
 function drawSettings() {
   const theme = currentTheme();
   render('theme-toggle-label', html`${icon(theme === 'light' ? 'moon' : 'sun', 18)} ${theme === 'light' ? 'Mudar para modo escuro' : 'Mudar para modo claro'}`);
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toLowerCase();
-  render('accent-grid', ACCENTS.map((c) => html`
-    <button class="swatch pressable ${c.toLowerCase() === accent ? 'is-selected' : ''}" style="--swatch:${c}" data-action="settings:accent" data-color="${c}" aria-label="Cor ${c}"></button>`));
   render('recovery-email-label', hasRecoveryEmail()
     ? html`${icon('check', 18)} Email de recuperação: ${auth.currentUser.email}`
     : html`${icon('shield', 18)} Adicionar email de recuperação`);
@@ -71,10 +68,6 @@ export default {
         </div>
         <button class="row-link glass pressable" data-action="settings:theme"><span id="theme-toggle-label"></span></button>
         <button class="row-link glass pressable" data-action="settings:recovery"><span id="recovery-email-label"></span>${icon('chevronRight', 18)}</button>
-        <div class="card glass">
-          <h3 class="card__title">${icon('palette', 18)} Cor de destaque</h3>
-          <div class="swatch-grid" id="accent-grid"></div>
-        </div>
         <button class="btn btn--danger btn--block pressable" data-action="settings:logout">${icon('logout', 18)} Terminar sessão</button>`,
       onEnter: drawSettings,
     },
@@ -100,11 +93,6 @@ export default {
       const theme = applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
       drawSettings();
       await saveProfile({ theme });
-    },
-    'settings:accent': async ({ data }) => {
-      applyAccent(data.color);
-      drawSettings();
-      await saveProfile({ accentColor: data.color });
     },
     'settings:notifications': async ({ el }) => {
       if (el.checked && 'Notification' in window) {

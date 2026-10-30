@@ -1,40 +1,70 @@
 /* =========================================================
-   Superfícies
-   .glass              cartão plano (fundo cinzento, borda fina)
-   .glass--strong      folhas e menus: vidro desfocado, quase opaco
-   .glass--bar         barras fixas (topbar, barra inferior): o único vidro "liquid"
-   .glass-soft         linha/caixa leve para listas longas
-   .glass-chip         pílula escura para usar sobre imagens
+   Liquid Glass
+   .glass              cartão de vidro: translúcido, desfocado, aro de luz e reflexo
+   .glass--strong      folhas e menus (mais opaco)
+   .glass--bar         barras flutuantes (topbar, barra inferior)
+   .glass-soft         versão leve sem desfoque, para listas longas
+   .glass-chip         pílula de vidro para usar sobre imagens
    ========================================================= */
 
 .glass {
   position: relative;
-  background: var(--glass-tint-1);
+  isolation: isolate;
+  background: linear-gradient(150deg, var(--glass-tint-1), var(--glass-tint-2));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+}
+
+/* Aro especular: mais claro no canto de cima e no de baixo */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, var(--glass-rim) 0%, transparent 28%, transparent 72%, rgba(var(--accent-rgb), .28) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Reflexo interior suave */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(120% 70% at 15% -10%, var(--glass-sheen), transparent 60%);
+  pointer-events: none;
 }
 
 .glass--strong {
   background: linear-gradient(160deg, var(--glass-strong-1), var(--glass-strong-2));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  backdrop-filter: blur(32px) saturate(180%);
 }
 
 .glass--bar {
-  background: var(--bar-1);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  border: 0;
-  box-shadow: none;
+  background: linear-gradient(150deg, var(--bar-1), var(--bar-2));
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
 }
 
 .glass-soft {
   position: relative;
   background: var(--soft-bg);
   border: 1px solid var(--hairline);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
   transition: background var(--dur-fast) var(--ease-soft), transform var(--dur) var(--ease-spring), opacity var(--dur);
 }
+
+[data-theme="light"] .glass-soft { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 1px 3px rgba(60, 50, 0, .05); }
 
 .glass-chip {
   display: inline-flex;
@@ -44,23 +74,24 @@
   font-size: 12px;
   color: #fff;
   border-radius: var(--radius-pill);
-  background: rgba(0, 0, 0, .45);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .14);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, .2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 4px 14px rgba(0, 0, 0, .18);
 }
 
 .topbar .glass-chip,
-.sidebar .glass-chip {
-  color: var(--text);
-  background: var(--soft-bg);
-  border-color: transparent;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+.sidebar .glass-chip { color: var(--text); }
+
+[data-theme="light"] .topbar .glass-chip {
+  background: rgba(255, 255, 255, .6);
+  border-color: rgba(255, 255, 255, .9);
 }
 
 /* Navegadores sem backdrop-filter: fundo sólido */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
   .glass--bar,
   .glass--strong { background: var(--bg-elevated); }
 }

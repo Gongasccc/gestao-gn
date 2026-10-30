@@ -1,13 +1,13 @@
 /* =========================================================
    Design tokens — cores, vidro, raios, sombras e movimento.
    O tema é controlado por <html data-theme="dark|light">.
-   --accent / --accent-rgb / --on-accent são definidos via JS (theme.js).
+   Uma só cor de destaque: amarelo. Por baixo do vidro há um brilho amarelo suave a mexer.
    ========================================================= */
 
 :root {
-  --accent: #FF6B00;
-  --accent-rgb: 255, 107, 0;
-  --on-accent: #ffffff;
+  --accent: #FFD60A;
+  --accent-rgb: 255, 214, 10;
+  --on-accent: #1a1500;
 
   --green: #30D158;
   --green-rgb: 48, 209, 88;
@@ -18,9 +18,9 @@
 
   --radius-xs: 8px;
   --radius-sm: 10px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-pill: 999px;
 
   --space-1: 4px;
@@ -31,8 +31,8 @@
   --space-6: 28px;
 
   --sidebar-width: 280px;
-  --topbar-height: 52px;
-  --bottom-nav-height: 56px;
+  --topbar-height: 54px;
+  --bottom-nav-height: 62px;
   --content-max: 680px;
 
   --safe-top: env(safe-area-inset-top, 0px);
@@ -47,63 +47,70 @@
   --dur-slow: 520ms;
 }
 
-/* ---------- Tema escuro (por omissão) ----------
-   Quase preto, superfícies planas em cinzento e cor só no destaque.
-   O vidro (desfoque) fica reservado às barras e às folhas/menus. */
+/* ---------- Tema escuro (por omissão) ---------- */
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #000000;
-  --bg-elevated: #1c1c1e;
-  --text: rgba(255, 255, 255, .92);
-  --text-muted: rgba(235, 235, 245, .55);
-  --text-faint: rgba(235, 235, 245, .3);
+  --bg: #07070a;
+  --bg-elevated: #16161a;
+  --text: rgba(255, 255, 255, .94);
+  --text-muted: rgba(235, 235, 245, .58);
+  --text-faint: rgba(235, 235, 245, .32);
   --hairline: rgba(255, 255, 255, .08);
 
-  --glass-tint-1: #1c1c1e;
-  --glass-tint-2: #1c1c1e;
-  --glass-strong-1: rgba(28, 28, 30, .94);
-  --glass-strong-2: rgba(22, 22, 24, .94);
-  --glass-border: rgba(255, 255, 255, .06);
-  --bar-1: rgba(14, 14, 16, .82);
-  --bar-2: rgba(14, 14, 16, .82);
-  --glass-hi: rgba(255, 255, 255, .03);
-  --glass-lo: transparent;
-  --glass-blur: 20px;
-  --glass-sat: 140%;
-  --glass-shadow: none;
+  /* Vidro: translúcido, desfocado, com aro de luz */
+  --glass-tint-1: rgba(255, 255, 255, .085);
+  --glass-tint-2: rgba(255, 255, 255, .03);
+  --glass-strong-1: rgba(32, 32, 38, .78);
+  --glass-strong-2: rgba(18, 18, 22, .72);
+  --glass-border: rgba(255, 255, 255, .1);
+  --bar-1: rgba(40, 40, 46, .55);
+  --bar-2: rgba(20, 20, 24, .5);
+  --glass-hi: rgba(255, 255, 255, .16);
+  --glass-lo: rgba(255, 255, 255, .02);
+  --glass-rim: rgba(255, 255, 255, .38);
+  --glass-sheen: rgba(255, 255, 255, .07);
+  --glass-blur: 24px;
+  --glass-sat: 170%;
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, .35);
 
-  --soft-bg: rgba(255, 255, 255, .05);
-  --soft-bg-hover: rgba(255, 255, 255, .08);
-  --input-bg: #2c2c2e;
-  --overlay: rgba(0, 0, 0, .6);
+  --soft-bg: rgba(255, 255, 255, .055);
+  --soft-bg-hover: rgba(255, 255, 255, .085);
+  --input-bg: rgba(255, 255, 255, .07);
+  --overlay: rgba(0, 0, 0, .5);
+
+  --ambient-opacity: .55;
 }
 
 /* ---------- Tema claro ---------- */
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #f2f2f7;
+  --bg: #f4f3ef;
   --bg-elevated: #ffffff;
-  --text: #111114;
+  --text: #121214;
   --text-muted: rgba(60, 60, 67, .62);
-  --text-faint: rgba(60, 60, 67, .32);
-  --hairline: rgba(0, 0, 0, .08);
+  --text-faint: rgba(60, 60, 67, .34);
+  --hairline: rgba(0, 0, 0, .07);
 
-  --glass-tint-1: #ffffff;
-  --glass-tint-2: #ffffff;
-  --glass-strong-1: rgba(255, 255, 255, .95);
-  --glass-strong-2: rgba(248, 248, 250, .95);
-  --glass-border: rgba(0, 0, 0, .05);
-  --bar-1: rgba(248, 248, 250, .85);
-  --bar-2: rgba(248, 248, 250, .85);
-  --glass-hi: transparent;
-  --glass-lo: transparent;
-  --glass-blur: 20px;
+  --glass-tint-1: rgba(255, 255, 255, .72);
+  --glass-tint-2: rgba(255, 255, 255, .45);
+  --glass-strong-1: rgba(255, 255, 255, .85);
+  --glass-strong-2: rgba(255, 255, 255, .7);
+  --glass-border: rgba(255, 255, 255, .8);
+  --bar-1: rgba(255, 255, 255, .7);
+  --bar-2: rgba(255, 255, 255, .5);
+  --glass-hi: rgba(255, 255, 255, .95);
+  --glass-lo: rgba(0, 0, 0, .03);
+  --glass-rim: rgba(255, 255, 255, 1);
+  --glass-sheen: rgba(255, 255, 255, .5);
+  --glass-blur: 22px;
   --glass-sat: 160%;
-  --glass-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+  --glass-shadow: 0 10px 30px rgba(60, 50, 0, .1);
 
-  --soft-bg: rgba(0, 0, 0, .04);
-  --soft-bg-hover: rgba(0, 0, 0, .07);
-  --input-bg: #ffffff;
-  --overlay: rgba(0, 0, 0, .3);
+  --soft-bg: rgba(255, 255, 255, .55);
+  --soft-bg-hover: rgba(255, 255, 255, .75);
+  --input-bg: rgba(255, 255, 255, .7);
+  --overlay: rgba(20, 20, 0, .2);
+
+  --ambient-opacity: .7;
 }

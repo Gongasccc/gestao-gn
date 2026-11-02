@@ -52,7 +52,6 @@ export default {
     id: 'menu-familia',
     width: 'medium',
     title: 'Amigos',
-    root: true,
     template: () => html`
       <div class="search-field glass-soft">
         ${icon('search', 18)}

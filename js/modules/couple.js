@@ -94,7 +94,6 @@ export default {
     id: 'menu-casal',
     width: 'medium',
     title: 'O nosso casal',
-    root: true,
     template: () => html`<div id="couple-body"></div>`,
     onEnter: draw,
   }],

@@ -92,6 +92,7 @@ export default {
   id: 'couple',
   pages: [{
     id: 'menu-casal',
+    width: 'medium',
     title: 'O nosso casal',
     root: true,
     template: () => html`<div id="couple-body"></div>`,

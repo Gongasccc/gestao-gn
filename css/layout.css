@@ -285,6 +285,9 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
     padding: 80px 28px 40px;
   }
 
-  .page-container > .page { max-width: calc(var(--content-max) + 140px); }
-  .page-container > .page.page--wide { max-width: var(--wide-max); }
+  /* Usa a largura do ecrã: as páginas ocupam até 1320px e as listas passam a grelhas (ver desktop.css). */
+  .page-container > .page { margin: 0 auto; }
+  .page-container > .page--wide { max-width: var(--wide-max); }
+  .page-container > .page--medium { max-width: 960px; }
+  .page-container > .page--narrow { max-width: 760px; }
 }

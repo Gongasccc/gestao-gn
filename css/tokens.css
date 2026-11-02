@@ -34,7 +34,7 @@
   --topbar-height: 60px;
   --bottom-nav-height: 64px;
   --content-max: 680px;
-  --wide-max: 1180px;
+  --wide-max: 1320px;
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);

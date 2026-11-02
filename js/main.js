@@ -25,7 +25,9 @@ function mountModules() {
   MODULES.forEach((mod) => {
     (mod.pages || []).forEach((page) => {
       registerPage(page);
-      pagesHtml += `<section class="page${page.wide ? ' page--wide' : ''}" id="${page.id}" data-module="${mod.id}">${page.template()}</section>`;
+      // Largura no computador: páginas do menu usam o ecrã todo; formulários e detalhes ficam mais estreitos.
+      const width = page.width || (page.wide || page.root ? 'wide' : 'narrow');
+      pagesHtml += `<section class="page page--${width}" id="${page.id}" data-module="${mod.id}">${page.template()}</section>`;
     });
     if (mod.modals) modalsHtml += String(mod.modals());
     if (mod.actions) registerActions(mod.actions);

@@ -1,10 +1,12 @@
 // Importar receitas da web. A maioria dos sites de receitas (Pingo Doce, Continente, SaborIntenso,
 // Teleculinária, …) publica os dados em JSON-LD schema.org/Recipe, que lemos aqui.
 // Como o browser não deixa ler outros sites diretamente (CORS), usamos primeiro a nossa função
-// no Netlify (netlify/functions/receita.mjs), depois o pedido direto e por fim proxies públicos.
+// no Netlify (netlify/functions/receita.mjs), depois o pedido direto, um leitor que executa o
+// JavaScript da página (r.jina.ai) e proxies públicos. Se a página não tiver JSON-LD, a IA lê o texto.
 import { formatDuration, sourceName, servingsNumber } from './parse.js';
 
 const PROXIES = [
+  { build: (u) => `https://r.jina.ai/${u}`, headers: { 'X-Return-Format': 'html' } },
   (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
 ];
@@ -123,11 +125,11 @@ export function recipeFromHtml(htmlText, url = '') {
   };
 }
 
-async function fetchText(url, timeout = 12000) {
+async function fetchText(url, timeout = 15000, headers = undefined) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeout);
   try {
-    const res = await fetch(url, { signal: ctrl.signal });
+    const res = await fetch(url, { signal: ctrl.signal, headers });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.text();
   } finally {
@@ -135,17 +137,41 @@ async function fetchText(url, timeout = 12000) {
   }
 }
 
+/** Texto visível da página + blocos JSON embutidos (ex.: __NEXT_DATA__), para a IA. */
+export function pageTextForAI(htmlText) {
+  const json = [...String(htmlText).matchAll(/<script[^>]*type=["']?application\/(?:ld\+)?json["']?[^>]*>([\s\S]*?)<\/script>/gi)]
+    .map((m) => m[1].trim()).filter((b) => b.length > 40).join('\n').slice(0, 30000);
+  const body = String(htmlText)
+    .replace(/<(script|style|noscript|svg|nav|footer|header)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<(br|\/p|\/li|\/h\d|\/div|\/tr)[^>]*>/gi, '\n');
+  const text = clean(body.replace(/\n/g, ' \u0000 ')).split(' \u0000 ').map((l) => l.trim()).filter(Boolean).join('\n');
+  return `${text}\n${json}`.trim();
+}
+
 /** Vai buscar a página e extrai a receita. Lança erro se não conseguir ler a página. */
 export async function importRecipe(url) {
   const attempts = [(u) => `/.netlify/functions/receita?url=${encodeURIComponent(u)}`, (u) => u, ...PROXIES];
   let partial = null;
-  for (const build of attempts) {
+  let pagina = '';
+  for (const attempt of attempts) {
+    const { build, headers } = typeof attempt === 'function' ? { build: attempt } : attempt;
     try {
-      const page = await fetchText(build(url));
+      const page = await fetchText(build(url), 15000, headers);
       const recipe = recipeFromHtml(page, url);
       if (recipe && !recipe.incompleta) return recipe;
       partial = partial || recipe;
+      if (page.length > pagina.length) pagina = page; // a mais completa (ex.: a do leitor que executa JS)
     } catch { /* tenta o próximo caminho */ }
+  }
+  // Sem dados estruturados: a IA lê o texto da página.
+  if (pagina) {
+    try {
+      const { receitaComIA } = await import('./ai.js');
+      const viaIA = await receitaComIA(pageTextForAI(pagina), url);
+      if (viaIA) return { ...viaIA, foto: viaIA.foto || partial?.foto || '' };
+    } catch (e) {
+      console.warn('[receitas] IA', e);
+    }
   }
   if (partial) return partial;
   throw new Error('Não foi possível ler a página.');

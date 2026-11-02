@@ -35,10 +35,13 @@ function renderSidebar() {
   const groups = MENU_GROUPS.map((g) => ({ ...g, items: MENU.filter((m) => m.group === g.id && m.sidebar !== false) }))
     .filter((g) => g.items.length);
   byId('sidebar').innerHTML = String(html`
-    <div class="sidebar__brand">
-      <img src="assets/brand/ninho.svg" alt="" class="sidebar__brand-icon">
-      <span><strong>Ninho</strong><small>A casa a dois</small></span>
-    </div>
+    <button class="sidebar__account pressable" data-nav-page="menu-perfil" data-action="nav:go" data-page="menu-perfil" title="Perfil e amigos">
+      <span class="avatar avatar--md" data-avatar="me"></span>
+      <span class="sidebar__account-info">
+        <span class="sidebar__account-name" data-username="me">A carregar…</span>
+        <span class="sidebar__account-sub">Perfil e amigos</span>
+      </span>
+    </button>
     <nav class="sidebar__nav" id="sidebar-nav">
       ${groups.map((g) => html`
         <div class="sidebar__section">
@@ -46,13 +49,6 @@ function renderSidebar() {
           ${g.items.map(itemTpl)}
         </div>`)}
     </nav>
-    <button class="sidebar__account pressable" data-action="nav:go" data-page="menu-perfil">
-      <span class="avatar avatar--sm" data-avatar="me"></span>
-      <span class="sidebar__account-info">
-        <span class="sidebar__account-name" data-username="me">A carregar…</span>
-        <span class="sidebar__account-sub">Ver perfil</span>
-      </span>
-    </button>
   `);
 }
 

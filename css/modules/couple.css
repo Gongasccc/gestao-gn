@@ -202,3 +202,4 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 .ext-rodape { position: sticky; bottom: 0; display: flex; gap: 10px; justify-content: space-between; margin-top: 14px; padding: 12px 0; background: var(--bg-elevated); }
 .ext-rodape .btn--primary { flex: 1; }
 @media (max-width: 420px) { .ext-opcoes { grid-template-columns: 1fr; } }
+.ext-afinar { margin: -4px 0 12px; }

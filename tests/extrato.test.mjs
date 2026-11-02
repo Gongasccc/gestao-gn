@@ -1,57 +1,90 @@
+// Os fixtures são o texto que o pdf.js extrai de três PDFs de teste com layouts diferentes:
+// colunas Débito/Crédito/Saldo (tipo CGD), montante com sinal + saldo (tipo Millennium) e formato inglês (tipo Revolut).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizarExtrato, marcarDuplicados, chaveComerciante, categoriaPorPalavras, lerExtrato } from '../js/modules/extrato/ler.js';
+import { readFileSync } from 'node:fs';
+import {
+  lerExtratoDeTexto, marcarDuplicados, nomeComerciante, chaveComerciante, categoriaPorPalavras, dataIso, categorizar,
+} from '../js/modules/extrato/ler.js';
 
-const resposta = {
-  eExtrato: true,
-  banco: 'CGD',
-  periodo: { inicio: '2026-10-01', fim: '2026-10-31' },
-  movimentos: [
-    { data: '2026-10-05', descricao: 'COMPRA CONTINENTE BRAGA', comerciante: 'Continente', valor: '45,30', tipo: 'debito', categoria: 'supermercado' },
-    { data: '03/10', descricao: 'PAG NETFLIX.COM', comerciante: 'Netflix', valor: -13.99, tipo: 'debito', categoria: 'xpto' },
-    { data: '2026-10-25', descricao: 'TRF SALARIO', comerciante: 'Salário', valor: '1.234,56', tipo: 'credito', categoria: 'outros' },
-    { data: '2026-10-10', descricao: 'GALP BRAGA', comerciante: 'Galp', valor: 60, tipo: 'debito', categoria: 'transportes' },
-    { data: '', descricao: 'SALDO', valor: 0 },
-  ],
-};
+const fixture = (n) => JSON.parse(readFileSync(new URL(`./fixtures/${n}.json`, import.meta.url)));
+const resumo = (e) => e.movimentos.map((m) => `${m.data} ${m.tipo} ${m.valor} ${m.categoria}`);
 
-test('normaliza datas, valores, tipos e ordena por data', () => {
-  const e = normalizarExtrato(resposta);
-  assert.equal(e.movimentos.length, 4);
-  assert.deepEqual(e.movimentos.map((m) => m.data), ['2026-10-03', '2026-10-05', '2026-10-10', '2026-10-25']);
-  assert.equal(e.movimentos[0].valor, 13.99);
-  assert.equal(e.movimentos[3].valor, 1234.56);
-  assert.equal(e.movimentos[3].tipo, 'credito');
+test('colunas Débito/Crédito/Saldo: ignora saldos e distingue entradas', () => {
+  const e = lerExtratoDeTexto(fixture('extrato-colunas'));
+  assert.equal(e.banco, 'Caixa Geral de Depósitos');
+  assert.deepEqual(resumo(e), [
+    '2026-10-03 debito 13.99 lazer',
+    '2026-10-05 debito 45.3 supermercado',
+    '2026-10-07 credito 1234.56 outros',
+    '2026-10-10 debito 60 transportes',
+    '2026-10-12 debito 40 outros',
+    '2026-10-15 debito 58.42 contas',
+    '2026-10-18 debito 8.75 saude',
+  ]);
+  assert.equal(e.movimentos[1].comerciante, 'Continente Braga');
+  assert.equal(e.movimentos[4].transferencia, true); // levantamento
 });
 
-test('categoria inválida cai nas palavras-chave e as aprendidas têm prioridade', () => {
-  const e = normalizarExtrato(resposta, { aprendidas: { galp: 'contas' } });
-  assert.equal(e.movimentos.find((m) => m.comerciante === 'Netflix').categoria, 'lazer');
-  assert.equal(e.movimentos.find((m) => m.comerciante === 'Galp').categoria, 'contas');
+test('montante com sinal, datas sem ano e descrição em duas linhas', () => {
+  const e = lerExtratoDeTexto(fixture('extrato-montante'));
+  assert.equal(e.banco, 'Millennium bcp');
+  assert.deepEqual(resumo(e), [
+    '2026-10-01 debito 650 casa',
+    '2026-10-04 debito 22.1 supermercado',
+    '2026-10-06 debito 15 outros',
+    '2026-10-20 credito 29.99 compras',
+    '2026-10-22 debito 18.4 restaurante',
+  ]);
+  assert.match(e.movimentos[0].descricao, /RENDA CASA$/);
 });
 
-test('não é extrato', () => {
-  assert.equal(normalizarExtrato({ eExtrato: false }), null);
+test('formato inglês (€10.99) e datas por extenso', () => {
+  const e = lerExtratoDeTexto(fixture('extrato-revolut'));
+  assert.equal(e.banco, 'Revolut');
+  assert.deepEqual(resumo(e), [
+    '2026-10-03 debito 10.99 lazer',
+    '2026-10-05 debito 89.5 viagens',
+    '2026-10-09 credito 100 outros',
+  ]);
 });
 
-test('chaveComerciante limpa ruído', () => {
-  assert.equal(chaveComerciante('COMPRA CONTACTLESS Pingo Doce 1234'), 'pingo doce');
+test('categorias aprendidas têm prioridade sobre as palavras-chave', () => {
+  const [m] = categorizar([{ data: '2026-10-10', descricao: 'COMPRA 4321 GALP BRAGA', valor: 60, tipo: 'debito' }], { 'galp braga': 'contas' });
+  assert.equal(m.categoria, 'contas');
+});
+
+test('nomes, chaves, datas e palavras-chave', () => {
+  assert.equal(nomeComerciante('COMPRA 4321 CONTINENTE BRAGA CONTACTLESS'), 'Continente Braga');
+  assert.equal(nomeComerciante('DD EDP COMERCIAL'), 'EDP Comercial');
+  assert.equal(chaveComerciante('COMPRA C/LESS PINGO DOCE 1234'), 'pingo doce');
   assert.equal(categoriaPorPalavras('FARMACIA CENTRAL'), 'saude');
+  assert.equal(dataIso('3/10', 2026), '2026-10-03');
+  assert.equal(dataIso('31-12-25', 2026), '2025-12-31');
+  assert.equal(dataIso('7 dez', 2026), '2026-12-07');
+  assert.equal(dataIso('40/13', 2026), '');
 });
 
 test('marcarDuplicados usa data e valor, uma vez por despesa existente', () => {
-  const movs = normalizarExtrato({ movimentos: [
-    { data: '2026-10-05', descricao: 'A', valor: 10, tipo: 'debito' },
-    { data: '2026-10-05', descricao: 'B', valor: 10, tipo: 'debito' },
-  ] }).movimentos;
+  const movs = [
+    { data: '2026-10-05', descricao: 'A', valor: 10 },
+    { data: '2026-10-05', descricao: 'B', valor: 10 },
+  ];
   const r = marcarDuplicados(movs, [{ data: '2026-10-05', valor: '10.00' }]);
   assert.deepEqual(r.map((m) => m.duplicado), [true, false]);
 });
 
-test('lerExtrato envia o PDF e falha sem movimentos', async () => {
-  let partes;
-  const e = await lerExtrato({ base64: 'x', mime: 'application/pdf' }, { pedir: async (p) => { partes = p; return resposta; } });
-  assert.equal(partes[1].mime, 'application/pdf');
-  assert.equal(e.banco, 'CGD');
-  await assert.rejects(lerExtrato({}, { pedir: async () => ({ movimentos: [] }) }), /movimentos/);
+test('a IA só recebe nomes de lojas únicos, sem números nem transferências', async () => {
+  const { pedidoCategorias, promptCategorias, lerRespostaCategorias } = await import('../js/modules/extrato/ler.js');
+  const movs = lerExtratoDeTexto(fixture('extrato-colunas')).movimentos;
+  movs.push({ ...movs[1] }); // Continente repetido
+  const itens = pedidoCategorias(movs, { 'edp comercial': 'contas' });
+  const textos = itens.map((i) => i.texto);
+  assert.ok(textos.includes('Continente Braga'));
+  assert.equal(textos.filter((t) => t === 'Continente Braga').length, 1);
+  assert.ok(!textos.some((t) => /salario|lev|edp/i.test(t))); // transferências e aprendidas ficam de fora
+  const prompt = promptCategorias(itens);
+  assert.ok(!/\d{3,}|,\d{2}\b|2026/.test(prompt.split('\n').slice(-itens.length).join('\n')));
+  const r = lerRespostaCategorias({ categorias: { 0: 'lazer', 1: 'xpto' } }, itens);
+  assert.deepEqual(Object.keys(r), [itens[0].chave]);
 });

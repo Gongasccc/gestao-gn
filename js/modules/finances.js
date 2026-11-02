@@ -10,6 +10,7 @@ import { addDoc, updateDoc, setDoc, onSnapshot, arrayUnion, arrayRemove } from '
 import { sharedCol, sharedDoc } from '../services/paths.js';
 import { createRecordList } from '../components/record-list.js';
 import { tabsTpl } from '../components/tabs.js';
+import { configurarExtrato, extratoModal, extratoActions } from './extrato/index.js';
 
 const scope = createScope();
 
@@ -29,6 +30,7 @@ const cat = (v) => CATEGORIES.find((c) => c.value === v) || CATEGORIES[CATEGORIE
 
 let month = todayISO().slice(0, 7);
 let budget = {};
+let categoriasAprendidas = {};
 
 const ym = () => month;
 const monthLabel = (m) => capitalize(new Date(`${m}-01T12:00`).toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }));
@@ -206,9 +208,11 @@ export default {
           <span>${icon('bolt', 18)} Contas fixas</span><span class="muted small" id="fin-bills-pending"></span>
         </button>
         ${expenses.addButton('Registar despesa')}
+        <button class="btn btn--block btn--glass pressable fin-extrato-btn" data-action="fin:extrato">${icon('file', 18)} Importar extrato do banco (PDF)</button>
       </div>
       <div data-tab-panel="fin:despesas" hidden>
         ${expenses.addButton('Registar despesa')}
+        <button class="btn btn--block btn--glass pressable fin-extrato-btn" data-action="fin:extrato">${icon('file', 18)} Importar extrato do banco (PDF)</button>
         ${expenses.template()}
       </div>
       <div data-tab-panel="fin:contas" hidden>
@@ -217,8 +221,9 @@ export default {
       </div>`,
     onEnter: () => { drawSummary(); expenses.draw(); bills.draw(); },
   }],
-  modals: () => html`${expenses.modals()}${bills.modals()}${budgetModal()}`,
+  modals: () => html`${expenses.modals()}${bills.modals()}${budgetModal()}${extratoModal()}`,
   actions: {
+    ...extratoActions,
     'fin:month': ({ data }) => {
       month = shiftMonth(month, Number(data.step));
       expenses.draw();
@@ -267,6 +272,18 @@ export default {
     bills.subscribe(scope);
     scope.add(onSnapshot(sharedDoc('config', 'orcamento'), (s) => { budget = s.exists() ? s.data().limites || {} : {}; drawSummary(); }));
     scope.add(on('household:update', drawSummary));
+    scope.add(onSnapshot(sharedDoc('config', 'categorias_extrato'), (s) => { categoriasAprendidas = s.exists() ? s.data().regras || {} : {}; }));
+    configurarExtrato({
+      categorias: CATEGORIES,
+      despesas: () => expenses.items(),
+      aprendidas: () => categoriasAprendidas,
+      aoImportar: (m) => {
+        if (m) month = m;
+        expenses.draw();
+        bills.draw();
+        drawSummary();
+      },
+    });
   },
   stop() { scope.clear(); },
   expenses,

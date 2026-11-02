@@ -42,7 +42,7 @@ export function drawDailyLine(canvas, expenses) {
 
   const byDay = {};
   expenses.forEach((e) => {
-    const d = new Date(e.timestamp || Date.now());
+    const d = e.data ? new Date(`${e.data}T12:00`) : new Date(e.timestamp || Date.now());
     const key = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
     byDay[key] = (byDay[key] || 0) + (Number(e.valor) || 0);
   });

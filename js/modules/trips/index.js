@@ -12,10 +12,12 @@ import { notifyUser } from '../../services/notifications.js';
 import { avatar } from '../../components/avatar.js';
 import { tabsTpl, selectTab, positionIndicator } from '../../components/tabs.js';
 import { photoPickerTpl, getPhoto, clearPhoto } from '../../components/photo-picker.js';
-import { tripState, currentTrip, members, categoryFor, isSettlement, FALLBACK_COVER } from './store.js';
+import { tripState, currentTrip, members, expenseCategory, isSettlement, FALLBACK_COVER } from './store.js';
 import { paidBy } from './balances.js';
 import { drawDailyLine, drawCategoryDonut } from './charts.js';
-import { timelineTabTpl, drawTimeline, timelineModalTpl, timelineActions } from './timeline.js';
+import { journalTabTpl, drawJournal, drawMap, resetMap, journalModalTpl, journalActions, photosOf } from './journal.js';
+import { routeLegs, countriesOf, flag, formatKm } from './geo.js';
+import { CURRENCIES } from './currency.js';
 import { expensesTabTpl, drawExpenses, expensesModalsTpl, expensesActions } from './expenses.js';
 
 const scope = createScope();
@@ -84,8 +86,15 @@ function drawSummary() {
   const total = real.reduce((s, e) => s + (Number(e.valor) || 0), 0);
   const days = t.dataInicio && t.dataFim ? daysBetween(t.dataInicio, t.dataFim) + 1 : null;
 
+  const steps = tripState.timeline;
+  const countries = countriesOf(steps);
   setText('sum-days', days ? plural(days, 'dia', 'dias') : '—');
-  setText('sum-places', plural(tripState.timeline.length, 'sítio', 'sítios'));
+  setText('sum-places', String(steps.length));
+  setText('sum-km', formatKm(routeLegs(steps).total));
+  setText('sum-photos', String(steps.reduce((n, s) => n + photosOf(s).length, 0)));
+  render('sum-countries', countries.length
+    ? countries.map((c) => html`<span class="glass-chip">${flag(c.code)} ${c.nome}</span>`)
+    : html`<span class="muted small">Os países aparecem quando adicionares paragens com local.</span>`);
   countUp('sum-total', total, { format: money });
   setText('sum-per-day', days ? money(total / days) : '—');
 
@@ -99,7 +108,7 @@ function drawCharts() {
   const line = byId('chart-daily');
   const donut = byId('chart-categories');
   if (line?.offsetParent) drawDailyLine(line, real);
-  if (donut?.offsetParent) drawCategoryDonut(donut, real, categoryFor);
+  if (donut?.offsetParent) drawCategoryDonut(donut, real.map((e) => ({ ...e, categoria: expenseCategory(e).nome })), expenseCategory);
 }
 
 function drawEdit() {
@@ -109,13 +118,14 @@ function drawEdit() {
   byId('edit-trip-dest').value = t.paisCode || '';
   byId('edit-trip-start').value = t.dataInicio || '';
   byId('edit-trip-end').value = t.dataFim || '';
+  byId('edit-trip-currency').value = t.moeda || 'EUR';
   const owner = t.dono;
   render('edit-trip-members', members().map((m) => {
-    const canRemove = m.uid !== owner && (session.uid === owner || m.uid === session.uid);
+    const canRemove = m.uid !== owner && (m.convidado || session.uid === owner || m.uid === session.uid);
     return html`
       <div class="user-row glass-soft">
         ${avatar(m.nome, m.avatarUrl, 'md')}
-        <span class="user-row__name">${m.nome} ${m.uid === owner ? html`<span class="chip chip--accent">Criador</span>` : ''}</span>
+        <span class="user-row__name">${m.nome} ${m.uid === owner ? html`<span class="chip chip--accent">Criador</span>` : ''}${m.convidado ? html`<span class="chip chip--muted">Sem conta</span>` : ''}</span>
         ${canRemove ? html`<button class="icon-btn icon-btn--subtle" data-action="trips:remove-member" data-uid="${m.uid}" aria-label="Remover">${icon('trash', 16)}</button>` : ''}
       </div>`;
   }));
@@ -129,7 +139,7 @@ function drawEdit() {
 function refreshDetail() {
   drawHero();
   drawSummary();
-  drawTimeline();
+  drawJournal();
   drawExpenses();
   drawCharts();
 }
@@ -169,6 +179,7 @@ export default {
     },
     {
       id: 'page-viagem-detalhe',
+      wide: true,
       title: () => currentTrip()?.nome || 'Viagem',
       headerAction: () => html`<button class="icon-btn glass-chip pressable" data-action="nav:go" data-page="page-detalhes-viagem-edit" aria-label="Definições da viagem">${icon('settings', 18)}</button>`,
       template: () => html`
@@ -179,12 +190,20 @@ export default {
             <div class="hero__meta" id="trip-hero-meta"></div>
           </div>
         </div>
-        ${tabsTpl('trip', [{ id: 'resumo', label: 'Resumo' }, { id: 'planeador', label: 'Planeamento' }, { id: 'despesas', label: 'Despesas' }])}
-        <section data-tab-panel="trip:resumo">
+        ${tabsTpl('trip', [{ id: 'diario', label: 'Diário' }, { id: 'despesas', label: 'Contas' }, { id: 'resumo', label: 'Resumo' }])}
+        <section data-tab-panel="trip:diario">${journalTabTpl()}</section>
+        <section data-tab-panel="trip:despesas" hidden>${expensesTabTpl()}</section>
+        <section data-tab-panel="trip:resumo" class="trip-summary" hidden>
           <div class="stat-grid stat-grid--3">
             <div class="stat glass"><span class="stat__num" id="sum-days">—</span><span class="stat__label">Duração</span></div>
-            <div class="stat glass"><span class="stat__num" id="sum-places">0</span><span class="stat__label">Planeado</span></div>
-            <div class="stat glass"><span class="stat__num" id="sum-per-day">—</span><span class="stat__label">Por dia</span></div>
+            <div class="stat glass"><span class="stat__num" id="sum-places">0</span><span class="stat__label">Paragens</span></div>
+            <div class="stat glass"><span class="stat__num" id="sum-km">0 km</span><span class="stat__label">Percorridos</span></div>
+            <div class="stat glass"><span class="stat__num" id="sum-photos">0</span><span class="stat__label">Fotos</span></div>
+            <div class="stat glass"><span class="stat__num" id="sum-per-day">—</span><span class="stat__label">Gasto por dia</span></div>
+          </div>
+          <div class="card glass trip-summary__full">
+            <h3 class="card__title">${icon('globe', 16)} Países</h3>
+            <div class="chip-row" id="sum-countries"></div>
           </div>
           <div class="card glass">
             <div class="total-line"><span class="eyebrow">Total gasto</span><span class="total-line__value" id="sum-total">0,00 €</span></div>
@@ -196,9 +215,7 @@ export default {
           </div>
           <div class="card glass chart-card"><h3 class="card__title">Gastos diários</h3><canvas id="chart-daily"></canvas></div>
           <div class="card glass chart-card"><h3 class="card__title">Por categoria</h3><canvas id="chart-categories"></canvas></div>
-        </section>
-        <section data-tab-panel="trip:planeador" hidden>${timelineTabTpl()}</section>
-        <section data-tab-panel="trip:despesas" hidden>${expensesTabTpl()}</section>`,
+        </section>`,
       onEnter: () => {
         refreshDetail();
         requestAnimationFrame(() => positionIndicator(document.querySelector('[data-tabs="trip"]')));
@@ -217,18 +234,26 @@ export default {
           <div class="field"><label class="field__label" for="edit-trip-start">Início</label><input type="date" id="edit-trip-start" class="input"></div>
           <div class="field"><label class="field__label" for="edit-trip-end">Fim</label><input type="date" id="edit-trip-end" class="input"></div>
         </div>
+        <div class="field"><label class="field__label" for="edit-trip-currency">Moeda local (para novas despesas)</label>
+          <select id="edit-trip-currency" class="input">${CURRENCIES.map((c) => html`<option value="${c}">${c}</option>`)}</select></div>
         <h3 class="section-title">Pessoas nesta viagem</h3>
         <div class="list" id="edit-trip-members"></div>
         <h3 class="section-title">Convidar amigo</h3>
         <div class="input-row" id="edit-trip-invite"></div>
+        <h3 class="section-title">Pessoa sem conta no Ninho</h3>
+        <p class="muted small">Entra nas contas e nos saldos, mas não vê a viagem.</p>
+        <div class="input-row">
+          <input type="text" id="guest-name" class="input" placeholder="Nome (ex: Rita)" data-enter="trips:add-guest">
+          <button class="btn btn--glass pressable" data-action="trips:add-guest">${icon('userPlus', 16)} Adicionar</button>
+        </div>
         <button class="btn btn--primary btn--block pressable" data-action="trips:save-edit">Guardar alterações</button>
         <button class="btn btn--danger-soft btn--block pressable" data-action="trips:delete">${icon('trash', 16)} Apagar viagem</button>`,
       onEnter: drawEdit,
     },
   ],
-  modals: () => html`${timelineModalTpl()}${expensesModalsTpl()}`,
+  modals: () => html`${journalModalTpl()}${expensesModalsTpl()}`,
   actions: {
-    ...timelineActions,
+    ...journalActions,
     ...expensesActions,
     'trips:create': async ({ el }) => {
       const nome = byId('new-trip-name').value.trim();
@@ -265,10 +290,10 @@ export default {
       }));
       detailScope.add(onSnapshot(tripCol(data.id, 'timeline'), (s) => {
         tripState.timeline = snapToList(s);
-        drawTimeline();
+        drawJournal();
         drawSummary();
       }));
-      selectTab('trip', 'resumo');
+      selectTab('trip', 'diario');
       navigate('page-viagem-detalhe');
     },
     'trips:cover': () => showImage(currentTrip()?.capa || FALLBACK_COVER),
@@ -290,7 +315,7 @@ export default {
       const dataFim = byId('edit-trip-end').value;
       if (dataInicio && dataFim && dataFim < dataInicio) return toast('A data de fim é anterior ao início.', 'error');
       await withLoading(el, () => updateDoc(tripDoc(tripState.currentTripId), {
-        nome, paisCode: byId('edit-trip-dest').value.trim(), dataInicio, dataFim,
+        nome, paisCode: byId('edit-trip-dest').value.trim(), dataInicio, dataFim, moeda: byId('edit-trip-currency').value,
       }));
       toast('Viagem atualizada');
       back();
@@ -306,6 +331,15 @@ export default {
       });
       await notifyUser(uid, `${session.name} adicionou-te à viagem "${t.nome}".`);
       toast(`${friend.name} foi adicionado à viagem`);
+    },
+    'trips:add-guest': async () => {
+      const t = currentTrip();
+      const nome = byId('guest-name').value.trim();
+      if (!t || !nome) return toast('Escreve o nome da pessoa.', 'error');
+      const uid = `convidado_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+      await updateDoc(tripDoc(t.id), { membros_info: [...t.membros_info, { uid, nome, avatarUrl: '', convidado: true }] });
+      byId('guest-name').value = '';
+      toast(`${nome} entrou nas contas da viagem`);
     },
     'trips:remove-member': async ({ data }) => {
       const t = currentTrip();
@@ -333,7 +367,10 @@ export default {
       tripState.friends = list;
       if (currentPage() === 'page-detalhes-viagem-edit') drawEdit();
     }));
-    scope.add(on('tabs:trip', (tab) => { if (tab === 'resumo') requestAnimationFrame(drawCharts); }));
+    scope.add(on('tabs:trip', (tab) => {
+      if (tab === 'resumo') requestAnimationFrame(drawCharts);
+      if (tab === 'diario') requestAnimationFrame(() => drawMap());
+    }));
     const q = query(tripsCol(), where('membros_uids', 'array-contains', session.uid));
     scope.add(onSnapshot(q, (s) => {
       tripState.trips = snapToList(s);
@@ -360,6 +397,7 @@ export default {
   stop() {
     scope.clear();
     detailScope.clear();
+    resetMap();
     Object.assign(tripState, { trips: [], currentTripId: null, expenses: [], timeline: [], friends: [] });
   },
 };

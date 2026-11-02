@@ -10,15 +10,16 @@ export const tripState = {
   expenses: [],
   timeline: [],
   friends: [],
-  expenseMode: 'splitwise',
 };
 
 export const currentTrip = () => tripState.trips.find((t) => t.id === tripState.currentTripId) || null;
 export const members = () => currentTrip()?.membros_info || [];
-export const memberIds = () => currentTrip()?.membros_uids || [session.uid];
+// Inclui pessoas sem conta (convidados), que só existem em membros_info.
+export const memberIds = () => (members().length ? members().map((m) => m.uid) : [session.uid]);
+export const isGuest = (m) => !!m?.convidado;
 export const memberName = (uid) => members().find((m) => m.uid === uid)?.nome || 'Alguém';
 
-const CATEGORIES = [
+export const CATEGORIES = [
   { nome: 'Café', icon: 'coffee', words: ['café', 'cafe', 'galão', 'pastel'] },
   { nome: 'Restauração', icon: 'restaurant', words: ['jantar', 'almoço', 'restaurante', 'comida', 'pizza', 'uber eats', 'ubereats', 'bolt food', 'lanche', 'pequeno-almoço'] },
   { nome: 'Supermercado', icon: 'cart', words: ['supermercado', 'continente', 'pingo', 'lidl', 'auchan', 'mercadona', 'intermarché'] },
@@ -27,6 +28,7 @@ const CATEGORIES = [
   { nome: 'Transportes', icon: 'fuel', words: ['gasolina', 'combustível', 'gasóleo', 'posto', 'portagem', 'uber', 'bolt', 'comboio', 'metro', 'avião', 'voo', 'táxi', 'parque'] },
   { nome: 'Alojamento', icon: 'bed', words: ['hotel', 'airbnb', 'alojamento', 'quarto', 'hostel'] },
   { nome: 'Lazer', icon: 'play', words: ['bilhete', 'museu', 'bar', 'festa', 'gin', 'cinema', 'concerto', 'parque'] },
+  { nome: 'Geral', icon: 'coin', words: [] },
 ];
 
 export function categoryFor(text = '') {
@@ -36,4 +38,10 @@ export function categoryFor(text = '') {
 }
 
 export const categoryIcon = (text) => iconSvg(categoryFor(text).icon, 20);
+
+/** Categoria de uma despesa: a escolhida no formulário, ou adivinhada pela descrição. */
+export function expenseCategory(e) {
+  const c = CATEGORIES.find((x) => x.nome === e.categoria);
+  return c ? { nome: c.nome, icon: c.icon } : categoryFor(e.desc);
+}
 export const isSettlement = (e) => e.tipo === 'liquidacao' || (e.valor === 0 && /^Liquidação/.test(e.desc || ''));

@@ -1,6 +1,6 @@
 // Service worker do Ninho.
 // Estratégia: rede primeiro (para receber sempre a versão mais recente) e cache como reserva offline.
-const CACHE = 'ninho-shell-v7';
+const CACHE = 'ninho-shell-v8';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {

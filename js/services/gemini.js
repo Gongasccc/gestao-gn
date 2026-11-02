@@ -13,9 +13,9 @@ const ERRO_FATAL = /quota|429|RESOURCE_EXHAUSTED|api-not-enabled|PERMISSION_DENI
 // App Check: a Google exige-o no Firebase AI Logic desde 2 nov 2026. A app prova que é ela com o
 // reCAPTCHA v3 (invisível). Chave do site criada em https://www.google.com/recaptcha/admin e
 // registada em Firebase > App Check > Apps (com a chave secreta). Em localhost usa um token de debug.
-export const RECAPTCHA_SITE_KEY = '';
+export const RECAPTCHA_SITE_KEY = '6Lf7ZA0uAAAAACgNcYyOsvjJsOVKLvW_zM8Tm06r';
 // 'v3' (chave com segredo, google.com/recaptcha/admin) ou 'enterprise' (chave criada na Google Cloud).
-export const RECAPTCHA_TIPO = 'v3';
+export const RECAPTCHA_TIPO = 'enterprise';
 
 let appCheckPronto = null;
 function ativarAppCheck() {

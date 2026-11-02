@@ -241,9 +241,19 @@ function blocoInventarioNovo(info, existente) {
     </section>`;
 }
 
-const procurarExistente = (nome) => {
+// O mesmo medicamento pode vir com o nome escrito de outra forma ("Ben-u-ron" / "Ben-u-ron 500 mg"):
+// compara primeiro o nome completo e depois o nome sem a dosagem, desde que as dosagens não se contradigam.
+const DOSE = /\b\d+(?:[.,]\d+)?\s*(?:mg|g|mcg|µg|ml|ui|%)\b/gi;
+const semDose = (t) => chaveNome(String(t || '').replace(DOSE, ' '));
+const doseDe = (m) => chaveNome((`${m?.nome || ''} ${m?.dosagem || ''}`.match(DOSE) || [])[0] || '').replace(/\s+/g, '');
+const procurarExistente = (nome, dosagem = '') => {
   const k = chaveNome(nome);
-  return k ? medicamentos.find((m) => chaveNome(m.nome) === k) : null;
+  if (!k) return null;
+  const exato = medicamentos.find((m) => chaveNome(m.nome) === k);
+  if (exato) return exato;
+  const base = semDose(nome);
+  const dose = doseDe({ nome, dosagem });
+  return base ? medicamentos.find((m) => semDose(m.nome) === base && (!dose || !doseDe(m) || doseDe(m) === dose)) || null : null;
 };
 
 function renderNovo() {
@@ -274,7 +284,7 @@ function renderNovo() {
         <input class="input" id="farm-dica" placeholder="Ex.: Brufen 400" value="${info?.nome || ''}" data-enter="farmacia:tentarNome"></div>
       <button class="btn btn--primary" data-action="farmacia:tentarNome">Procurar pelo nome</button>`;
   } else if (fase === 'pronto' && info) {
-    const existente = procurarExistente(info.nome);
+    const existente = procurarExistente(info.nome, info.dosagem);
     corpo = html`
       ${info.confianca === 'baixa' ? html`<div class="farm-erro glass">A IA não tem a certeza. Confirma o nome abaixo e carrega em "Atualizar".</div>` : ''}
       <div class="farm-campo"><label for="farm-nome">Nome</label>
@@ -562,7 +572,7 @@ export default {
       const toma = numOuNull(byId('farm-toma')?.value);
       const notas = byId('farm-notas')?.value.trim() || '';
       const validade = lerValidade();
-      const existente = procurarExistente(nome);
+      const existente = procurarExistente(nome, info.dosagem);
       const { validade: _v, identificado: _i, confianca: _c, ...ficha } = info;
 
       if (existente) {

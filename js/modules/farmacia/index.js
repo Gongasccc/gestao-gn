@@ -329,7 +329,13 @@ function renderDetalhe() {
   const { estado } = estadoValidade(m.validade);
   const arquivado = !emCasa(m);
   render(alvo, html`
-    <div class="farm-palco farm-palco--pronto">${imagemMed(m, 'farm-palco__recorte')}</div>
+    <div class="farm-palco farm-palco--pronto">
+      ${imagemMed(m, 'farm-palco__recorte')}
+      <label class="farm-palco__trocar pressable" title="Trocar foto">
+        ${icon('camera', 16)}<span>Trocar foto</span>
+        <input type="file" accept="image/*" capture="environment" hidden data-change="farmacia:trocarFoto">
+      </label>
+    </div>
     <h2 class="farm-detalhe__nome">${m.nome}</h2>
     <p class="farm-detalhe__sub">${[m.substancia, m.dosagem, m.forma].filter(Boolean).join(' · ')}</p>
     <div class="farm-cabecalho">
@@ -517,6 +523,25 @@ export default {
       const ficheiro = el.files?.[0];
       el.value = '';
       if (ficheiro) processarFoto(ficheiro);
+    },
+    'farmacia:trocarFoto': async ({ el }) => {
+      const ficheiro = el.files?.[0];
+      el.value = '';
+      const id = atualId;
+      if (!ficheiro || !id) return;
+      const label = el.closest('label');
+      label?.classList.add('is-loading');
+      toast('A preparar a foto…');
+      try {
+        const foto = await comLimite(removerFundo(ficheiro, () => {}), 25_000).catch(() => miniatura(ficheiro));
+        if (!foto) throw new Error('Não foi possível abrir a foto.');
+        await updateDoc(sharedDoc(COLECAO, id), { foto });
+        toast('Foto atualizada');
+      } catch (e) {
+        toast(e.message, 'error');
+      } finally {
+        label?.classList.remove('is-loading');
+      }
     },
     'farmacia:repetirFoto': () => { if (rascunho?.ficheiro) processarFoto(rascunho.ficheiro); },
     'farmacia:porNome': () => {

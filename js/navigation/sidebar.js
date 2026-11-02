@@ -4,7 +4,7 @@ import { icon } from '../core/icons.js';
 import { registerActions } from '../core/events.js';
 import { navigate, back, isRootPage } from '../core/router.js';
 import { on } from '../core/state.js';
-import { MENU, MENU_FOOTER, BOTTOM_NAV } from './menu.js';
+import { MENU, MENU_GROUPS, BOTTOM_NAV } from './menu.js';
 
 const badges = {};
 
@@ -32,50 +32,44 @@ function itemTpl(item) {
 }
 
 function renderSidebar() {
+  const groups = MENU_GROUPS.map((g) => ({ ...g, items: MENU.filter((m) => m.group === g.id && m.sidebar !== false) }))
+    .filter((g) => g.items.length);
   byId('sidebar').innerHTML = String(html`
+    <div class="sidebar__brand">
+      <img src="assets/brand/ninho.svg" alt="" class="sidebar__brand-icon">
+      <span><strong>Ninho</strong><small>A casa a dois</small></span>
+    </div>
+    <nav class="sidebar__nav" id="sidebar-nav">
+      ${groups.map((g) => html`
+        <div class="sidebar__section">
+          <p class="sidebar__caption">${g.label}</p>
+          ${g.items.map(itemTpl)}
+        </div>`)}
+    </nav>
     <button class="sidebar__account pressable" data-action="nav:go" data-page="menu-perfil">
-      <span class="avatar avatar--md" data-avatar="me"></span>
+      <span class="avatar avatar--sm" data-avatar="me"></span>
       <span class="sidebar__account-info">
         <span class="sidebar__account-name" data-username="me">A carregar…</span>
         <span class="sidebar__account-sub">Ver perfil</span>
       </span>
     </button>
-    <nav class="sidebar__nav" id="sidebar-nav">${MENU.map(itemTpl)}</nav>
-    <div class="sidebar__footer">${MENU_FOOTER.map(itemTpl)}</div>
   `);
+}
+
+function renderThemeToggle() {
+  document.querySelectorAll('.theme-toggle__sun').forEach((el) => { el.innerHTML = String(icon('sun', 18)); });
+  document.querySelectorAll('.theme-toggle__moon').forEach((el) => { el.innerHTML = String(icon('moon', 18)); });
 }
 
 function renderBottomNav() {
   byId('bottom-nav').innerHTML = String(html`
-    <div class="bottom-nav__bar glass glass--bar">
-      <span class="bottom-nav__indicator" id="bottom-nav-indicator"></span>
+    <div class="bottom-nav__bar">
       ${BOTTOM_NAV.map((item) => html`
         <button class="bottom-nav__btn" data-nav-page="${item.page}" data-action="nav:go" data-page="${item.page}" aria-label="${item.label}">
           <span class="bottom-nav__icon">${icon(item.icon, 22)}${badgeTpl(item.badge)}</span>
           <span class="bottom-nav__label">${item.label}</span>
         </button>`)}
     </div>`);
-}
-
-function moveIndicator() {
-  const indicator = byId('bottom-nav-indicator');
-  const active = document.querySelector('.bottom-nav__btn.is-active');
-  if (!indicator) return;
-  if (!active) {
-    indicator.style.opacity = '0';
-    return;
-  }
-  const prev = parseFloat(indicator.dataset.x || '0');
-  const x = active.offsetLeft;
-  indicator.style.opacity = '1';
-  indicator.style.width = `${active.offsetWidth}px`;
-  indicator.style.transform = `translateX(${x}px)`;
-  if (Math.abs(prev - x) > 4) {
-    indicator.classList.remove('is-stretching');
-    void indicator.offsetWidth;
-    indicator.classList.add('is-stretching');
-  }
-  indicator.dataset.x = x;
 }
 
 /** Atualiza um contador (ex.: notificações não lidas) em todos os sítios onde aparece. */
@@ -128,6 +122,10 @@ function initGestures() {
 export function initNavigation() {
   renderSidebar();
   renderBottomNav();
+  renderThemeToggle();
+  // Linha por baixo do topo só quando há conteúdo a passar por baixo.
+  const onScroll = () => document.body.classList.toggle('is-scrolled', window.scrollY > 4);
+  window.addEventListener('scroll', onScroll, { passive: true });
   initGestures();
 
   registerActions({
@@ -143,6 +141,10 @@ export function initNavigation() {
     },
   });
 
-  on('route:change', () => requestAnimationFrame(moveIndicator));
-  window.addEventListener('resize', moveIndicator);
+  // Na barra inferior, o separador "Menu" fica ativo em todas as secções que não têm botão próprio.
+  on('route:change', (id) => {
+    const own = BOTTOM_NAV.some((b) => b.page === id);
+    const menuBtn = document.querySelector('.bottom-nav__btn[data-page="menu-biblioteca"]');
+    if (menuBtn && !own) menuBtn.classList.toggle('is-active', isRootPage(id) && id !== 'menu-principal');
+  });
 }

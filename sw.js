@@ -1,6 +1,6 @@
-// Service worker da Gestão G&N.
+// Service worker do Ninho.
 // Estratégia: rede primeiro (para receber sempre a versão mais recente) e cache como reserva offline.
-const CACHE = 'gn-shell-v3';
+const CACHE = 'ninho-shell-v4';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {

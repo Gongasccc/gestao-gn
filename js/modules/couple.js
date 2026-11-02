@@ -120,7 +120,7 @@ export default {
     },
     'couple:share': async () => {
       const code = session.household?.inviteCode;
-      const text = `Junta-te a mim na Gestão G&N! Abre "O nosso casal" e usa o código ${code}`;
+      const text = `Junta-te a mim no Ninho! Abre "O nosso casal" e usa o código ${code}`;
       if (navigator.share) {
         try { await navigator.share({ text, url: location.href.split('#')[0] }); } catch { /* cancelado */ }
       } else {

@@ -32,7 +32,7 @@ function draw() {
   const notifHtml = sorted.map((n) => html`
     <div class="notif glass-soft ${n.lida ? '' : 'is-unread'}">
       <div class="notif__head">
-        <span class="notif__brand"><img src="assets/brand/logopreto_fundobranco.png" alt="">Gestão G&amp;N</span>
+        <span class="notif__brand"><img src="assets/brand/ninho.svg" alt="">Ninho</span>
         <span class="notif__time">${n.timestamp ? relativeTime(n.timestamp) : n.horaStr || ''}</span>
         <button class="icon-btn icon-btn--subtle" data-action="notif:delete" data-id="${n.id}" aria-label="Apagar">${icon('trash', 14)}</button>
       </div>

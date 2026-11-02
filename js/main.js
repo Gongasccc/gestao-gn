@@ -25,7 +25,7 @@ function mountModules() {
   MODULES.forEach((mod) => {
     (mod.pages || []).forEach((page) => {
       registerPage(page);
-      pagesHtml += `<section class="page" id="${page.id}" data-module="${mod.id}">${page.template()}</section>`;
+      pagesHtml += `<section class="page${page.wide ? ' page--wide' : ''}" id="${page.id}" data-module="${mod.id}">${page.template()}</section>`;
     });
     if (mod.modals) modalsHtml += String(mod.modals());
     if (mod.actions) registerActions(mod.actions);

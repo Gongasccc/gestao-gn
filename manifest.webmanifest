@@ -1,16 +1,18 @@
 {
-  "name": "Gestão G&N",
-  "short_name": "G&N",
-  "description": "A app de organização do casal.",
+  "name": "Ninho",
+  "short_name": "Ninho",
+  "description": "A casa e a vida a dois, organizadas num só sítio.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#07070a",
-  "theme_color": "#07070a",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
   "lang": "pt-PT",
   "icons": [
-    { "src": "assets/brand/logopreto_fundobranco.png", "sizes": "1200x1200", "type": "image/png", "purpose": "any" },
-    { "src": "assets/brand/logobranco_fundopreto.png", "sizes": "1200x1200", "type": "image/png", "purpose": "maskable" }
+    { "src": "assets/brand/ninho-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/ninho-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/ninho-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/brand/ninho.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }

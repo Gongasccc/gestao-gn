@@ -7,16 +7,22 @@
 //   library  -> true para aparecer também na grelha "Biblioteca"
 //   children -> submenu opcional
 //   badge    -> chave de contador (ver setBadge em sidebar.js)
+//   group    -> grupo do menu lateral (MENU_GROUPS)
+//   sidebar  -> false para não aparecer no menu lateral (só na Biblioteca/barra inferior)
+
+// Grupos do menu lateral (por esta ordem). Cada entrada do MENU diz a que grupo pertence.
+export const MENU_GROUPS = [
+  { id: 'principal', label: 'Principal' },
+  { id: 'casa', label: 'Casa & Alimentação' },
+  { id: 'gestao', label: 'Gestão diária' },
+  { id: 'conta', label: 'Conta' },
+];
 
 export const MENU = [
-  { page: 'menu-principal', label: 'Início', icon: 'home' },
-  { page: 'menu-casal', label: 'O nosso casal', icon: 'heart', library: true },
-  { page: 'menu-financas', label: 'Finanças', icon: 'wallet', library: true },
-  { page: 'menu-viagens', label: 'Viagens', icon: 'map', library: true },
-  { page: 'menu-familia', label: 'Amigos', icon: 'users', library: true },
-  { page: 'menu-receitas', label: 'Livro de Receitas', icon: 'book', library: true },
-  { page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications' },
+  { group: 'principal', page: 'menu-principal', label: 'Início', icon: 'home' },
+  { group: 'principal', page: 'menu-casal', label: 'O nosso casal', icon: 'heart', library: true },
   {
+    group: 'casa',
     page: 'menu-supermercados',
     label: 'Supermercados',
     icon: 'cart',
@@ -28,19 +34,22 @@ export const MENU = [
       { page: 'menu-compras-rapidas', label: 'Lista Rápida' },
     ],
   },
-  { page: 'menu-refeicoes', label: 'Plano de refeições', icon: 'restaurant', library: true },
-  { page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
-  { page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true },
+  { group: 'casa', page: 'menu-refeicoes', label: 'Plano de refeições', icon: 'restaurant', library: true },
+  { group: 'casa', page: 'menu-receitas', label: 'Livro de Receitas', icon: 'book', library: true },
+  { group: 'gestao', page: 'menu-tarefas', label: 'Tarefas', icon: 'check', library: true, sidebar: false },
+  { group: 'gestao', page: 'menu-financas', label: 'Finanças', icon: 'wallet', library: true },
+  { group: 'gestao', page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
+  { group: 'gestao', page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true },
+  { group: 'gestao', page: 'menu-viagens', label: 'Viagens', icon: 'map', library: true },
+  { group: 'conta', page: 'menu-familia', label: 'Amigos', icon: 'users', library: true },
+  { group: 'conta', page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications', library: true },
+  { group: 'conta', page: 'menu-definicoes', label: 'Definições', icon: 'settings', library: true },
 ];
 
-export const MENU_FOOTER = [
-  { page: 'menu-definicoes', label: 'Definições', icon: 'settings' },
-];
-
+// Barra inferior no telemóvel (4 itens). "Menu" abre a lista de todas as secções.
 export const BOTTOM_NAV = [
   { page: 'menu-principal', label: 'Início', icon: 'home' },
-  { page: 'menu-compras-semanais', label: 'Lista', icon: 'cart' },
-  { page: 'menu-receitas', label: 'Receitas', icon: 'book' },
+  { page: 'menu-tarefas', label: 'Tarefas', icon: 'check' },
   { page: 'menu-refeicoes', label: 'Refeições', icon: 'restaurant' },
-  { page: 'menu-biblioteca', label: 'Mais', icon: 'grid', badge: 'notifications' },
+  { page: 'menu-biblioteca', label: 'Menu', icon: 'menu', badge: 'notifications' },
 ];

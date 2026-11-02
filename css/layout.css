@@ -83,7 +83,7 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
 /* ---------- Menu lateral ---------- */
 .sidebar-overlay {
   position: fixed;
-  inset: 0;
+  inset: 0 0 calc(-1 * var(--fundo-gap, 0px));
   z-index: 1900;
   background: var(--overlay);
   opacity: 0;
@@ -97,7 +97,7 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
   position: fixed;
   z-index: 2000;
   top: 0;
-  bottom: 0;
+  bottom: calc(-1 * var(--fundo-gap, 0px));
   left: 0;
   width: min(var(--sidebar-width), calc(100vw - 56px));
   padding-top: var(--safe-top);
@@ -206,7 +206,7 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
   z-index: 900;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: calc(-1 * var(--fundo-gap, 0px));
   background: var(--bg-elevated);
   border-top: 1px solid var(--hairline);
   box-shadow: 0 -6px 18px -12px rgba(15, 23, 42, .25);

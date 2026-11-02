@@ -5,6 +5,7 @@ import { initUI } from './core/ui.js';
 import { initRouter, registerPage, navigate, resetRouter } from './core/router.js';
 import { emit, on, createScope } from './core/state.js';
 import { restoreThemeFromCache } from './core/theme.js';
+import { initViewportFix } from './core/viewport.js';
 import { initGlassEffects } from './core/glass.js';
 import { initNavigation, closeSidebar } from './navigation/sidebar.js';
 import { initAuth } from './app/auth.js';
@@ -15,6 +16,7 @@ import { watchHousehold } from './services/household.js';
 const householdScope = createScope();
 
 restoreThemeFromCache();
+initViewportFix();
 
 function mountModules() {
   const pageContainer = byId('page-container');

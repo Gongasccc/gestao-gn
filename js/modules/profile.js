@@ -34,6 +34,7 @@ export default {
   pages: [
     {
       id: 'menu-perfil',
+      width: 'medium',
       title: 'Perfil',
       template: () => html`
         <div class="profile-hero">
@@ -57,6 +58,7 @@ export default {
     },
     {
       id: 'menu-definicoes',
+      width: 'medium',
       title: 'Definições',
       root: true,
       template: () => html`

@@ -50,6 +50,7 @@ export default {
   id: 'friends',
   pages: [{
     id: 'menu-familia',
+    width: 'medium',
     title: 'Amigos',
     root: true,
     template: () => html`

@@ -59,6 +59,7 @@ export default {
   id: 'notifications',
   pages: [{
     id: 'menu-notificacoes',
+    width: 'medium',
     title: 'Notificações',
     root: true,
     template: () => html`<div class="list" id="notif-list"></div>`,

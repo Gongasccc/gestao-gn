@@ -330,7 +330,7 @@ function renderDetalhe() {
   const arquivado = !emCasa(m);
   render(alvo, html`
     <div class="farm-palco farm-palco--pronto">
-      ${imagemMed(m, 'farm-palco__recorte')}
+      <span class="farm-flutua">${imagemMed(m, 'farm-palco__recorte')}</span>
       <label class="farm-palco__trocar pressable" title="Trocar foto">
         ${icon('camera', 16)}<span>Trocar foto</span>
         <input type="file" accept="image/*" capture="environment" hidden data-change="farmacia:trocarFoto">

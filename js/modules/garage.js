@@ -3,7 +3,7 @@ import { html, render, byId, emptyState, setText } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { createScope, emit } from '../core/state.js';
 import { navigate, back } from '../core/router.js';
-import { confirmDialog, toast, withLoading, showImage, modalTemplate, openModal, closeModal } from '../core/ui.js';
+import { confirmDialog, toast, withLoading, modalTemplate, openModal, closeModal } from '../core/ui.js';
 import { isoToShort } from '../core/format.js';
 import { daysUntil, parseISODate, countdownLabel } from '../core/dates.js';
 import { addDoc, deleteDoc, updateDoc, onSnapshot } from '../services/firebase.js';
@@ -11,6 +11,7 @@ import { sharedCol, sharedDoc, snapToList, storageScope } from '../services/path
 import { uploadDataUrl } from '../services/storage.js';
 import { createFileBrowser } from '../components/file-browser.js';
 import { photoPickerTpl, getPhoto, clearPhoto } from '../components/photo-picker.js';
+import { removerFundo, miniatura, comLimite, preCarregarRemocaoFundo } from './farmacia/imagem.js';
 
 const scope = createScope();
 const carScope = createScope();
@@ -29,6 +30,16 @@ const browser = createFileBrowser({
 });
 
 const currentCar = () => cars.find((c) => c.id === currentCarId);
+
+// Foto do carro sem fundo (no próprio dispositivo, como na Farmácia). Se falhar, guarda a foto normal.
+async function fotoDoCarro(ficheiro) {
+  try {
+    return { foto: await comLimite(removerFundo(ficheiro, () => {}), 45_000, 'Demorou demasiado.'), semFundo: true };
+  } catch (e) {
+    console.warn('[garagem] remoção de fundo', e);
+    return { foto: await miniatura(ficheiro), semFundo: false };
+  }
+}
 
 // Prazos de cada veículo, com aviso antecipado (dias).
 const DEADLINES = [
@@ -71,7 +82,7 @@ function deadlinesTpl(car) {
 function drawCars() {
   render('cars-list', cars.length
     ? cars.map((car) => html`
-      <article class="media-card glass pressable" data-action="garage:open" data-id="${car.id}">
+      <article class="media-card glass pressable ${car.semFundo ? 'is-cutout' : ''}" data-action="garage:open" data-id="${car.id}">
         <img class="media-card__img" src="${car.foto || FALLBACK_IMG}" alt="" loading="lazy">
         <div class="media-card__overlay">
           <div>
@@ -93,6 +104,7 @@ function drawDetail() {
   if (!car) return;
   const img = byId('car-detail-img');
   if (img) img.src = car.foto || FALLBACK_IMG;
+  byId('car-hero')?.classList.toggle('is-cutout', !!car.semFundo);
   setText('car-detail-name', car.nome);
   render('car-detail-plate', car.matricula ? html`<span class="plate">${car.matricula}</span>` : html`<span class="muted">Sem matrícula</span>`);
   render('car-deadlines', deadlinesTpl(car));
@@ -122,13 +134,16 @@ export default {
       id: 'page-detalhe-carro',
       title: () => currentCar()?.nome || 'Veículo',
       template: () => html`
-        <div class="hero glass" data-action="garage:photo">
-          <img id="car-detail-img" class="hero__img" alt="">
+        <label class="hero glass car-hero" id="car-hero" title="Mudar foto">
+          <input type="file" accept="image/*" hidden data-change="garage:changePhoto">
+          <span class="car-hero__stage"><img id="car-detail-img" class="hero__img" alt=""></span>
+          <span class="car-hero__edit">${icon('camera', 15)}<span>Mudar foto</span></span>
+          <span class="car-hero__busy"><i class="spinner"></i><span>A remover o fundo…</span></span>
           <div class="hero__overlay">
             <h2 class="hero__title" id="car-detail-name"></h2>
             <div id="car-detail-plate"></div>
           </div>
-        </div>
+        </label>
         <div id="car-deadlines"></div>
         ${browser.template()}`,
       onEnter: drawDetail,
@@ -147,8 +162,10 @@ export default {
       const matricula = byId('car-plate').value.trim().toUpperCase();
       if (!nome) return toast('Indica pelo menos o modelo do veículo.', 'error');
       await withLoading(el, async () => {
-        const foto = await uploadDataUrl(storageScope(), 'carros', getPhoto('car-photo'));
-        await addDoc(sharedCol('carros'), { nome, matricula, foto: foto.url, fotoPath: foto.path, timestamp: Date.now() });
+        const original = getPhoto('car-photo');
+        const tratada = original ? await fotoDoCarro(await (await fetch(original)).blob()) : { foto: '', semFundo: false };
+        const foto = await uploadDataUrl(storageScope(), 'carros', tratada.foto, 'carro.webp');
+        await addDoc(sharedCol('carros'), { nome, matricula, foto: foto.url, fotoPath: foto.path, semFundo: tratada.semFundo, timestamp: Date.now() });
       });
       byId('car-name').value = '';
       byId('car-plate').value = '';
@@ -157,12 +174,31 @@ export default {
       back();
     },
     'garage:open': ({ data }) => {
+      preCarregarRemocaoFundo();
       currentCarId = data.id;
       carScope.clear();
       browser.subscribe(carScope);
       navigate('page-detalhe-carro');
     },
-    'garage:photo': () => showImage(currentCar()?.foto),
+    'garage:changePhoto': async ({ el }) => {
+      const ficheiro = el.files?.[0];
+      el.value = '';
+      const id = currentCarId;
+      if (!ficheiro || !id) return;
+      const hero = byId('car-hero');
+      hero?.classList.add('is-busy');
+      try {
+        const tratada = await fotoDoCarro(ficheiro);
+        if (!tratada.foto) throw new Error('Não foi possível abrir a foto.');
+        const foto = await uploadDataUrl(storageScope(), 'carros', tratada.foto, 'carro.webp');
+        await updateDoc(sharedDoc('carros', id), { foto: foto.url, fotoPath: foto.path, semFundo: tratada.semFundo });
+        toast(tratada.semFundo ? 'Foto atualizada, sem fundo' : 'Foto atualizada');
+      } catch (e) {
+        toast(e.message, 'error');
+      } finally {
+        hero?.classList.remove('is-busy');
+      }
+    },
     'garage:deadlines': () => {
       const car = currentCar();
       DEADLINES.forEach((d) => { byId(`car-dl-${d.key}`).value = car?.[d.key] || ''; });

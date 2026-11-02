@@ -104,7 +104,7 @@ export function comLimite(promessa, ms, mensagem = 'Demorou demasiado.') {
 // Devolve um data URL WebP com fundo transparente, pequeno o suficiente para o Firestore.
 export async function removerFundo(ficheiro, aoProgredir = () => {}) {
   const { removeBackground } = await carregarBiblioteca();
-  const entrada = await fetch(await redimensionar(ficheiro, 1280, 'image/jpeg', 0.92)).then((r) => r.blob());
+  const entrada = await fetch(await redimensionar(ficheiro, 1600, 'image/jpeg', 0.95)).then((r) => r.blob());
   const semFundo = await removeBackground(entrada, {
     model: 'isnet_quint8',
     output: { format: 'image/png' },
@@ -113,8 +113,19 @@ export async function removerFundo(ficheiro, aoProgredir = () => {}) {
     },
   });
   const recortada = await recortarTransparencia(semFundo);
-  return redimensionar(recortada, 560, 'image/webp', 0.82);
+  return fotoNitida(recortada);
 }
 
-// Sem remoção de fundo (falha ou dispositivo fraco): guarda só uma miniatura.
-export const miniatura = (ficheiro) => redimensionar(ficheiro, 560, 'image/webp', 0.8).catch(() => '');
+// A foto fica guardada no documento do Firestore (máx. 1 MB), por isso tentamos a maior nitidez
+// que caiba em ~600 KB: 1200px é nítido mesmo em ecrãs retina; se pesar demais, desce o tamanho.
+const LIMITE_FOTO = 600_000;
+async function fotoNitida(blob) {
+  for (const [lado, qualidade] of [[1200, 0.9], [1000, 0.86], [800, 0.82], [560, 0.8]]) {
+    const url = await redimensionar(blob, lado, 'image/webp', qualidade);
+    if (url.length <= LIMITE_FOTO) return url;
+  }
+  return redimensionar(blob, 420, 'image/webp', 0.75);
+}
+
+// Sem remoção de fundo (falha ou dispositivo fraco): guarda a foto sem recorte.
+export const miniatura = (ficheiro) => fotoNitida(ficheiro).catch(() => '');

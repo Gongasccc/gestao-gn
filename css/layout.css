@@ -217,8 +217,9 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
 .bottom-nav__bar {
   height: var(--bottom-nav-height);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  max-width: 520px;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  max-width: 420px;
   margin: 0 auto;
 }
 

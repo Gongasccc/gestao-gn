@@ -38,5 +38,4 @@ export const BOTTOM_NAV = [
   { page: 'menu-principal', label: 'Início', icon: 'home' },
   { page: 'menu-tarefas', label: 'Tarefas', icon: 'check' },
   { page: 'menu-refeicoes', label: 'Refeições', icon: 'restaurant' },
-  { page: 'menu-biblioteca', label: 'Menu', icon: 'menu', badge: 'notifications' },
 ];

@@ -245,7 +245,15 @@ function blocoInventarioNovo(info, existente) {
 // compara primeiro o nome completo e depois o nome sem a dosagem, desde que as dosagens não se contradigam.
 const DOSE = /\b\d+(?:[.,]\d+)?\s*(?:mg|g|mcg|µg|ml|ui|%)\b/gi;
 const semDose = (t) => chaveNome(String(t || '').replace(DOSE, ' '));
-const doseDe = (m) => chaveNome((`${m?.nome || ''} ${m?.dosagem || ''}`.match(DOSE) || [])[0] || '').replace(/\s+/g, '');
+// Dosagem em mg para comparar (1 g = 1000 mg); outras unidades ficam como texto.
+const doseDe = (m) => {
+  const d = (`${m?.nome || ''} ${m?.dosagem || ''}`.match(DOSE) || [])[0];
+  if (!d) return '';
+  const [, n, u] = d.toLowerCase().match(/([\d.,]+)\s*(\S+)/) || [];
+  const v = parseFloat(String(n).replace(',', '.'));
+  const mg = { g: 1000, mg: 1, mcg: 0.001, 'µg': 0.001 }[u];
+  return mg ? `${+(v * mg).toFixed(4)}mg` : `${v}${u}`;
+};
 const procurarExistente = (nome, dosagem = '') => {
   const k = chaveNome(nome);
   if (!k) return null;

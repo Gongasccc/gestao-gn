@@ -137,10 +137,4 @@ export function initNavigation() {
     },
   });
 
-  // Na barra inferior, o separador "Menu" fica ativo em todas as secções que não têm botão próprio.
-  on('route:change', (id) => {
-    const own = BOTTOM_NAV.some((b) => b.page === id);
-    const menuBtn = document.querySelector('.bottom-nav__btn[data-page="menu-biblioteca"]');
-    if (menuBtn && !own) menuBtn.classList.toggle('is-active', isRootPage(id) && id !== 'menu-principal');
-  });
 }

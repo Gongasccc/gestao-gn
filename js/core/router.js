@@ -66,8 +66,10 @@ function showPage(id, direction) {
   container.scrollTo({ top: 0 });
 
   refreshHeader();
+  // A secção do menu fica ativa também nas páginas interiores (ex.: Farmácia > medicamento).
+  const section = stack.find((p, i) => i > 0 && pages.get(p)?.root) || id;
   document.querySelectorAll('[data-nav-page]').forEach((el) => {
-    el.classList.toggle('is-active', el.dataset.navPage === id);
+    el.classList.toggle('is-active', el.dataset.navPage === id || el.dataset.navPage === section);
   });
   emit('route:change', id);
   pages.get(id)?.onEnter?.();

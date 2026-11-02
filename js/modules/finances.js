@@ -178,6 +178,7 @@ export default {
   id: 'finances',
   pages: [{
     id: 'menu-financas',
+    width: 'medium',
     title: 'Finanças',
     root: true,
     template: () => html`

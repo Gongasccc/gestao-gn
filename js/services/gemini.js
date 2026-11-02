@@ -8,7 +8,7 @@ const FIREBASE_SDK = '11.10.0';
 export const MODELOS = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite'];
 
 // Erros em que não vale a pena tentar outro modelo (o problema não é do modelo).
-const ERRO_FATAL = /quota|429|RESOURCE_EXHAUSTED|api-not-enabled|PERMISSION_DENIED|Failed to fetch|NetworkError|offline|app-check|unauthenticated/i;
+const ERRO_FATAL = /quota|429|RESOURCE_EXHAUSTED|api-not-enabled|PERMISSION_DENIED|Failed to fetch|NetworkError|offline|app.?check|unauthenticated/i;
 
 const modelos = new Map();
 async function obterModelo(nome) {
@@ -35,6 +35,9 @@ export function extrairJson(texto) {
 
 function traduzirErro(e) {
   const msg = e?.message || String(e);
+  if (/app.?check|UNAUTHENTICATED|\b401\b/i.test(msg)) {
+    return new Error('A IA está bloqueada pela proteção App Check do Firebase (a app ainda não envia o token).');
+  }
   if (/api-not-enabled|firebasevertexai|firebaseml|AI Logic|has not been used|PERMISSION_DENIED/i.test(msg)) {
     return new Error('A IA não está ativa no projeto Firebase (Firebase AI Logic).');
   }

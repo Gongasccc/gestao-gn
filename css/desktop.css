@@ -1,0 +1,30 @@
+/* Computador (≥ 960px): aproveitar a largura do ecrã.
+   As listas de cartões passam a grelhas e o plano de refeições mostra a semana em colunas. */
+@media (min-width: 960px) {
+  /* Coleções de cartões (veículos, viagens, …) */
+  .page--wide .card-stack { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+  /* Supermercados: resumo à largura toda e atalhos em duas colunas */
+  #menu-supermercados .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  #menu-supermercados .list > :first-child,
+  #menu-supermercados .list > .btn--primary { grid-column: 1 / -1; }
+
+  /* Plano de refeições: a semana em colunas */
+  #meals-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+  #meals-grid .meal-day { grid-template-columns: 1fr; grid-template-rows: auto 1fr 1fr; min-height: 260px; }
+  #meals-grid .meal-slot { min-height: 96px; }
+
+  /* Farmácia e receitas: grelhas com mais colunas */
+  .page--wide .farm-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+
+  /* Botões principais não precisam de ocupar 1300px */
+  .page--wide > .btn--block,
+  .page--wide > .btn--primary.btn--block { max-width: 360px; }
+
+  /* Menu (telemóvel) no computador: grupos lado a lado */
+  #menu-biblioteca .menu-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+}
+
+@media (min-width: 1400px) {
+  .page--wide .stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

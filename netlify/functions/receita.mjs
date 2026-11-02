@@ -16,25 +16,36 @@ export default async (req) => {
   if (!/^https?:$/.test(url.protocol) || PRIVATE_HOST.test(url.hostname) || url.hostname.endsWith('.internal')) {
     return new Response('URL não permitido', { status: 400 });
   }
-  try {
-    const res = await fetch(url, {
-      redirect: 'follow',
-      signal: AbortSignal.timeout(10000),
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'pt-PT,pt;q=0.9,en;q=0.8',
-      },
-    });
-    const type = res.headers.get('content-type') || '';
-    if (!type.includes('html')) return new Response('A página não é HTML', { status: 415 });
-    const buf = await res.arrayBuffer();
-    if (buf.byteLength > MAX_BYTES) return new Response('Página demasiado grande', { status: 413 });
-    return new Response(buf, {
-      status: res.ok ? 200 : 502,
-      headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=3600' },
-    });
-  } catch {
-    return new Response('Não foi possível abrir a página', { status: 502 });
-  }
+  // 1) Pedido direto (como um browser). 2) Se o site bloquear ou só mostrar a receita com JavaScript,
+  // pede a página já renderizada ao leitor r.jina.ai.
+  const direto = await buscar(url.href, {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'pt-PT,pt;q=0.9,en;q=0.8',
+  });
+  const temReceita = (h) => h && /"@type"\s*:\s*\[?\s*"Recipe"/i.test(h);
+  if (temReceita(direto)) return pagina(direto);
+  const renderizada = await buscar(`https://r.jina.ai/${url.href}`, { 'X-Return-Format': 'html' }, 25000);
+  if (temReceita(renderizada)) return pagina(renderizada);
+  const melhor = [direto, renderizada].filter(Boolean).sort((a, b) => b.length - a.length)[0];
+  return melhor ? pagina(melhor) : new Response('Não foi possível abrir a página', { status: 502 });
 };
+
+async function buscar(href, headers, ms = 10000) {
+  try {
+    const res = await fetch(href, { redirect: 'follow', signal: AbortSignal.timeout(ms), headers });
+    if (!res.ok) return '';
+    const type = res.headers.get('content-type') || '';
+    if (!/html|text\/plain/.test(type)) return '';
+    const buf = await res.arrayBuffer();
+    if (buf.byteLength > MAX_BYTES) return '';
+    return new TextDecoder().decode(buf);
+  } catch {
+    return '';
+  }
+}
+
+const pagina = (html) => new Response(html, {
+  status: 200,
+  headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+});

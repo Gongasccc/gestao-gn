@@ -34,6 +34,7 @@ export default {
   pages: [
     {
       id: 'menu-perfil',
+      width: 'medium',
       title: 'Perfil',
       template: () => html`
         <div class="profile-hero">
@@ -46,9 +47,6 @@ export default {
           <span class="muted">Conta pessoal</span>
           <button class="btn btn--small btn--danger-soft" id="profile-remove-photo" data-action="profile:remove-photo" hidden>${icon('trash', 14)} Remover foto</button>
         </div>
-        <button class="row-link glass pressable" data-action="nav:go" data-page="menu-casal">
-          <span>${icon('heart', 18)} O nosso casal</span>${icon('chevronRight', 18)}
-        </button>
         <button class="row-link glass pressable" data-action="nav:go" data-page="menu-familia">
           <span>${icon('users', 18)} Amigos</span>
           <span class="stat-num" id="profile-friends-count">0</span>
@@ -57,9 +55,13 @@ export default {
     },
     {
       id: 'menu-definicoes',
+      width: 'medium',
       title: 'Definições',
       root: true,
       template: () => html`
+        <button class="row-link glass pressable" data-action="nav:go" data-page="menu-casal">
+          <span>${icon('heart', 18)} O nosso casal</span>${icon('chevronRight', 18)}
+        </button>
         <div class="card glass">
           <div class="setting-row">
             <span>${icon('bell', 18)} Notificações push</span>

@@ -14,6 +14,8 @@ const ERRO_FATAL = /quota|429|RESOURCE_EXHAUSTED|api-not-enabled|PERMISSION_DENI
 // reCAPTCHA v3 (invisível). Chave do site criada em https://www.google.com/recaptcha/admin e
 // registada em Firebase > App Check > Apps (com a chave secreta). Em localhost usa um token de debug.
 export const RECAPTCHA_SITE_KEY = '';
+// 'v3' (chave com segredo, google.com/recaptcha/admin) ou 'enterprise' (chave criada na Google Cloud).
+export const RECAPTCHA_TIPO = 'v3';
 
 let appCheckPronto = null;
 function ativarAppCheck() {
@@ -22,11 +24,13 @@ function ativarAppCheck() {
       const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
       if (!RECAPTCHA_SITE_KEY && !local) return;
       if (local) self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; // o token aparece na consola para registar
-      const { initializeAppCheck, ReCaptchaV3Provider } = await import(
+      const { initializeAppCheck, ReCaptchaV3Provider, ReCaptchaEnterpriseProvider } = await import(
         `https://www.gstatic.com/firebasejs/${FIREBASE_SDK}/firebase-app-check.js`
       );
       initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY || 'debug'),
+        provider: RECAPTCHA_TIPO === 'enterprise'
+          ? new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY || 'debug')
+          : new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY || 'debug'),
         isTokenAutoRefreshEnabled: true,
       });
     })().catch((e) => console.warn('[app-check]', e));

@@ -101,8 +101,11 @@
   animation: farm-revelar .8s var(--ease-spring, ease) both, farm-flutuar 5s ease-in-out .8s infinite;
 }
 .farm-palco--pronto { aspect-ratio: 1 / 1; max-height: 70vh; margin-inline: auto; width: 100%; }
-/* No detalhe a foto fica parada: animações de transformação contínuas desfocam a imagem em alguns browsers. */
-.farm-palco--pronto .farm-palco__recorte { animation: farm-revelar .6s var(--ease-spring, ease) both; image-rendering: auto; }
+/* No detalhe a foto flutua, mas numa camada própria (translate3d) para o browser não a voltar a desenhar desfocada. */
+.farm-palco--pronto .farm-palco__recorte {
+  animation: farm-revelar .6s var(--ease-spring, ease) both, farm-flutuar-3d 5s ease-in-out .6s infinite;
+  will-change: transform; backface-visibility: hidden;
+}
 .farm-palco__trocar {
   position: absolute; right: 10px; bottom: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer;
@@ -175,6 +178,7 @@
 
 @keyframes farm-entrar { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes farm-revelar { from { opacity: 0; transform: scale(.6) rotate(-6deg); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes farm-flutuar-3d { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -6px, 0); } }
 @keyframes farm-flutuar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes farm-pulsar { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
 @keyframes farm-scan { from { background-position: 0 120%; } to { background-position: 0 -120%; } }

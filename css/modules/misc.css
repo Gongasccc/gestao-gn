@@ -53,3 +53,9 @@
 .store-tile:hover { transform: translateY(-3px); }
 .store-tile:active { transform: scale(.95); }
 .store-tile img { max-height: 100%; max-width: 100%; object-fit: contain; }
+
+/* Menu (telemóvel): secções agrupadas */
+.menu-groups { display: flex; flex-direction: column; gap: 18px; }
+.menu-group { display: flex; flex-direction: column; gap: 8px; }
+.menu-group__caption { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 0 6px; }
+.menu-list__row .badge, .sidebar__item .badge { position: static; margin-left: auto; }

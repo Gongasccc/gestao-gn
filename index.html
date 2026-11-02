@@ -4,20 +4,21 @@
   <meta charset="UTF-8">
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Gestão G&amp;N</title>
-  <meta name="description" content="Gestão G&N: a app de organização do casal.">
-  <meta name="theme-color" content="#07070a">
+  <title>Ninho</title>
+  <meta name="description" content="Ninho: a casa e a vida a dois, organizadas num só sítio.">
+  <meta name="theme-color" content="#0F172A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Gestão G&amp;N">
+  <meta name="apple-mobile-web-app-title" content="Ninho">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/png" href="assets/brand/logopreto_fundobranco.png">
-  <link rel="apple-touch-icon" href="assets/brand/logopreto_fundobranco.png">
+  <link rel="icon" type="image/svg+xml" href="assets/brand/ninho.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/ninho-32.png">
+  <link rel="apple-touch-icon" href="assets/brand/ninho-180.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
@@ -35,17 +36,11 @@
   <link rel="stylesheet" href="css/modules/faturas.css">
 </head>
 <body>
-  <!-- Brilho amarelo a mexer por baixo do vidro -->
-  <div class="ambient" aria-hidden="true">
-    <span class="ambient__blob ambient__blob--1"></span>
-    <span class="ambient__blob ambient__blob--2"></span>
-    <span class="ambient__blob ambient__blob--3"></span>
-  </div>
   <!-- Entrada / registo -->
   <div id="auth-overlay" class="auth">
     <div class="auth__logo-wrap">
-      <img src="assets/brand/logobranco_semfundo.png" class="auth__logo auth__logo--dark" alt="G&amp;N">
-      <img src="assets/brand/logopreto_semfundo.png" class="auth__logo auth__logo--light" alt="G&amp;N">
+      <img src="assets/brand/ninho.svg" class="auth__icon" alt="">
+      <span class="auth__name">Ninho</span>
     </div>
 
     <div id="auth-loading" class="auth__loading">
@@ -74,13 +69,18 @@
   <!-- App -->
   <div id="app" class="app">
     <div id="sidebar-overlay" class="sidebar-overlay" data-action="sidebar:close"></div>
-    <aside id="sidebar" class="sidebar glass glass--strong" aria-label="Menu"></aside>
+    <aside id="sidebar" class="sidebar" aria-label="Menu"></aside>
 
     <div class="app__main">
-      <header class="topbar glass glass--bar" id="topbar">
+      <header class="topbar" id="topbar">
         <div class="topbar__side" id="topbar-left"></div>
         <h1 class="topbar__title" id="topbar-title">Início</h1>
-        <div class="topbar__side topbar__side--right" id="topbar-right"></div>
+        <div class="topbar__side topbar__side--right">
+          <span class="topbar__actions" id="topbar-right"></span>
+          <button class="icon-btn theme-toggle pressable" data-action="theme:toggle" aria-label="Alternar modo claro/escuro" title="Modo claro/escuro">
+            <span class="theme-toggle__sun"></span><span class="theme-toggle__moon"></span>
+          </button>
+        </div>
       </header>
 
       <!-- As páginas são geradas pelos módulos em js/modules -->

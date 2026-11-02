@@ -76,9 +76,29 @@ async function recortarTransparencia(blob) {
 }
 
 // Foto para a IA: JPEG até 1280px (texto da embalagem legível, pedido leve).
+// Se o browser não conseguir abrir a imagem (ex.: HEIC no Android), envia o ficheiro tal como está.
 export async function prepararParaIA(ficheiro) {
-  const dataUrl = await redimensionar(ficheiro, 1280, 'image/jpeg', 0.85);
-  return { base64: dataUrl.split(',')[1], mime: 'image/jpeg' };
+  try {
+    const dataUrl = await redimensionar(ficheiro, 1600, 'image/jpeg', 0.88);
+    return { base64: dataUrl.split(',')[1], mime: 'image/jpeg' };
+  } catch {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = () => reject(new Error('Não foi possível ler a fotografia.'));
+      r.readAsDataURL(ficheiro);
+    });
+    return { base64: String(dataUrl).split(',')[1], mime: ficheiro.type || 'image/jpeg' };
+  }
+}
+
+// Desiste da remoção de fundo se demorar demasiado (telemóveis mais fracos).
+export function comLimite(promessa, ms, mensagem = 'Demorou demasiado.') {
+  let t;
+  return Promise.race([
+    promessa,
+    new Promise((_, reject) => { t = setTimeout(() => reject(new Error(mensagem)), ms); }),
+  ]).finally(() => clearTimeout(t));
 }
 
 // Devolve um data URL WebP com fundo transparente, pequeno o suficiente para o Firestore.
@@ -97,4 +117,4 @@ export async function removerFundo(ficheiro, aoProgredir = () => {}) {
 }
 
 // Sem remoção de fundo (falha ou dispositivo fraco): guarda só uma miniatura.
-export const miniatura = (ficheiro) => redimensionar(ficheiro, 560, 'image/webp', 0.8);
+export const miniatura = (ficheiro) => redimensionar(ficheiro, 560, 'image/webp', 0.8).catch(() => '');

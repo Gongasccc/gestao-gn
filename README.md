@@ -1,4 +1,4 @@
-# Gestão G&N
+# Ninho
 
 A app de organização do casal: um espaço partilhado pelos dois com tarefas, finanças, plano de refeições, viagens, receitas, garagem, farmácia e listas de compras. Pensada para o telemóvel: tema escuro e simples, sem zoom.
 

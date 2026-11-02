@@ -16,9 +16,11 @@ import couple from './couple.js';
 import finances from './finances.js';
 import meals from './meals.js';
 import farmacia from './farmacia/index.js';
+import tasks from './tasks.js';
 
 export const MODULES = [
   dashboard,
+  tasks,
   notifications,
   library,
   friends,

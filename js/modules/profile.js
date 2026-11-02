@@ -94,6 +94,12 @@ export default {
       drawSettings();
       await saveProfile({ theme });
     },
+    // Botão sol/lua no canto superior direito.
+    'theme:toggle': async () => {
+      const theme = applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
+      drawSettings();
+      await saveProfile({ theme }).catch(() => {});
+    },
     'settings:notifications': async ({ el }) => {
       if (el.checked && 'Notification' in window) {
         const permission = await Notification.requestPermission();

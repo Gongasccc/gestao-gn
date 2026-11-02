@@ -1,6 +1,6 @@
 /* Farmácia */
 .farm {
-  --farm-ok: #30d158;
+  --farm-ok: var(--accent);
   --farm-alerta: #ff9f0a;
   --farm-expirado: #ff453a;
   --farm-raio: var(--radius-lg, 22px);
@@ -22,7 +22,7 @@
 }
 .farm-icone-btn:active { transform: scale(.9) rotate(45deg); }
 .farm-icone-btn svg { width: 18px; height: 18px; margin: 0; }
-.farm-resumo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: relative; }
+.farm-resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; position: relative; }
 .farm-resumo > div { padding: 12px 14px; border-radius: 16px; background: var(--soft-bg); display: flex; flex-direction: column; }
 .farm-resumo strong { font-size: 24px; line-height: 1.1; }
 .farm-resumo span { font-size: 12px; color: var(--text-muted); }
@@ -174,3 +174,43 @@
 @media (prefers-reduced-motion: reduce) {
   .farm *, .farm *::before, .farm *::after, .farm-hero::before { animation: none !important; transition: none !important; }
 }
+
+/* Separadores Em casa / Biblioteca */
+.farm-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--soft-bg); border: 1px solid var(--hairline); }
+.farm-tab { padding: 9px 8px; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background var(--dur-fast), color var(--dur-fast); }
+.farm-tab.is-active { background: var(--bg-elevated); color: var(--text); box-shadow: 0 1px 2px rgba(15, 23, 42, .12); }
+.farm-tab__n { font-size: 11px; padding: 0 7px; border-radius: 999px; background: rgba(var(--accent-rgb), .14); color: var(--accent); }
+.farm-tab__n:empty { display: none; }
+
+/* Stock */
+.farm-stock { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.farm-stock svg { width: 12px; height: 12px; margin: 0; }
+.farm-stock--ok { color: var(--accent); background: rgba(var(--accent-rgb), .12); }
+.farm-stock--baixo { color: var(--farm-alerta); background: color-mix(in srgb, var(--farm-alerta) 15%, transparent); }
+.farm-stock--vazio { color: #fff; background: var(--farm-expirado); }
+.farm-stock--sem { color: var(--text-muted); background: var(--soft-bg); }
+.farm-card--arquivado { opacity: .72; }
+.farm-card--arquivado .farm-foto { filter: grayscale(.8); }
+
+.farm-inventario { display: flex; flex-direction: column; gap: 14px; }
+.farm-contador { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; gap: 12px; }
+.farm-contador__valor { display: flex; flex-direction: column; align-items: center; }
+.farm-contador__valor strong { font-size: 40px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; animation: farm-revelar .35s var(--ease-spring, ease); }
+.farm-contador__valor span { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
+.farm-passo-btn { width: 56px; height: 56px; border-radius: 50%; font-size: 28px; font-weight: 500; line-height: 1; display: grid; place-items: center; background: var(--soft-bg); border: 1px solid var(--hairline); color: var(--text); transition: transform var(--dur) var(--ease-spring), background var(--dur-fast); }
+.farm-passo-btn:active { transform: scale(.88); }
+.farm-passo-btn:disabled { opacity: .35; }
+.farm-passo-btn--mais { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.farm-fim { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent); justify-content: center; }
+.farm-fim svg { width: 14px; height: 14px; margin: 0; }
+.farm-fim--baixo { color: var(--farm-alerta); }
+.farm-fim--vazio { color: var(--farm-expirado); }
+.farm-inventario__acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.farm-toma { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.farm-toma .input { width: 76px; min-height: 38px; padding: 6px 10px; text-align: center; }
+.farm-campos2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.farm-lido { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--accent); }
+.farm-lido svg { width: 14px; height: 14px; margin: 0; }
+.farm-arquivar { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.farm-arquivar svg { width: 16px; height: 16px; margin: 0; }
+@media (max-width: 380px) { .farm-campos2 { grid-template-columns: 1fr; } }

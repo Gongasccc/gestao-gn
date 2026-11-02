@@ -64,3 +64,52 @@ export function linksOficiais(med) {
     },
   ];
 }
+
+// ---------- Inventário ----------
+// quantidade: unidades que ainda há em casa; tomaDiaria: unidades por dia (opcional).
+export const STOCK_BAIXO = 5;
+export const DIAS_STOCK_ALERTA = 7;
+
+export function diasRestantes(m) {
+  const q = Number(m?.quantidade);
+  const t = Number(m?.tomaDiaria);
+  if (!Number.isFinite(q) || !Number.isFinite(t) || t <= 0) return null;
+  return Math.floor(q / t);
+}
+
+export function dataFimStock(m, agora = new Date()) {
+  const d = diasRestantes(m);
+  if (d == null) return null;
+  const fim = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+  fim.setDate(fim.getDate() + d);
+  return fim;
+}
+
+/** 'sem' (sem inventário), 'vazio', 'baixo' ou 'ok'. */
+export function estadoStock(m) {
+  if (m?.quantidade == null || m.quantidade === '') return 'sem';
+  const q = Number(m.quantidade);
+  if (q <= 0) return 'vazio';
+  const d = diasRestantes(m);
+  if ((d != null && d <= DIAS_STOCK_ALERTA) || (d == null && q <= STOCK_BAIXO)) return 'baixo';
+  return 'ok';
+}
+
+export function textoStock(m) {
+  if (m?.quantidade == null || m.quantidade === '') return '';
+  const q = Number(m.quantidade);
+  const u = m.unidade || 'unidades';
+  if (q <= 0) return `Acabou`;
+  return `${q} ${q === 1 ? u.replace(/s$/, '') : u}`;
+}
+
+export function textoFimStock(m, agora = new Date()) {
+  const d = diasRestantes(m);
+  if (d == null) return '';
+  if (d <= 0) return 'Acaba hoje';
+  const fim = dataFimStock(m, agora);
+  const dt = `${String(fim.getDate()).padStart(2, '0')}/${String(fim.getMonth() + 1).padStart(2, '0')}`;
+  return `Dá para ${d} dia${d === 1 ? '' : 's'} (até ${dt})`;
+}
+
+export const chaveNome = (nome) => String(nome || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();

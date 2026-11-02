@@ -36,7 +36,12 @@ Para registos simples (lista + formulário), usa `components/record-list.js`, qu
 ## Faturas do supermercado
 
 Em Supermercados > Digitalizar fatura tira-se uma foto ao talão (ou escolhe-se da galeria / importa-se um PDF).
-O Gemini (Firebase AI Logic, `services/gemini.js`) lê a loja, data, produtos, preços e descontos; o utilizador confirma e a fatura fica em `sharedCol('faturas')`.
+A leitura é feita no próprio telemóvel, sem enviar a fatura a ninguém (`js/modules/faturas/local.js`):
+1. o código QR da AT (Portaria 195/2020) dá o NIF da loja, a data, o total, o IVA e o ATCUD (`qr.js`; BarcodeDetector ou jsQR);
+2. os produtos vêm do texto do talão, por OCR local (Tesseract.js) ou, nos PDFs, do texto do próprio PDF (pdf.js), interpretado em `texto.js`;
+3. o utilizador confirma/corrige e pode adicionar produtos. "Ler com IA" (Gemini, `ai.js`) é só um botão opcional; os dados do QR ganham sempre.
+As bibliotecas vêm do jsDelivr só quando são precisas. O nome das lojas franchisadas (NIF próprio) é aprendido em `sharedDoc('config', 'lojas_nif')`.
+A fatura fica em `sharedCol('faturas')`; o ATCUD deteta faturas repetidas.
 A página Gastos mostra o total por mês, a evolução, gastos por loja e categoria e quanto se poupou; Comparar preços mostra em que loja cada produto ficou mais barato.
 As contas estão em `js/modules/faturas/stats.js` (testadas em `tests/faturas.test.mjs`).
 

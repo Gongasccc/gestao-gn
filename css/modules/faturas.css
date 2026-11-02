@@ -122,7 +122,7 @@
 .fat-cabecalho { cursor: pointer; }
 .fat-cabecalho__topo { display: flex; justify-content: space-between; gap: 12px; }
 .fat-cabecalho__loja { display: block; font-size: 20px; }
-.fat-cabecalho__topo small { font-size: 12.5px; color: var(--text-muted); }
+.fat-cabecalho__topo small { display: block; font-size: 12.5px; color: var(--text-muted); }
 .fat-cabecalho__img { flex: none; width: 54px; height: 70px; object-fit: cover; border-radius: var(--radius-xs); border: 1px solid var(--hairline); cursor: zoom-in; }
 .fat-cartao { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; font-size: 13px; color: var(--accent); }
 .fat-cabecalho .fat-meta { margin-top: 8px; }
@@ -145,3 +145,8 @@
 .fat-preco__lojas { display: flex; flex-wrap: wrap; gap: 6px; }
 .fat-preco small { font-size: 12px; color: var(--text-muted); }
 .fat-preco small.fat-verde { color: var(--green); }
+
+/* Leitura no dispositivo: alternativas quando não deu para ler e ações dos produtos. */
+.fat-scan__alternativas { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+.fat-produtos__acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.fat-produtos__acoes .btn { flex: 1 1 auto; }

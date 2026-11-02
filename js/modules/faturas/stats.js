@@ -168,6 +168,10 @@ export function maisComprados(faturas, n = 5) {
 
 /** Procura uma fatura igual (mesma loja, dia e total) para evitar duplicados. */
 export function duplicada(faturas, nova) {
+  if (nova.atcud) {
+    const igual = faturas.find((f) => f.atcud === nova.atcud && f.nif === nova.nif);
+    if (igual) return igual;
+  }
   return faturas.find((f) => f.data === nova.data
     && arred(f.total) === arred(nova.total)
     && chaveProduto(f.loja) === chaveProduto(nova.loja)) || null;

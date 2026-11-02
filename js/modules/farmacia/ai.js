@@ -1,9 +1,5 @@
-// Identificação de medicamentos com Gemini através do Firebase AI Logic
-// (sem chave no código: usa o projeto Firebase e exige sessão iniciada).
-import { app } from '../../services/firebase.js';
-
-const FIREBASE_SDK = '11.10.0';
-export const MODELOS = ['gemini-3.6-flash', 'gemini-flash-latest'];
+// Identificação de medicamentos com o Gemini (Firebase AI Logic, através de services/gemini.js).
+import { pedirJson } from '../../services/gemini.js';
 
 const PROMPT_BASE = `És um farmacêutico em Portugal. Responde SEMPRE em português de Portugal, de forma curta e direta, sem texto desnecessário.
 Identifica o medicamento e devolve APENAS um objeto JSON com esta forma exata:
@@ -13,7 +9,10 @@ Identifica o medicamento e devolve APENAS um objeto JSON com esta forma exata:
   "nome": "nome comercial, ex.: Ben-u-ron",
   "substancia": "substância ativa, ex.: Paracetamol",
   "dosagem": "ex.: 500 mg",
-  "forma": "ex.: comprimidos, xarope, pomada",
+  "forma": "ex.: comprimidos, cápsulas, xarope, pomada",
+  "unidadesEmbalagem": número de unidades na embalagem tal como está escrito na caixa (ex.: "20 comprimidos" -> 20; "blister de 10 x 2" -> 20; xarope de 200 ml -> 200), ou null se não aparecer,
+  "unidade": "palavra no plural para as unidades, ex.: comprimidos, cápsulas, saquetas, ml, doses",
+  "validade": "AAAA-MM ou AAAA-MM-DD se a data de validade (VAL/EXP) estiver visível, senão vazio",
   "tipo": "classe terapêutica curta, ex.: Analgésico e antipirético, Antibiótico, Anti-inflamatório (AINE), Anti-histamínico",
   "receita": true se for de receita médica obrigatória em Portugal, false se for de venda livre (MNSRM),
   "resumo": "uma frase sobre para que serve",
@@ -22,17 +21,16 @@ Identifica o medicamento e devolve APENAS um objeto JSON com esta forma exata:
   "avisos": ["contraindicações e cuidados mais importantes, máx. 5, curtos"],
   "interacoes": ["interações relevantes a evitar, máx. 3"]
 }
-Regras: a posologia deve cobrir as faixas etárias relevantes (bebés, crianças, adolescentes, adultos, idosos) e dizer "Não recomendado" quando for o caso; usa as doses do folheto informativo aprovado (RCM/Infarmed). Se não conseguires identificar, devolve {"identificado": false, "confianca": "baixa"} e mais nada. Nunca inventes.`;
+Regras: a posologia deve cobrir as faixas etárias relevantes (bebés, crianças, adolescentes, adultos, idosos) e dizer "Não recomendado" quando for o caso; usa as doses do folheto informativo aprovado (RCM/Infarmed). Se o texto da caixa estiver em parte ilegível, usa o que conseguires ler (nome, dosagem) e baixa a confiança. Só devolve {"identificado": false, "confianca": "baixa"} se não conseguires ler nem o nome. Nunca inventes.`;
 
-function extrairJson(texto) {
-  const limpo = String(texto || '').replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
-  const inicio = limpo.indexOf('{');
-  const fim = limpo.lastIndexOf('}');
-  if (inicio < 0 || fim < 0) throw new Error('Resposta da IA inválida.');
-  return JSON.parse(limpo.slice(inicio, fim + 1));
-}
+const numero = (v) => {
+  const n = typeof v === 'number' ? v : parseInt(String(v ?? '').replace(/[^\d]/g, ''), 10);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+};
 
-function normalizar(d) {
+const VALIDADE = /^\d{4}-\d{2}(-\d{2})?$/;
+
+export function normalizar(d = {}) {
   const lista = (v) => (Array.isArray(v) ? v.filter(Boolean).map(String) : []);
   return {
     identificado: d.identificado !== false && !!d.nome,
@@ -41,6 +39,9 @@ function normalizar(d) {
     substancia: d.substancia || '',
     dosagem: d.dosagem || '',
     forma: d.forma || '',
+    unidadesEmbalagem: numero(d.unidadesEmbalagem),
+    unidade: d.unidade || (/comprimid/i.test(d.forma || '') ? 'comprimidos' : 'unidades'),
+    validade: VALIDADE.test(d.validade || '') ? d.validade : '',
     tipo: d.tipo || '',
     receita: d.receita === true,
     resumo: d.resumo || '',
@@ -53,63 +54,23 @@ function normalizar(d) {
   };
 }
 
-let modeloFirebase = null;
-async function obterModeloFirebase(nomeModelo) {
-  if (modeloFirebase?.nome === nomeModelo) return modeloFirebase.modelo;
-  const { getAI, getGenerativeModel, GoogleAIBackend } = await import(
-    `https://www.gstatic.com/firebasejs/${FIREBASE_SDK}/firebase-ai.js`
-  );
-  const ai = getAI(app, { backend: new GoogleAIBackend() });
-  const modelo = getGenerativeModel(ai, {
-    model: nomeModelo,
-    generationConfig: { responseMimeType: 'application/json', temperature: 0.2 },
-  });
-  modeloFirebase = { nome: nomeModelo, modelo };
-  return modelo;
-}
-
-async function pedirFirebase(nomeModelo, partes) {
-  const modelo = await obterModeloFirebase(nomeModelo);
-  const res = await modelo.generateContent(
-    partes.map((p) => (p.texto ? { text: p.texto } : { inlineData: { data: p.base64, mimeType: p.mime } })),
-  );
-  return res.response.text();
-}
-
 async function pedir(partes) {
-  let ultimoErro;
-  for (const nome of MODELOS) {
-    try {
-      const texto = await pedirFirebase(nome, partes);
-      return normalizar(extrairJson(texto));
-    } catch (e) {
-      ultimoErro = e;
-      // Só vale a pena tentar o modelo seguinte se este não existir/estiver indisponível.
-      if (!/not found|404|unsupported|not supported|deprecated/i.test(e?.message || '')) break;
-    }
+  try {
+    return normalizar(await pedirJson(partes));
+  } catch (e) {
+    throw new Error(`Não foi possível analisar o medicamento: ${e.message}`);
   }
-  throw traduzirErro(ultimoErro);
-}
-
-function traduzirErro(e) {
-  const msg = e?.message || String(e);
-  if (/api-not-enabled|firebasevertexai|firebaseml|AI Logic|has not been used|PERMISSION_DENIED/i.test(msg)) {
-    return new Error('A IA ainda não está ativa no projeto Firebase. Ativa o "Firebase AI Logic" (Gemini Developer API) na consola Firebase.');
-  }
-  if (/quota|429|RESOURCE_EXHAUSTED/i.test(msg)) return new Error('Limite de pedidos à IA atingido. Tenta de novo daqui a um minuto.');
-  if (/Failed to fetch|NetworkError/i.test(msg)) return new Error('Sem ligação à internet.');
-  return new Error(`Não foi possível analisar o medicamento: ${msg}`);
 }
 
 // imagem: { base64, mime } da foto original (melhor para ler o texto da embalagem).
 export function analisarFoto(imagem, dica = '') {
   const extra = dica ? `\nO utilizador indica que o medicamento é: "${dica}".` : '';
   return pedir([
-    { texto: `${PROMPT_BASE}${extra}\nAnalisa a fotografia da embalagem/blister/frasco.` },
+    { texto: `${PROMPT_BASE}${extra}\nAnalisa a fotografia da embalagem/blister/frasco. Lê com atenção a quantidade (ex.: "20 comprimidos") e a validade impressas na caixa.` },
     imagem,
   ]);
 }
 
 export function analisarNome(nome) {
-  return pedir([{ texto: `${PROMPT_BASE}\nO medicamento é: "${nome}".` }]);
+  return pedir([{ texto: `${PROMPT_BASE}\nO medicamento é: "${nome}". Se não souberes quantas unidades tem a embalagem, devolve "unidadesEmbalagem": null.` }]);
 }

@@ -1,5 +1,6 @@
-// Farmácia: fotografar um medicamento, remover o fundo, obter a informação essencial com IA
-// e acompanhar a validade com contagem decrescente no último mês.
+// Farmácia: fotografar um medicamento, obter a informação essencial com IA (incluindo quantas unidades
+// traz a caixa), gerir o inventário com - e +, saber quando acaba, guardar notas e manter uma biblioteca
+// com todos os medicamentos que já tiveram. A validade tem contagem decrescente no último mês.
 import { onSnapshot, addDoc, updateDoc, deleteDoc } from '../../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../../services/paths.js';
 import { notifyUser } from '../../services/notifications.js';
@@ -7,10 +8,13 @@ import { navigate, back } from '../../core/router.js';
 import { html, raw, byId, render } from '../../core/dom.js';
 import { toast, confirmDialog, withLoading } from '../../core/ui.js';
 import { icon } from '../../core/icons.js';
-import { session, createScope } from '../../core/state.js';
+import { session, createScope, emit } from '../../core/state.js';
 import { analisarFoto, analisarNome } from './ai.js';
-import { removerFundo, prepararParaIA, miniatura, preCarregarRemocaoFundo } from './imagem.js';
-import { estadoValidade, textoContagem, formatarData, linksOficiais, DIAS_ALERTA } from './util.js';
+import { removerFundo, prepararParaIA, miniatura, comLimite } from './imagem.js';
+import {
+  estadoValidade, textoContagem, formatarData, linksOficiais, DIAS_ALERTA,
+  estadoStock, textoStock, textoFimStock, chaveNome,
+} from './util.js';
 
 const COLECAO = 'farmacia';
 const PAGINA = 'menu-farmacia';
@@ -20,9 +24,12 @@ const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'O
 
 let medicamentos = [];
 let filtro = '';
+let vista = 'casa'; // 'casa' | 'biblioteca'
 let atualId = null;
 let rascunho = null; // { foto, info, fase, progresso, erro }
 const scope = createScope();
+
+const emCasa = (m) => !m.arquivado;
 
 // ---------- Componentes ----------
 
@@ -31,20 +38,27 @@ const chipValidade = (validade) => {
   return html`<span class="farm-validade farm-validade--${estado}" data-validade="${validade || ''}">${textoContagem(validade)}</span>`;
 };
 
+const chipStock = (m) => {
+  const txt = textoStock(m);
+  return txt ? html`<span class="farm-stock farm-stock--${estadoStock(m)}">${icon('pill', 12)} ${txt}</span>` : '';
+};
+
 const imagemMed = (m, classe = '') => (m.foto
   ? html`<img class="farm-foto ${classe}" src="${m.foto}" alt="${m.nome}" loading="lazy">`
   : html`<div class="farm-foto farm-foto--vazia ${classe}">${icon('pill', 18)}</div>`);
 
 function cartao(m, i) {
   const { estado } = estadoValidade(m.validade);
+  const arquivado = !emCasa(m);
   return html`
-    <button class="farm-card glass farm-card--${estado}" style="--i:${i}" data-action="farmacia:abrir" data-id="${m.id}">
+    <button class="farm-card glass farm-card--${arquivado ? 'arquivado' : estado}" style="--i:${i}" data-action="farmacia:abrir" data-id="${m.id}">
       <div class="farm-card__palco">${imagemMed(m)}</div>
       <div class="farm-card__info">
         <strong class="farm-card__nome">${m.nome || 'Sem nome'}</strong>
         <span class="farm-card__sub">${[m.dosagem, m.forma].filter(Boolean).join(' · ')}</span>
-        ${m.tipo ? html`<span class="chip farm-chip">${m.tipo}</span>` : ''}
-        ${chipValidade(m.validade)}
+        ${arquivado
+          ? html`<span class="farm-stock farm-stock--sem">Já não temos em casa</span>`
+          : html`${chipStock(m)}${chipValidade(m.validade)}`}
       </div>
     </button>`;
 }
@@ -79,6 +93,11 @@ function lerValidade() {
   if (!a || !m) return '';
   return d ? `${a}-${m}-${d}` : `${a}-${m}`;
 }
+
+const numOuNull = (v) => {
+  const n = Number(String(v ?? '').replace(',', '.'));
+  return v === '' || v == null || !Number.isFinite(n) || n < 0 ? null : n;
+};
 
 const lista = (itens) => itens.map((t) => html`<li>${t}</li>`);
 
@@ -123,36 +142,52 @@ const avisoMedico = html`<p class="farm-legal">Informação gerada por IA a part
 
 // ---------- Páginas ----------
 
+function filtrar(itens) {
+  const q = chaveNome(filtro);
+  if (!q) return itens;
+  return itens.filter((m) => chaveNome([m.nome, m.substancia, m.tipo, m.notas, ...(m.sintomas || [])].join(' ')).includes(q));
+}
+
 function renderLista() {
   const alvo = byId('farm-lista');
   if (!alvo) return;
-  const ordenados = [...medicamentos].sort((a, b) => estadoValidade(a.validade).ms - estadoValidade(b.validade).ms);
-  const q = filtro.trim().toLowerCase();
-  const visiveis = q
-    ? ordenados.filter((m) => [m.nome, m.substancia, m.tipo, ...(m.sintomas || [])].join(' ').toLowerCase().includes(q))
-    : ordenados;
+  const casa = medicamentos.filter(emCasa);
+  const ordenados = vista === 'casa'
+    ? [...casa].sort((a, b) => estadoValidade(a.validade).ms - estadoValidade(b.validade).ms)
+    : [...medicamentos].sort((a, b) => String(a.nome).localeCompare(String(b.nome), 'pt'));
+  const visiveis = filtrar(ordenados);
 
-  render(alvo, visiveis.length
-    ? visiveis.map(cartao)
-    : html`<div class="farm-vazio">${icon('pill', 40)}<p>${q ? 'Nenhum medicamento encontrado.' : 'Ainda não tens medicamentos. Tira uma foto à embalagem para começar.'}</p></div>`);
+  const vazio = filtro.trim()
+    ? 'Nenhum medicamento encontrado.'
+    : vista === 'casa'
+      ? 'Ainda não tens medicamentos em casa. Tira uma foto à embalagem para começar.'
+      : 'A biblioteca guarda todos os medicamentos que já tiveram, mesmo os que acabaram.';
+  render(alvo, visiveis.length ? visiveis.map(cartao) : html`<div class="farm-vazio">${icon('pill', 40)}<p>${vazio}</p></div>`);
 
-  const urgentes = ordenados.filter((m) => ['alerta', 'expirado'].includes(estadoValidade(m.validade).estado));
+  document.querySelectorAll('.farm-tab').forEach((b) => b.classList.toggle('is-active', b.dataset.vista === vista));
+  const conta = byId('farm-conta-biblioteca');
+  if (conta) conta.textContent = medicamentos.length;
+
+  const urgentes = casa.filter((m) => ['alerta', 'expirado'].includes(estadoValidade(m.validade).estado));
+  const aAcabar = casa.filter((m) => ['baixo', 'vazio'].includes(estadoStock(m)));
   const resumo = byId('farm-resumo');
   if (resumo) {
     render(resumo, html`
-      <div><strong>${medicamentos.length}</strong><span>medicamentos</span></div>
-      <div class="${urgentes.length ? 'farm-resumo--alerta' : ''}"><strong>${urgentes.length}</strong><span>a expirar</span></div>`);
+      <div><strong>${casa.length}</strong><span>em casa</span></div>
+      <div class="${urgentes.length ? 'farm-resumo--alerta' : ''}"><strong>${urgentes.length}</strong><span>a expirar</span></div>
+      <div class="${aAcabar.length ? 'farm-resumo--alerta' : ''}"><strong>${aAcabar.length}</strong><span>a acabar</span></div>`);
   }
   const alertas = byId('farm-alertas');
   if (alertas) {
-    render(alertas, urgentes.length ? html`
-      <h3 class="farm-titulo-secao">A expirar em ${DIAS_ALERTA} dias</h3>
+    const avisos = [...new Set([...urgentes, ...aAcabar])];
+    render(alertas, avisos.length && vista === 'casa' ? html`
+      <h3 class="farm-titulo-secao">Precisa de atenção</h3>
       <div class="farm-alertas-lista">
-        ${urgentes.map((m) => html`
+        ${avisos.map((m) => html`
           <button class="farm-alerta glass" data-action="farmacia:abrir" data-id="${m.id}">
             ${imagemMed(m, 'farm-foto--mini')}
             <span class="farm-alerta__nome">${m.nome}</span>
-            ${chipValidade(m.validade)}
+            ${['baixo', 'vazio'].includes(estadoStock(m)) ? chipStock(m) : chipValidade(m.validade)}
           </button>`)}
       </div>` : '');
   }
@@ -164,7 +199,7 @@ const templateLista = () => html`
       <div class="farm-hero__topo">
         <div>
           <h2>A vossa farmácia</h2>
-          <p>Fotografa a embalagem e a IA diz-te o essencial.</p>
+          <p>Fotografa a caixa: a IA lê o nome, a quantidade e a validade.</p>
         </div>
       </div>
       <div class="farm-resumo" id="farm-resumo"></div>
@@ -176,10 +211,40 @@ const templateLista = () => html`
         <button class="btn" data-action="farmacia:porNome">${icon('edit', 18)} Escrever nome</button>
       </div>
     </section>
+    <div class="farm-tabs" role="tablist">
+      <button class="farm-tab is-active" data-vista="casa" data-action="farmacia:vista">Em casa</button>
+      <button class="farm-tab" data-vista="biblioteca" data-action="farmacia:vista">Biblioteca <span class="farm-tab__n" id="farm-conta-biblioteca"></span></button>
+    </div>
     <div id="farm-alertas"></div>
-    <input class="input farm-pesquisa" type="search" placeholder="Pesquisar por nome, tipo ou sintoma…" value="${filtro}" data-input="farmacia:filtrar">
+    <input class="input farm-pesquisa" type="search" placeholder="Pesquisar por nome, tipo, sintoma ou nota…" value="${filtro}" data-input="farmacia:filtrar">
     <div class="farm-grid stagger" id="farm-lista"></div>
   </div>`;
+
+// Inventário ao adicionar: quantidade lida na caixa, toma diária e notas.
+function blocoInventarioNovo(info, existente) {
+  const lido = info.unidadesEmbalagem;
+  return html`
+    <section class="farm-bloco glass"><h3>${icon('pill', 18)} Inventário</h3>
+      ${lido
+        ? html`<p class="farm-lido">${icon('check', 14)} A caixa diz <strong>${lido} ${info.unidade}</strong>.</p>`
+        : html`<p class="farm-dica">Não consegui ler a quantidade na caixa. Escreve quantas unidades tem.</p>`}
+      ${existente ? html`<p class="farm-dica">Já tinham ${existente.nome} na biblioteca${emCasa(existente) && existente.quantidade ? ` (${textoStock(existente)} em casa)` : ''}. Esta caixa é somada ao que já têm.</p>` : ''}
+      <div class="farm-campos2">
+        <div class="farm-campo"><label for="farm-qtd">Unidades nesta caixa</label>
+          <input class="input" id="farm-qtd" type="number" inputmode="numeric" min="0" value="${lido ?? ''}" placeholder="Ex.: 20"></div>
+        <div class="farm-campo"><label for="farm-toma">Toma por dia (opcional)</label>
+          <input class="input" id="farm-toma" type="number" inputmode="decimal" min="0" step="0.5" value="${existente?.tomaDiaria ?? ''}" placeholder="Ex.: 2"></div>
+      </div>
+    </section>
+    <section class="farm-bloco glass"><h3>${icon('edit', 18)} Notas</h3>
+      <textarea class="input textarea" id="farm-notas" placeholder="Ex.: Para a Nádia, tomar depois do jantar. Receitado pelo Dr. Silva.">${existente?.notas || ''}</textarea>
+    </section>`;
+}
+
+const procurarExistente = (nome) => {
+  const k = chaveNome(nome);
+  return k ? medicamentos.find((m) => chaveNome(m.nome) === k) : null;
+};
 
 function renderNovo() {
   const alvo = byId('farm-novo');
@@ -191,34 +256,25 @@ function renderNovo() {
       ${original && !foto ? html`<img class="farm-palco__original" src="${original}" alt="">` : ''}
       ${foto ? html`<img class="farm-palco__recorte" src="${foto}" alt="">` : ''}
       ${!original && !foto ? html`<div class="farm-foto farm-foto--vazia">${icon('pill', 48)}</div>` : ''}
-      ${fase !== 'pronto' && fase !== 'erro' ? html`<div class="farm-scan"></div>` : ''}
+      ${fase === 'ia' ? html`<div class="farm-scan"></div>` : ''}
     </div>`;
 
-  const passos = [
-    ['fundo', 'Remover o fundo'],
-    ['ia', 'Identificar com IA'],
-  ];
-  const ordem = ['fundo', 'ia', 'pronto'];
-  const passosHtml = html`
+  const passosHtml = fase === 'ia' ? html`
     <ol class="farm-passos">
-      ${passos.filter(([id]) => id !== 'fundo' || original).map(([id, txt]) => {
-        const feito = ordem.indexOf(fase) > ordem.indexOf(id) || (fase === 'erro' && rascunho.feitos?.includes(id));
-        const ativo = fase === id;
-        return html`<li class="${feito ? 'feito' : ''} ${ativo ? 'ativo' : ''}">
-          <span class="farm-passo__ponto"></span>${txt}
-          ${ativo ? html`<small id="farm-progresso">${textoProgresso(progresso)}</small>` : ''}
-        </li>`;
-      })}
-    </ol>`;
+      <li class="ativo"><span class="farm-passo__ponto"></span>A ler a embalagem com IA
+        <small id="farm-progresso">${textoProgresso(progresso)}</small></li>
+    </ol>` : '';
 
   let corpo = '';
   if (erro) {
     corpo = html`
       <div class="farm-erro glass">${erro}</div>
+      ${rascunho.ficheiro ? html`<button class="btn" data-action="farmacia:repetirFoto">${icon('repeat', 18)} Tentar ler a foto outra vez</button>` : ''}
       <div class="farm-campo"><label for="farm-dica">Nome do medicamento</label>
         <input class="input" id="farm-dica" placeholder="Ex.: Brufen 400" value="${info?.nome || ''}" data-enter="farmacia:tentarNome"></div>
-      <button class="btn btn--primary" data-action="farmacia:tentarNome">Tentar com o nome</button>`;
+      <button class="btn btn--primary" data-action="farmacia:tentarNome">Procurar pelo nome</button>`;
   } else if (fase === 'pronto' && info) {
+    const existente = procurarExistente(info.nome);
     corpo = html`
       ${info.confianca === 'baixa' ? html`<div class="farm-erro glass">A IA não tem a certeza. Confirma o nome abaixo e carrega em "Atualizar".</div>` : ''}
       <div class="farm-campo"><label for="farm-nome">Nome</label>
@@ -229,13 +285,40 @@ function renderNovo() {
         <span class="chip ${info.receita ? 'farm-chip--receita' : 'farm-chip--livre'}">${info.receita ? 'Receita médica' : 'Venda livre'}</span>
         ${info.substancia ? html`<span class="chip">${info.substancia}${info.dosagem ? ` ${info.dosagem}` : ''}</span>` : ''}
       </div>
+      ${blocoInventarioNovo(info, existente)}
+      <section class="farm-bloco glass"><h3>${icon('calendar', 18)} Data de validade</h3>${seletorValidade(rascunho.validade || info.validade)}</section>
       ${fichaInfo(info)}
-      <section class="farm-bloco glass"><h3>${icon('calendar', 18)} Data de validade</h3>${seletorValidade(rascunho.validade)}</section>
       ${avisoMedico}
-      <button class="btn btn--primary farm-guardar" data-action="farmacia:guardar">Guardar na farmácia</button>`;
+      <button class="btn btn--primary farm-guardar" data-action="farmacia:guardar">${existente ? 'Juntar à farmácia' : 'Guardar na farmácia'}</button>`;
   }
 
   render(alvo, html`${palco}${passosHtml}${corpo}`);
+}
+
+function blocoInventario(m) {
+  const estado = estadoStock(m);
+  const temStock = m.quantidade != null && m.quantidade !== '';
+  const porCaixa = Number(m.unidadesEmbalagem) || 0;
+  return html`
+    <section class="farm-bloco farm-inventario farm-inventario--${estado} glass">
+      <h3>${icon('pill', 18)} Inventário</h3>
+      <div class="farm-contador">
+        <button class="farm-passo-btn pressable" data-action="farmacia:stock" data-delta="-1" aria-label="Menos um" ${raw(temStock && Number(m.quantidade) > 0 ? '' : 'disabled')}>−</button>
+        <div class="farm-contador__valor">
+          <strong id="farm-qtd-atual">${temStock ? Number(m.quantidade) : '—'}</strong>
+          <span>${m.unidade || 'unidades'} em casa</span>
+        </div>
+        <button class="farm-passo-btn farm-passo-btn--mais pressable" data-action="farmacia:stock" data-delta="1" aria-label="Mais um">+</button>
+      </div>
+      ${textoFimStock(m) ? html`<p class="farm-fim farm-fim--${estado}">${icon('clock', 14)} ${textoFimStock(m)}</p>` : ''}
+      ${estado === 'vazio' ? html`<p class="farm-fim farm-fim--vazio">Acabou. Repõe quando comprares outra caixa.</p>` : ''}
+      <div class="farm-inventario__acoes">
+        ${porCaixa ? html`<button class="btn btn--small" data-action="farmacia:caixa">${icon('plus', 14)} Comprei uma caixa (+${porCaixa})</button>` : ''}
+        <label class="farm-toma">Toma por dia
+          <input class="input" id="farm-toma-det" type="number" inputmode="decimal" min="0" step="0.5" value="${m.tomaDiaria ?? ''}" placeholder="—" data-change="farmacia:toma">
+        </label>
+      </div>
+    </section>`;
 }
 
 function renderDetalhe() {
@@ -244,6 +327,7 @@ function renderDetalhe() {
   if (!alvo) return;
   if (!m) { render(alvo, html`<div class="farm-vazio"><p>Medicamento não encontrado.</p></div>`); return; }
   const { estado } = estadoValidade(m.validade);
+  const arquivado = !emCasa(m);
   render(alvo, html`
     <div class="farm-palco farm-palco--pronto">${imagemMed(m, 'farm-palco__recorte')}</div>
     <h2 class="farm-detalhe__nome">${m.nome}</h2>
@@ -251,81 +335,109 @@ function renderDetalhe() {
     <div class="farm-cabecalho">
       ${m.tipo ? html`<span class="chip farm-chip">${m.tipo}</span>` : ''}
       <span class="chip ${m.receita ? 'farm-chip--receita' : 'farm-chip--livre'}">${m.receita ? 'Receita médica' : 'Venda livre'}</span>
+      ${arquivado ? html`<span class="chip">Na biblioteca</span>` : ''}
     </div>
-    <section class="farm-contagem farm-contagem--${estado} glass">
-      <span class="farm-contagem__rotulo">${estado === 'alerta' ? 'Expira em' : estado === 'expirado' ? 'Fora de validade' : 'Validade'}</span>
-      ${chipValidade(m.validade)}
-      ${m.validade && estado !== 'ok' ? html`<small>${formatarData(m.validade)}</small>` : ''}
+    ${arquivado ? html`
+      <section class="farm-bloco glass">
+        <p class="farm-descricao">Já não têm este medicamento em casa. Se voltarem a comprar, repõe-no com um toque.</p>
+        <button class="btn btn--primary" data-action="farmacia:repor">${icon('plus', 18)} Voltámos a comprar</button>
+      </section>` : html`
+      ${blocoInventario(m)}
+      <section class="farm-contagem farm-contagem--${estado} glass">
+        <span class="farm-contagem__rotulo">${estado === 'alerta' ? 'Expira em' : estado === 'expirado' ? 'Fora de validade' : 'Validade'}</span>
+        ${chipValidade(m.validade)}
+        ${m.validade && estado !== 'ok' ? html`<small>${formatarData(m.validade)}</small>` : ''}
+      </section>`}
+    <section class="farm-bloco glass"><h3>${icon('edit', 18)} Notas</h3>
+      <textarea class="input textarea" id="farm-notas-det" placeholder="Detalhes: para quem é, quando tomar, quem receitou…">${m.notas || ''}</textarea>
+      <button class="btn" data-action="farmacia:guardarNotas">Guardar notas</button>
     </section>
     ${fichaInfo(m)}
-    <section class="farm-bloco glass"><h3>${icon('calendar', 18)} Alterar validade</h3>
-      ${seletorValidade(m.validade)}
-      <button class="btn" data-action="farmacia:guardarValidade">Guardar validade</button>
-    </section>
+    ${arquivado ? '' : html`
+      <section class="farm-bloco glass"><h3>${icon('calendar', 18)} Alterar validade</h3>
+        ${seletorValidade(m.validade)}
+        <button class="btn" data-action="farmacia:guardarValidade">Guardar validade</button>
+      </section>`}
     ${linksHtml(m)}
     ${avisoMedico}
-    <button class="btn farm-apagar" data-action="farmacia:apagar">${icon('trash', 18)} Remover da farmácia</button>`);
+    ${arquivado ? '' : html`<button class="btn farm-arquivar" data-action="farmacia:arquivar">${icon('book', 18)} Já não temos: mover para a biblioteca</button>`}
+    <button class="btn farm-apagar" data-action="farmacia:apagar">${icon('trash', 18)} Apagar de vez</button>`);
 }
 
 // ---------- Fluxo de adição ----------
 
 const textoProgresso = (p) => (p?.txt ? `${p.txt}${p.p ? ` ${Math.round(p.p * 100)}%` : ''}` : '');
 
-// O progresso muda muitas vezes por segundo: atualiza só o texto, sem redesenhar a página.
-function mostrarProgresso(txt, p) {
-  rascunho = { ...rascunho, progresso: { txt, p } };
-  const el = byId('farm-progresso');
-  if (el) el.textContent = textoProgresso(rascunho.progresso);
-}
-
 function atualizarRascunho(mudancas) {
   rascunho = { ...rascunho, ...mudancas };
   renderNovo();
 }
 
-async function processarFoto(ficheiro) {
-  const original = URL.createObjectURL(ficheiro);
-  rascunho = { original, fase: 'fundo', feitos: [] };
-  navigate(PAGINA_NOVO);
-
-  // A IA e a remoção de fundo correm em paralelo; a IA usa a foto original (lê melhor a embalagem).
-  const pedidoIA = prepararParaIA(ficheiro).then((img) => analisarFoto(img));
-  pedidoIA.catch(() => {});
-
+// A remoção do fundo é só estética: corre depois da IA, com limite de tempo, e nunca bloqueia a leitura.
+async function melhorarFoto(ficheiro, id) {
   try {
-    const foto = await removerFundo(ficheiro, mostrarProgresso);
-    atualizarRascunho({ foto, fase: 'ia', progresso: null, feitos: ['fundo'] });
+    const foto = await comLimite(removerFundo(ficheiro, () => {}), 25_000, 'Remoção de fundo demorou demasiado.');
+    if (rascunho?.id === id) {
+      rascunho = { ...rascunho, foto };
+      const img = document.querySelector('#farm-novo .farm-palco__recorte, #farm-novo .farm-palco__original');
+      if (img) { img.className = 'farm-palco__recorte'; img.src = foto; }
+    }
   } catch (e) {
-    console.warn('Remoção de fundo falhou', e);
-    atualizarRascunho({ foto: await miniatura(ficheiro), fase: 'ia', progresso: null, feitos: ['fundo'] });
-    toast('Não foi possível remover o fundo; ficou a foto original.', 'info');
+    console.warn('[farmacia] remoção de fundo', e);
   }
+}
+
+async function processarFoto(ficheiro) {
+  const id = Date.now();
+  const original = URL.createObjectURL(ficheiro);
+  rascunho = { id, ficheiro, original, fase: 'ia', progresso: { txt: 'a enviar a foto…' } };
+  navigate(PAGINA_NOVO);
+  const foto = await miniatura(ficheiro);
+  if (rascunho?.id !== id) return;
+  rascunho.foto = foto || '';
+  renderNovo();
 
   try {
-    const info = await pedidoIA;
-    if (!info.identificado) throw new Error('Não consegui identificar o medicamento pela foto. Escreve o nome para continuar.');
-    atualizarRascunho({ info, fase: 'pronto' });
+    const imagem = await prepararParaIA(ficheiro);
+    const info = await analisarFoto(imagem);
+    if (rascunho?.id !== id) return;
+    if (!info.identificado) throw new Error('Não consegui ler o nome na foto. Tira outra foto com o nome da caixa bem visível, ou escreve o nome.');
+    atualizarRascunho({ info, fase: 'pronto', validade: info.validade || '' });
+    melhorarFoto(ficheiro, id);
   } catch (e) {
-    atualizarRascunho({ fase: 'erro', erro: e.message, feitos: ['fundo'] });
-  } finally {
-    URL.revokeObjectURL(original);
+    if (rascunho?.id === id) atualizarRascunho({ fase: 'erro', erro: e.message });
   }
 }
 
 async function pesquisarNome(nome) {
   if (!nome?.trim()) { toast('Escreve o nome do medicamento.', 'error'); return; }
   const validade = byId('farm-val-mes') ? lerValidade() : rascunho?.validade;
-  atualizarRascunho({ fase: 'ia', erro: null, info: null, validade, feitos: rascunho?.foto ? ['fundo'] : [] });
+  atualizarRascunho({ fase: 'ia', erro: null, info: null, validade });
   try {
     const info = await analisarNome(nome.trim());
     if (!info.identificado) throw new Error(`Não encontrei "${nome}". Verifica o nome escrito na embalagem.`);
-    atualizarRascunho({ info, fase: 'pronto' });
+    atualizarRascunho({ info, fase: 'pronto', validade: validade || info.validade || '' });
   } catch (e) {
     atualizarRascunho({ fase: 'erro', erro: e.message, info: { nome } });
   }
 }
 
-// ---------- Validade: relógio e notificação ----------
+// ---------- Inventário ----------
+
+const atual = () => medicamentos.find((x) => x.id === atualId);
+
+let gravarStock = null;
+function mudarStock(delta) {
+  const m = atual();
+  if (!m) return;
+  const novo = Math.max(0, (Number(m.quantidade) || 0) + delta);
+  m.quantidade = novo; // otimista: atualiza já o ecrã
+  renderDetalhe();
+  clearTimeout(gravarStock);
+  gravarStock = setTimeout(() => updateDoc(sharedDoc(COLECAO, m.id), { quantidade: novo }).catch((e) => toast(e.message, 'error')), 400);
+}
+
+// ---------- Avisos: relógio e notificações ----------
 
 function tique() {
   const agora = Date.now();
@@ -336,22 +448,47 @@ function tique() {
   });
 }
 
-// Uma notificação por medicamento e por estado (a expirar / expirado).
-async function notificarValidades() {
-  for (const m of medicamentos) {
+// Uma notificação por medicamento e por estado (validade a expirar/expirado; stock a acabar/acabou).
+async function notificarAvisos() {
+  for (const m of medicamentos.filter(emCasa)) {
     const { estado } = estadoValidade(m.validade);
     const marca = `${m.validade}:${estado}`;
-    if (estado === 'ok' || estado === 'sem' || m.avisadoValidade === marca) continue;
-    const texto = estado === 'expirado'
-      ? `💊 ${m.nome} passou da validade. Entrega-o numa farmácia (Valormed).`
-      : `💊 ${m.nome} expira a ${formatarData(m.validade)}. Falta menos de um mês.`;
-    try {
-      await updateDoc(sharedDoc(COLECAO, m.id), { avisadoValidade: marca });
-      await notifyUser(session.uid, texto);
-    } catch (e) {
-      console.warn('[farmacia] notificação de validade falhou', e);
+    if (estado !== 'ok' && estado !== 'sem' && m.avisadoValidade !== marca) {
+      const texto = estado === 'expirado'
+        ? `💊 ${m.nome} passou da validade. Entrega-o numa farmácia (Valormed).`
+        : `💊 ${m.nome} expira a ${formatarData(m.validade)}. Falta menos de um mês.`;
+      try {
+        await updateDoc(sharedDoc(COLECAO, m.id), { avisadoValidade: marca });
+        await notifyUser(session.uid, texto);
+      } catch (e) { console.warn('[farmacia] notificação de validade falhou', e); }
+    }
+    const stock = estadoStock(m);
+    if ((stock === 'baixo' || stock === 'vazio') && m.avisadoStock !== stock) {
+      const texto = stock === 'vazio' ? `💊 ${m.nome} acabou.` : `💊 ${m.nome} está a acabar: ${textoStock(m)}. ${textoFimStock(m)}`.trim();
+      try {
+        await updateDoc(sharedDoc(COLECAO, m.id), { avisadoStock: stock });
+        await notifyUser(session.uid, texto);
+      } catch (e) { console.warn('[farmacia] notificação de stock falhou', e); }
+    } else if (stock === 'ok' && m.avisadoStock) {
+      updateDoc(sharedDoc(COLECAO, m.id), { avisadoStock: null }).catch(() => {});
     }
   }
+}
+
+/** Avisos curtos para o Início (validade e stock dos medicamentos em casa). */
+export function farmaciaAlertas() {
+  const out = [];
+  medicamentos.filter(emCasa).forEach((m) => {
+    const v = estadoValidade(m.validade).estado;
+    if (v === 'alerta' || v === 'expirado') {
+      out.push({ fonte: 'Farmácia', icon: 'pill', tom: 'rose', titulo: `${m.nome}: ${v === 'expirado' ? 'fora de validade' : `expira a ${formatarData(m.validade)}`}`, quando: v === 'expirado' ? 'Expirado' : 'Validade', ordem: 1, page: PAGINA, id: m.id });
+    }
+    const s = estadoStock(m);
+    if (s === 'baixo' || s === 'vazio') {
+      out.push({ fonte: 'Farmácia', icon: 'pill', tom: 'rose', titulo: s === 'vazio' ? `${m.nome} acabou` : `${m.nome}: ${textoStock(m)}`, quando: textoFimStock(m).replace(/^Dá para /, '').replace(/ \(.*\)$/, '') || 'A acabar', ordem: 0, page: PAGINA, id: m.id });
+    }
+  });
+  return out;
 }
 
 // ---------- Módulo ----------
@@ -364,7 +501,7 @@ export default {
       title: 'Farmácia',
       root: true,
       template: templateLista,
-      onEnter: () => { renderLista(); preCarregarRemocaoFundo(); },
+      onEnter: renderLista,
     },
     { id: PAGINA_NOVO, title: 'Novo medicamento', template: () => html`<div class="farm farm-novo" id="farm-novo"></div>`, onEnter: renderNovo },
     {
@@ -381,42 +518,110 @@ export default {
       el.value = '';
       if (ficheiro) processarFoto(ficheiro);
     },
+    'farmacia:repetirFoto': () => { if (rascunho?.ficheiro) processarFoto(rascunho.ficheiro); },
     'farmacia:porNome': () => {
-      rascunho = { fase: 'erro', erro: 'Escreve o nome que está na embalagem (com a dosagem, se souberes).', feitos: [] };
+      rascunho = { id: Date.now(), fase: 'erro', erro: 'Escreve o nome que está na embalagem (com a dosagem, se souberes).' };
       navigate(PAGINA_NOVO);
       setTimeout(() => byId('farm-dica')?.focus(), 350);
     },
     'farmacia:tentarNome': () => pesquisarNome(byId('farm-nome')?.value || byId('farm-dica')?.value),
     'farmacia:filtrar': ({ value }) => { filtro = value; renderLista(); },
+    'farmacia:vista': ({ data }) => { vista = data.vista; renderLista(); },
     'farmacia:abrir': ({ data }) => { atualId = data.id; navigate(PAGINA_DETALHE); },
 
     'farmacia:guardar': async ({ el }) => {
       const { info, foto } = rascunho || {};
       if (!info) return;
       const nome = byId('farm-nome')?.value.trim() || info.nome;
-      const ref = await withLoading(el, () => addDoc(sharedCol(COLECAO), {
-        ...info,
-        nome,
-        foto: foto || '',
-        validade: lerValidade(),
-        criadoEm: Date.now(),
-      }));
+      const qtd = numOuNull(byId('farm-qtd')?.value);
+      const toma = numOuNull(byId('farm-toma')?.value);
+      const notas = byId('farm-notas')?.value.trim() || '';
+      const validade = lerValidade();
+      const existente = procurarExistente(nome);
+      const { validade: _v, identificado: _i, confianca: _c, ...ficha } = info;
+
+      if (existente) {
+        const base = emCasa(existente) ? Number(existente.quantidade) || 0 : 0;
+        await withLoading(el, () => updateDoc(sharedDoc(COLECAO, existente.id), {
+          ...ficha,
+          nome,
+          foto: foto || existente.foto || '',
+          unidadesEmbalagem: info.unidadesEmbalagem || qtd || existente.unidadesEmbalagem || null,
+          quantidade: qtd == null ? (existente.quantidade ?? null) : base + qtd,
+          tomaDiaria: toma ?? existente.tomaDiaria ?? null,
+          notas: notas || existente.notas || '',
+          validade: validade || existente.validade || '',
+          arquivado: false,
+          avisadoStock: null,
+          atualizadoEm: Date.now(),
+        }));
+        atualId = existente.id;
+        toast(`${nome}: caixa adicionada ao inventário`);
+      } else {
+        const ref = await withLoading(el, () => addDoc(sharedCol(COLECAO), {
+          ...ficha,
+          nome,
+          foto: foto || '',
+          unidadesEmbalagem: info.unidadesEmbalagem || qtd || null,
+          quantidade: qtd,
+          tomaDiaria: toma,
+          notas,
+          validade,
+          arquivado: false,
+          criadoEm: Date.now(),
+        }));
+        atualId = ref.id;
+        toast(`${nome} guardado na farmácia`);
+      }
       rascunho = null;
-      atualId = ref.id;
-      toast(`${nome} guardado na farmácia`);
       navigate(PAGINA_DETALHE, { replace: true });
     },
 
+    'farmacia:stock': ({ data }) => mudarStock(Number(data.delta) || 0),
+    'farmacia:caixa': () => {
+      const m = atual();
+      if (m) { mudarStock(Number(m.unidadesEmbalagem) || 0); toast('Caixa adicionada'); }
+    },
+    'farmacia:toma': async ({ el }) => {
+      const m = atual();
+      if (!m) return;
+      const tomaDiaria = numOuNull(el.value);
+      m.tomaDiaria = tomaDiaria;
+      renderDetalhe();
+      await updateDoc(sharedDoc(COLECAO, m.id), { tomaDiaria });
+    },
+    'farmacia:guardarNotas': async ({ el }) => {
+      if (!atualId) return;
+      await withLoading(el, () => updateDoc(sharedDoc(COLECAO, atualId), { notas: byId('farm-notas-det')?.value.trim() || '' }));
+      toast('Notas guardadas');
+    },
     'farmacia:guardarValidade': async ({ el }) => {
       if (!atualId) return;
       await withLoading(el, () => updateDoc(sharedDoc(COLECAO, atualId), { validade: lerValidade() }));
       toast('Validade atualizada');
     },
-
-    'farmacia:apagar': async () => {
-      const m = medicamentos.find((x) => x.id === atualId);
+    'farmacia:arquivar': async () => {
+      const m = atual();
       if (!m) return;
-      const ok = await confirmDialog(`${m.nome} vai ser removido da farmácia.`, { title: 'Remover medicamento?', confirmLabel: 'Remover', danger: true });
+      await updateDoc(sharedDoc(COLECAO, m.id), { arquivado: true, quantidade: 0, avisadoStock: null });
+      toast(`${m.nome} ficou na biblioteca`);
+      back();
+    },
+    'farmacia:repor': async ({ el }) => {
+      const m = atual();
+      if (!m) return;
+      await withLoading(el, () => updateDoc(sharedDoc(COLECAO, m.id), {
+        arquivado: false,
+        quantidade: Number(m.unidadesEmbalagem) || null,
+        validade: '',
+        avisadoStock: null,
+      }));
+      toast('De volta à farmácia. Confirma a validade da caixa nova.');
+    },
+    'farmacia:apagar': async () => {
+      const m = atual();
+      if (!m) return;
+      const ok = await confirmDialog(`${m.nome} vai ser apagado da farmácia e da biblioteca.`, { title: 'Apagar de vez?', confirmLabel: 'Apagar', danger: true });
       if (!ok) return;
       await deleteDoc(sharedDoc(COLECAO, m.id));
       back();
@@ -428,7 +633,8 @@ export default {
       medicamentos = snapToList(snap);
       renderLista();
       if (atualId && byId(PAGINA_DETALHE)?.classList.contains('is-active')) renderDetalhe();
-      notificarValidades();
+      notificarAvisos();
+      emit('records:update', 'farmacia');
     }));
     const relogio = setInterval(tique, 1000);
     scope.add(() => clearInterval(relogio));
@@ -440,5 +646,6 @@ export default {
     rascunho = null;
     atualId = null;
     filtro = '';
+    vista = 'casa';
   },
 };

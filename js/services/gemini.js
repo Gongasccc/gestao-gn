@@ -3,7 +3,12 @@
 import { app } from './firebase.js';
 
 const FIREBASE_SDK = '11.10.0';
-export const MODELOS = ['gemini-3.6-flash', 'gemini-flash-latest'];
+// Modelos suportados pelo Firebase AI Logic (Gemini Developer API), do preferido para o de recurso.
+// Se um modelo for retirado ou estiver sobrecarregado, tenta o seguinte.
+export const MODELOS = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite'];
+
+// Erros em que não vale a pena tentar outro modelo (o problema não é do modelo).
+const ERRO_FATAL = /quota|429|RESOURCE_EXHAUSTED|api-not-enabled|PERMISSION_DENIED|Failed to fetch|NetworkError|offline|app-check|unauthenticated/i;
 
 const modelos = new Map();
 async function obterModelo(nome) {
@@ -53,8 +58,9 @@ export async function pedirJson(partes) {
       return extrairJson(res.response.text());
     } catch (e) {
       ultimoErro = e;
-      // Só vale a pena tentar o modelo seguinte se este não existir/estiver indisponível.
-      if (!/not found|404|unsupported|not supported|deprecated/i.test(e?.message || '')) break;
+      console.warn(`[gemini] ${nome} falhou`, e);
+      modelos.delete(nome);
+      if (ERRO_FATAL.test(e?.message || '')) break;
     }
   }
   throw traduzirErro(ultimoErro);

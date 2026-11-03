@@ -11,6 +11,7 @@ import { sharedCol, sharedDoc } from '../services/paths.js';
 import { createRecordList } from '../components/record-list.js';
 import { tabsTpl } from '../components/tabs.js';
 import { configurarExtrato, extratoModal, extratoActions } from './extrato/index.js';
+import { configurarFatura, faturaModal, faturaActions } from './fatura-despesa/index.js';
 
 const scope = createScope();
 
@@ -31,6 +32,7 @@ const cat = (v) => CATEGORIES.find((c) => c.value === v) || CATEGORIES[CATEGORIE
 let month = todayISO().slice(0, 7);
 let budget = {};
 let categoriasAprendidas = {};
+let nomesAprendidos = {};
 
 const ym = () => month;
 const monthLabel = (m) => capitalize(new Date(`${m}-01T12:00`).toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }));
@@ -71,7 +73,7 @@ const expenses = createRecordList({
     <span class="record__icon ${e.tipo === 'acerto' ? 'record__icon--green' : ''}">${icon(e.tipo === 'acerto' ? 'check' : cat(e.categoria).icon, 18)}</span>
     <span class="record__main">
       <span class="record__title">${e.descricao}</span>
-      <span class="record__meta">${memberName(e.pagoPor)} pagou${e.divisao === 'pagador' ? ' · pessoal' : e.divisao === 'outro' ? ' · adiantado' : ''}</span>
+      <span class="record__meta">${memberName(e.pagoPor)} pagou${e.divisao === 'pagador' ? ' · pessoal' : e.divisao === 'outro' ? ' · adiantado' : ''}${e.combustivel?.litros ? ` · ${String(e.combustivel.litros).replace('.', ',')} L` : ''}${e.fatura ? ' · fatura' : ''}</span>
     </span>
     <span class="record__value">${money(e.valor)}</span>`,
   onChange: () => drawSummary(),
@@ -160,6 +162,12 @@ function drawSummary() {
   setText('fin-bills-pending', pend.length ? `${pend.length} por pagar (${money(sum(pend))})` : 'Todas pagas');
 }
 
+const importarTpl = () => html`
+  <div class="fin-importar">
+    <button class="btn btn--glass pressable" data-action="fin:fatura">${icon('receipt', 18)} Ler fatura</button>
+    <button class="btn btn--glass pressable" data-action="fin:extrato">${icon('file', 18)} Importar extrato</button>
+  </div>`;
+
 function budgetModal() {
   return modalTemplate('fin-budget-modal', 'Orçamento mensal', html`
     <p class="muted small">Limite por categoria. Deixa em branco para não definir.</p>
@@ -209,11 +217,11 @@ export default {
           <span>${icon('bolt', 18)} Contas fixas</span><span class="muted small" id="fin-bills-pending"></span>
         </button>
         ${expenses.addButton('Registar despesa')}
-        <button class="btn btn--block btn--glass pressable fin-extrato-btn" data-action="fin:extrato">${icon('file', 18)} Importar extrato do banco (PDF)</button>
+        ${importarTpl()}
       </div>
       <div data-tab-panel="fin:despesas" hidden>
         ${expenses.addButton('Registar despesa')}
-        <button class="btn btn--block btn--glass pressable fin-extrato-btn" data-action="fin:extrato">${icon('file', 18)} Importar extrato do banco (PDF)</button>
+        ${importarTpl()}
         ${expenses.template()}
       </div>
       <div data-tab-panel="fin:contas" hidden>
@@ -222,9 +230,10 @@ export default {
       </div>`,
     onEnter: () => { drawSummary(); expenses.draw(); bills.draw(); },
   }],
-  modals: () => html`${expenses.modals()}${bills.modals()}${budgetModal()}${extratoModal()}`,
+  modals: () => html`${expenses.modals()}${bills.modals()}${budgetModal()}${extratoModal()}${faturaModal()}`,
   actions: {
     ...extratoActions,
+    ...faturaActions,
     'fin:month': ({ data }) => {
       month = shiftMonth(month, Number(data.step));
       expenses.draw();
@@ -273,11 +282,25 @@ export default {
     bills.subscribe(scope);
     scope.add(onSnapshot(sharedDoc('config', 'orcamento'), (s) => { budget = s.exists() ? s.data().limites || {} : {}; drawSummary(); }));
     scope.add(on('household:update', drawSummary));
-    scope.add(onSnapshot(sharedDoc('config', 'categorias_extrato'), (s) => { categoriasAprendidas = s.exists() ? s.data().regras || {} : {}; }));
+    scope.add(onSnapshot(sharedDoc('config', 'categorias_extrato'), (s) => {
+      categoriasAprendidas = s.exists() ? s.data().regras || {} : {};
+      nomesAprendidos = s.exists() ? s.data().nomes || {} : {};
+    }));
+    configurarFatura({
+      categorias: CATEGORIES,
+      despesas: () => expenses.items(),
+      aoGuardar: (m) => {
+        if (m) month = m;
+        expenses.draw();
+        bills.draw();
+        drawSummary();
+      },
+    });
     configurarExtrato({
       categorias: CATEGORIES,
       despesas: () => expenses.items(),
       aprendidas: () => categoriasAprendidas,
+      nomesAprendidos: () => nomesAprendidos,
       aoImportar: (m) => {
         if (m) month = m;
         expenses.draw();

@@ -2,6 +2,9 @@
 // Recebe o texto do PDF (com as posições, vindo do pdf.js), encontra os movimentos e categoriza-os
 // com regras por palavras-chave e com as correções que o casal já fez. Sem IA e sem Firebase,
 // para poder ser testado em Node.
+// Os dados pessoais (titular, IBAN, NIF, cartões, morada…) são retirados aqui, logo a seguir à leitura,
+// antes de qualquer coisa ser guardada ou enviada à IA (ver privacidade.js).
+import { identificarTitular, removerDadosPessoais } from './privacidade.js';
 
 export const CATEGORIAS_EXTRATO = ['casa', 'supermercado', 'restaurante', 'contas', 'transportes', 'saude', 'lazer', 'compras', 'viagens', 'outros'];
 
@@ -263,7 +266,12 @@ const RE_TRANSFERENCIA = /\b(lev(antamento)?|trf|transf(erencia)?|mb ?way|poupan
 /** Junta nome, chave, categoria (aprendida > palavras-chave) e se parece uma transferência. */
 export function categorizar(movimentos, aprendidas = {}) {
   return movimentos.map((m) => {
-    const comerciante = nomeComerciante(m.descricao);
+    let comerciante = nomeComerciante(m.descricao);
+    if (comerciante.replace(/[^\p{L}]/gu, '').length < 3) {
+      // Ex.: "MBWAY P/" depois de retirado o nome da pessoa.
+      const t = semAcentos(m.descricao).toLowerCase();
+      comerciante = /mb ?way/.test(t) ? 'MB WAY' : /lev/.test(t) ? 'Levantamento' : RE_TRANSFERENCIA.test(t) ? 'Transferência' : m.descricao;
+    }
     const chave = chaveComerciante(m.descricao);
     const categoria = aprendidas[chave] || categoriaPorPalavras(m.descricao);
     const transferencia = RE_TRANSFERENCIA.test(semAcentos(m.descricao).toLowerCase()) && !aprendidas[chave];
@@ -278,14 +286,152 @@ const BANCOS = [
   ['UCI', /\buci\b/], ['Banco CTT', /banco ctt/], ['EuroBic', /eurobic|abanca/],
 ];
 
-/** Extrato completo a partir das páginas do pdf.js. */
-export function lerExtratoDeTexto(paginas, { aprendidas = {}, ano } = {}) {
+/**
+ * Retira os dados pessoais das descrições dos movimentos (o perfil vem do cabeçalho do extrato).
+ * Nas transferências e MB WAY retira também palavras soltas dos nomes do titular/casal.
+ * Devolve { movimentos, removidos: { tipo: n.º de movimentos } }.
+ */
+export function limparMovimentos(movimentos, perfil) {
+  const removidos = {};
+  const limpos = movimentos.map((m) => {
+    const transferencia = RE_TRANSFERENCIA.test(semAcentos(m.descricao).toLowerCase());
+    const r = removerDadosPessoais(m.descricao, perfil, { nomesSoltos: transferencia });
+    r.removidos.forEach((t) => { removidos[t] = (removidos[t] || 0) + 1; });
+    const descricao = r.texto.replace(/\s+/g, ' ').trim() || (transferencia ? 'Transferência' : 'Movimento');
+    return { ...m, descricao };
+  });
+  return { movimentos: limpos, removidos };
+}
+
+/** Juntar o que se retirou do cabeçalho (titular, morada, IBAN…) com o que se retirou dos movimentos. */
+function resumoPrivacidade(linhas, perfil, removidosMovs) {
+  const cabecalho = {};
+  const texto = linhas.slice(0, 60).map((l) => l.texto).join('\n');
+  removerDadosPessoais(texto, perfil).removidos.forEach((t) => { cabecalho[t] = true; });
+  return { cabecalho: Object.keys(cabecalho), movimentos: removidosMovs };
+}
+
+/**
+ * Extrato completo a partir das páginas do pdf.js (ou de uma folha de cálculo convertida em linhas).
+ * nomesConhecidos: nomes dos membros do casal, que também são retirados.
+ */
+export function lerExtratoDeTexto(paginas, { aprendidas = {}, ano, nomesConhecidos = [] } = {}) {
   const linhas = agruparLinhas(paginas);
+  return montarExtrato(linhas, extrairMovimentos(linhas, { ano }), { aprendidas, nomesConhecidos });
+}
+
+function montarExtrato(linhas, brutos, { aprendidas = {}, nomesConhecidos = [] } = {}) {
   const tudo = semAcentos(linhas.slice(0, 40).map((l) => l.texto).join(' ')).toLowerCase();
   const banco = BANCOS.find(([, re]) => re.test(tudo))?.[0] || '';
-  const movimentos = categorizar(extrairMovimentos(linhas, { ano }), aprendidas).sort((a, b) => a.data.localeCompare(b.data));
+  const perfil = identificarTitular(linhas.map((l) => l.texto), { nomesConhecidos });
+  const { movimentos: limpos, removidos } = limparMovimentos(brutos, perfil);
+  const movimentos = categorizar(limpos, aprendidas).sort((a, b) => a.data.localeCompare(b.data));
   const datas = movimentos.map((m) => m.data);
-  return { banco, periodo: { inicio: datas[0] || '', fim: datas[datas.length - 1] || '' }, movimentos, linhas: linhas.length };
+  return {
+    banco,
+    periodo: { inicio: datas[0] || '', fim: datas[datas.length - 1] || '' },
+    movimentos,
+    linhas: linhas.length,
+    privacidade: resumoPrivacidade(linhas, perfil, removidos),
+  };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Folhas de cálculo (CSV / Excel exportado pelo banco)
+
+const COL_DATA = /^(data( (de )?(mov(imento)?|operacao|lancamento|transacao))?|data mov\.?|date|completed date|started date)$/;
+const COL_DESC = /^(descri(cao|tivo)?( do movimento)?|movimento|designacao|description|detalhe|texto|referencia)$/;
+const COL_DEB = /^(debito|debitos|levantamentos?|saidas?|money out|a debito|valor a debito)$/;
+const COL_CRED = /^(credito|creditos|depositos?|entradas?|money in|a credito|valor a credito)$/;
+const COL_MONT = /^(montante|valor|importancia|amount|montante \(eur\)|valor \(eur\)|montante eur)$/;
+const COL_SALDO = /^(saldo|saldo (contabilistico|disponivel|apos movimento)|balance)$/;
+
+const celula = (v) => semAcentos(String(v ?? '')).toLowerCase().replace(/\s+/g, ' ').trim();
+
+function numeroCelula(v) {
+  if (typeof v === 'number') return v;
+  let t = String(v ?? '').replace(/[€\s ]|EUR/gi, '').trim();
+  if (!t) return null;
+  let sinal = 1;
+  if (/^\(.*\)$/.test(t) || /-$/.test(t) || /^-/.test(t)) sinal = -1;
+  t = t.replace(/[()+-]/g, '');
+  if (/,\d{1,2}$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
+  else t = t.replace(/,/g, '');
+  const n = Number(t);
+  return Number.isFinite(n) ? n * sinal : null;
+}
+
+function dataCelula(v, ano) {
+  if (v instanceof Date && !Number.isNaN(v.getTime())) {
+    // O SheetJS cria as datas à meia-noite local: usar a data local (não UTC) para não recuar um dia.
+    const d = new Date(v.getTime() + 12 * 3600000);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  if (typeof v === 'number' && v > 20000 && v < 80000) { // data de série do Excel
+    return new Date(Math.round((v - 25569) * 86400000)).toISOString().slice(0, 10);
+  }
+  const t = String(v ?? '').trim().split(/[ T]/)[0];
+  return dataIso(t, ano);
+}
+
+/** Divide um CSV (separador ; , ou tab, com aspas) em linhas de células. */
+export function lerCsv(texto) {
+  const linhas = String(texto || '').replace(/^\uFEFF/, '').split(/\r?\n/).filter((l) => l.trim());
+  const amostra = linhas.slice(0, 15).join('\n');
+  const sep = [';', '\t', ','].map((s) => [s, amostra.split(s).length]).sort((a, b) => b[1] - a[1])[0][0];
+  return linhas.map((linha) => {
+    const out = [];
+    let atual = '';
+    let aspas = false;
+    for (let i = 0; i < linha.length; i += 1) {
+      const c = linha[i];
+      if (c === '"') { if (aspas && linha[i + 1] === '"') { atual += '"'; i += 1; } else aspas = !aspas; } else if (c === sep && !aspas) { out.push(atual); atual = ''; } else atual += c;
+    }
+    out.push(atual);
+    return out.map((x) => x.trim());
+  });
+}
+
+/**
+ * Extrato a partir de uma tabela (linhas de células) de um CSV/Excel do banco.
+ * Encontra a linha de cabeçalho (Data, Descrição, Débito/Crédito ou Montante, Saldo).
+ */
+export function lerExtratoDeTabela(tabela, { aprendidas = {}, ano, nomesConhecidos = [] } = {}) {
+  const linhasTexto = tabela.map((cels, i) => ({ texto: cels.map((c) => String(c ?? '')).join(' ').replace(/\s+/g, ' ').trim(), pagina: 0, y: -i }));
+  const anoBase = ano || anoDoDocumento(linhasTexto);
+  let cab = -1;
+  let col = {};
+  for (let i = 0; i < Math.min(tabela.length, 40) && cab < 0; i += 1) {
+    const c = {};
+    tabela[i].forEach((v, j) => {
+      const t = celula(v);
+      if (c.data == null && COL_DATA.test(t)) c.data = j;
+      else if (c.desc == null && COL_DESC.test(t)) c.desc = j;
+      else if (c.deb == null && COL_DEB.test(t)) c.deb = j;
+      else if (c.cred == null && COL_CRED.test(t)) c.cred = j;
+      else if (c.mont == null && COL_MONT.test(t)) c.mont = j;
+      else if (c.saldo == null && COL_SALDO.test(t)) c.saldo = j;
+    });
+    if (c.data != null && c.desc != null && (c.mont != null || c.deb != null || c.cred != null)) { cab = i; col = c; }
+  }
+  if (cab < 0) return montarExtrato(linhasTexto, [], { aprendidas, nomesConhecidos });
+  const brutos = [];
+  for (const cels of tabela.slice(cab + 1)) {
+    const data = dataCelula(cels[col.data], anoBase);
+    const descricao = String(cels[col.desc] ?? '').replace(/\s+/g, ' ').trim();
+    if (!data || !descricao) continue;
+    let valor = null;
+    let tipo = null;
+    const deb = col.deb != null ? numeroCelula(cels[col.deb]) : null;
+    const cred = col.cred != null ? numeroCelula(cels[col.cred]) : null;
+    if (deb) { valor = Math.abs(deb); tipo = 'debito'; } else if (cred) { valor = Math.abs(cred); tipo = 'credito'; } else if (col.mont != null) {
+      const m = numeroCelula(cels[col.mont]);
+      if (m) { valor = Math.abs(m); tipo = m < 0 ? 'debito' : 'credito'; }
+    }
+    if (!valor) continue;
+    brutos.push({ data, descricao, valor: arred(valor), tipo });
+  }
+  return montarExtrato(linhasTexto.slice(0, cab + 1), brutos, { aprendidas, nomesConhecidos });
 }
 
 /** Um movimento já existe nas despesas se tiver a mesma data e o mesmo valor. */
@@ -327,23 +473,37 @@ export function pedidoCategorias(movimentos, aprendidas = {}) {
 }
 
 export function promptCategorias(itens) {
-  return `Categoriza despesas de um casal em Portugal a partir do nome do comerciante que aparece no extrato bancário.
+  return `Categoriza despesas de um casal em Portugal a partir do nome do comerciante que aparece no extrato bancário
+e dá um nome limpo e legível a cada comerciante (ex.: "Pd Braga Lamacaes" -> "Pingo Doce", "Wwwamazon Es" -> "Amazon",
+"Mcdonalds 0234" -> "McDonald's"). O nome deve ser a marca ou loja, sem localidades, códigos nem formas jurídicas.
 Categorias possíveis: ${CATEGORIAS_EXTRATO.join(', ')}.
 (casa = renda, prestação, mobília, bricolage; contas = luz, gás, água, telecomunicações, seguros, impostos, comissões;
 supermercado = supermercados e mercearias; restaurante = restaurantes, cafés, entregas de comida; transportes = combustível,
 portagens, estacionamento, transportes públicos, TVDE, oficina; saude = farmácias, clínicas, ginásio; lazer = streaming,
 subscrições digitais, cinema, espetáculos, bares; compras = roupa, eletrónica, lojas online; viagens = hotéis, voos, alojamento.)
-Se não souberes, usa "outros". Devolve APENAS JSON: {"categorias": {"0": "supermercado", "1": "lazer"}} com o número de cada linha.
+Se não souberes a categoria usa "outros"; se não souberes o nome, repete-o. Devolve APENAS JSON:
+{"itens": {"0": {"categoria": "supermercado", "nome": "Pingo Doce"}, "1": {"categoria": "lazer", "nome": "Netflix"}}} com o número de cada linha.
 ${itens.map((it, i) => `${i}: ${it.texto}`).join('\n')}`;
+}
+
+/** Converte a resposta da IA em { categorias: { chave: categoria }, nomes: { chave: nome } }. */
+export function lerRespostaIa(resposta, itens) {
+  const categorias = {};
+  const nomes = {};
+  const porItem = resposta?.itens || {};
+  const antigas = resposta?.categorias || {};
+  itens.forEach((it, i) => {
+    const r = porItem[i] ?? porItem[String(i)];
+    const c = typeof r === 'string' ? r : r?.categoria ?? antigas[i] ?? antigas[String(i)];
+    if (CATEGORIAS_EXTRATO.includes(c)) categorias[it.chave] = c;
+    const nome = typeof r === 'object' && r ? String(r.nome || '').replace(/\s+/g, ' ').trim() : '';
+    // Só aceita nomes curtos e sem números (não deixa a IA "inventar" dados).
+    if (nome && nome.length <= 40 && !/\d{3,}/.test(nome)) nomes[it.chave] = nome;
+  });
+  return { categorias, nomes };
 }
 
 /** Converte a resposta da IA em { chave: categoria }, ignorando categorias inválidas. */
 export function lerRespostaCategorias(resposta, itens) {
-  const out = {};
-  const cats = resposta?.categorias || {};
-  itens.forEach((it, i) => {
-    const c = cats[i] ?? cats[String(i)];
-    if (CATEGORIAS_EXTRATO.includes(c)) out[it.chave] = c;
-  });
-  return out;
+  return lerRespostaIa(resposta, itens).categorias;
 }

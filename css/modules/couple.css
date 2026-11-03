@@ -203,3 +203,37 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 .ext-rodape .btn--primary { flex: 1; }
 @media (max-width: 420px) { .ext-opcoes { grid-template-columns: 1fr; } }
 .ext-afinar { margin: -4px 0 12px; }
+
+/* ---------- Finanças: importar extrato e ler faturas (passos de privacidade) ---------- */
+.fin-importar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.fin-importar .btn { justify-content: center; }
+.ext-passos { list-style: none; margin: 14px 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ext-passos li { display: flex; gap: 10px; align-items: flex-start; }
+.ext-passos li > span:last-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ext-passos small { font-size: 12.5px; color: var(--text-muted); line-height: 1.35; }
+.ext-passos__n { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--accent); background: rgba(var(--accent-rgb, 16, 185, 129), .14); }
+.ext-passos li.is-ok .ext-passos__n { color: #fff; background: var(--accent); }
+.ext-passos li.is-off .ext-passos__n { color: var(--text-muted); background: var(--soft-bg); }
+.ext-passos--feito { margin: 0; }
+.ext-privacidade { padding: 12px 14px; margin-bottom: 12px; }
+.spinner--small { width: 14px; height: 14px; border-width: 2px; }
+.ext-enviado { margin-top: 6px; font-size: 12.5px; }
+.ext-enviado summary { cursor: pointer; color: var(--accent); }
+.ext-enviado p, .ext-enviado pre { margin: 6px 0 0; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--soft-bg); color: var(--text-muted); white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; max-height: 180px; overflow: auto; }
+.ext-ia-toggle { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--hairline); border-radius: var(--radius-sm); cursor: pointer; }
+.ext-ia-toggle input { flex: none; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); }
+.ext-ia-toggle > span { display: flex; flex-direction: column; gap: 2px; }
+.ext-ia-toggle small { font-size: 12.5px; color: var(--text-muted); }
+.ext-ler__barra { width: min(280px, 100%); height: 8px; }
+.ext-ler__barra > span { transition: width .3s ease; }
+.ext-linha__nome { width: 100%; padding: 2px 0; border: 0; border-bottom: 1px dashed transparent; background: none; color: inherit; font: inherit; font-weight: 600; }
+.ext-linha__nome:focus { outline: none; border-bottom-color: var(--accent); }
+.ffat-botoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+.ffat-botoes .btn { justify-content: center; }
+.ffat-preview { max-width: 160px; max-height: 200px; border-radius: var(--radius-sm); object-fit: cover; opacity: .9; }
+.ffat-grelha { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ffat-grelha .field { margin: 0; }
+.ffat-combustivel { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; margin: 12px 0; }
+.ffat-combustivel[hidden] { display: none; }
+.ffat-igual { margin-top: 12px; border-color: var(--accent); }
+@media (max-width: 380px) { .fin-importar, .ffat-botoes { grid-template-columns: 1fr; } }

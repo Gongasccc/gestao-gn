@@ -22,7 +22,8 @@ export class PdfProtegido extends Error {
 }
 
 /** Devolve as páginas do PDF como listas de { str, x, y, w }. */
-export async function textoDoPdf(bytes, { password } = {}) {
+/** progresso(0..1) é chamado a cada página lida. */
+export async function textoDoPdf(bytes, { password, progresso } = {}) {
   let lib;
   try {
     lib = await pdfjs();
@@ -41,7 +42,29 @@ export async function textoDoPdf(bytes, { password } = {}) {
     const pagina = await pdf.getPage(n);
     const { items } = await pagina.getTextContent();
     paginas.push(items.filter((i) => 'str' in i).map((i) => ({ str: i.str, x: i.transform[4], y: i.transform[5], w: i.width })));
+    progresso?.(n / pdf.numPages);
   }
   await pdf.destroy();
   return paginas;
+}
+
+// Folhas de cálculo (Excel .xlsx/.xls) lidas no dispositivo com o SheetJS; o CSV não precisa de biblioteca.
+const SHEETJS = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm';
+let sheetjs;
+
+/** Devolve a primeira folha com dados como lista de linhas de células. */
+export async function tabelaDoExcel(bytes) {
+  try {
+    sheetjs ??= import(SHEETJS).catch((e) => { sheetjs = null; throw e; });
+    const XLSX = await sheetjs;
+    const livro = XLSX.read(bytes, { type: 'array', cellDates: true });
+    for (const nome of livro.SheetNames) {
+      const linhas = XLSX.utils.sheet_to_json(livro.Sheets[nome], { header: 1, raw: true, defval: '' });
+      if (linhas.length > 1) return linhas;
+    }
+    return [];
+  } catch (e) {
+    console.error('[extrato] excel', e);
+    throw new Error('Não foi possível abrir esta folha de cálculo. Tenta exportar em PDF ou CSV.');
+  }
 }

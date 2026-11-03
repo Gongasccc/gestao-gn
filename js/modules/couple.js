@@ -15,7 +15,7 @@ import { avatar } from '../components/avatar.js';
 const scope = createScope();
 
 async function reload() {
-  await loadHousehold(session.profile);
+  try { await loadHousehold(session.profile); } catch { /* sem rede: mantém o casal atual */ }
   emit('household:changed');
   draw();
 }

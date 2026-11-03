@@ -49,9 +49,10 @@ export async function loadHousehold(profile) {
     session.members = await loadMembers(session.household.members);
     return session.household;
   } catch (err) {
+    // Sem resposta do servidor não sabemos se ainda é membro: mantém o casal do perfil
+    // (assim nada é gravado por engano no espaço pessoal) e o watchHousehold atualiza depois.
     console.error('[household] load', err);
-    session.householdId = null;
-    return null;
+    throw err;
   }
 }
 

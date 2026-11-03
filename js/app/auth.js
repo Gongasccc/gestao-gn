@@ -8,12 +8,14 @@ import { session } from '../core/state.js';
 import { alertDialog } from '../core/ui.js';
 import { applyTheme, DEFAULT_ACCENT } from '../core/theme.js';
 import {
-  auth, getDoc, setDoc,
+  auth, getDoc, getDocFromCache, setDoc,
   signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged,
   sendPasswordResetEmail, verifyBeforeUpdateEmail,
 } from '../services/firebase.js';
 import { profileDoc, loginDoc } from '../services/paths.js';
 import { loadHousehold } from '../services/household.js';
+import { emit } from '../core/state.js';
+import { comPrazo, guardarSessao, lerSessao, esquecerSessao } from '../services/arranque.js';
 
 let mode = 'login'; // 'login' | 'register' | 'forgot'
 
@@ -174,27 +176,68 @@ async function submit() {
   }
 }
 
-async function loadProfile(user) {
-  session.uid = user.uid;
+function aplicarPerfil(user, p, { sincronizar = true } = {}) {
+  session.profile = p || {};
+  session.name = p?.username || 'Utilizador';
+  session.avatar = p?.avatarUrl || '';
+  if (p?.theme) applyTheme(p.theme);
+  if (p && sincronizar) syncLoginEmail(user, p);
+}
+
+/** Lê o perfil do servidor; se demorar, usa a cópia do Firestore no telemóvel. */
+async function lerPerfil(uid, rapido) {
   try {
-    const snap = await getDoc(profileDoc(user.uid));
-    if (snap.exists()) {
-      const p = snap.data();
-      session.profile = p;
-      session.name = p.username || 'Utilizador';
-      session.avatar = p.avatarUrl || '';
-      if (p.theme) applyTheme(p.theme);
-      syncLoginEmail(user, p);
-    } else {
-      session.name = 'Utilizador';
-    }
-    await loadHousehold(session.profile);
+    return await comPrazo(getDoc(profileDoc(uid)), rapido ? 3000 : 6000);
   } catch (err) {
-    console.error('[auth] perfil', err);
+    console.warn('[auth] perfil do servidor', err?.message);
+    return comPrazo(getDocFromCache(profileDoc(uid)), 2000);
   }
 }
 
+// Nunca deixa a entrada presa: se o Firestore não responder, abre com a última sessão guardada
+// e atualiza em segundo plano quando ele responder.
+async function loadProfile(user) {
+  session.uid = user.uid;
+  const guardada = lerSessao(user.uid);
+  try {
+    const snap = await lerPerfil(user.uid, !!guardada);
+    aplicarPerfil(user, snap.exists() ? snap.data() : null);
+    await comPrazo(loadHousehold(session.profile), 8000);
+    guardarSessao(user.uid, session);
+    return;
+  } catch (err) {
+    console.warn('[auth] perfil', err?.message || err);
+  }
+  if (guardada) {
+    aplicarPerfil(user, guardada.profile, { sincronizar: false });
+    session.householdId = guardada.profile?.householdId || null;
+    session.household = guardada.household || null;
+    session.members = guardada.members?.length ? guardada.members
+      : [{ uid: session.uid, name: session.name, avatar: session.avatar }];
+  } else {
+    // Sem cópia guardada: usa o que se conseguiu ler (o perfil pode ter vindo e só o casal falhou).
+    if (!session.profile?.username) aplicarPerfil(user, null, { sincronizar: false });
+    session.householdId = session.profile?.householdId || null;
+    session.members = [{ uid: session.uid, name: session.name, avatar: session.avatar }];
+  }
+  atualizarDepois(user);
+}
+
+/** Depois de abrir com a sessão guardada, confirma no servidor e corrige se algo mudou. */
+function atualizarDepois(user) {
+  const antes = session.householdId;
+  getDoc(profileDoc(user.uid)).then(async (snap) => {
+    if (session.uid !== user.uid || !snap.exists()) return;
+    aplicarPerfil(user, snap.data());
+    await loadHousehold(session.profile);
+    guardarSessao(user.uid, session);
+    emit('avatar:refresh');
+    if (session.householdId !== antes) emit('household:changed');
+  }).catch((err) => console.warn('[auth] atualizar perfil', err?.message));
+}
+
 export async function logout() {
+  esquecerSessao(session.uid);
   await signOut(auth);
 }
 

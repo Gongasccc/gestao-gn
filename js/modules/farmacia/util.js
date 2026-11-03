@@ -42,27 +42,32 @@ export function formatarData(validade) {
 }
 
 // Infarmed (INFOMED) é a fonte oficial em Portugal para o Folheto Informativo e o RCM.
-export function linksOficiais(med) {
-  const nome = [med.nome, med.dosagem].filter(Boolean).join(' ');
-  const substancia = med.substancia || med.nome || '';
-  const google = (q) => `https://www.google.com/search?q=${encodeURIComponent(q)}`;
-  return [
-    {
-      titulo: 'Folheto informativo (PDF)',
-      fonte: 'Infarmed',
-      url: google(`${nome} folheto informativo site:infarmed.pt filetype:pdf`),
-    },
-    {
-      titulo: 'INFOMED: RCM e folheto',
-      fonte: 'Infarmed',
-      url: 'https://extranet.infarmed.pt/INFOMED-fo/',
-    },
-    {
-      titulo: 'Agência Europeia do Medicamento',
-      fonte: 'EMA',
-      url: `https://www.ema.europa.eu/en/search?search_api_fulltext=${encodeURIComponent(substancia)}`,
-    },
-  ];
+const dominio = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+
+/**
+ * Fontes da informação de um medicamento: só endereços exatos de páginas que a pesquisa Google
+ * encontrou. Um endereço dito pela IA só é aceite se o domínio estiver entre as páginas da pesquisa
+ * (para não mostrar links inventados). Se nenhum passar, usa os links da própria pesquisa.
+ * paginasPesquisa: [{ url, titulo }] (titulo = domínio da página, como a Google o devolve).
+ */
+export function fontesValidas(propostas, paginasPesquisa = []) {
+  const dominiosPesquisa = new Set(paginasPesquisa.map((p) => String(p.titulo || dominio(p.url)).replace(/^www\./, '').toLowerCase()));
+  const out = [];
+  for (const f of propostas || []) {
+    const url = String(f?.url || '');
+    const d = dominio(url);
+    if (!/^https?:\/\//.test(url) || !d || out.some((o) => o.url === url)) continue;
+    if (dominiosPesquisa.size && ![...dominiosPesquisa].some((x) => d === x || d.endsWith(`.${x}`) || x.endsWith(`.${d}`))) continue;
+    out.push({ titulo: String(f.titulo || d), fonte: d, url });
+  }
+  if (!out.length) {
+    for (const p of paginasPesquisa) {
+      if (!/^https?:\/\//.test(p.url || '') || out.some((o) => o.url === p.url)) continue;
+      const d = String(p.titulo || dominio(p.url));
+      out.push({ titulo: d, fonte: d, url: p.url });
+    }
+  }
+  return out.slice(0, 6);
 }
 
 // ---------- Inventário ----------

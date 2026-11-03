@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { diasRestantes, estadoStock, textoStock, textoFimStock, chaveNome } from '../js/modules/farmacia/util.js';
+import { fontesValidas, diasRestantes, estadoStock, textoStock, textoFimStock, chaveNome } from '../js/modules/farmacia/util.js';
 
 test('dias restantes com toma diária', () => {
   assert.equal(diasRestantes({ quantidade: 20, tomaDiaria: 2 }), 10);
@@ -27,4 +27,23 @@ test('textos do stock', () => {
 test('chave do nome ignora acentos e maiúsculas', () => {
   assert.equal(chaveNome('Ben-u-ron 500'), chaveNome('ben u ron 500'));
   assert.equal(chaveNome('Fenistil Gél'), 'fenistil gel');
+});
+
+test('fontes: só endereços exatos de domínios que a pesquisa encontrou', () => {
+  const pesquisa = [
+    { url: 'https://vertexaisearch.cloud.google.com/grounding-api-redirect/abc', titulo: 'infarmed.pt' },
+    { url: 'https://vertexaisearch.cloud.google.com/grounding-api-redirect/def', titulo: 'ema.europa.eu' },
+  ];
+  assert.deepEqual(fontesValidas([
+    { titulo: 'Folheto informativo (PDF)', url: 'https://extranet.infarmed.pt/INFOMED-fo/download-ficheiro.xhtml?med_id=1' },
+    { titulo: 'Inventado', url: 'https://site-inventado.com/x' },
+    { titulo: 'EMA', url: 'https://www.ema.europa.eu/en/medicines/paracetamol' },
+    { titulo: 'Pesquisa', url: 'nada' },
+  ], pesquisa), [
+    { titulo: 'Folheto informativo (PDF)', fonte: 'extranet.infarmed.pt', url: 'https://extranet.infarmed.pt/INFOMED-fo/download-ficheiro.xhtml?med_id=1' },
+    { titulo: 'EMA', fonte: 'ema.europa.eu', url: 'https://www.ema.europa.eu/en/medicines/paracetamol' },
+  ]);
+  // Sem propostas válidas: usa as páginas da própria pesquisa.
+  assert.deepEqual(fontesValidas([], pesquisa).map((f) => f.fonte), ['infarmed.pt', 'ema.europa.eu']);
+  assert.deepEqual(fontesValidas(null, []), []);
 });

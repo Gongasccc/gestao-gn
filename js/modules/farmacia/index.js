@@ -10,11 +10,11 @@ import { toast, confirmDialog, withLoading } from '../../core/ui.js';
 import { criarProgresso } from '../../core/progress.js';
 import { icon } from '../../core/icons.js';
 import { session, createScope, emit } from '../../core/state.js';
-import { analisarFoto, analisarNome } from './ai.js';
+import { analisarFoto, analisarNome, procurarFontes } from './ai.js';
 import { procurarFotoCaixa } from './fotoWeb.js';
 import { removerFundo, prepararParaIA, miniatura, comLimite } from './imagem.js';
 import {
-  estadoValidade, textoContagem, formatarData, linksOficiais, DIAS_ALERTA,
+  estadoValidade, textoContagem, formatarData, DIAS_ALERTA,
   estadoStock, textoStock, textoFimStock, chaveNome,
 } from './util.js';
 import { iniciarTratamentos, pararTratamentos, blocoTratamentos, paginaTratamento, tratamentosAlertas } from './tratamentos.js';
@@ -127,14 +127,18 @@ function fichaInfo(m) {
   return blocos;
 }
 
-const linksHtml = (m) => html`
-  <section class="farm-bloco glass"><h3>${icon('book', 18)} Fontes oficiais</h3>
-    <div class="farm-links">
-      ${linksOficiais(m).map((l) => html`
+const listaFontes = (m) => (m.fontes?.length
+  ? html`<div class="farm-links">
+      ${m.fontes.map((l) => html`
         <a class="farm-link" href="${l.url}" target="_blank" rel="noopener noreferrer">
           <span>${l.titulo}</span><small>${l.fonte}</small>${icon('external', 18)}
         </a>`)}
-    </div>
+    </div>`
+  : html`<p class="farm-descricao">${m.fontesEstado === 'erro' ? 'Não foi possível encontrar as páginas de origem.' : 'A procurar as páginas de onde vem esta informação…'}</p>`);
+
+const linksHtml = (m) => html`
+  <section class="farm-bloco glass"><h3>${icon('book', 18)} Fontes da informação</h3>
+    ${listaFontes(m)}
     <div class="farm-contactos">
       <a class="btn" href="tel:808242424">SNS 24 · 808 24 24 24</a>
       <a class="btn" href="tel:800250250">Intoxicações (CIAV) · 800 250 250</a>
@@ -315,6 +319,7 @@ function renderNovo() {
       ${blocoInventarioNovo(info, existente)}
       <section class="farm-bloco glass"><h3>${icon('calendar', 18)} Data de validade</h3>${seletorValidade(rascunho.validade || info.validade)}</section>
       ${fichaInfo(info)}
+      <section class="farm-bloco glass"><h3>${icon('book', 18)} Fontes da informação</h3>${listaFontes(info)}</section>
       ${avisoMedico}
       <button class="btn btn--primary farm-guardar" data-action="farmacia:guardar">${existente ? 'Juntar à farmácia' : 'Guardar na farmácia'}</button>`;
   }
@@ -353,6 +358,7 @@ function renderDetalhe() {
   const m = medicamentos.find((x) => x.id === atualId);
   if (!alvo) return;
   if (!m) { render(alvo, html`<div class="farm-vazio"><p>Medicamento não encontrado.</p></div>`); return; }
+  completarFontes(m);
   const { estado } = estadoValidade(m.validade);
   const arquivado = !emCasa(m);
   render(alvo, html`
@@ -453,12 +459,40 @@ async function processarFoto(ficheiro) {
     if (rascunho?.id !== id) return;
     if (!info.identificado) throw new Error('Não consegui ler o nome na foto. Tira outra foto com o nome da caixa bem visível, ou escreve o nome.');
     atualizarRascunho({ info, fase: 'pronto', validade: info.validade || '' });
+    buscarFontes(id, info);
     melhorarFoto(ficheiro, id);
   } catch (e) {
     if (rascunho?.id === id) atualizarRascunho({ fase: 'erro', erro: e.message });
   } finally {
     prog.parar();
   }
+}
+
+// Depois de identificar o medicamento, vai buscar as páginas exatas de onde vem a informação.
+function buscarFontes(id, info) {
+  procurarFontes(info).then((fontes) => {
+    if (rascunho?.id !== id || !rascunho.info) return;
+    atualizarRascunho({ info: { ...rascunho.info, fontes, fontesEstado: fontes.length ? 'ok' : 'erro' } });
+  }).catch((e) => {
+    console.warn('[farmacia] fontes', e);
+    if (rascunho?.id === id && rascunho.info) atualizarRascunho({ info: { ...rascunho.info, fontesEstado: 'erro' } });
+  });
+}
+
+// Medicamentos já guardados sem fontes: procura-as uma vez ao abrir o detalhe e guarda-as.
+const fontesPedidas = new Set();
+function completarFontes(m) {
+  if (m.fontes?.length || fontesPedidas.has(m.id)) return;
+  fontesPedidas.add(m.id);
+  procurarFontes(m).then((fontes) => {
+    if (fontes.length) return updateDoc(sharedDoc(COLECAO, m.id), { fontes });
+    m.fontesEstado = 'erro';
+    if (atualId === m.id) renderDetalhe();
+  }).catch((e) => {
+    console.warn('[farmacia] fontes', e);
+    m.fontesEstado = 'erro';
+    if (atualId === m.id) renderDetalhe();
+  });
 }
 
 // Sem foto tirada pelo utilizador: depois de a IA identificar o medicamento, procura na web uma foto
@@ -487,6 +521,7 @@ async function pesquisarNome(nome) {
     if (!info.identificado) throw new Error(`Não encontrei "${nome}". Verifica o nome escrito na embalagem.`);
     atualizarRascunho({ info, fase: 'pronto', validade: validade || info.validade || '' });
     buscarFotoCaixa(id, info);
+    buscarFontes(id, info);
   } catch (e) {
     atualizarRascunho({ fase: 'erro', erro: e.message, info: { nome } });
   } finally {
@@ -651,7 +686,7 @@ export default {
       const notas = byId('farm-notas')?.value.trim() || '';
       const validade = lerValidade();
       const existente = procurarExistente(nome, info.dosagem);
-      const { validade: _v, identificado: _i, confianca: _c, ...ficha } = info;
+      const { validade: _v, identificado: _i, confianca: _c, fontesEstado: _f, ...ficha } = info;
 
       if (existente) {
         const base = emCasa(existente) ? Number(existente.quantidade) || 0 : 0;

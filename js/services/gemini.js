@@ -77,7 +77,7 @@ async function obterModelo(nome) {
 
 /**
  * Pergunta com pesquisa Google (grounding): o Gemini pesquisa na web antes de responder.
- * Devolve { json, fontes } — fontes são os endereços das páginas que usou.
+ * Devolve { json, fontes, paginas } — fontes são os endereços das páginas que usou; paginas = [{ url, titulo }].
  */
 export async function pedirComPesquisa(texto) {
   await ativarAppCheck();
@@ -92,8 +92,9 @@ export async function pedirComPesquisa(texto) {
       const modelo = getGenerativeModel(ai, { model: nome, tools: [{ googleSearch: {} }], generationConfig: { temperature: 0.1 } });
       const res = await modelo.generateContent(texto);
       const cand = res.response.candidates?.[0];
-      const fontes = (cand?.groundingMetadata?.groundingChunks || []).map((c) => c.web?.uri).filter(Boolean);
-      return { json: extrairJson(res.response.text()), fontes };
+      const chunks = (cand?.groundingMetadata?.groundingChunks || []).map((c) => c.web).filter((w) => w?.uri);
+      const fontes = chunks.map((w) => w.uri);
+      return { json: extrairJson(res.response.text()), fontes, paginas: chunks.map((w) => ({ url: w.uri, titulo: w.title || '' })) };
     } catch (e) {
       ultimoErro = e;
       console.warn(`[gemini+pesquisa] ${nome} falhou`, e);

@@ -31,7 +31,7 @@ export const nomeSeccao = (id) => SECCOES.find((s) => s.id === id)?.nome || 'Out
  */
 const MARCAS = {
   continente: { cor: '#E30613', cor2: '#B0000E', texto: '#fff', sigla: 'C' },
-  pingodoce: { cor: '#7AB51D', cor2: '#3E8E1F', texto: '#fff', sigla: 'PD' },
+  pingodoce: { cor: '#1A1A1A', cor2: '#95C11F', texto: '#fff', sigla: 'PD' },
   lidl: { cor: '#0050AA', cor2: '#003C82', texto: '#FFF000', sigla: 'L' },
   auchan: { cor: '#E2001A', cor2: '#00A04A', texto: '#fff', sigla: 'A' },
   intermarche: { cor: '#E30613', cor2: '#1D1D1B', texto: '#fff', sigla: 'I' },

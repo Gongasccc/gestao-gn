@@ -12,6 +12,8 @@ import { initAuth } from './app/auth.js';
 import { resetChecklists } from './components/checklist.js';
 import { MODULES } from './modules/index.js';
 import { watchHousehold } from './services/household.js';
+import { cacheLocalAtiva } from './services/firebase.js';
+import { toast } from './core/ui.js';
 
 const householdScope = createScope();
 
@@ -69,8 +71,17 @@ on('household:changed', () => {
   startModules();
 });
 
+// Caso raro: a base de dados do telemóvel não respondeu e esta abertura guarda só em memória.
+// Com internet tudo vai logo para a nuvem; sem internet avisamos para não fechar a app.
+function avisarSemCacheLocal() {
+  if (cacheLocalAtiva || navigator.onLine) return;
+  toast('Sem internet e sem memória do telemóvel disponível: não feches a app até a ligação voltar, para as alterações chegarem à nuvem.', 'error', 9000);
+}
+if (!cacheLocalAtiva) window.addEventListener('offline', avisarSemCacheLocal);
+
 initAuth({
   onLogin() {
+    avisarSemCacheLocal();
     startModules();
     emit('avatar:refresh');
     resetRouter();

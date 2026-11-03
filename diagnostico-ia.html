@@ -19,7 +19,6 @@
   <h1>Diagnóstico da IA (App Check)</h1>
   <ul id="passos"></ul>
   <script type="module">
-    import { app } from './js/services/firebase.js';
     import { RECAPTCHA_SITE_KEY } from './js/services/gemini.js';
 
     const SDK = '11.10.0';
@@ -54,11 +53,8 @@
 
     // 2) App Check: troca o token do reCAPTCHA por um token do Firebase.
     try {
-      const { initializeAppCheck, ReCaptchaEnterpriseProvider, getToken } = await import(
-        `https://www.gstatic.com/firebasejs/${SDK}/firebase-app-check.js`
-      );
-      const ac = initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY) });
-      const { token } = await getToken(ac, true);
+      const { testarAppCheck } = await import('./js/services/gemini.js');
+      const token = await testarAppCheck();
       passo(true, 'App Check deu um token do Firebase', `${token.slice(0, 24)}…`);
     } catch (e) {
       passo(false, 'App Check falhou', texto(e));

@@ -18,6 +18,7 @@ export const RECAPTCHA_SITE_KEY = '6LcSvQ4uAAAAAAJneoGTcqwievPud5PnLZHhViKt';
 export const RECAPTCHA_TIPO = 'enterprise';
 
 let appCheckPronto = null;
+let instanciaAppCheck = null;
 let erroAppCheck = ''; // motivo real da falha do token, para mostrar na mensagem
 function ativarAppCheck() {
   if (!appCheckPronto) {
@@ -28,7 +29,7 @@ function ativarAppCheck() {
       const { initializeAppCheck, getToken, ReCaptchaV3Provider, ReCaptchaEnterpriseProvider } = await import(
         `https://www.gstatic.com/firebasejs/${FIREBASE_SDK}/firebase-app-check.js`
       );
-      const appCheck = initializeAppCheck(app, {
+      const appCheck = instanciaAppCheck = initializeAppCheck(app, {
         provider: RECAPTCHA_TIPO === 'enterprise'
           ? new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY || 'debug')
           : new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY || 'debug'),
@@ -48,6 +49,14 @@ function ativarAppCheck() {
     });
   }
   return appCheckPronto;
+}
+
+/** Para o diagnóstico: pede um token novo e devolve-o (ou lança o erro real do App Check). */
+export async function testarAppCheck() {
+  await ativarAppCheck();
+  if (!instanciaAppCheck) throw new Error(erroAppCheck || 'App Check não iniciou.');
+  const { getToken } = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK}/firebase-app-check.js`);
+  return (await getToken(instanciaAppCheck, true)).token;
 }
 
 const modelos = new Map();

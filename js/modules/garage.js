@@ -1,16 +1,18 @@
-// Garagem: veículos e respetivos documentos (seguro, inspeção, manutenções…).
+// Garagem: veículos, documentos (seguro, inspeção, manutenções…) e gastos por mês.
 import { html, render, byId, emptyState, setText } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { createScope, emit } from '../core/state.js';
 import { navigate, back } from '../core/router.js';
 import { confirmDialog, toast, withLoading, modalTemplate, openModal, closeModal } from '../core/ui.js';
-import { isoToShort } from '../core/format.js';
+import { isoToShort, money, todayISO } from '../core/format.js';
 import { daysUntil, parseISODate, countdownLabel } from '../core/dates.js';
 import { addDoc, deleteDoc, updateDoc, onSnapshot } from '../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList, storageScope } from '../services/paths.js';
 import { uploadDataUrl } from '../services/storage.js';
 import { createFileBrowser } from '../components/file-browser.js';
 import { photoPickerTpl, getPhoto, clearPhoto } from '../components/photo-picker.js';
+import { createRecordList } from '../components/record-list.js';
+import { CATEGORIAS_CARRO, categoriaCarro, resumoMes, mudarMes, mediaMensal, consumoMedio } from './garagem/gastos.js';
 import { removerFundo, miniatura, comLimite, preCarregarRemocaoFundo } from './farmacia/imagem.js';
 
 const scope = createScope();
@@ -18,6 +20,114 @@ const carScope = createScope();
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=900&q=70';
 let cars = [];
 let currentCarId = null;
+let month = todayISO().slice(0, 7);
+
+const monthLabel = (m) => { const t = new Date(`${m}-01T12:00`).toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); };
+
+// Gastos de todos os veículos numa só coleção (carroId), para somar por mês e por carro.
+const gastos = createRecordList({
+  key: 'carros_gastos',
+  col: () => sharedCol('carros_gastos'),
+  docRef: (id) => sharedDoc('carros_gastos', id),
+  addTitle: 'Novo gasto',
+  editTitle: 'Editar gasto',
+  addedToast: 'Gasto registado',
+  empty: 'Sem gastos deste veículo neste mês.',
+  emptyIcon: 'wallet',
+  fields: [
+    { name: 'carroId', label: 'Veículo', type: 'select', options: () => cars.map((c) => ({ value: c.id, label: c.matricula ? `${c.nome} · ${c.matricula}` : c.nome })), default: () => currentCarId || cars[0]?.id || '', required: true },
+    { name: 'categoria', label: 'Tipo de gasto', type: 'select', options: CATEGORIAS_CARRO, default: 'combustivel' },
+    { name: 'valor', label: 'Valor (€)', type: 'money', required: true },
+    { name: 'data', label: 'Data', type: 'date', default: todayISO, required: true },
+    { name: 'descricao', label: 'Descrição (opcional)', placeholder: 'ex: Galp, mudança de óleo' },
+    { name: 'litros', label: 'Litros (combustível, opcional)', type: 'number', hint: 'Com litros e km a app calcula o consumo médio.' },
+    { name: 'km', label: 'Quilómetros no momento (opcional)', type: 'number' },
+  ],
+  filter: (g) => g.carroId === currentCarId && String(g.data || '').startsWith(month),
+  sort: (a, b) => String(b.data).localeCompare(String(a.data)) || (b.timestamp || 0) - (a.timestamp || 0),
+  item: (g) => {
+    const c = categoriaCarro(g.categoria);
+    const extra = [isoToShort(g.data), g.litros ? `${String(g.litros).replace('.', ',')} L` : '', g.km ? `${Number(g.km).toLocaleString('pt-PT')} km` : ''].filter(Boolean).join(' · ');
+    return html`
+      <span class="record__icon">${icon(c.icon, 18)}</span>
+      <span class="record__main">
+        <span class="record__title">${g.descricao || c.label}</span>
+        <span class="record__meta">${extra}</span>
+      </span>
+      <span class="record__value">${money(g.valor)}</span>`;
+  },
+  onChange: () => { drawSpend(); if (currentCarId) drawCarSpend(); },
+});
+
+const carName = (id) => cars.find((c) => c.id === id)?.nome || 'Veículo removido';
+
+function monthSwitchTpl(id) {
+  return html`
+    <div class="month-switch">
+      <button class="icon-btn glass-chip pressable" data-action="garage:month" data-step="-1" aria-label="Mês anterior">${icon('chevronLeft', 18)}</button>
+      <span id="${id}" class="month-switch__label">${monthLabel(month)}</span>
+      <button class="icon-btn glass-chip pressable" data-action="garage:month" data-step="1" aria-label="Mês seguinte">${icon('chevronRight', 18)}</button>
+    </div>`;
+}
+
+function trendTpl(total, anterior) {
+  if (!anterior) return '';
+  const diff = total - anterior;
+  if (Math.abs(diff) < 0.005) return html`<span class="chip chip--muted">Igual ao mês anterior</span>`;
+  return html`<span class="chip ${diff > 0 ? 'chip--warn' : 'chip--accent'}">${icon(diff > 0 ? 'trendUp' : 'trendDown', 12)} ${money(Math.abs(diff))} ${diff > 0 ? 'mais' : 'menos'} que no mês anterior</span>`;
+}
+
+function barsTpl(rows, label, iconOf) {
+  const max = rows[0]?.total || 1;
+  return rows.map((r) => html`
+    <div class="budget-row">
+      <div class="budget-row__head"><span>${icon(iconOf(r.id), 16)} ${label(r.id)}</span><span>${money(r.total)}</span></div>
+      <div class="progress"><span style="width:${((r.total / max) * 100).toFixed(1)}%"></span></div>
+    </div>`);
+}
+
+/** Resumo do mês na página da Garagem: total, por carro e por tipo de gasto. */
+function drawSpend() {
+  if (!byId('garage-spend')) return;
+  const all = gastos.items();
+  const r = resumoMes(all, month);
+  const media = mediaMensal(all, month);
+  setText('garage-month', monthLabel(month));
+  render('garage-spend', html`
+    <div class="card glass fin-hero">
+      <span class="eyebrow">Gasto com os carros</span>
+      <span class="fin-hero__total">${money(r.total)}</span>
+      <span class="muted small">${r.count === 1 ? '1 gasto' : `${r.count} gastos`}${media ? ` · média ${money(media)}/mês` : ''}</span>
+      ${trendTpl(r.total, r.totalAnterior)}
+    </div>
+    ${r.count ? html`
+      <div class="card glass">
+        <h3 class="card__title">${icon('car', 18)} Por carro</h3>
+        ${barsTpl(r.porCarro, carName, () => 'car')}
+      </div>
+      <div class="card glass">
+        <h3 class="card__title">${icon('wallet', 18)} Por tipo de gasto</h3>
+        ${barsTpl(r.porCategoria, (id) => categoriaCarro(id).label, (id) => categoriaCarro(id).icon)}
+      </div>` : ''}`);
+}
+
+/** Gastos do veículo aberto no mês escolhido. */
+function drawCarSpend() {
+  if (!byId('car-spend')) return;
+  const all = gastos.items();
+  const r = resumoMes(all, month, currentCarId);
+  const media = mediaMensal(all, month, 6, currentCarId);
+  const consumo = consumoMedio(all, currentCarId);
+  setText('car-month', monthLabel(month));
+  render('car-spend', html`
+    <div class="card glass fin-hero">
+      <span class="eyebrow">Gasto neste mês</span>
+      <span class="fin-hero__total">${money(r.total)}</span>
+      <span class="muted small">${[media ? `média ${money(media)}/mês` : '', consumo ? `consumo ${String(consumo).replace('.', ',')} L/100 km` : ''].filter(Boolean).join(' · ')}</span>
+      ${trendTpl(r.total, r.totalAnterior)}
+    </div>`);
+  gastos.draw();
+}
 
 const browser = createFileBrowser({
   key: 'car',
@@ -118,8 +228,13 @@ export default {
       title: 'Garagem',
       root: true,
       template: () => html`
-        <button class="btn btn--primary btn--block pressable" data-action="nav:go" data-page="page-add-carro">${icon('plus', 18)} Adicionar veículo</button>
-        <div class="card-stack" id="cars-list"></div>`,
+        ${monthSwitchTpl('garage-month')}
+        <div class="card-stack" id="garage-spend"></div>
+        <button class="btn btn--primary btn--block pressable" data-action="garage:spend-new">${icon('plus', 18)} Registar gasto</button>
+        <h4 class="section-title">Veículos</h4>
+        <div class="card-stack" id="cars-list"></div>
+        <button class="btn btn--glass btn--block pressable" data-action="nav:go" data-page="page-add-carro">${icon('car', 18)} Adicionar veículo</button>`,
+      onEnter: drawSpend,
     },
     {
       id: 'page-add-carro',
@@ -145,11 +260,16 @@ export default {
           </div>
         </label>
         <div id="car-deadlines"></div>
+        <h4 class="section-title">Gastos</h4>
+        ${monthSwitchTpl('car-month')}
+        <div id="car-spend"></div>
+        <button class="btn btn--primary btn--block pressable" data-action="garage:spend-new">${icon('plus', 18)} Registar gasto</button>
+        ${gastos.template()}
         ${browser.template()}`,
-      onEnter: drawDetail,
+      onEnter: () => { drawDetail(); drawCarSpend(); },
     },
   ],
-  modals: () => html`${browser.modals()}${modalTemplate('car-deadlines-modal', 'Prazos do veículo', html`
+  modals: () => html`${browser.modals()}${gastos.modals()}${modalTemplate('car-deadlines-modal', 'Prazos do veículo', html`
     ${DEADLINES.map((d) => html`<div class="field"><label class="field__label" for="car-dl-${d.key}">${d.label}</label><input type="date" id="car-dl-${d.key}" class="input"></div>`)}
     <div class="field"><label class="field__label" for="car-dl-km">Quilómetros atuais</label><input type="number" id="car-dl-km" class="input" inputmode="numeric"></div>
     <div class="btn-row">
@@ -157,6 +277,16 @@ export default {
       <button class="btn btn--primary" data-action="garage:deadlines-save">Guardar</button>
     </div>`)}`,
   actions: {
+    'garage:month': ({ data }) => {
+      month = mudarMes(month, Number(data.step));
+      drawSpend();
+      drawCarSpend();
+    },
+    'garage:spend-new': () => {
+      if (!cars.length) return toast('Adiciona primeiro um veículo.', 'error');
+      const hoje = todayISO();
+      gastos.openForm(null, { carroId: currentCarId || cars[0].id, data: month === hoje.slice(0, 7) ? hoje : `${month}-01` });
+    },
     'garage:save': async ({ el }) => {
       const nome = byId('car-name').value.trim();
       const matricula = byId('car-plate').value.trim().toUpperCase();
@@ -222,13 +352,16 @@ export default {
       cars = snapToList(s).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
       drawCars();
       if (currentCarId) drawDetail();
+      drawSpend();
       emit('records:update', 'carros');
     }));
+    gastos.subscribe(scope);
   },
   stop() {
     scope.clear();
     carScope.clear();
     cars = [];
     currentCarId = null;
+    month = todayISO().slice(0, 7);
   },
 };

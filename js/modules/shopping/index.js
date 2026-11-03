@@ -18,6 +18,7 @@ import { corresponde } from '../faturas/produtos.js';
 import {
   SECCOES, LOJAS_PADRAO, agruparLista, chaveArtigo, chaveLoja, ordemDaLoja, nomeSeccao, emojiSeccao, listaLojas, marcaLoja,
 } from './seccoes.js';
+import { LOGOS_SVG, LOGOS_SITE, faviconUrl } from './logos.js';
 
 const scope = createScope();
 export const PAG_LISTA = 'menu-lista-compras';
@@ -65,7 +66,17 @@ function categoriaFaturas(texto) {
 /** Selo da loja (sigla nas cores da marca). */
 function seloTpl(loja, tam = 44) {
   const m = marcaLoja(loja);
-  return html`<span class="lista-selo" style="--marca:${m.cor};--marca2:${m.cor2};--marca-texto:${m.texto};--tam:${tam}px" aria-hidden="true">${m.sigla}</span>`;
+  const estilo = `--marca:${m.cor};--marca2:${m.cor2};--marca-texto:${m.texto};--tam:${tam}px`;
+  const sigla = html`<b class="lista-selo__sigla">${m.sigla}</b>`;
+  if (LOGOS_SVG[m.id]) {
+    return html`<span class="lista-selo lista-selo--logo" style="${estilo}" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="${LOGOS_SVG[m.id]}"/></svg></span>`;
+  }
+  if (LOGOS_SITE[m.id]) {
+    return html`<span class="lista-selo lista-selo--logo" style="${estilo}" aria-hidden="true">
+      <img src="${faviconUrl(LOGOS_SITE[m.id])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('sem-logo')">${sigla}</span>`;
+  }
+  return html`<span class="lista-selo" style="${estilo}" aria-hidden="true">${m.sigla}</span>`;
 }
 
 function lojasTpl() {

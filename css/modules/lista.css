@@ -185,3 +185,18 @@
 /* Ordem dos corredores */
 .lista-ordem__n { width: 22px; text-align: center; font-weight: 700; color: var(--accent); }
 .lista-ordem__item .icon-btn[disabled] { opacity: .3; }
+
+/* Logótipos das cadeias: fundo branco com o logo na cor da marca */
+.lista-selo--logo {
+  background: #fff;
+  color: var(--marca);
+  border: 1px solid rgba(15, 23, 42, .08);
+  box-shadow: 0 4px 12px -6px var(--marca), inset 0 1px 0 rgba(255, 255, 255, .6);
+  overflow: hidden;
+}
+.lista-selo--logo svg { width: 68%; height: 68%; }
+.lista-selo--logo img { width: 72%; height: 72%; object-fit: contain; }
+.lista-selo__sigla { display: none; font-weight: 800; }
+.lista-selo--logo.sem-logo img { display: none; }
+.lista-selo--logo.sem-logo { background: linear-gradient(135deg, var(--marca) 0%, var(--marca2) 130%); color: var(--marca-texto); }
+.lista-selo--logo.sem-logo .lista-selo__sigla { display: block; }

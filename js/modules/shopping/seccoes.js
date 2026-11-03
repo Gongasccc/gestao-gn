@@ -47,15 +47,15 @@ const PALETA = ['#0EA5E9', '#8B5CF6', '#F59E0B', '#EC4899', '#14B8A6', '#6366F1'
 export function marcaLoja(loja) {
   const k = chaveLoja(loja);
   const conhecida = Object.entries(MARCAS).find(([m]) => k.startsWith(m) || k.includes(m));
-  if (conhecida) return conhecida[1];
+  if (conhecida) return { id: conhecida[0], ...conhecida[1] };
   const n = [...k].reduce((a, c) => a + c.charCodeAt(0), 0);
   const cor = PALETA[n % PALETA.length];
   const sigla = String(loja || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() || '').join('') || '?';
-  return { cor, cor2: cor, texto: '#fff', sigla };
+  return { id: '', cor, cor2: cor, texto: '#fff', sigla };
 }
 
 /** Lojas sugeridas (as que aparecem nas faturas e as personalizadas juntam-se a estas). */
-export const LOJAS_PADRAO = ['Continente', 'Pingo Doce', 'Lidl', 'Auchan', 'Intermarché', 'Mercadona', 'Aldi', 'Minipreço'];
+export const LOJAS_PADRAO = ['Pingo Doce', 'Mercadona', 'Lidl', 'Auchan', 'Continente', 'Intermarché', 'Aldi'];
 
 // Categorias das faturas -> secções da lista.
 const DE_CATEGORIA = {

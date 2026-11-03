@@ -182,3 +182,86 @@
 button.fat-aviso { width: 100%; text-align: left; font: inherit; color: inherit; }
 
 /* ---------- Preço de hoje nas lojas ---------- */
+
+/* ---------- Progresso da leitura ---------- */
+.fat-progresso {
+  position: relative;
+  width: min(280px, 100%);
+  height: 8px;
+  margin: 10px auto 2px;
+  border-radius: 99px;
+  background: rgba(var(--accent-rgb), .14);
+  overflow: hidden;
+}
+.fat-progresso span {
+  position: absolute; inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), rgba(var(--accent-rgb), .7));
+  transition: width .4s var(--ease-soft, ease);
+}
+.fat-progresso__pct { font-size: 13px; font-weight: 700; color: var(--accent); }
+.fat-scan__fundo { margin-top: 16px; font-size: 12px !important; }
+
+/* Aviso flutuante quando a fatura está a ser lida noutro ecrã */
+.fat-fundo {
+  position: fixed;
+  z-index: 950;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + var(--bottom-nav-height) + 12px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(360px, calc(100% - 32px));
+  padding: 8px 14px 8px 8px;
+  border-radius: 99px;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  transform: translate(-50%, 140%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .45s var(--ease-spring, cubic-bezier(.2, 1.2, .3, 1)), opacity .3s;
+}
+.fat-fundo.is-visivel { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+.fat-fundo__txt { display: flex; flex-direction: column; min-width: 0; }
+.fat-fundo__txt strong { font-size: 14px; }
+.fat-fundo__txt small { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fat-fundo__anel {
+  --p: 0;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) calc(var(--p) * 1%), rgba(var(--accent-rgb), .15) 0);
+  transition: background .4s;
+}
+.fat-fundo__anel b {
+  display: grid; place-items: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  font-size: 11px; font-weight: 700; color: var(--accent);
+}
+.fat-fundo__icone {
+  flex: none;
+  display: grid; place-items: center;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--green, var(--accent));
+}
+.fat-fundo.is-pronto { animation: fat-fundo-pulso 1.6s ease-in-out 2; }
+.fat-fundo.is-erro .fat-fundo__icone { background: var(--red); }
+@keyframes fat-fundo-pulso { 50% { box-shadow: 0 0 0 6px rgba(var(--accent-rgb), .18); } }
+@media (min-width: 960px) { .fat-fundo { bottom: 24px; } }
+
+/* ---------- Sugestões de compra ---------- */
+.sug-lista { display: flex; flex-direction: column; gap: 2px; }
+.sug-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--hairline); }
+.sug-item:first-child { border-top: 0; }
+.sug-item__info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sug-item__info strong { font-size: 14px; font-weight: 600; }
+.sug-item__info small { font-size: 12px; color: var(--text-muted); }
+.sug-item .is-feito { color: var(--green, var(--accent)); }
+.sug-rodape { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; font-size: 12.5px; color: var(--text-muted); }

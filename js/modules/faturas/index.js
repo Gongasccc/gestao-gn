@@ -11,7 +11,10 @@ import { icon } from '../../core/icons.js';
 import { session, createScope, emit, on } from '../../core/state.js';
 import { compressImage, readAsDataURL, takeFile } from '../../core/images.js';
 import { lerFatura, normalizarFatura, decifrarNomes } from './ai.js';
-import { aplicarDicionario, aprenderFatura, exemplosParaIa, procurarAlias, chaveTalao, chaveLoja, precoPorUnidade, corresponde } from './produtos.js';
+import {
+  aplicarDicionario, aprenderFatura, exemplosParaIa, procurarAlias, chaveTalao, chaveLoja, precoPorUnidade, corresponde,
+  catalogoProdutos, harmonizarItens, nomesParaIa,
+} from './produtos.js';
 import { faturaDoQr, lerCamposQr, LOJAS_NIF } from './qr.js';
 import { analisarTexto, juntarLeituras } from './texto.js';
 import { carregarImagem, procurarQr, textoPorOcr, lerPdf } from './local.js';
@@ -44,7 +47,12 @@ let erroIa = ''; // porque é que a IA não decifrou a fatura em revisão
 let aDecifrar = false;
 const CHAVE_IA = 'ninho.faturas.ia';
 const iaLigada = () => { try { return localStorage.getItem(CHAVE_IA) !== '0'; } catch { return true; } };
-let estadoScan = { titulo: '', texto: '' };
+let estadoScan = { titulo: '', texto: '', pct: 0 };
+// Digitalização em segundo plano: pode-se sair do ecrã enquanto a fatura é lida.
+let pendente = null; // fatura lida, à espera de ser confirmada (quando se saiu do ecrã)
+let erroFundo = null; // { erro, semLeitura } quando a leitura falhou fora do ecrã
+let cacheCatalogo = null; // catalogoProdutos(faturas), refeito quando as faturas mudam
+const catalogo = () => (cacheCatalogo ||= catalogoProdutos(faturas));
 const CAMPOS_FISCAIS = ['nif', 'nifCliente', 'atcud', 'documento', 'tipoDocumento', 'iva'];
 
 const euro = (v) => money(v);
@@ -202,6 +210,7 @@ function desenharGastos() {
 // ---------- Página: Digitalizar ----------
 
 function desenharScan({ preview = '', erro = '', pdf = '', semLeitura = false } = {}) {
+  desenharAvisoFundo();
   const moldura = byId('fat-moldura');
   if (!moldura) return;
   moldura.classList.toggle('is-a-ler', aLer);
@@ -213,7 +222,17 @@ function desenharScan({ preview = '', erro = '', pdf = '', semLeitura = false } 
   const estado = byId('fat-scan-estado');
   if (estado) {
     render(estado, aLer
-      ? html`<strong>${estadoScan.titulo || 'A ler a fatura…'}</strong><span>${estadoScan.texto || 'No teu telemóvel, sem enviar a fatura'}</span>`
+      ? html`<strong>${estadoScan.titulo || 'A ler a fatura…'}</strong><span>${estadoScan.texto || 'No teu telemóvel, sem enviar a fatura'}</span>
+        <div class="fat-progresso" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${estadoScan.pct}">
+          <span style="width:${estadoScan.pct}%"></span>
+        </div>
+        <b class="fat-progresso__pct">${estadoScan.pct}%</b>
+        <span class="fat-scan__fundo">Podes sair deste ecrã: a leitura continua e avisamos quando terminar.</span>`
+      : pendente
+        ? html`<strong>Fatura lida</strong><span>${pendente.loja} · ${euro(pendente.total)} · ${(pendente.itens || []).length} produtos</span>
+          <div class="fat-scan__alternativas">
+            <button class="btn btn--primary pressable" data-action="faturas:retomar">${icon('check', 16)} Rever e guardar</button>
+          </div>`
       : erro
         ? html`<strong class="fat-erro">Não foi possível ler</strong><span>${erro}</span>
           ${semLeitura ? html`<div class="fat-scan__alternativas">
@@ -225,19 +244,64 @@ function desenharScan({ preview = '', erro = '', pdf = '', semLeitura = false } 
   byId('fat-scan-acoes')?.classList.toggle('is-bloqueado', aLer);
 }
 
-const passo = (titulo, texto = '') => {
-  estadoScan = { titulo, texto };
-  if (aLer) desenharScan(ultimoFicheiro ? { preview: ultimoFicheiro.preview, pdf: ultimoFicheiro.ePdf ? ultimoFicheiro.nome : '' } : {});
+/** Atualiza o passo e a percentagem (pct só sobe; sem pct mantém a anterior). */
+const passo = (titulo, texto = '', pct = null) => {
+  const p = pct == null ? estadoScan.pct : Math.max(estadoScan.pct, Math.min(99, Math.round(pct)));
+  estadoScan = { titulo, texto, pct: p };
+  if (!aLer) return;
+  if (currentPage() === PAG_SCAN) desenharScan(ultimoFicheiro ? { preview: ultimoFicheiro.preview, pdf: ultimoFicheiro.ePdf ? ultimoFicheiro.nome : '' } : {});
+  else desenharAvisoFundo();
 };
+
+// ---------- Aviso flutuante (leitura em segundo plano) ----------
+
+function desenharAvisoFundo() {
+  let el = byId('fat-fundo');
+  const pag = currentPage();
+  const visivel = (aLer || pendente || erroFundo) && pag !== PAG_SCAN && pag !== PAG_FATURA;
+  if (!visivel) { el?.classList.remove('is-visivel'); return; }
+  if (!el) {
+    el = document.createElement('button');
+    el.id = 'fat-fundo';
+    el.type = 'button';
+    el.className = 'fat-fundo glass glass--strong pressable';
+    el.dataset.action = 'faturas:retomar';
+    document.body.appendChild(el);
+  }
+  el.classList.toggle('is-pronto', !aLer && !!pendente);
+  el.classList.toggle('is-erro', !aLer && !pendente && !!erroFundo);
+  render(el, aLer
+    ? html`<span class="fat-fundo__anel" style="--p:${estadoScan.pct}"><b>${estadoScan.pct}%</b></span>
+      <span class="fat-fundo__txt"><strong>A digitalizar fatura…</strong><small>${estadoScan.titulo || 'A ler'}</small></span>`
+    : pendente
+      ? html`<span class="fat-fundo__icone">${icon('check', 18)}</span>
+        <span class="fat-fundo__txt"><strong>Fatura lida</strong><small>${pendente.loja} · ${euro(pendente.total)} · toca para confirmar</small></span>`
+      : html`<span class="fat-fundo__icone">${icon('alert', 18)}</span>
+        <span class="fat-fundo__txt"><strong>Não foi possível ler a fatura</strong><small>Toca para ver</small></span>`);
+  requestAnimationFrame(() => el.classList.add('is-visivel'));
+}
+
+function retomar() {
+  if (aLer) { navigate(PAG_SCAN); return; }
+  if (pendente) {
+    atual = pendente;
+    pendente = null;
+    rascunho = true;
+    desenharAvisoFundo();
+    navigate(PAG_FATURA);
+    return;
+  }
+  if (erroFundo) navigate(PAG_SCAN);
+}
 
 const eQrDaAt = (t) => !!lerCamposQr(t);
 
-/** Mostra uma percentagem estimada enquanto a IA lê (não há progresso real do Gemini). */
-function progressoEstimado(titulo, texto, segundos = 18) {
+/** Percentagem estimada enquanto a IA lê (não há progresso real do Gemini): de `de` até quase `ate`. */
+function progressoEstimado(titulo, texto, { de = 50, ate = 98, segundos = 18 } = {}) {
   const inicio = Date.now();
   const tick = () => {
-    const p = Math.min(95, Math.round(100 * (1 - Math.exp(-(Date.now() - inicio) / (segundos * 400)))));
-    passo(titulo, `${texto} · ${p}%`);
+    const f = 1 - Math.exp(-(Date.now() - inicio) / (segundos * 400));
+    passo(titulo, texto, de + (ate - de) * Math.min(0.97, f));
   };
   tick();
   const id = setInterval(tick, 400);
@@ -247,9 +311,9 @@ function progressoEstimado(titulo, texto, segundos = 18) {
 /** Pede à IA para decifrar a fatura (imagem + texto do OCR + nomes já aprendidos). */
 async function decifrarComIa(ficheiro, lidaLocal, textoOcr) {
   const loja = lidaLocal?.loja || '';
-  const parar = progressoEstimado('A decifrar os produtos com IA…', 'Nomes padrão e quantidades');
+  const parar = progressoEstimado('A decifrar os produtos com IA…', 'Com os nomes e categorias que já usas', { de: textoOcr ? 50 : 10 });
   try {
-    return await lerFatura(ficheiro, { textoOcr, exemplos: exemplosParaIa(dicionario, loja) });
+    return await lerFatura(ficheiro, { textoOcr, exemplos: exemplosParaIa(dicionario, loja), catalogo: nomesParaIa(catalogo()) });
   } finally { parar(); }
 }
 
@@ -259,30 +323,33 @@ function juntarComIa(lida, qr) {
   return { ...lida, hora: lida.hora || '', ...q };
 }
 
-const comDicionario = (f) => ({ ...f, itens: aplicarDicionario(f.itens, dicionario, f.loja) });
+// Nomes já aprendidos (dicionário) e depois alinhados com os produtos já comprados (mesmo nome e categoria).
+const comDicionario = (f) => ({ ...f, itens: harmonizarItens(aplicarDicionario(f.itens, dicionario, f.loja), catalogo()) });
 
 /** Lê a fatura no dispositivo: código QR primeiro, depois o texto (OCR ou texto do PDF). */
 async function lerLocalmente(file, ePdf, preview) {
   let qr = null;
   let texto = '';
   if (ePdf) {
-    passo('A abrir o PDF…', 'No teu telemóvel, sem enviar a fatura');
+    passo('A abrir o PDF…', 'No teu telemóvel, sem enviar a fatura', 5);
     const pdf = await lerPdf(file);
     texto = pdf.texto;
-    passo('A procurar o código QR…', 'Loja, data e total oficiais da fatura');
+    passo('A procurar o código QR…', 'Loja, data e total oficiais da fatura', 12);
     for (const pagina of pdf.paginas) {
       const t = await procurarQr(pagina, eQrDaAt).catch(() => null);
       if (t) { qr = faturaDoQr(t, lojasNif); break; }
     }
   } else {
     const img = await carregarImagem(preview);
-    passo('A procurar o código QR…', 'Loja, data e total oficiais da fatura');
+    passo('A procurar o código QR…', 'Loja, data e total oficiais da fatura', 5);
     const t = await procurarQr(img, eQrDaAt).catch((e) => { console.warn('[faturas] QR', e); return null; });
     if (t) qr = faturaDoQr(t, lojasNif);
-    passo(qr ? 'QR lido. A ler os produtos…' : 'A ler o texto do talão…', 'No teu telemóvel · a primeira vez descarrega o leitor (~4 MB)');
+    const fimOcr = iaLigada() ? 50 : 95;
+    passo(qr ? 'QR lido. A ler os produtos…' : 'A ler o texto do talão…', 'No teu telemóvel · a primeira vez descarrega o leitor (~4 MB)', 12);
     texto = await textoPorOcr(img, (p) => passo(
       qr ? 'QR lido. A ler os produtos…' : 'A ler o texto do talão…',
-      `No teu telemóvel · ${Math.round(p * 100)}%`,
+      'No teu telemóvel, sem enviar a fatura',
+      12 + (fimOcr - 12) * p,
     )).catch((e) => { console.warn('[faturas] OCR', e); return ''; });
   }
   const lidoTexto = texto ? analisarTexto(texto) : null;
@@ -298,17 +365,40 @@ function montarFatura(lida, extra = {}) {
 }
 
 function abrirRevisao(fatura) {
-  atual = { ...fatura, data: fatura.data || new Date().toISOString().slice(0, 10) };
-  rascunho = true;
+  const lida = { ...fatura, data: fatura.data || new Date().toISOString().slice(0, 10) };
   aLer = false;
+  erroFundo = null;
+  const pag = currentPage();
+  // Saiu-se do ecrã durante a leitura: fica à espera e mostra-se o aviso, sem mudar de página.
+  if (pag !== PAG_SCAN && !(pag === PAG_FATURA && rascunho)) {
+    pendente = lida;
+    desenharScan();
+    toast('Fatura lida. Toca no aviso para a confirmar.', 'info', 4000);
+    return;
+  }
+  atual = lida;
+  rascunho = true;
   desenharScan();
   desenharFatura();
   if (currentPage() === PAG_SCAN) navigate(PAG_FATURA, { replace: true });
   else if (currentPage() !== PAG_FATURA) navigate(PAG_FATURA);
 }
 
+/** Mostra o erro no ecrã de digitalização ou, se se saiu dele, no aviso flutuante. */
+function falharLeitura(opcoes) {
+  aLer = false;
+  if (currentPage() !== PAG_SCAN) {
+    erroFundo = opcoes;
+    toast('Não foi possível ler a fatura.', 'error');
+  }
+  desenharScan(opcoes);
+}
+
 async function processarFicheiro(file) {
   if (!file || aLer) return;
+  if (pendente) { toast('Confirma primeiro a fatura que já foi lida.', 'info'); retomar(); return; }
+  erroFundo = null;
+  estadoScan = { titulo: '', texto: '', pct: 0 };
   const ePdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
   let preview = '';
   try {
@@ -328,19 +418,18 @@ async function processarFicheiro(file) {
 
   aLer = true;
   qrAtual = null;
-  passo('A ler a fatura…');
+  passo('A ler a fatura…', '', 2);
   try {
     const { qr, texto, junto, temTexto } = await lerLocalmente(file, ePdf, preview);
     const imagem = preview ? await compressImage(file, { maxSize: 900, quality: 0.6 }) : '';
     if (!qr && !temTexto && !junto.total && !iaLigada()) {
-      aLer = false;
-      desenharScan({
+      ultimoFicheiro.imagem = imagem;
+      falharLeitura({
         preview,
         pdf: ePdf ? file.name : '',
         erro: 'Não encontrei o código QR nem consegui ler o texto. Tenta outra foto, com o talão inteiro e bem iluminado.',
         semLeitura: true,
       });
-      ultimoFicheiro.imagem = imagem;
       return;
     }
     qrAtual = qr;
@@ -356,9 +445,8 @@ async function processarFicheiro(file) {
         console.warn('[faturas] IA', e);
         erroIa = e?.message || 'A IA não respondeu.';
         if (!qr && !temTexto && !junto.total) {
-          aLer = false;
           ultimoFicheiro.imagem = imagem;
-          desenharScan({ preview, pdf: ePdf ? file.name : '', erro: `Não consegui ler o talão. ${erroIa}`, semLeitura: true });
+          falharLeitura({ preview, pdf: ePdf ? file.name : '', erro: `Não consegui ler o talão. ${erroIa}`, semLeitura: true });
           return;
         }
       }
@@ -366,8 +454,7 @@ async function processarFicheiro(file) {
     abrirRevisao(comDicionario(montarFatura(junto, { ...extra, leitura: leituraLocal })));
   } catch (e) {
     console.error('[faturas]', e);
-    aLer = false;
-    desenharScan({
+    falharLeitura({
       preview,
       pdf: ePdf ? file.name : '',
       erro: 'Não foi possível ler a fatura no dispositivo (sem ligação para descarregar o leitor?).',
@@ -380,6 +467,8 @@ async function processarFicheiro(file) {
 async function lerComIa() {
   if (!ultimoFicheiro || aLer) return;
   aLer = true;
+  erroFundo = null;
+  estadoScan = { titulo: '', texto: '', pct: 0 };
   if (currentPage() !== PAG_SCAN) toast('A decifrar com IA…');
   try {
     const lida = await decifrarComIa(ultimoFicheiro.ficheiro, atual, '');
@@ -566,7 +655,7 @@ async function decifrarAntigas() {
     const novas = {};
     for (let i = 0; i < linhas.length; i += 80) {
       const lote = linhas.slice(i, i + 80);
-      const r = await decifrarNomes(lote, exemplos);
+      const r = await decifrarNomes(lote, exemplos, nomesParaIa(catalogo()));
       lote.forEach((l, j) => {
         if (!r[j]) return;
         const k = chaveTalao(l.nome);
@@ -637,7 +726,12 @@ export default {
     {
       id: PAG_SCAN,
       title: 'Digitalizar Fatura',
-      onEnter: () => { if (!aLer) desenharScan(); },
+      onEnter: () => {
+        const u = ultimoFicheiro;
+        const base = u ? { preview: u.preview, pdf: u.ePdf ? u.nome : '' } : {};
+        if (erroFundo && !aLer) { const e = erroFundo; erroFundo = null; desenharScan({ ...base, ...e }); return; }
+        desenharScan(aLer || pendente ? base : {});
+      },
       template: () => html`
         <div class="fat fat-scan">
           <div class="fat-moldura" id="fat-moldura">
@@ -721,6 +815,7 @@ export default {
     'faturas:gastos': () => navigate(PAG_GASTOS),
     'faturas:precos': () => navigate(PAG_PRECOS),
     'faturas:scan': () => navigate(PAG_SCAN),
+    'faturas:retomar': () => retomar(),
     'faturas:ficheiro': ({ ev }) => processarFicheiro(takeFile(ev)),
     'faturas:ler-ia': () => lerComIa(),
     'faturas:ia-toggle': ({ ev }) => { try { localStorage.setItem(CHAVE_IA, ev.target.checked ? '1' : '0'); } catch { /* sem armazenamento */ } },
@@ -762,7 +857,7 @@ export default {
         toast(/exceeds|too large|1048576/i.test(e?.message || '') ? 'Fatura demasiado grande para guardar.' : 'Não foi possível guardar.', 'error');
       }
     },
-    'faturas:descartar': () => { erroIa = ''; atual = null; rascunho = false; ultimoFicheiro = null; qrAtual = null; back(); },
+    'faturas:descartar': () => { erroIa = ''; atual = null; rascunho = false; pendente = null; ultimoFicheiro = null; qrAtual = null; back(); },
     'faturas:apagar': async () => {
       if (!atual?.id) return;
       if (!(await confirmDialog('Apagar esta fatura? Os gastos e preços deixam de a contar.', { confirmLabel: 'Apagar', danger: true }))) return;
@@ -852,6 +947,7 @@ export default {
   start() {
     carregado = false;
     faturas = [];
+    scope.add(on('route:change', desenharAvisoFundo));
     scope.add(onSnapshot(sharedDoc('config', 'produtos'), (snap) => {
       dicionario = snap.exists() ? snap.data().aliases || {} : {};
     }, () => { dicionario = {}; }));
@@ -860,6 +956,7 @@ export default {
     }, () => { lojasNif = {}; }));
     scope.add(onSnapshot(sharedCol(COLECAO), (snap) => {
       faturas = snapToList(snap);
+      cacheCatalogo = null;
       carregado = true;
       if (atual?.id && !rascunho) {
         const f = faturas.find((x) => x.id === atual.id);
@@ -877,5 +974,8 @@ export default {
     faturas = [];
     atual = null;
     rascunho = false;
+    pendente = null;
+    erroFundo = null;
+    byId('fat-fundo')?.remove();
   },
 };

@@ -179,3 +179,65 @@ export function duplicada(faturas, nova) {
     && arred(f.total) === arred(nova.total)
     && chaveProduto(f.loja) === chaveProduto(nova.loja)) || null;
 }
+
+const DIA = 86400000;
+const diaDe = (iso) => Date.parse(`${iso}T12:00:00Z`);
+const mediana = (v) => {
+  const s = [...v].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+
+/**
+ * O que deve estar a acabar, pelos hábitos de compra: para cada produto comprado em 2 ou mais dias
+ * diferentes, calcula de quantos em quantos dias costuma ser comprado e há quanto tempo foi a última vez.
+ * Sugere os que já passaram (ou estão quase a passar) desse intervalo.
+ * naLista: textos que já estão na lista de compras (não são sugeridos outra vez).
+ */
+export function sugestoesCompra(faturas, { hoje = new Date(), naLista = [], max = 8 } = {}) {
+  const agora = diaDe(hoje.toISOString().slice(0, 10));
+  const produtos = new Map();
+  for (const f of faturas || []) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(f.data || '')) continue;
+    for (const i of f.itens || []) {
+      const nome = i.produto || i.nome;
+      const k = chaveProduto(nome);
+      if (!k || /\bsacos?\b/.test(k)) continue;
+      let p = produtos.get(k);
+      if (!p) { p = { chave: k, dias: new Map(), ultima: null }; produtos.set(k, p); }
+      const d = diaDe(f.data);
+      p.dias.set(d, (p.dias.get(d) || 0) + (Number(i.quantidade) || 1));
+      if (!p.ultima || d >= p.ultima.d) {
+        p.ultima = { d, nome, categoria: i.categoria || 'outros', loja: f.loja || '', preco: precoUnitario(i), unidade: i.unidade || 'un' };
+      }
+    }
+  }
+  const lista = (naLista || []).map((t) => chaveProduto(t)).filter(Boolean);
+  const jaNaLista = (k) => lista.some((t) => k.includes(t) || t.includes(k));
+  const out = [];
+  for (const p of produtos.values()) {
+    const dias = [...p.dias.keys()].sort((a, b) => a - b);
+    if (dias.length < 2) continue;
+    const intervalos = dias.slice(1).map((d, i) => (d - dias[i]) / DIA);
+    const intervalo = Math.max(3, Math.round(mediana(intervalos)));
+    const desde = Math.round((agora - dias[dias.length - 1]) / DIA);
+    const ratio = desde / intervalo;
+    // Já passou ~80% do intervalo habitual, mas não há tanto tempo que pareça ter deixado de comprar.
+    if (ratio < 0.8 || ratio > 4 || jaNaLista(p.chave)) continue;
+    const quantidade = Math.round(mediana([...p.dias.values()]) * 1000) / 1000;
+    out.push({
+      chave: p.chave,
+      nome: p.ultima.nome,
+      categoria: p.ultima.categoria,
+      loja: p.ultima.loja,
+      quantidade,
+      unidade: p.ultima.unidade,
+      intervalo,
+      desde,
+      vezes: dias.length,
+      estimativa: arred(p.ultima.preco * quantidade),
+      ratio: Math.round(ratio * 100) / 100,
+    });
+  }
+  return out.sort((a, b) => b.ratio - a.ratio || b.vezes - a.vezes).slice(0, max);
+}

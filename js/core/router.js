@@ -127,13 +127,28 @@ export function resetRouter() {
 
 export function initRouter() {
   history.replaceState({ page: HOME }, '');
-  window.addEventListener('popstate', () => {
+  window.addEventListener('popstate', (ev) => {
+    ultimoPopstate = Date.now();
     const openModal = document.querySelector('.modal.is-open');
     if (openModal) {
       openModal.querySelector('[data-action="modal:close"]')?.click();
       history.pushState({ page: currentPage() }, '');
       return;
     }
+    // Volta exatamente à página dessa entrada do histórico (ex.: Digitalizar fatura -> Supermercados),
+    // em vez de tirar páginas às cegas: assim um "voltar" a dobrar não salta para o Início.
+    const alvo = ev.state?.page;
+    const i = alvo ? stack.lastIndexOf(alvo) : -1;
+    if (i >= 0 && i < stack.length - 1) {
+      stack = stack.slice(0, i + 1);
+      showPage(currentPage(), 'back');
+      return;
+    }
+    if (i === stack.length - 1) return; // já estamos nessa página
     popInternal();
   });
 }
+
+let ultimoPopstate = 0;
+/** Quando foi o último "voltar" do sistema/navegador (para o gesto não voltar duas vezes). */
+export const ultimoVoltarSistema = () => ultimoPopstate;

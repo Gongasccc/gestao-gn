@@ -2,17 +2,23 @@
 // (Resumo, Faturas, Preços). Os cartões passaram para "Cartões" e as listas para "Lista de compras".
 import { html, render } from '../core/dom.js';
 import { icon } from '../core/icons.js';
-import { createScope, on } from '../core/state.js';
+import { createScope, on, session } from '../core/state.js';
 import { money } from '../core/format.js';
+import { toast } from '../core/ui.js';
+import { onSnapshot, addDoc, updateDoc } from '../services/firebase.js';
+import { sharedCol, sharedDoc, snapToList } from '../services/paths.js';
 import { tabsTpl, positionIndicator } from '../components/tabs.js';
 import faturas, { listaFaturas, faturasCarregadas, PAG_GASTOS } from './faturas/index.js';
 import {
   nomeMes, deslocarMes, mesAtual, daMes, resumoMes, porLoja, porCategoria, compararPrecos, maisComprados,
+  sugestoesCompra, chaveProduto,
 } from './faturas/stats.js';
 
 const PAGE = 'menu-supermercados';
 const scope = createScope();
 let mes = mesAtual();
+let artigosLista = []; // artigos da lista de compras semanal (para não sugerir o que já lá está)
+const COL_LISTA = 'semanais';
 
 const pct = (v, max) => (max > 0 ? Math.max(3, Math.round((v / max) * 100)) : 0);
 const dataCurta = (iso) => {
@@ -35,6 +41,62 @@ const vazio = (texto) => html`
     <button class="btn btn--primary pressable" data-action="faturas:scan">${icon('camera', 16)} Digitalizar fatura</button>
   </div>`;
 
+// ---------- Sugestões: o que deve estar a acabar ----------
+
+const quando = (dias) => (dias <= 1 ? 'há 1 dia' : dias < 14 ? `há ${dias} dias` : `há ${Math.round(dias / 7)} semanas`);
+const cada = (dias) => (dias < 10 ? `${dias} dias` : dias < 25 ? `${Math.round(dias / 7)} semanas` : `${Math.round(dias / 30) || 1} ${Math.round(dias / 30) > 1 ? 'meses' : 'mês'}`);
+
+function sugestoes(faturasLista) {
+  const naLista = artigosLista.filter((i) => !i.feita).map((i) => i.texto);
+  return sugestoesCompra(faturasLista, { naLista, max: 8 });
+}
+
+function sugestoesTpl(faturasLista) {
+  const sug = sugestoes(faturasLista);
+  if (!sug.length) {
+    // Só se explica quando ainda não há histórico suficiente.
+    if (faturasLista.length >= 3) return '';
+    return html`
+      <div class="card glass">
+        <h3 class="card__title">${icon('sparkles', 18)} A comprar em breve</h3>
+        <p class="muted small">Com mais algumas faturas, a app aprende de quanto em quanto tempo compras cada produto e sugere o que deve estar a acabar.</p>
+      </div>`;
+  }
+  const estimativa = sug.reduce((s, x) => s + (x.estimativa || 0), 0);
+  return html`
+    <div class="card glass">
+      <h3 class="card__title">${icon('sparkles', 18)} A comprar em breve</h3>
+      <p class="muted small">Pelo que costumas comprar, isto deve estar a acabar.</p>
+      <div class="sug-lista">
+        ${sug.map((x) => html`
+          <div class="sug-item">
+            <span class="sug-item__info">
+              <strong>${x.nome}</strong>
+              <small>Compras a cada ~${cada(x.intervalo)} · última ${quando(x.desde)}${x.loja ? ` no ${x.loja}` : ''}</small>
+            </span>
+            <button class="icon-btn glass-chip pressable" data-action="sup:sugestao" data-chave="${x.chave}" aria-label="Adicionar ${x.nome} à lista">${icon('plus', 18)}</button>
+          </div>`)}
+      </div>
+      <div class="sug-rodape">
+        <span>${estimativa ? `Estimativa ≈ ${money(estimativa)}` : ''}</span>
+        <button class="btn btn--small btn--primary pressable" data-action="sup:sugestoes-todas">${icon('cart', 16)} Pôr tudo na lista</button>
+      </div>
+    </div>`;
+}
+
+/** Põe um produto sugerido na lista de compras (ou volta a ativá-lo se já lá estava riscado). */
+async function porNaLista(x) {
+  const k = chaveProduto(x.nome);
+  const existente = artigosLista.find((i) => chaveProduto(i.texto) === k);
+  if (existente) {
+    if (existente.feita) await updateDoc(sharedDoc(COL_LISTA, existente.id), { feita: false });
+    return;
+  }
+  const dados = { texto: x.nome, feita: false, timestamp: Date.now(), createdBy: session.uid, sugerido: true };
+  if (x.loja) dados.loja = x.loja;
+  await addDoc(sharedCol(COL_LISTA), dados);
+}
+
 function desenharResumo(lista) {
   const doMes = daMes(lista, mes);
   const r = resumoMes(lista, mes);
@@ -46,6 +108,7 @@ function desenharResumo(lista) {
       ${icon(r.variacao > 0 ? 'trendUp' : 'trendDown', 14)} ${Math.abs(r.variacao)}% vs ${nomeMes(deslocarMes(mes, -1), true)}
     </span>`;
   render('sup-resumo', html`
+    ${mes === mesAtual() ? sugestoesTpl(lista) : ''}
     <div class="card glass fin-hero">
       <span class="eyebrow">Gasto no supermercado</span>
       <span class="fin-hero__total">${money(r.total)}</span>
@@ -163,6 +226,30 @@ export default {
   modals: faturas.modals,
   actions: {
     ...faturas.actions,
+    'sup:sugestao': async ({ el, data }) => {
+      const x = sugestoes(listaFaturas()).find((s) => s.chave === data.chave);
+      if (!x) return;
+      el.disabled = true;
+      try {
+        await porNaLista(x);
+        toast(`${x.nome} na lista de compras`);
+      } catch {
+        el.disabled = false;
+        toast('Não foi possível adicionar à lista.', 'error');
+      }
+    },
+    'sup:sugestoes-todas': async ({ el }) => {
+      const sug = sugestoes(listaFaturas());
+      if (!sug.length) return;
+      el.disabled = true;
+      try {
+        for (const x of sug) await porNaLista(x);
+        toast(`${sug.length} ${sug.length === 1 ? 'produto adicionado' : 'produtos adicionados'} à lista de compras`);
+      } catch {
+        el.disabled = false;
+        toast('Não foi possível adicionar à lista.', 'error');
+      }
+    },
     'sup:mes': ({ data }) => {
       const next = deslocarMes(mes, Number(data.step) || 0);
       mes = next > mesAtual() ? mesAtual() : next;
@@ -173,6 +260,7 @@ export default {
     mes = mesAtual();
     faturas.start();
     scope.add(on('faturas:update', desenhar));
+    scope.add(onSnapshot(sharedCol(COL_LISTA), (snap) => { artigosLista = snapToList(snap); desenhar(); }, () => { artigosLista = []; }));
     desenhar();
   },
   stop() {

@@ -2,7 +2,7 @@
 import { byId, html, staggerChildren } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { registerActions } from '../core/events.js';
-import { navigate, back, isRootPage } from '../core/router.js';
+import { navigate, back, isRootPage, currentPage, ultimoVoltarSistema } from '../core/router.js';
 import { on } from '../core/state.js';
 import { MENU, MENU_GROUPS, BOTTOM_NAV } from './menu.js';
 
@@ -94,12 +94,22 @@ export function closeSidebar() {
   byId('sidebar-overlay')?.classList.remove('is-open');
 }
 
+// No Safari (fora da app instalada) e no Android o próprio sistema já tem o gesto de voltar;
+// aí o nosso gesto só abre o menu lateral, para não voltar duas vezes (ia parar ao Início).
+const temVoltarDoSistema = () => {
+  const instalada = window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone;
+  const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
+  return !(ios && instalada);
+};
+
 function initGestures() {
   let startX = 0;
   let startY = 0;
+  let inicio = 0;
   document.addEventListener('touchstart', (e) => {
     startX = e.changedTouches[0].clientX;
     startY = e.changedTouches[0].clientY;
+    inicio = Date.now();
   }, { passive: true });
   document.addEventListener('touchend', (e) => {
     if (document.body.classList.contains('has-modal')) return;
@@ -107,7 +117,14 @@ function initGestures() {
     const dy = e.changedTouches[0].clientY - startY;
     if (Math.abs(dx) < Math.abs(dy) * 1.5) return;
     if (dx > 70 && startX < 40) {
-      if (isRootPage()) openSidebar(); else back();
+      if (isRootPage()) openSidebar();
+      else if (!temVoltarDoSistema()) {
+        // Espera um instante: se o sistema já voltou atrás com o mesmo gesto, não voltamos outra vez.
+        const pagina = currentPage();
+        setTimeout(() => {
+          if (ultimoVoltarSistema() < inicio && currentPage() === pagina) back();
+        }, 250);
+      }
     } else if (dx < -70 && byId('sidebar').classList.contains('is-open')) {
       closeSidebar();
     }

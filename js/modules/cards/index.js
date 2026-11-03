@@ -63,7 +63,7 @@ function desenharLista() {
           </button>`)}
       </div>`
     : html`<div class="card glass sup-vazio">
-        <span class="sup-vazio__icone">${icon('wallet', 26)}</span>
+        <span class="sup-vazio__icone">${icon('card', 26)}</span>
         <p>Guarda aqui os cartões de cliente. Tira uma foto ao cartão e a app retira o fundo.</p>
         <button class="btn btn--primary pressable" data-action="cartoes:novo">${icon('plus', 16)} Adicionar cartão</button>
       </div>`);

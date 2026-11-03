@@ -177,3 +177,29 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 @media (prefers-reduced-motion: reduce) {
   .couple-hero__icon, .couple-hero__heart, .upcoming--memory .upcoming__icon, .progress > span { animation: none; }
 }
+
+/* Importar extrato do banco */
+.fin-extrato-btn { margin-top: 10px; }
+.ext-nota { margin-top: 10px; }
+.ext-erro { display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin: 10px 0; border-radius: var(--radius-sm); color: var(--red); background: rgba(var(--red-rgb), .1); font-size: 13.5px; }
+.ext-ler { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 36px 12px; text-align: center; }
+.ext-topo { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+.ext-topo__banco { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.ext-opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ext-opcoes .field { margin: 0; }
+.ext-acoes-lista { display: flex; gap: 8px; margin: 12px 0 8px; }
+.ext-lista { display: flex; flex-direction: column; gap: 6px; }
+.ext-linha { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: var(--radius-sm); transition: opacity .2s ease; }
+.ext-linha.is-off { opacity: .45; }
+.ext-linha__check { padding-top: 2px; }
+.ext-linha__check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.ext-linha__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.ext-linha__main .record__meta { overflow-wrap: anywhere; }
+.ext-linha__cat { margin-top: 2px; max-width: 100%; }
+.ext-linha .record__value { white-space: nowrap; font-weight: 600; }
+.ext-chip { font-size: 11px; padding: 2px 8px; }
+.ext-escolher { margin-top: 14px; }
+.ext-rodape { position: sticky; bottom: 0; display: flex; gap: 10px; justify-content: space-between; margin-top: 14px; padding: 12px 0; background: var(--bg-elevated); }
+.ext-rodape .btn--primary { flex: 1; }
+@media (max-width: 420px) { .ext-opcoes { grid-template-columns: 1fr; } }
+.ext-afinar { margin: -4px 0 12px; }

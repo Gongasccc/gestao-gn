@@ -117,5 +117,7 @@ export async function pedirJson(partes) {
       if (ERRO_FATAL.test(e?.message || '')) break;
     }
   }
-  throw traduzirErro(ultimoErro);
+  const erro = traduzirErro(ultimoErro);
+  erro.original = ultimoErro?.message || String(ultimoErro); // para o diagnóstico
+  throw erro;
 }

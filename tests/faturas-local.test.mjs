@@ -105,3 +105,18 @@ test('duplicada reconhece o mesmo ATCUD', async () => {
   assert.equal(duplicada([a], { ...a, loja: 'PD Braga', total: 18 }), a);
   assert.equal(duplicada([a], { ...a, atcud: 'X-2', loja: 'Outra' }), null);
 });
+
+test('charcutaria: categoria própria e reclassificação das faturas antigas', async () => {
+  const { categoriaPorNome, reclassificarCharcutaria } = await import('../js/modules/faturas/texto.js');
+  assert.equal(categoriaPorNome('FIAMBRE PERNA EXTRA'), 'charcutaria');
+  assert.equal(categoriaPorNome('Chouriço de carne'), 'charcutaria');
+  assert.equal(categoriaPorNome('PEITO FRANGO'), 'talho');
+  const itens = [
+    { produto: 'Fiambre da perna 200 g', categoria: 'talho' },
+    { produto: 'Presunto', categoria: 'talho', confirmado: true },
+    { produto: 'Peito de frango', categoria: 'talho' },
+  ];
+  const r = reclassificarCharcutaria(itens);
+  assert.deepEqual(r.map((i) => i.categoria), ['charcutaria', 'talho', 'talho']);
+  assert.equal(reclassificarCharcutaria(r), null);
+});

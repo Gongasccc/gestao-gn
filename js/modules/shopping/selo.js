@@ -3,7 +3,7 @@ import { html, raw } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { marcaLoja } from './seccoes.js';
 import {
-  LOGOS_IMG, LOGOS_SVG, LOGOS_COR, LOGOS_SITE, FOLHETOS, faviconUrl,
+  LOGOS_IMG, LOGOS_SVG, LOGOS_COR, LOGOS_SITE, FOLHETOS, faviconUrl, diasCurtos,
 } from './logos.js';
 
 /** Selo da loja: logótipo ou, se não houver, a sigla nas cores da marca. */
@@ -35,8 +35,9 @@ export function folhetosTpl({ titulo = 'Folhetos da semana' } = {}) {
       <h3 class="card__title">${icon('external', 18)} ${titulo}</h3>
       <div class="folhetos__lojas">
         ${FOLHETOS.map((f) => html`
-          <a class="lista-loja-btn pressable" href="${f.link}" target="_blank" rel="noopener noreferrer" aria-label="Folheto ${f.loja}">
-            ${seloTpl(f.loja)}<span>${f.loja}</span>
+          <a class="lista-loja-btn folhetos__loja pressable" href="${f.link}" target="_blank" rel="noopener noreferrer"
+            aria-label="Folheto ${f.loja}${f.dias?.length ? `, novo à ${diasCurtos(f.dias)}` : ''}" title="${f.loja}">
+            ${seloTpl(f.loja)}${f.dias?.length ? html`<small class="folhetos__dias">${diasCurtos(f.dias)}</small>` : ''}
           </a>`)}
       </div>
     </div>`;

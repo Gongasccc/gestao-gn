@@ -22,15 +22,21 @@ export const LOGOS_COR = {
 
 export const LOGOS_SITE = {};
 
-/** Páginas dos folhetos de cada cadeia (abrem no navegador). Mercadona não tem folheto. */
+/**
+ * Páginas dos folhetos de cada cadeia (abrem no navegador) e dias da semana em que sai o folheto novo
+ * (0 = domingo; aproximados, a confirmar pelo casal). Mercadona não tem folheto.
+ */
 export const FOLHETOS = [
-  { loja: 'Pingo Doce', link: 'https://www.pingodoce.pt/folhetos/' },
-  { loja: 'Lidl', link: 'https://www.lidl.pt/folhetos' },
-  { loja: 'Continente', link: 'https://folhetos.continente.pt/' },
-  { loja: 'Auchan', link: 'https://www.auchan.pt/pt/folhetos/' },
-  { loja: 'Intermarché', link: 'https://www.intermarche.pt/folhetos/' },
-  { loja: 'Aldi', link: 'https://www.aldi.pt/' },
+  { loja: 'Pingo Doce', link: 'https://www.pingodoce.pt/folhetos/', dias: [2] },
+  { loja: 'Lidl', link: 'https://www.lidl.pt/folhetos', dias: [1, 4] },
+  { loja: 'Continente', link: 'https://folhetos.continente.pt/', dias: [2] },
+  { loja: 'Auchan', link: 'https://www.auchan.pt/pt/folhetos/', dias: [3] },
+  { loja: 'Intermarché', link: 'https://www.intermarche.pt/folhetos/', dias: [2] },
+  { loja: 'Aldi', link: 'https://www.aldi.pt/', dias: [3] },
 ];
+
+/** Dias abreviados à portuguesa: [1, 4] -> "2ª · 5ª" (sábado "Sáb", domingo "Dom"). */
+export const diasCurtos = (dias) => (dias || []).map((d) => (d === 0 ? 'Dom' : d === 6 ? 'Sáb' : `${d + 1}ª`)).join(' · ');
 
 /** Endereço do ícone de um site (64 px), servido pelo Google. */
 export const faviconUrl = (dominio) => `https://www.google.com/s2/favicons?domain=${dominio}&sz=64`;

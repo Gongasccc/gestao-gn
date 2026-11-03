@@ -41,6 +41,7 @@ Regras das quantidades:
 - No Lidl o formato é "NOME 0,79 x 2 1,58": quantidade 2, preço unitário 0,79.
 - Produtos ao peso ("0,456 kg x 1,99 €/kg"): quantidade em kg, unidade "kg", precoUnitario por kg.
 - quantidade × precoUnitario tem de dar o total da linha (antes do desconto).
+Categorias: "charcutaria" é fiambre, presunto, chouriço, salpicão, paio, mortadela, bacon, salame, alheira e afins; carne e peixe frescos são "talho"; queijos são "laticinios".
 Outras regras:
 - "total" é o valor efetivamente pago (depois de descontos).
 - "poupanca" é a soma de todos os descontos e promoções aplicados no talão. Valores positivos.

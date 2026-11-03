@@ -57,9 +57,10 @@ const limparNome = (s) => s
   .trim();
 
 const CATEGORIA_POR_PALAVRA = [
+  ['charcutaria', /FIAMBRE|PRESUNTO|CHOURI|SALPIC|\bPAIO\b|MORTADELA|BACON|SALAME|ALHEIRA|FARINHEIRA|PEPERONI|PEPPERONI|\bLOMBO FUM|PERU FUM/],
   ['laticinios', /LEITE|IOGURTE|QUEIJO|MANTEIGA|NATAS|OVOS|\bOVO\b|BEBIDA VEG/],
   ['frescos', /BANANA|MA[CÇ][AÃ]|LARANJA|PERA\b|TOMATE|ALFACE|BATATA|CEBOLA|CENOURA|ALHO|FRUTA|LEGUM|SALADA|KIWI|LIM[AÃ]O|ESPINAF|BR[OÓ]COL|COUVE|PIMENTO|COGUMELO|ABACATE|MORANGO|UVA/],
-  ['talho', /FRANGO|PERU|PORCO|VACA|NOVILHO|BIFE|CARNE|FIAMBRE|PRESUNTO|CHOURI|SALSICH|BACALHAU|PESCADA|SALM[AÃ]O|ATUM FRESCO|DOURADA|ROBALO|PEIXE|CAMAR[AÃ]O|LOMBO|COSTELET|HAMB[UÚ]RG/],
+  ['talho', /FRANGO|PERU|PORCO|VACA|NOVILHO|BIFE|CARNE|SALSICH|BACALHAU|PESCADA|SALM[AÃ]O|ATUM FRESCO|DOURADA|ROBALO|PEIXE|CAMAR[AÃ]O|LOMBO|COSTELET|HAMB[UÚ]RG/],
   ['padaria', /\bP[AÃ]O\b|CARCA[CÇ]|BROA|CROISSANT|BOLO|TOSTA|BAGUETE|BOLA[CÇ]/],
   ['congelados', /CONGEL|GELADO|ULTRACONG/],
   ['bebidas', /[AÁ]GUA|SUMO|REFRIG|COLA\b|CERVEJA|VINHO|NECTAR|N[EÉ]CTAR|CAF[EÉ]|CH[AÁ]\b|ICE TEA|SPRITE|FANTA|SUPER BOCK|SAGRES/],
@@ -236,4 +237,19 @@ export function juntarLeituras(qr, texto) {
     descontos: base.descontos || [],
     poupanca: base.poupanca || 0,
   };
+}
+
+/**
+ * Nova categoria "charcutaria" (antes ficava em "talho"): devolve os itens com fiambre, presunto,
+ * chouriço… passados para charcutaria, ou null se nada mudou. Não mexe no que foi corrigido à mão.
+ */
+export function reclassificarCharcutaria(itens) {
+  let mudou = false;
+  const out = (itens || []).map((i) => {
+    if (i.confirmado || i.categoria === 'charcutaria') return i;
+    if (categoriaPorNome(i.produto || i.nome) !== 'charcutaria') return i;
+    mudou = true;
+    return { ...i, categoria: 'charcutaria' };
+  });
+  return mudou ? out : null;
 }

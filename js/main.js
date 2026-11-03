@@ -44,6 +44,8 @@ function startModules() {
   MODULES.forEach((mod) => {
     try { mod.start?.(); } catch (err) { console.error(`[${mod.id}] start`, err); }
   });
+  // Apaga (uma vez) os dados dos menus que já saíram da app.
+  setTimeout(() => import('./services/limpeza.js').then((m) => m.limparMenusAntigos()), 4000);
 }
 
 function stopModules() {

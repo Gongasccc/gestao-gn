@@ -106,3 +106,15 @@ test('promoção ao peso conta com o que costumam levar', () => {
   assert.equal(e.fonte, 'promo');
   assert.equal(e.preco, 1.19); // 1,2 kg × 0,99
 });
+
+test('dia das compras', async () => {
+  const { proximasCompras, quandoCompras } = await import('../js/modules/shopping/precos.js');
+  const terca = new Date(2026, 10, 3);
+  assert.equal(proximasCompras(6, terca), '2026-11-07');
+  assert.equal(proximasCompras(2, terca), '2026-11-03');
+  assert.equal(proximasCompras(1, terca), '2026-11-09');
+  assert.equal(proximasCompras(null, terca), '');
+  assert.equal(quandoCompras(2, terca), 'hoje');
+  assert.equal(quandoCompras(3, terca), 'amanhã');
+  assert.equal(quandoCompras(6, terca), 'daqui a 4 dias');
+});

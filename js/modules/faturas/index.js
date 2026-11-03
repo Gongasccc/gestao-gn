@@ -16,7 +16,7 @@ import {
   catalogoProdutos, harmonizarItens, nomesParaIa,
 } from './produtos.js';
 import { faturaDoQr, lerCamposQr, LOJAS_NIF } from './qr.js';
-import { analisarTexto, juntarLeituras } from './texto.js';
+import { analisarTexto, juntarLeituras, reclassificarCharcutaria, categoriaPorNome } from './texto.js';
 import { carregarImagem, procurarQr, textoPorOcr, lerPdf } from './local.js';
 import {
   CATEGORIAS, nomeMes, deslocarMes, mesAtual, daMes, resumoMes, evolucaoMensal,
@@ -714,6 +714,25 @@ function aprenderLoja(f) {
 
 const campo = (id, label, input) => html`<div class="field"><label class="field__label" for="${id}">${label}</label>${input}</div>`;
 
+// Nova categoria "charcutaria": passa para lá o fiambre, presunto, chouriço… das faturas antigas (uma vez).
+function migrarCharcutaria() {
+  for (const f of faturas) {
+    const itens = reclassificarCharcutaria(f.itens);
+    if (itens) updateDoc(sharedDoc(COLECAO, f.id), { itens }).catch((e) => console.warn('[faturas] charcutaria', e));
+  }
+}
+
+function migrarAliasesCharcutaria() {
+  const novas = {};
+  for (const [k, a] of Object.entries(dicionario)) {
+    if (!a || a.c || a.categoria === 'charcutaria' || categoriaPorNome(a.produto) !== 'charcutaria') continue;
+    novas[k] = { ...a, categoria: 'charcutaria' };
+  }
+  if (!Object.keys(novas).length) return;
+  dicionario = { ...dicionario, ...novas };
+  setDoc(sharedDoc('config', 'produtos'), { aliases: novas }, { merge: true }).catch((e) => console.warn('[faturas] charcutaria', e));
+}
+
 export default {
   pages: [
     {
@@ -948,8 +967,11 @@ export default {
     carregado = false;
     faturas = [];
     scope.add(on('route:change', desenharAvisoFundo));
+    let charcutariaFeita = false;
+    let aliasesCharcutaria = false;
     scope.add(onSnapshot(sharedDoc('config', 'produtos'), (snap) => {
       dicionario = snap.exists() ? snap.data().aliases || {} : {};
+      if (!aliasesCharcutaria) { aliasesCharcutaria = true; migrarAliasesCharcutaria(); }
     }, () => { dicionario = {}; }));
     scope.add(onSnapshot(sharedDoc('config', 'lojas_nif'), (snap) => {
       lojasNif = snap.exists() ? snap.data().lojas || {} : {};
@@ -958,6 +980,7 @@ export default {
       faturas = snapToList(snap);
       cacheCatalogo = null;
       carregado = true;
+      if (!charcutariaFeita) { charcutariaFeita = true; migrarCharcutaria(); }
       if (atual?.id && !rascunho) {
         const f = faturas.find((x) => x.id === atual.id);
         if (f) atual = structuredClone(f);

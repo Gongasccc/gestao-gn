@@ -8,7 +8,7 @@ import { html, byId, render } from '../../core/dom.js';
 import { money } from '../../core/format.js';
 import { toast, confirmDialog, openModal, closeModal, modalTemplate, showImage } from '../../core/ui.js';
 import { icon } from '../../core/icons.js';
-import { session, createScope } from '../../core/state.js';
+import { session, createScope, emit } from '../../core/state.js';
 import { compressImage, readAsDataURL, takeFile } from '../../core/images.js';
 import { lerFatura, normalizarFatura } from './ai.js';
 import { faturaDoQr, lerCamposQr, LOJAS_NIF } from './qr.js';
@@ -48,6 +48,10 @@ const dataCurta = (iso) => {
   return `${Number(d)} ${nomeMes(`${a}-${m}`, true)} ${a}`;
 };
 const pct = (v, max) => (max > 0 ? Math.max(3, Math.round((v / max) * 100)) : 0);
+
+/** Faturas carregadas (usado pela página Supermercados, que ouve 'faturas:update'). */
+export const listaFaturas = () => faturas;
+export const faturasCarregadas = () => carregado;
 
 // ---------- Resumo para a página principal dos Supermercados ----------
 
@@ -714,6 +718,7 @@ export default {
         if (f) atual = structuredClone(f);
       }
       desenharResumo();
+      emit('faturas:update');
       const pag = currentPage();
       if (pag === PAG_GASTOS) desenharGastos();
       if (pag === PAG_PRECOS) desenharPrecos();

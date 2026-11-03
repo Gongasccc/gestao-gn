@@ -19,6 +19,7 @@
   <h1>Diagnóstico da IA (App Check)</h1>
   <ul id="passos"></ul>
   <script type="module">
+    import { app } from './js/services/firebase.js';
     import { RECAPTCHA_SITE_KEY } from './js/services/gemini.js';
 
     const SDK = '11.10.0';
@@ -52,12 +53,33 @@
     }
 
     // 2) App Check: troca o token do reCAPTCHA por um token do Firebase.
+    let tokenAppCheck = '';
     try {
       const { testarAppCheck } = await import('./js/services/gemini.js');
-      const token = await testarAppCheck();
-      passo(true, 'App Check deu um token do Firebase', `${token.slice(0, 24)}…`);
+      tokenAppCheck = await testarAppCheck();
+      passo(true, 'App Check deu um token do Firebase', `${tokenAppCheck.slice(0, 24)}…`);
     } catch (e) {
       passo(false, 'App Check falhou', texto(e));
+    }
+
+    // 2b) Pedido direto ao Firebase AI Logic com esse token: mostra a resposta tal e qual.
+    try {
+      const modelo = 'gemini-3.8-flash';
+      const url = `https://firebasevertexai.googleapis.com/v1beta/projects/${app.options.projectId}/models/${modelo}:generateContent`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': app.options.apiKey,
+          'X-Firebase-AppCheck': tokenAppCheck,
+          'X-Firebase-AppId': app.options.appId,
+        },
+        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Diz só: ok' }] }] }),
+      });
+      const corpo = (await res.text()).slice(0, 600);
+      passo(res.ok, `Pedido direto ao Gemini: HTTP ${res.status}`, corpo);
+    } catch (e) {
+      passo(false, 'Pedido direto ao Gemini falhou', texto(e) || String(e));
     }
 
     // 3) Pedido pequeno ao Gemini.

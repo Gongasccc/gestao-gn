@@ -59,7 +59,7 @@ export const LOJAS_PADRAO = ['Pingo Doce', 'Mercadona', 'Lidl', 'Auchan', 'Conti
 
 // Categorias das faturas -> secções da lista.
 const DE_CATEGORIA = {
-  frescos: 'frescos', talho: 'talho', laticinios: 'laticinios', padaria: 'padaria', mercearia: 'mercearia',
+  frescos: 'frescos', talho: 'talho', charcutaria: 'charcutaria', laticinios: 'laticinios', padaria: 'padaria', mercearia: 'mercearia',
   congelados: 'congelados', bebidas: 'bebidas', limpeza: 'limpeza', higiene: 'higiene', bebe: 'bebe', animais: 'animais',
 };
 export const seccaoDeCategoria = (cat) => DE_CATEGORIA[cat] || '';

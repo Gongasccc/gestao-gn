@@ -178,3 +178,24 @@ export function semanaIso(d = new Date()) {
   const semana = Math.ceil(((t - Date.UTC(ano, 0, 1)) / 86400000 + 1) / 7);
   return `${ano}-W${String(semana).padStart(2, '0')}`;
 }
+
+// ---------- Dia das compras ----------
+
+export const DIAS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const isoLocal = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+/** Data ('AAAA-MM-DD') das próximas compras para um dia da semana fixo (0 = domingo). Hoje conta. */
+export function proximasCompras(dia, hoje = new Date()) {
+  const d = dia == null || dia === '' ? NaN : Number(dia);
+  if (!Number.isInteger(d) || d < 0 || d > 6) return '';
+  const alvo = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + ((d - hoje.getDay() + 7) % 7));
+  return isoLocal(alvo);
+}
+
+/** "hoje", "amanhã" ou "daqui a 3 dias". */
+export function quandoCompras(dia, hoje = new Date()) {
+  const d = dia == null || dia === '' ? NaN : Number(dia);
+  if (!Number.isInteger(d) || d < 0 || d > 6) return '';
+  const falta = (d - hoje.getDay() + 7) % 7;
+  return falta === 0 ? 'hoje' : falta === 1 ? 'amanhã' : `daqui a ${falta} dias`;
+}

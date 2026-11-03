@@ -24,6 +24,7 @@ import {
 import { seloTpl, folhetosTpl } from './selo.js';
 import {
   indicePrecos, estimarLoja, estimarArtigo, melhorNoutraLoja, promoAtiva, promoAoPeso, promosDoArtigo, semanaIso,
+  proximasCompras, quandoCompras, DIAS,
 } from './precos.js';
 
 const scope = createScope();
@@ -72,9 +73,24 @@ function precosDe(texto) {
   return precos.find((p) => corresponde(p.nome, q)) || null;
 }
 
+/** Dia da semana fixo das compras (0 = domingo) ou null. Serve para todas as semanas. */
+const diaCompras = () => (Number.isInteger(config.diaCompras) ? config.diaCompras : null);
+/** Data das próximas compras: as promoções contam se forem válidas nesse dia. Sem dia fixo, hoje. */
+const dataCompras = () => proximasCompras(diaCompras()) || todayISO();
+
 function ctxPrecos() {
   if (!indice) indice = indicePrecos(listaFaturas());
-  return { indice, promos, hoje: todayISO() };
+  return { indice, promos, hoje: dataCompras() };
+}
+
+function diaTpl() {
+  const d = diaCompras();
+  return html`<button class="lista-dia pressable" data-action="lista:dia">
+    ${icon('calendar', 16)}
+    ${d == null ? html`<span>Escolher o dia das compras</span>`
+      : html`<span>Compras ${d === 0 || d === 6 ? 'ao' : 'à'} <strong>${DIAS[d]}</strong> · ${quandoCompras(d)}</span>`}
+    ${icon('chevronDown', 14)}
+  </button>`;
 }
 
 const dataCurta = (iso) => (iso ? isoToShort(iso, false) : '');
@@ -99,8 +115,8 @@ function lojasTpl() {
     <div class="lista-lojas" role="radiogroup" aria-label="Supermercado dos novos artigos">
       ${lojas.map((l) => {
         const ativo = lojaAtual && chaveLoja(l) === sel;
-        return html`<button class="lista-loja-btn pressable ${ativo ? 'is-active' : ''}" data-action="lista:loja-atual" data-loja="${l}" role="radio" aria-checked="${ativo ? 'true' : 'false'}">
-          ${seloTpl(l)}<span>${l}</span>${ativo ? html`<i class="lista-loja-btn__ok">${icon('check', 12)}</i>` : ''}
+        return html`<button class="lista-loja-btn lista-loja-btn--so-logo pressable ${ativo ? 'is-active' : ''}" data-action="lista:loja-atual" data-loja="${l}" title="${l}" aria-label="${l}" role="radio" aria-checked="${ativo ? 'true' : 'false'}">
+          ${seloTpl(l)}${ativo ? html`<i class="lista-loja-btn__ok">${icon('check', 12)}</i>` : ''}
         </button>`;
       })}
       <button class="lista-loja-btn pressable" data-action="lista:nova-loja"><span class="lista-selo lista-selo--novo" style="--tam:44px">${icon('plus', 18)}</span><span>Outro</span></button>
@@ -196,6 +212,7 @@ function desenhar() {
   const alvo = byId('lista-semanal');
   if (!alvo) return;
   render('lista-lojas-wrap', lojasTpl());
+  render('lista-dia-wrap', diaTpl());
   atualizarEntrada();
   const { grupos, feitos } = agruparLista(itens, { memoria: config.memoria || {}, ordens: config.ordens || {}, categoria: categoriaFaturas });
   const pendentes = grupos.reduce((n, g) => n + g.total, 0);
@@ -243,12 +260,12 @@ function desenharOrdem() {
 
 const textosLista = () => itens.filter((i) => !i.feita).map((i) => i.texto);
 
-function promoTpl(p, naLista) {
+function promoTpl(p, naLista, foraDoDia = false) {
   return html`
     <div class="list-item glass-soft lista-promo ${naLista ? 'is-lista' : ''}">
       <span class="list-item__text">
         ${p.produto}
-        <small class="lista-promo__meta">${[p.desconto, p.condicao].filter(Boolean).join(' · ')}${naLista ? html` <b class="lista-promo__tag">na tua lista</b>` : ''}</small>
+        <small class="lista-promo__meta">${[p.desconto, p.condicao].filter(Boolean).join(' · ')}${naLista ? html` <b class="lista-promo__tag">na tua lista</b>` : ''}${foraDoDia ? html` <b class="lista-promo__tag lista-promo__tag--fora">não vale no dia das compras</b>` : ''}</small>
       </span>
       <span class="lista-promo__preco">${p.precoAntes ? html`<s>${money(p.precoAntes)}</s>` : ''}<b>${money(p.preco)}${promoAoPeso(p) ? html`<small>/kg</small>` : ''}</b></span>
       <button class="icon-btn icon-btn--subtle" data-action="lista:promo-apagar" data-id="${p.id}" aria-label="Apagar promoção">${icon('close', 14)}</button>
@@ -259,6 +276,7 @@ function desenharPromos() {
   const alvo = byId('lista-promos');
   if (!alvo) return;
   const hoje = todayISO();
+  const compras = dataCompras();
   const lista = textosLista();
   const validas = promos.filter((p) => !p.fim || p.fim >= hoje);
   const estado = aLerFolheto && progresso && !progresso.fim ? html`
@@ -277,7 +295,7 @@ function desenharPromos() {
     if (!porLoja.has(k)) porLoja.set(k, { loja: p.loja, itens: [] });
     porLoja.get(k).itens.push(p);
   }
-  const naLista = (p) => lista.some((t) => promosDoArtigo(t, [p], hoje).length);
+  const naLista = (p) => lista.some((t) => promosDoArtigo(t, [p], compras).length);
   render(alvo, html`${estado}${[...porLoja.values()].map((g) => {
     const m = marcaLoja(g.loja);
     const ordenadas = g.itens.map((p) => ({ p, l: naLista(p) })).sort((a, b) => b.l - a.l || a.p.produto.localeCompare(b.p.produto));
@@ -293,7 +311,7 @@ function desenharPromos() {
           <button class="lista-loja__btn pressable" data-action="lista:promos-apagar-loja" data-loja="${g.loja}">${icon('trash', 14)} Apagar</button>
         </header>
         ${pesquisa ? html`<p class="fat-meta lista-promos__nota">Algumas vieram de uma pesquisa na web: confirma no folheto antes de contar com elas.</p>` : ''}
-        <div class="list">${ordenadas.map(({ p, l }) => promoTpl(p, l))}</div>
+        <div class="list">${ordenadas.map(({ p, l }) => promoTpl(p, l, diaCompras() != null && !promoAtiva(p, compras)))}</div>
       </section>`;
   })}`);
 }
@@ -507,6 +525,20 @@ const actions = {
     lerFolhetoDe(files);
   },
   'lista:promos-pesquisar': () => pesquisarSemana(),
+  'lista:dia': async () => {
+    const atual = diaCompras();
+    const escolha = await actionSheet([
+      ...[1, 2, 3, 4, 5, 6, 0].map((d) => ({ id: String(d), label: DIAS[d][0].toUpperCase() + DIAS[d].slice(1), active: atual === d })),
+      { id: 'nenhum', label: 'Sem dia fixo', active: atual == null },
+    ], { title: 'Em que dia fazem as compras?' });
+    if (!escolha) return;
+    const dia = escolha === 'nenhum' ? null : Number(escolha);
+    config.diaCompras = dia;
+    desenhar();
+    desenharPromos();
+    await guardarCfg({ diaCompras: dia });
+    toast(dia == null ? 'Sem dia fixo para as compras' : `Compras ${dia === 0 || dia === 6 ? 'ao' : 'à'} ${DIAS[dia]}, todas as semanas`);
+  },
   'lista:fundo': () => {
     if (progresso?.fim) { clearTimeout(timerFim); progresso = null; desenharBarra(); }
     navigate(PAG_LISTA);
@@ -630,6 +662,7 @@ export default {
               <input type="text" id="lista-input" class="input" placeholder="Adicionar artigo…" data-enter="lista:add" autocomplete="off">
               <button class="btn btn--primary btn--icon pressable" data-action="lista:add" aria-label="Adicionar">${icon('plus', 20)}</button>
             </div>
+            <div id="lista-dia-wrap"></div>
             <div id="lista-lojas-wrap"></div>
           </div>
           <p class="fat-meta lista-resumo" id="lista-resumo"></p>
@@ -667,7 +700,11 @@ export default {
     scope.add(onSnapshot(sharedCol(COL), (snap) => { itens = snapToList(snap); desenhar(); desenharPromos(); pesquisaSemanal(); }));
     scope.add(onSnapshot(cfgDoc(), (snap) => {
       const d = snap.exists() ? snap.data() : {};
-      config = { memoria: d.memoria || {}, ordens: d.ordens || {}, lojas: d.lojas || [], promosSemana: d.promosSemana || '', carregada: true };
+      config = {
+        memoria: d.memoria || {}, ordens: d.ordens || {}, lojas: d.lojas || [], promosSemana: d.promosSemana || '',
+        diaCompras: Number.isInteger(d.diaCompras) ? d.diaCompras : null, carregada: true,
+      };
+      desenharPromos();
       desenhar();
       pesquisaSemanal();
     }, () => {}));

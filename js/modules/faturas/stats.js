@@ -8,6 +8,7 @@ const MESES_LONGOS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'
 export const CATEGORIAS = {
   frescos: 'Fruta e legumes',
   talho: 'Carne e peixe',
+  charcutaria: 'Charcutaria',
   laticinios: 'Laticínios e ovos',
   padaria: 'Padaria',
   mercearia: 'Mercearia',

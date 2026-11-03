@@ -302,3 +302,17 @@
 .lista-promos__estado-topo b { color: var(--accent); }
 .lista-promos__estado .fat-meta { display: block; margin-top: 6px; }
 .lista-promos__estado .fat-progresso { width: 100%; margin: 0; }
+
+/* Dia das compras (fixo, todas as semanas) */
+.lista-dia {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 12px; padding: 7px 12px;
+  border-radius: var(--radius-pill); border: 1px solid var(--hairline);
+  background: var(--soft-bg); color: var(--text-muted);
+  font: inherit; font-size: 13px;
+}
+.lista-dia strong { color: var(--text); }
+.lista-dia > .icon:first-child { color: var(--accent); }
+.lista-promo__tag--fora { background: var(--text-faint); }
+.lista-loja-btn--so-logo, .folhetos__loja { width: 60px; }
+.folhetos__dias { font-size: 10.5px; font-weight: 600; color: var(--text-faint); letter-spacing: .02em; }

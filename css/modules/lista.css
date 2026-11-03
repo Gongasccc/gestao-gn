@@ -281,3 +281,12 @@
 .lista-promo__preco s { font-size: 11px; color: var(--text-faint); }
 .lista-promo__preco b { font-size: 15px; color: var(--accent); }
 .lista-promo__preco b small { font-size: 11px; font-weight: 600; }
+
+/* Logótipos em imagem (Lidl, Pingo Doce, Aldi): ocupam o selo todo */
+.lista-selo--img { padding: 0; overflow: hidden; background: none; border: 0; }
+.lista-selo--img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lista-selo--img .lista-selo__sigla { display: none; }
+.lista-selo--img.sem-logo { background: linear-gradient(135deg, var(--marca) 0%, var(--marca2) 130%); color: var(--marca-texto); }
+.lista-selo--img.sem-logo img { display: none; }
+.lista-selo--img.sem-logo .lista-selo__sigla { display: block; }
+.lista-loja__banner .lista-selo--img { background: none; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45), 0 0 0 2px #fff; }

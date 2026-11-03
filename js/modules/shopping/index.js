@@ -20,7 +20,7 @@ import { corresponde } from '../faturas/produtos.js';
 import {
   SECCOES, LOJAS_PADRAO, agruparLista, chaveArtigo, chaveLoja, ordemDaLoja, nomeSeccao, emojiSeccao, listaLojas, marcaLoja,
 } from './seccoes.js';
-import { LOGOS_SVG, LOGOS_COR, LOGOS_SITE, faviconUrl } from './logos.js';
+import { LOGOS_IMG, LOGOS_SVG, LOGOS_COR, LOGOS_SITE, faviconUrl } from './logos.js';
 import {
   indicePrecos, estimarLoja, estimarArtigo, melhorNoutraLoja, promoAtiva, promoAoPeso, promosDoArtigo, semanaIso,
 } from './precos.js';
@@ -92,6 +92,9 @@ function seloTpl(loja, tam = 44) {
   const m = marcaLoja(loja);
   const estilo = `--marca:${m.cor};--marca2:${m.cor2};--marca-texto:${m.texto};--tam:${tam}px`;
   const sigla = html`<b class="lista-selo__sigla">${m.sigla}</b>`;
+  if (LOGOS_IMG[m.id]) {
+    return html`<span class="lista-selo lista-selo--img" style="${estilo}" aria-hidden="true"><img src="${LOGOS_IMG[m.id]}" alt="" loading="lazy" onerror="this.parentNode.classList.add('sem-logo')">${sigla}</span>`;
+  }
   if (LOGOS_COR[m.id]) {
     return html`<span class="lista-selo lista-selo--logo lista-selo--cor" style="${estilo}" aria-hidden="true">${raw(LOGOS_COR[m.id])}</span>`;
   }

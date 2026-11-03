@@ -11,9 +11,9 @@ export const MODELOS = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flas
 const ERRO_FATAL = /quota|429|RESOURCE_EXHAUSTED|api-not-enabled|PERMISSION_DENIED|Failed to fetch|NetworkError|offline|app.?check|unauthenticated/i;
 
 // App Check: a Google exige-o no Firebase AI Logic desde 2 nov 2026. A app prova que é ela com o
-// reCAPTCHA v3 (invisível). Chave do site criada em https://www.google.com/recaptcha/admin e
+// reCAPTCHA Enterprise (invisível). Chave do site "Ninho" criada no Google Cloud do projeto gestao-gn e
 // registada em Firebase > App Check > Apps (com a chave secreta). Em localhost usa um token de debug.
-export const RECAPTCHA_SITE_KEY = '6Lf7ZA0uAAAAACgNcYyOsvjJsOVKLvW_zM8Tm06r';
+export const RECAPTCHA_SITE_KEY = '6LcSvQ4uAAAAAAJneoGTcqwievPud5PnLZHhViKt';
 // 'v3' (chave com segredo, google.com/recaptcha/admin) ou 'enterprise' (chave criada na Google Cloud).
 export const RECAPTCHA_TIPO = 'enterprise';
 

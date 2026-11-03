@@ -278,6 +278,11 @@ function renderNovo() {
       ${foto ? html`<img class="farm-palco__recorte" src="${foto}" alt="">` : ''}
       ${!original && !foto ? html`<div class="farm-foto farm-foto--vazia">${icon('pill', 48)}</div>` : ''}
       ${fase === 'ia' ? html`<div class="farm-scan"></div>` : ''}
+      ${rascunho.porNome && fase !== 'ia' ? html`
+        <label class="farm-palco__trocar pressable" title="${foto ? 'Trocar foto' : 'Adicionar foto'}">
+          ${icon('camera', 16)}<span>${foto ? 'Trocar foto' : 'Adicionar foto'}</span>
+          <input type="file" accept="image/*" hidden data-change="farmacia:fotoRascunho">
+        </label>` : ''}
     </div>`;
 
   const passosHtml = fase === 'ia' ? html`
@@ -355,7 +360,7 @@ function renderDetalhe() {
       <span class="farm-flutua">${imagemMed(m, 'farm-palco__recorte')}</span>
       <label class="farm-palco__trocar pressable" title="Trocar foto">
         ${icon('camera', 16)}<span>Trocar foto</span>
-        <input type="file" accept="image/*" capture="environment" hidden data-change="farmacia:trocarFoto">
+        <input type="file" accept="image/*" hidden data-change="farmacia:trocarFoto">
       </label>
     </div>
     <h2 class="farm-detalhe__nome">${m.nome}</h2>
@@ -459,12 +464,12 @@ async function processarFoto(ficheiro) {
 // Sem foto tirada pelo utilizador: depois de a IA identificar o medicamento, procura na web uma foto
 // da frente da caixa e a IA confirma qual é a certa. Se nenhuma servir, fica sem foto.
 function buscarFotoCaixa(id, info) {
-  if (rascunho?.ficheiro || (rascunho?.foto && !rascunho.fotoWeb)) return;
+  if (rascunho?.ficheiro || rascunho?.fotoManual || (rascunho?.foto && !rascunho.fotoWeb)) return;
   const descricao = [info.nome, info.dosagem].filter(Boolean).join(' ');
   if (rascunho?.fotoWeb) atualizarRascunho({ foto: '', fotoWeb: false });
   rascunho.fotoPedida = descricao;
   procurarFotoCaixa(descricao).then((foto) => {
-    if (!foto || rascunho?.id !== id || rascunho.fotoPedida !== descricao || rascunho.ficheiro) return;
+    if (!foto || rascunho?.id !== id || rascunho.fotoPedida !== descricao || rascunho.ficheiro || rascunho.fotoManual) return;
     atualizarRascunho({ foto, fotoWeb: true });
   }).catch((e) => console.warn('[farmacia] foto da caixa', e));
 }
@@ -585,6 +590,27 @@ export default {
       const ficheiro = el.files?.[0];
       el.value = '';
       if (ficheiro) processarFoto(ficheiro);
+    },
+    // Foto escolhida à mão para um medicamento procurado pelo nome: só muda a imagem, não volta a ler com a IA.
+    'farmacia:fotoRascunho': async ({ el }) => {
+      const ficheiro = el.files?.[0];
+      el.value = '';
+      if (!ficheiro || !rascunho) return;
+      const id = rascunho.id;
+      const label = el.closest('label');
+      label?.classList.add('is-loading');
+      rascunho.fotoPedida = null; // a foto da web que ainda esteja a chegar já não a substitui
+      try {
+        const rapida = await miniatura(ficheiro);
+        if (!rapida) throw new Error('Não foi possível abrir a foto.');
+        if (rascunho?.id === id) atualizarRascunho({ foto: rapida, fotoWeb: false, fotoManual: true });
+        const semFundo = await comLimite(removerFundo(ficheiro, () => {}), 25_000).catch(() => '');
+        if (semFundo && rascunho?.id === id && rascunho.foto === rapida) atualizarRascunho({ foto: semFundo });
+      } catch (e) {
+        toast(e.message, 'error');
+      } finally {
+        label?.classList.remove('is-loading');
+      }
     },
     'farmacia:trocarFoto': async ({ el }) => {
       const ficheiro = el.files?.[0];

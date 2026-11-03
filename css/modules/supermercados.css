@@ -1,0 +1,17 @@
+/* Supermercados (separadores Resumo / Faturas / Preços) */
+[data-tab-panel^="sup:"] > * + *,
+#sup-resumo > * + *,
+#sup-precos > * + * { margin-top: 12px; }
+#sup-faturas { margin-top: 12px; }
+.sup-kpis { margin-top: 14px; }
+.sup-nada { text-align: center; padding: 18px 8px; }
+.sup-vazio { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 26px 18px; }
+.sup-vazio p { margin: 0; color: var(--text-muted); font-size: 14px; max-width: 320px; }
+.sup-vazio__icone,
+.sup-comparador__icone {
+  display: grid; place-items: center; width: 48px; height: 48px; flex: none;
+  border-radius: var(--radius-md); background: rgba(var(--accent-rgb), .12); color: var(--accent);
+}
+.sup-comparador { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.sup-comparador > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sup-comparador small { color: var(--text-muted); font-size: 12.5px; }

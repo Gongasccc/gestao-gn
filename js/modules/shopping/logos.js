@@ -1,7 +1,7 @@
 // Logótipos pequenos das cadeias (marcas registadas dos respetivos donos; uso pessoal na app).
 // Lidl, Aldi, Auchan, Continente e Intermarché: glifos do pacote simple-icons (CC0), desenhados na cor da marca.
 // Lidl, Pingo Doce e Aldi: imagens dos logótipos oficiais escolhidos pelo casal (LOGOS_IMG, em assets/lojas).
-// Mercadona: ícone oficial do site (favicon), com a sigla como reserva.
+// Mercadona: selo desenhado (verde com o M e o ponto laranja), porque o ícone do site não carregava.
 export const LOGOS_SVG = {
   auchan: 'm14.467 18.7529 1.6518 4.6358h1.2185l-1.7447-4.8583a7.9586 7.9586 0 0 1-1.1256.2217M0 23.3888h5.5057l1.7822-5.6112H1.9158A107.284 107.284 0 0 0 0 23.3879m7.2547-12.6334L10.4337 8.1c.5205-1.4086 1.0642-2.8197 1.6295-4.0216.2822.6408.5495 1.2816.83 1.9639 1.2268-1.0077 2.0328-1.5555 2.0735-1.582l.0164-.0117a5.6618 5.6618 0 0 1 1.632-.7064 112.7775 112.7775 0 0 0-1.4817-3.131h-6.169c-.5146.9903-2.4329 4.9521-4.6765 10.399h2.2694c.3693 0 .5544-.1362.6972-.2557m12.9073 4.4076a7.4539 7.4539 0 0 1-3.473 2.9658l1.8702 5.2609H24c-1.0874-3.3012-2.2536-6.2786-3.3484-9.0684-.1527.303-.3155.5603-.4898.8409M18.549 6.2946c.157 0 .303.0365.4358.1005-.0264-.0042-.054-.0092-.0813-.0092a.5844.5844 0 0 0-.5844.581.581.581 0 0 0 .5844.5803.581.581 0 0 0 .5827-.5794c0-.02-.0025-.0374-.004-.0548a.9987.9987 0 0 1 .0772.3843c0 .5528-.4524 1.0027-1.0102 1.0027-.5556.0014-1.0074-.4471-1.0102-1.0027 0-.5561.4532-1.0027 1.0102-1.0027zm-5.6393 11.3178c1.3297 0 4.503-.3378 6.2204-3.096 1.7198-2.76 2.3191-7.1386 2.3191-7.1386l1.8826-.8923c.1179-.0589.0872-.2623-.0565-.2623H21.246c-.318-.4955-1.4194-1.5497-3.0422-1.5497-.9628 0-1.8062.2715-2.5615.7637 0 0-1.1015.7503-2.7035 2.1282l-4.904 4.0797c-.3776.3155-.84.5205-1.4791.5205H.3858c-.1743 0-.1162.146-.088.2307.435 1.3256 1.5962 2.5085 3.6232 2.5085l-1.4476 1.4916c-.0573.0564-.0573.2258.0863.2258h5.5049c3.9784 0 6.4246-1.7415 8.0324-4.1545.1378-.2067.2673-.4266.3901-.6391.0606.0282.0664.0863.0381.1428-.4059.9794-1.4194 2.965-3.2737 4.1452-.6392.3736-.8417.489-1.7398.8334-.0614.0266-.0863.1245-.0581.2092l2.2279 6.2295h1.216l-2.042-5.7771h.0557z',
   continente: 'M11.9922 0C5.3736 0 .0078 5.3814.0078 12c0 6.6334 5.3509 12 11.9844 12s12-5.3666 12-12-5.3814-12-12-12m0 2.504c5.2472 0 9.5117 4.2637 9.5117 9.496 0 5.232-4.2645 9.5098-9.5117 9.5098S2.496 17.2618 2.496 12c0-5.2472 4.249-9.496 9.496-9.496m-.0586 2.3847c-3.9354 0-7.127 3.1766-7.127 7.127s3.1916 7.1406 7.127 7.1406c1.9677 0 3.7551-.7908 5.0371-2.088a1.89 1.89 0 0 0 0-2.6835c-.7304-.7455-1.9226-.7455-2.668 0-.6111.6113-1.4449.9843-2.3691.9843-1.8484 0-3.3398-1.52-3.3398-3.3535s1.4914-3.3398 3.3398-3.3398v-.0156c.9242 0 1.758.3731 2.3691.9843.7305.7305 1.9227.7305 2.668 0s.7453-1.9233 0-2.6836c-1.282-1.282-3.0694-2.0722-5.0371-2.0722m.0586 5.7539c-.7602 0-1.3711.6128-1.3711 1.373s.6109 1.3711 1.371 1.3711c.7604 0 1.3712-.6258 1.3712-1.371 0-.7454-.6108-1.3731-1.3711-1.3731',
@@ -15,12 +15,22 @@ export const LOGOS_IMG = {
   aldi: 'assets/lojas/aldi.png',
 };
 
-/** Logos a cores desenhados à mão (SVG 48×48). Vazio: os que existiam foram trocados por LOGOS_IMG. */
-export const LOGOS_COR = {};
-
-export const LOGOS_SITE = {
-  mercadona: 'mercadona.pt',
+/** Logos a cores desenhados à mão (SVG 48×48). */
+export const LOGOS_COR = {
+  mercadona: `<svg viewBox="0 0 48 48"><defs><linearGradient id="mgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00A650"/><stop offset="1" stop-color="#007A3D"/></linearGradient></defs><rect width="48" height="48" rx="11" fill="url(#mgd)"/><text x="23" y="34" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="26" fill="#fff">M</text><circle cx="37.5" cy="13" r="5" fill="#F18E00"/></svg>`,
 };
+
+export const LOGOS_SITE = {};
+
+/** Páginas dos folhetos de cada cadeia (abrem no navegador). Mercadona não tem folheto. */
+export const FOLHETOS = [
+  { loja: 'Pingo Doce', link: 'https://www.pingodoce.pt/folhetos/' },
+  { loja: 'Lidl', link: 'https://www.lidl.pt/folhetos' },
+  { loja: 'Continente', link: 'https://folhetos.continente.pt/' },
+  { loja: 'Auchan', link: 'https://www.auchan.pt/pt/folhetos/' },
+  { loja: 'Intermarché', link: 'https://www.intermarche.pt/folhetos/' },
+  { loja: 'Aldi', link: 'https://www.aldi.pt/' },
+];
 
 /** Endereço do ícone de um site (64 px), servido pelo Google. */
 export const faviconUrl = (dominio) => `https://www.google.com/s2/favicons?domain=${dominio}&sz=64`;

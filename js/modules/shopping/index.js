@@ -3,13 +3,14 @@
 // de cada um, pela ordem dos corredores (personalizável por loja), para passar em cada corredor uma vez.
 // A app lembra-se da loja e da secção escolhidas para cada artigo (config/lista_compras.memoria).
 // Cada artigo e cada supermercado mostram quanto deve custar (preços das faturas e promoções dos folhetos).
-import { html, raw, byId, render, emptyState } from '../../core/dom.js';
+import { html, byId, render, emptyState } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { money, todayISO, isoToShort } from '../../core/format.js';
 import { compressImage, readAsDataURL } from '../../core/images.js';
 import { createScope, session, on } from '../../core/state.js';
 import { toast, promptDialog, confirmDialog, openModal, closeModal, modalTemplate } from '../../core/ui.js';
-import { tabsTpl, positionIndicator } from '../../components/tabs.js';
+import { tabsTpl, selectTab, positionIndicator } from '../../components/tabs.js';
+import { navigate } from '../../core/router.js';
 import { checklistTpl, subscribeChecklist } from '../../components/checklist.js';
 import { actionSheet } from '../../components/action-sheet.js';
 import { addDoc, updateDoc, deleteDoc, setDoc, onSnapshot } from '../../services/firebase.js';
@@ -20,7 +21,7 @@ import { corresponde } from '../faturas/produtos.js';
 import {
   SECCOES, LOJAS_PADRAO, agruparLista, chaveArtigo, chaveLoja, ordemDaLoja, nomeSeccao, emojiSeccao, listaLojas, marcaLoja,
 } from './seccoes.js';
-import { LOGOS_IMG, LOGOS_SVG, LOGOS_COR, LOGOS_SITE, faviconUrl } from './logos.js';
+import { seloTpl, folhetosTpl } from './selo.js';
 import {
   indicePrecos, estimarLoja, estimarArtigo, melhorNoutraLoja, promoAtiva, promoAoPeso, promosDoArtigo, semanaIso,
 } from './precos.js';
@@ -39,6 +40,9 @@ let precos = null; // cache de compararPrecos(faturas)
 let indice = null; // cache de indicePrecos(faturas)
 let promos = [];
 let aLerFolheto = '';
+let progresso = null; // { titulo, texto, pct, fim: '' | 'ok' | 'erro' } — barra flutuante em baixo
+let timerProg = null;
+let timerFim = null;
 let pesquisaFeita = false;
 let primeira = true;
 let lojaOrdem = ''; // loja cuja ordem dos corredores está a ser editada
@@ -86,28 +90,6 @@ function categoriaFaturas(texto) {
 }
 
 // ---------- Desenho ----------
-
-/** Selo da loja (sigla nas cores da marca). */
-function seloTpl(loja, tam = 44) {
-  const m = marcaLoja(loja);
-  const estilo = `--marca:${m.cor};--marca2:${m.cor2};--marca-texto:${m.texto};--tam:${tam}px`;
-  const sigla = html`<b class="lista-selo__sigla">${m.sigla}</b>`;
-  if (LOGOS_IMG[m.id]) {
-    return html`<span class="lista-selo lista-selo--img" style="${estilo}" aria-hidden="true"><img src="${LOGOS_IMG[m.id]}" alt="" loading="lazy" onerror="this.parentNode.classList.add('sem-logo')">${sigla}</span>`;
-  }
-  if (LOGOS_COR[m.id]) {
-    return html`<span class="lista-selo lista-selo--logo lista-selo--cor" style="${estilo}" aria-hidden="true">${raw(LOGOS_COR[m.id])}</span>`;
-  }
-  if (LOGOS_SVG[m.id]) {
-    return html`<span class="lista-selo lista-selo--logo" style="${estilo}" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="${LOGOS_SVG[m.id]}"/></svg></span>`;
-  }
-  if (LOGOS_SITE[m.id]) {
-    return html`<span class="lista-selo lista-selo--logo" style="${estilo}" aria-hidden="true">
-      <img src="${faviconUrl(LOGOS_SITE[m.id])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('sem-logo')">${sigla}</span>`;
-  }
-  return html`<span class="lista-selo" style="${estilo}" aria-hidden="true">${m.sigla}</span>`;
-}
 
 function lojasTpl() {
   const lojas = todasLojas();
@@ -279,7 +261,12 @@ function desenharPromos() {
   const hoje = todayISO();
   const lista = textosLista();
   const validas = promos.filter((p) => !p.fim || p.fim >= hoje);
-  const estado = aLerFolheto ? html`<div class="card glass lista-promos__estado"><span class="spinner"></span> ${aLerFolheto}</div>` : '';
+  const estado = aLerFolheto && progresso && !progresso.fim ? html`
+    <div class="card glass lista-promos__estado">
+      <div class="lista-promos__estado-topo"><span>${progresso.titulo}</span><b>${progresso.pct}%</b></div>
+      <div class="fat-progresso" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progresso.pct}"><span style="width:${progresso.pct}%"></span></div>
+      ${progresso.texto ? html`<small class="fat-meta">${progresso.texto}</small>` : ''}
+    </div>` : '';
   if (!validas.length) {
     render(alvo, html`${estado}<div class="card glass">${emptyState('Ainda não há promoções. Fotografa as páginas do folheto (ou escolhe o PDF) e a IA tira os produtos, os preços e as datas.')}</div>`);
     return;
@@ -318,15 +305,70 @@ async function guardarPromos(novas, origem, { substituir = () => false } = {}) {
   await Promise.all(novas.map((p) => addDoc(sharedCol(COL_PROMOS), { ...p, origem, lote, criado: lote, createdBy: session.uid })));
 }
 
+// ---------- Barra flutuante com a percentagem (como na digitalização das faturas) ----------
+
+function desenharBarra() {
+  let el = byId('lista-fundo');
+  if (!progresso) { el?.classList.remove('is-visivel'); return; }
+  if (!el) {
+    el = document.createElement('button');
+    el.id = 'lista-fundo';
+    el.type = 'button';
+    el.className = 'fat-fundo glass glass--strong pressable';
+    el.dataset.action = 'lista:fundo';
+    document.body.appendChild(el);
+  }
+  const { titulo, texto, pct, fim } = progresso;
+  el.classList.toggle('is-pronto', fim === 'ok');
+  el.classList.toggle('is-erro', fim === 'erro');
+  render(el, !fim
+    ? html`<span class="fat-fundo__anel" style="--p:${pct}"><b>${pct}%</b></span>
+      <span class="fat-fundo__txt"><strong>${titulo}</strong><small>${texto || 'A ler…'}</small></span>`
+    : html`<span class="fat-fundo__icone">${icon(fim === 'ok' ? 'check' : 'alert', 18)}</span>
+      <span class="fat-fundo__txt"><strong>${titulo}</strong><small>${texto}</small></span>`);
+  requestAnimationFrame(() => el.classList.add('is-visivel'));
+}
+
+/** Atualiza a barra (a percentagem só sobe). */
+function progredir(titulo, texto = '', pct = null) {
+  clearTimeout(timerFim);
+  const atual = progresso && !progresso.fim ? progresso.pct : 0;
+  progresso = { titulo, texto, pct: pct == null ? atual : Math.max(atual, Math.min(99, Math.round(pct))), fim: '' };
+  desenharBarra();
+  desenharPromos();
+}
+
+/** A IA não diz quanto falta: a percentagem avança sozinha de `de` até quase `ate`, cada vez mais devagar. */
+function progressoEstimado(titulo, texto, { de, ate, segundos }) {
+  clearInterval(timerProg);
+  const inicio = Date.now();
+  progredir(titulo, texto, de);
+  timerProg = setInterval(() => {
+    const t = (Date.now() - inicio) / 1000;
+    progredir(titulo, texto, de + (ate - de) * (1 - Math.exp(-t / (segundos / 2.5))));
+  }, 400);
+}
+
+function terminarBarra(fim, titulo, texto) {
+  clearInterval(timerProg);
+  progresso = { titulo, texto, pct: 100, fim };
+  desenharBarra();
+  desenharPromos();
+  clearTimeout(timerFim);
+  timerFim = setTimeout(() => { progresso = null; desenharBarra(); }, fim === 'ok' ? 5000 : 9000);
+}
+
 async function lerFolhetoDe(files) {
   if (aLerFolheto || !files.length) return;
   const escolhidos = files.slice(0, MAX_PAGINAS);
   if (files.length > MAX_PAGINAS) toast(`Só leio ${MAX_PAGINAS} páginas de cada vez.`, 'info');
-  aLerFolheto = `A preparar ${escolhidos.length === 1 ? 'o folheto' : `${escolhidos.length} páginas`}…`;
-  desenharPromos();
+  aLerFolheto = 'folheto';
+  const titulo = 'A ler o folheto…';
+  progredir(titulo, `A preparar ${escolhidos.length === 1 ? 'o ficheiro' : `${escolhidos.length} páginas`}`, 2);
   try {
     const ficheiros = [];
-    for (const f of escolhidos) {
+    for (const [n, f] of escolhidos.entries()) {
+      progredir(titulo, escolhidos.length > 1 ? `A preparar a página ${n + 1} de ${escolhidos.length}` : 'A preparar o ficheiro', 2 + (n / escolhidos.length) * 13);
       if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) {
         if (f.size > 15 * 1024 * 1024) throw new Error('O PDF é demasiado grande (máx. 15 MB).');
         ficheiros.push({ base64: (await readAsDataURL(f)).split(',')[1], mime: 'application/pdf' });
@@ -334,23 +376,23 @@ async function lerFolhetoDe(files) {
         ficheiros.push({ base64: (await compressImage(f, { maxSize: 2000, quality: 0.85 })).split(',')[1], mime: 'image/jpeg' });
       }
     }
-    aLerFolheto = 'A IA está a ler o folheto… (pode demorar um minuto)';
-    desenharPromos();
+    progressoEstimado(titulo, 'A IA está a tirar os produtos, os preços e as datas', { de: 15, ate: 95, segundos: 20 + 8 * escolhidos.length });
     const { lerFolheto } = await import('./folhetos.js');
     const r = await lerFolheto(ficheiros, { hoje: todayISO(), lojaSugerida: lojaAtual });
     if (!r.promocoes.length) throw new Error('Não encontrei promoções. Tenta fotos mais nítidas, uma página de cada vez.');
     // Ler o mesmo folheto outra vez substitui o anterior (mesma loja e mesmas datas).
     const k = chaveLoja(r.loja);
+    clearInterval(timerProg);
+    progredir(titulo, 'A guardar as promoções', 97);
     await guardarPromos(r.promocoes, 'folheto', {
       substituir: (p) => chaveLoja(p.loja) === k && p.origem !== 'pesquisa' && (p.inicio || '') === (r.inicio || '') && (p.fim || '') === (r.fim || ''),
     });
     const quando = validadeTxt(r);
-    toast(`${r.promocoes.length} promoções do ${r.loja}${quando ? ` (${quando})` : ''}`, 'success');
-  } catch (e) {
-    toast(e.message || 'Não consegui ler o folheto.', 'error');
-  } finally {
     aLerFolheto = '';
-    desenharPromos();
+    terminarBarra('ok', `${r.promocoes.length} promoções do ${r.loja}`, quando ? `Válidas ${quando} · toca para ver` : 'Toca para ver');
+  } catch (e) {
+    aLerFolheto = '';
+    terminarBarra('erro', 'Não consegui ler o folheto', e.message || 'Tenta outra vez.');
   }
 }
 
@@ -363,22 +405,23 @@ async function pesquisarSemana({ silencioso = false } = {}) {
     if (!silencioso) toast('Põe artigos na lista, com o supermercado, para eu procurar as promoções deles.', 'info');
     return;
   }
-  aLerFolheto = `A procurar promoções desta semana no ${lojas.join(', ')}…`;
-  desenharPromos();
+  aLerFolheto = 'pesquisa';
+  const titulo = 'A procurar promoções…';
+  if (!silencioso) progressoEstimado(titulo, `Na web, no ${lojas.join(', ')}`, { de: 5, ate: 95, segundos: 25 });
   try {
     const { pesquisarPromos } = await import('./folhetos.js');
     const { promocoes } = await pesquisarPromos(lojas, pend.map((i) => i.texto), { hoje: todayISO() });
     const ks = new Set(lojas.map(chaveLoja));
     const novas = promocoes.filter((p) => ks.has(chaveLoja(p.loja)));
     await guardarPromos(novas, 'pesquisa', { substituir: (p) => p.origem === 'pesquisa' && ks.has(chaveLoja(p.loja)) });
-    if (novas.length) toast(`Encontrei ${novas.length} ${novas.length === 1 ? 'promoção' : 'promoções'} desta semana`, 'success');
-    else if (!silencioso) toast('Não encontrei promoções fiáveis na web. Fotografa o folheto para ter a certeza.', 'info');
-  } catch (e) {
-    if (!silencioso) toast(e.message || 'A pesquisa falhou.', 'error');
-    else console.warn('[lista] pesquisa de promoções', e);
-  } finally {
     aLerFolheto = '';
-    desenharPromos();
+    if (novas.length) terminarBarra('ok', `${novas.length} ${novas.length === 1 ? 'promoção' : 'promoções'} desta semana`, 'Toca para ver');
+    else if (!silencioso) terminarBarra('erro', 'Sem promoções fiáveis na web', 'Fotografa o folheto para ter a certeza.');
+    else desenharPromos();
+  } catch (e) {
+    aLerFolheto = '';
+    if (!silencioso) terminarBarra('erro', 'A pesquisa falhou', e.message || 'Tenta outra vez.');
+    else { console.warn('[lista] pesquisa de promoções', e); desenharPromos(); }
   }
 }
 
@@ -464,6 +507,11 @@ const actions = {
     lerFolhetoDe(files);
   },
   'lista:promos-pesquisar': () => pesquisarSemana(),
+  'lista:fundo': () => {
+    if (progresso?.fim) { clearTimeout(timerFim); progresso = null; desenharBarra(); }
+    navigate(PAG_LISTA);
+    requestAnimationFrame(() => selectTab('lista', 'promos'));
+  },
   'lista:promo-apagar': ({ data }) => deleteDoc(sharedDoc(COL_PROMOS, data.id)),
   'lista:promos-apagar-loja': async ({ data }) => {
     const k = chaveLoja(data.loja);
@@ -599,6 +647,7 @@ export default {
               <button class="btn pressable" data-action="lista:promos-pesquisar">${icon('search', 16)} Na web</button>
             </div>
           </div>
+          ${folhetosTpl({ titulo: 'Abrir os folhetos' })}
           <div id="lista-promos"></div>
         </div>
         <div data-tab-panel="lista:rapida" hidden>

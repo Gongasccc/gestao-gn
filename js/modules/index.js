@@ -12,7 +12,7 @@ import trips from './trips/index.js';
 import recipes from './recipes.js';
 import garage from './garage.js';
 import supermarkets from './supermarkets.js';
-import shopping from './shopping.js';
+import shopping from './shopping/index.js';
 import cards from './cards/index.js';
 import couple from './couple.js';
 import finances from './finances.js';

@@ -8,12 +8,10 @@ import { html, byId, render } from '../../core/dom.js';
 import { money } from '../../core/format.js';
 import { toast, confirmDialog, openModal, closeModal, modalTemplate, showImage } from '../../core/ui.js';
 import { icon } from '../../core/icons.js';
-import { tabsTpl, positionIndicator } from '../../components/tabs.js';
 import { session, createScope, emit, on } from '../../core/state.js';
 import { compressImage, readAsDataURL, takeFile } from '../../core/images.js';
 import { lerFatura, normalizarFatura, decifrarNomes } from './ai.js';
 import { aplicarDicionario, aprenderFatura, exemplosParaIa, procurarAlias, chaveTalao, chaveLoja, precoPorUnidade, corresponde } from './produtos.js';
-import { LOJAS_ONLINE, linkPesquisa } from './online.js';
 import { faturaDoQr, lerCamposQr, LOJAS_NIF } from './qr.js';
 import { analisarTexto, juntarLeituras } from './texto.js';
 import { carregarImagem, procurarQr, textoPorOcr, lerPdf } from './local.js';
@@ -43,7 +41,6 @@ let ultimoFicheiro = null; // { ficheiro: { base64, mime }, preview, ePdf } para
 let qrAtual = null; // dados do QR da fatura em revisão (ganham sempre à IA)
 let dicionario = {}; // linha do talão -> nome padrão aprendido (config/produtos)
 let erroIa = ''; // porque é que a IA não decifrou a fatura em revisão
-let modoPrecos = 'compras'; // 'compras' (as nossas faturas) | 'lojas' (pesquisar nas lojas online)
 let aDecifrar = false;
 const CHAVE_IA = 'ninho.faturas.ia';
 const iaLigada = () => { try { return localStorage.getItem(CHAVE_IA) !== '0'; } catch { return true; } };
@@ -511,15 +508,9 @@ function aprenderNomes(f) {
 function desenharPrecos() {
   const alvo = byId('fat-precos');
   if (!alvo) return;
-  requestAnimationFrame(() => positionIndicator(document.querySelector('[data-tabs="fat-precos"]')));
   const q = pesquisa.trim().toLowerCase();
   const todos = compararPrecos(faturas);
   const resumo = byId('fat-precos-resumo');
-  if (modoPrecos === 'lojas') {
-    if (resumo) resumo.textContent = 'Abre a pesquisa oficial de cada loja com o preço de hoje. Ao lado, o que vocês pagaram.';
-    desenharLojas(alvo, q, todos);
-    return;
-  }
   const lista = q ? todos.filter((p) => corresponde(p.nome, q)) : todos;
   const variasLojas = todos.filter((p) => p.lojas.length > 1).length;
   const porDecifrar = linhasPorDecifrar().length;
@@ -548,37 +539,6 @@ function desenharPrecos() {
         ${p.lojas.length > 1 ? html`<small class="fat-verde">Mais barato no ${p.maisBarata.loja} · poupas ${euro(p.diferenca)}${p.unidade === 'kg' ? '/kg' : ''}</small>` : html`<small>Comprado ${p.vezes}× · último ${euro(p.ultimo.preco)}</small>`}
       </button>`)
     : html`<p class="fat-nada">${faturas.length ? 'Nenhum produto encontrado.' : 'Digitaliza faturas para comparar preços.'}</p>`}
-  `);
-}
-
-/** Modo "Nas lojas": pesquisa um produto em todas as lojas online. */
-function desenharLojas(alvo, q, todos) {
-  const nosso = q ? todos.filter((p) => corresponde(p.nome, q)).slice(0, 5) : [];
-  const termo = pesquisa.trim();
-  render(alvo, html`
-    ${!termo ? html`
-      <p class="fat-nada">Escreve um produto (ex.: "leite meio-gordo 1 L") para ver o preço de hoje em cada loja.</p>
-      ${todos.length ? html`<h3 class="section-title">Os que mais compram</h3>
-        <div class="fat-preco__lojas">${todos.slice(0, 12).map((p) => html`<button class="chip chip--muted pressable" data-action="faturas:pesquisar-lojas" data-q="${p.nome}">${p.nome}</button>`)}</div>` : ''}`
-    : html`
-      <section class="card glass-soft">
-        <h3 class="card__title">${icon('search', 18)} Preço de hoje para “${termo}”</h3>
-        <div class="fat-lojas-online">
-          ${LOJAS_ONLINE.map((l) => html`
-            <a class="fat-loja-online pressable" href="${linkPesquisa(l.id, termo)}" target="_blank" rel="noopener noreferrer">
-              <span>${l.nome}</span>${icon('chevronRight', 16)}
-            </a>`)}
-        </div>
-      </section>
-      ${nosso.length ? html`
-        <h3 class="section-title">O que vocês pagaram</h3>
-        ${nosso.map((p) => html`
-          <button class="fat-preco card glass-soft pressable" data-action="faturas:produto" data-chave="${p.chave}">
-            <div class="fat-preco__topo"><strong>${p.nome}</strong></div>
-            <div class="fat-preco__lojas">${p.lojas.map((l, i) => html`<span class="chip ${i === 0 && p.lojas.length > 1 ? 'chip--accent' : 'chip--muted'}">${l.loja} ${euro(l.preco)}</span>`)}</div>
-            <small>Último: ${euro(p.ultimo.preco)} · ${dataCurta(p.ultimo.data)}</small>
-          </button>`)}` : ''}`}
-    <p class="fat-meta">${icon('shield', 14)} As lojas portuguesas não têm uma API pública de preços, por isso a pesquisa abre o site de cada loja.</p>
   `);
 }
 
@@ -644,8 +604,6 @@ function abrirProduto(chave) {
     <h3 class="section-title">Preço por loja</h3>
     ${p.lojas.map((l, i) => html`
       <div class="fat-top"><span>${i === 0 && p.lojas.length > 1 ? icon('star', 14) : ''} ${l.loja}</span><small>${euro(l.preco)} · ${dataCurta(l.data)}</small></div>`)}
-    <h3 class="section-title">Preço de hoje nas lojas</h3>
-    <div class="fat-preco__lojas">${LOJAS_ONLINE.slice(0, 6).map((l) => html`<a class="chip chip--muted pressable" href="${linkPesquisa(l.id, p.nome)}" target="_blank" rel="noopener noreferrer">${l.nome}</a>`)}</div>
     <h3 class="section-title">Histórico</h3>
     ${[...p.historico].reverse().map((h) => html`<div class="fat-top"><span>${dataCurta(h.data)} · ${h.loja}</span><small>${euro(h.preco)}</small></div>`)}
     <p class="fat-meta">Mín. ${euro(p.min)} · Máx. ${euro(p.max)}</p>
@@ -725,7 +683,6 @@ export default {
       onEnter: desenharPrecos,
       template: () => html`
         <div class="fat">
-          ${tabsTpl('fat-precos', [{ id: 'compras', label: 'As nossas compras' }, { id: 'lojas', label: 'Nas lojas hoje' }], modoPrecos)}
           <input class="input" type="search" id="fat-precos-pesquisa" placeholder="Procurar produto…" data-input="faturas:pesquisa" aria-label="Procurar produto">
           <p class="fat-meta" id="fat-precos-resumo"></p>
           <div class="list" id="fat-precos"></div>
@@ -889,19 +846,12 @@ export default {
       await persistir();
     },
     'faturas:pesquisa': ({ value }) => { pesquisa = value || ''; desenharPrecos(); },
-    'faturas:pesquisar-lojas': ({ data }) => {
-      pesquisa = data.q || '';
-      const input = byId('fat-precos-pesquisa');
-      if (input) input.value = pesquisa;
-      desenharPrecos();
-    },
     'faturas:decifrar-antigas': () => decifrarAntigas(),
     'faturas:produto': ({ data }) => abrirProduto(data.chave),
   },
   start() {
     carregado = false;
     faturas = [];
-    scope.add(on('tabs:fat-precos', (modo) => { modoPrecos = modo === 'lojas' ? 'lojas' : 'compras'; desenharPrecos(); }));
     scope.add(onSnapshot(sharedDoc('config', 'produtos'), (snap) => {
       dicionario = snap.exists() ? snap.data().aliases || {} : {};
     }, () => { dicionario = {}; }));

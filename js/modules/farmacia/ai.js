@@ -1,5 +1,6 @@
 // Identificação de medicamentos com o Gemini (Firebase AI Logic, através de services/gemini.js).
-import { pedirJson } from '../../services/gemini.js';
+import { pedirJson, pedirComPesquisa } from '../../services/gemini.js';
+import { fontesValidas } from './util.js';
 
 const PROMPT_BASE = `És um farmacêutico em Portugal. Responde SEMPRE em português de Portugal, de forma curta e direta, sem texto desnecessário.
 Identifica o medicamento e devolve APENAS um objeto JSON com esta forma exata:
@@ -73,4 +74,15 @@ export function analisarFoto(imagem, dica = '') {
 
 export function analisarNome(nome) {
   return pedir([{ texto: `${PROMPT_BASE}\nO medicamento é: "${nome}". Se não souberes quantas unidades tem a embalagem, devolve "unidadesEmbalagem": null.` }]);
+}
+
+/**
+ * Pesquisa no Google as páginas exatas com a informação deste medicamento (folheto informativo, RCM,
+ * Infarmed, EMA, fabricante) e devolve [{ titulo, fonte, url }] com os endereços dessas páginas.
+ */
+export async function procurarFontes(info) {
+  const desc = [info.nome, info.dosagem, info.forma].filter(Boolean).join(' ');
+  const { json, paginas } = await pedirComPesquisa(`Pesquisa no Google informação oficial sobre o medicamento "${desc}"${info.substancia ? ` (substância: ${info.substancia})` : ''} em Portugal: folheto informativo e RCM (Infarmed/INFOMED), página da EMA, site do fabricante.
+Devolve APENAS JSON: {"fontes": [{"titulo": "descrição curta da página, ex.: Folheto informativo (PDF)", "url": "endereço completo e exato da página que encontraste"}]} com até 5 páginas, as mais oficiais primeiro. Usa só endereços que apareceram nos resultados da pesquisa; nunca inventes nem uses links de pesquisa.`);
+  return fontesValidas(json?.fontes, paginas);
 }

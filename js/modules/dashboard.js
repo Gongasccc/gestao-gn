@@ -157,7 +157,7 @@ async function drawHome() {
       <ul class="shop-preview">
         ${porComprar.slice(0, 3).map((i) => html`<li><span class="shop-preview__dot"></span>${i.texto}</li>`)}
       </ul>
-      <button class="btn btn--small btn--glass dash-more pressable" data-action="nav:go" data-page="menu-compras-semanais">
+      <button class="btn btn--small btn--glass dash-more pressable" data-action="nav:go" data-page="menu-lista-compras">
         Abrir lista${porComprar.length > 3 ? ` (+${porComprar.length - 3} artigos)` : ''}</button>`
       : html`<div class="dash-empty">${icon('cart', 20)}<span>A lista de compras está vazia.</span></div>`}`);
   drawResumo();

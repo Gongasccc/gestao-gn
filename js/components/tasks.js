@@ -57,6 +57,7 @@ export function tasksTpl({ limit = 0, id = 'tasks' } = {}) {
         </div>
         <div class="task-add__chips">${chipsTpl()}</div>
       </div>
+      <div class="meds-today" data-meds-today data-limit="${limit ? 3 : 0}"></div>
       <ul class="task-list" data-tasks-list></ul>
       <div class="task-progress" data-tasks-progress></div>
     </div>`;

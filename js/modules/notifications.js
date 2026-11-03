@@ -14,6 +14,30 @@ import { currentPage } from '../core/router.js';
 const scope = createScope();
 let notifications = [];
 let requests = [];
+let avisadas = new Set(); // notificações já mostradas como alerta do sistema nesta sessão
+let primeiraLeitura = true;
+
+/** Número no ícone da app (iPhone com a app no ecrã principal, Android, desktop). */
+function iconeDaApp(total) {
+  try {
+    if (total && navigator.setAppBadge) navigator.setAppBadge(total).catch(() => {});
+    else if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {});
+  } catch { /* sem suporte */ }
+}
+
+/** Mostra as notificações novas como alerta do sistema (se o utilizador as ativou). */
+function alertarNovas(lista) {
+  const ativas = session.profile?.allowNotifications && 'Notification' in window && Notification.permission === 'granted';
+  const novas = lista.filter((n) => !n.lida && !avisadas.has(n.id));
+  novas.forEach((n) => avisadas.add(n.id));
+  // Na primeira leitura só regista as que já existiam (não repete alertas antigos ao abrir a app).
+  if (primeiraLeitura) { primeiraLeitura = false; return; }
+  if (!ativas || !novas.length) return;
+  if (document.visibilityState === 'visible' && currentPage() === 'menu-notificacoes') return;
+  navigator.serviceWorker?.ready.then((reg) => Promise.all(novas.map((n) => reg.showNotification('Ninho', {
+    body: n.texto, icon: 'assets/brand/ninho-192.png', badge: 'assets/brand/ninho-192.png', tag: `notif-${n.id}`, data: { page: 'menu-notificacoes' },
+  })))).catch(() => { novas.forEach((n) => { try { new Notification('Ninho', { body: n.texto }); } catch { /* sem suporte */ } }); });
+}
 
 function draw() {
   const reqHtml = requests.map((r) => html`
@@ -44,7 +68,9 @@ function draw() {
            ${notifications.length ? html`<h3 class="section-title">Recentes</h3>${notifHtml}` : ''}`
     : emptyState('Sem notificações. Está tudo em dia!', icon('bell', 28)), { stagger: true });
 
-  setBadge('notifications', notifications.filter((n) => !n.lida).length + requests.length);
+  const total = notifications.filter((n) => !n.lida).length + requests.length;
+  setBadge('notifications', total);
+  iconeDaApp(total);
 }
 
 async function markAllRead() {
@@ -91,6 +117,7 @@ export default {
   start() {
     scope.add(onSnapshot(userCol('notifications'), (s) => {
       notifications = snapToList(s);
+      alertarNovas(notifications);
       draw();
       if (currentPage() === 'menu-notificacoes') setTimeout(markAllRead, 1200);
     }));
@@ -100,5 +127,8 @@ export default {
     scope.clear();
     notifications = [];
     requests = [];
+    avisadas = new Set();
+    primeiraLeitura = true;
+    iconeDaApp(0);
   },
 };

@@ -39,8 +39,13 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      const page = event.notification.data?.page;
       const open = list.find((c) => 'focus' in c);
-      return open ? open.focus() : self.clients.openWindow('./');
+      if (open) {
+        if (page) open.postMessage({ type: 'navigate', page });
+        return open.focus();
+      }
+      return self.clients.openWindow(page ? `./#${page}` : './');
     }),
   );
 });

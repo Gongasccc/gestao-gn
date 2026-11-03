@@ -20,8 +20,10 @@ export const MENU_GROUPS = [
 
 export const MENU = [
   { group: 'principal', page: 'menu-principal', label: 'Início', icon: 'home' },
-  // Gastos e faturas, Lojas & Cartões e as listas abrem a partir da página Supermercados.
+  // Supermercados: gastos do mês, faturas e preços. Cartões e Lista de compras têm menu próprio.
   { group: 'casa', page: 'menu-supermercados', label: 'Supermercados', icon: 'cart', library: true },
+  { group: 'casa', page: 'menu-lista-compras', label: 'Lista de compras', icon: 'clipboard', library: true },
+  { group: 'casa', page: 'menu-cartoes', label: 'Cartões', icon: 'card', library: true },
   { group: 'casa', page: 'menu-refeicoes', label: 'Plano de refeições', icon: 'restaurant', library: true },
   { group: 'casa', page: 'menu-receitas', label: 'Livro de Receitas', icon: 'book', library: true },
   { group: 'gestao', page: 'menu-tarefas', label: 'Tarefas', icon: 'check', library: true, sidebar: false },
@@ -29,13 +31,14 @@ export const MENU = [
   { group: 'gestao', page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
   { group: 'gestao', page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true },
   { group: 'gestao', page: 'menu-viagens', label: 'Viagens', icon: 'map', library: true },
-  { group: 'conta', page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications', library: true },
+  { group: 'conta', page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications', sidebar: false },
   { group: 'conta', page: 'menu-definicoes', label: 'Definições', icon: 'settings', library: true },
 ];
 
-// Barra inferior no telemóvel (4 itens). "Menu" abre a lista de todas as secções.
+// Barra inferior no telemóvel. O resto das secções abre pelo avatar no canto superior esquerdo.
+// As notificações abrem pelo sino no canto superior direito.
 export const BOTTOM_NAV = [
   { page: 'menu-principal', label: 'Início', icon: 'home' },
   { page: 'menu-tarefas', label: 'Tarefas', icon: 'check' },
-  { page: 'menu-refeicoes', label: 'Refeições', icon: 'restaurant' },
+  { page: 'menu-financas', label: 'Finanças', icon: 'wallet' },
 ];

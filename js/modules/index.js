@@ -12,6 +12,8 @@ import trips from './trips/index.js';
 import recipes from './recipes.js';
 import garage from './garage.js';
 import supermarkets from './supermarkets.js';
+import shopping from './shopping.js';
+import cards from './cards/index.js';
 import couple from './couple.js';
 import finances from './finances.js';
 import meals from './meals.js';
@@ -29,6 +31,8 @@ export const MODULES = [
   recipes,
   garage,
   supermarkets,
+  shopping,
+  cards,
   couple,
   finances,
   meals,

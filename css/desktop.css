@@ -4,10 +4,9 @@
   /* Coleções de cartões (veículos, viagens, …) */
   .page--wide .card-stack { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
 
-  /* Supermercados: resumo à largura toda e atalhos em duas colunas */
-  #menu-supermercados .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  #menu-supermercados .list > :first-child,
-  #menu-supermercados .list > .btn--primary { grid-column: 1 / -1; }
+  /* Supermercados: faturas do mês em duas colunas */
+  #sup-faturas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  #sup-faturas > .sup-nada { grid-column: 1 / -1; }
 
   /* Plano de refeições: a semana em colunas */
   #meals-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }

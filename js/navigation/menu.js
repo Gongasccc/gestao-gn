@@ -20,8 +20,10 @@ export const MENU_GROUPS = [
 
 export const MENU = [
   { group: 'principal', page: 'menu-principal', label: 'Início', icon: 'home' },
-  // Gastos e faturas, Lojas & Cartões e as listas abrem a partir da página Supermercados.
+  // Supermercados: gastos do mês, faturas e preços. Cartões e Lista de compras têm menu próprio.
   { group: 'casa', page: 'menu-supermercados', label: 'Supermercados', icon: 'cart', library: true },
+  { group: 'casa', page: 'menu-lista-compras', label: 'Lista de compras', icon: 'clipboard', library: true },
+  { group: 'casa', page: 'menu-cartoes', label: 'Cartões', icon: 'wallet', library: true },
   { group: 'casa', page: 'menu-refeicoes', label: 'Plano de refeições', icon: 'restaurant', library: true },
   { group: 'casa', page: 'menu-receitas', label: 'Livro de Receitas', icon: 'book', library: true },
   { group: 'gestao', page: 'menu-tarefas', label: 'Tarefas', icon: 'check', library: true, sidebar: false },

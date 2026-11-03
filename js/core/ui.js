@@ -2,6 +2,7 @@
 import { html, byId, esc } from './dom.js';
 import { icon } from './icons.js';
 import { registerActions } from './events.js';
+import { criarProgresso } from './progress.js';
 
 const CLOSE_MS = 260;
 
@@ -171,6 +172,38 @@ export async function withLoading(btn, fn) {
   } finally {
     btn.disabled = false;
     btn.classList.remove('is-loading');
+  }
+}
+
+/**
+ * Como withLoading, mas o botão mostra uma barra e a percentagem.
+ * fn(progresso) recebe o objeto de js/core/progress.js para indicar fases/progresso real.
+ */
+export async function withProgress(btn, fn, texto = 'A carregar…') {
+  const prog = criarProgresso((pct, t) => {
+    if (!btn) return;
+    btn.style.setProperty('--progresso', `${pct}%`);
+    const label = btn.querySelector('.btn-progress__txt');
+    if (label) label.textContent = `${t || texto} ${pct}%`;
+  });
+  if (!btn) {
+    try { return await fn(prog); } finally { prog.parar(); }
+  }
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.classList.add('is-progress');
+  btn.innerHTML = '<span class="btn-progress__fill"></span><span class="btn-progress__txt"></span>';
+  prog.texto(texto);
+  try {
+    const r = await fn(prog);
+    prog.concluir();
+    return r;
+  } finally {
+    prog.parar();
+    btn.disabled = false;
+    btn.classList.remove('is-progress');
+    btn.style.removeProperty('--progresso');
+    btn.innerHTML = original;
   }
 }
 

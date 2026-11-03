@@ -78,8 +78,9 @@
         <h1 class="topbar__title" id="topbar-title">Início</h1>
         <div class="topbar__side topbar__side--right">
           <span class="topbar__actions" id="topbar-right"></span>
-          <button class="icon-btn theme-toggle pressable" data-action="theme:toggle" aria-label="Alternar modo claro/escuro" title="Modo claro/escuro">
-            <span class="theme-toggle__sun"></span><span class="theme-toggle__moon"></span>
+          <button class="icon-btn topbar-bell pressable" data-nav-page="menu-notificacoes" data-action="nav:go" data-page="menu-notificacoes" aria-label="Notificações" title="Notificações">
+            <span class="topbar-bell__icon"></span>
+            <span class="badge" data-badge="notifications" hidden></span>
           </button>
         </div>
       </header>

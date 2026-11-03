@@ -1,6 +1,6 @@
 // Service worker do Ninho.
 // Estratégia: rede primeiro (para receber sempre a versão mais recente) e cache como reserva offline.
-const CACHE = 'ninho-shell-v13';
+const CACHE = 'ninho-shell-v14';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
@@ -39,8 +39,13 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      const page = event.notification.data?.page;
       const open = list.find((c) => 'focus' in c);
-      return open ? open.focus() : self.clients.openWindow('./');
+      if (open) {
+        if (page) open.postMessage({ type: 'navigate', page });
+        return open.focus();
+      }
+      return self.clients.openWindow(page ? `./#${page}` : './');
     }),
   );
 });

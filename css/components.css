@@ -234,6 +234,7 @@ input[type="date"].input, input[type="time"].input { min-width: 0; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; }
 .setting-row + .setting-row { border-top: 1px solid var(--hairline); }
 .setting-row > span { display: inline-flex; align-items: center; gap: 10px; font-weight: 500; }
+.setting-hint { margin: 0 0 6px; font-size: 12.5px; line-height: 1.45; }
 
 /* ---------- Listas ---------- */
 .list { display: flex; flex-direction: column; gap: 8px; }
@@ -813,4 +814,34 @@ img.img-broken { visibility: hidden; }
   background: radial-gradient(circle, rgba(255, 255, 255, .28) 0%, rgba(255, 255, 255, 0) 70%);
   transform: scale(0);
   animation: ripple .65s var(--ease-out) forwards;
+}
+
+/* ---------- Botão com percentagem (withProgress) ---------- */
+.btn.is-progress, .btn.is-progress:disabled { opacity: 1; pointer-events: none; overflow: hidden; isolation: isolate; font-variant-numeric: tabular-nums; }
+.btn-progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--progresso, 0%);
+  z-index: -1;
+  background: rgba(255, 255, 255, .22);
+  transition: width .25s ease-out;
+}
+.btn:not(.btn--primary) .btn-progress__fill { background: rgba(var(--accent-rgb), .18); }
+
+/* Barra de progresso fina (leituras com IA) */
+.progress-line {
+  display: block;
+  height: 4px;
+  margin-top: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--hairline);
+  overflow: hidden;
+}
+.progress-line > i {
+  display: block;
+  height: 100%;
+  width: var(--progresso, 0%);
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width .25s ease-out;
 }

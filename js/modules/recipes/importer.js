@@ -148,12 +148,14 @@ export function pageTextForAI(htmlText) {
 }
 
 /** Vai buscar a página e extrai a receita. Lança erro se não conseguir ler a página. */
-export async function importRecipe(url) {
+export async function importRecipe(url, prog = null) {
   const attempts = [(u) => u, ...PROXIES];
   let partial = null;
   let pagina = '';
-  for (const attempt of attempts) {
+  for (const [i, attempt] of attempts.entries()) {
     const { build, headers } = typeof attempt === 'function' ? { build: attempt } : attempt;
+    // Cada tentativa ocupa uma fatia até 55%; a IA (se for precisa) fica com o resto.
+    prog?.fase(10 + ((i + 1) * 45) / attempts.length, i === 1 ? 7000 : 3500, 'A abrir a página…');
     try {
       const page = await fetchText(build(url), 15000, headers);
       const recipe = recipeFromHtml(page, url);
@@ -165,6 +167,7 @@ export async function importRecipe(url) {
   // Sem dados estruturados: a IA lê o texto da página.
   if (pagina) {
     try {
+      prog?.fase(96, 12000, 'A ler com IA…');
       const { receitaComIA } = await import('./ai.js');
       const viaIA = await receitaComIA(pageTextForAI(pagina), url);
       if (viaIA) return { ...viaIA, foto: viaIA.foto || partial?.foto || '' };

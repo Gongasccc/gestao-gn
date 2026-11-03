@@ -8,9 +8,12 @@ import { html, byId, render } from '../../core/dom.js';
 import { money } from '../../core/format.js';
 import { toast, confirmDialog, openModal, closeModal, modalTemplate, showImage } from '../../core/ui.js';
 import { icon } from '../../core/icons.js';
-import { session, createScope, emit } from '../../core/state.js';
+import { tabsTpl, positionIndicator } from '../../components/tabs.js';
+import { session, createScope, emit, on } from '../../core/state.js';
 import { compressImage, readAsDataURL, takeFile } from '../../core/images.js';
-import { lerFatura, normalizarFatura } from './ai.js';
+import { lerFatura, normalizarFatura, decifrarNomes } from './ai.js';
+import { aplicarDicionario, aprenderFatura, exemplosParaIa, procurarAlias, chaveTalao, chaveLoja, precoPorUnidade, corresponde } from './produtos.js';
+import { LOJAS_ONLINE, linkPesquisa } from './online.js';
 import { faturaDoQr, lerCamposQr, LOJAS_NIF } from './qr.js';
 import { analisarTexto, juntarLeituras } from './texto.js';
 import { carregarImagem, procurarQr, textoPorOcr, lerPdf } from './local.js';
@@ -38,6 +41,12 @@ let aLer = false;
 let lojasNif = {}; // NIF -> nome da loja, aprendido quando o utilizador corrige
 let ultimoFicheiro = null; // { ficheiro: { base64, mime }, preview, ePdf } para "Ler com IA"
 let qrAtual = null; // dados do QR da fatura em revisão (ganham sempre à IA)
+let dicionario = {}; // linha do talão -> nome padrão aprendido (config/produtos)
+let erroIa = ''; // porque é que a IA não decifrou a fatura em revisão
+let modoPrecos = 'compras'; // 'compras' (as nossas faturas) | 'lojas' (pesquisar nas lojas online)
+let aDecifrar = false;
+const CHAVE_IA = 'ninho.faturas.ia';
+const iaLigada = () => { try { return localStorage.getItem(CHAVE_IA) !== '0'; } catch { return true; } };
 let estadoScan = { titulo: '', texto: '' };
 const CAMPOS_FISCAIS = ['nif', 'nifCliente', 'atcud', 'documento', 'tipoDocumento', 'iva'];
 
@@ -226,6 +235,35 @@ const passo = (titulo, texto = '') => {
 
 const eQrDaAt = (t) => !!lerCamposQr(t);
 
+/** Mostra uma percentagem estimada enquanto a IA lê (não há progresso real do Gemini). */
+function progressoEstimado(titulo, texto, segundos = 18) {
+  const inicio = Date.now();
+  const tick = () => {
+    const p = Math.min(95, Math.round(100 * (1 - Math.exp(-(Date.now() - inicio) / (segundos * 400)))));
+    passo(titulo, `${texto} · ${p}%`);
+  };
+  tick();
+  const id = setInterval(tick, 400);
+  return () => clearInterval(id);
+}
+
+/** Pede à IA para decifrar a fatura (imagem + texto do OCR + nomes já aprendidos). */
+async function decifrarComIa(ficheiro, lidaLocal, textoOcr) {
+  const loja = lidaLocal?.loja || '';
+  const parar = progressoEstimado('A decifrar os produtos com IA…', 'Nomes padrão e quantidades');
+  try {
+    return await lerFatura(ficheiro, { textoOcr, exemplos: exemplosParaIa(dicionario, loja) });
+  } finally { parar(); }
+}
+
+/** Junta a leitura da IA com a local: o QR ganha nos campos fiscais e o dicionário nos nomes. */
+function juntarComIa(lida, qr) {
+  const q = qr ? Object.fromEntries(Object.entries(qr).filter(([, v]) => v !== '' && v != null)) : {};
+  return { ...lida, hora: lida.hora || '', ...q };
+}
+
+const comDicionario = (f) => ({ ...f, itens: aplicarDicionario(f.itens, dicionario, f.loja) });
+
 /** Lê a fatura no dispositivo: código QR primeiro, depois o texto (OCR ou texto do PDF). */
 async function lerLocalmente(file, ePdf, preview) {
   let qr = null;
@@ -252,7 +290,7 @@ async function lerLocalmente(file, ePdf, preview) {
   }
   const lidoTexto = texto ? analisarTexto(texto) : null;
   if (lidoTexto && !lidoTexto.loja && lidoTexto.nif) lidoTexto.loja = lojasNif[lidoTexto.nif] || LOJAS_NIF[lidoTexto.nif] || '';
-  return { qr, junto: juntarLeituras(qr, lidoTexto), temTexto: !!lidoTexto?.itens.length };
+  return { qr, texto, junto: juntarLeituras(qr, lidoTexto), temTexto: !!lidoTexto?.itens.length };
 }
 
 /** Normaliza para o formato guardado, mantendo os campos fiscais vindos do QR. */
@@ -295,9 +333,9 @@ async function processarFicheiro(file) {
   qrAtual = null;
   passo('A ler a fatura…');
   try {
-    const { qr, junto, temTexto } = await lerLocalmente(file, ePdf, preview);
+    const { qr, texto, junto, temTexto } = await lerLocalmente(file, ePdf, preview);
     const imagem = preview ? await compressImage(file, { maxSize: 900, quality: 0.6 }) : '';
-    if (!qr && !temTexto && !junto.total) {
+    if (!qr && !temTexto && !junto.total && !iaLigada()) {
       aLer = false;
       desenharScan({
         preview,
@@ -309,8 +347,26 @@ async function processarFicheiro(file) {
       return;
     }
     qrAtual = qr;
-    const leitura = qr ? (temTexto ? 'qr+ocr' : 'qr') : 'ocr';
-    abrirRevisao(montarFatura(junto, { imagem, origem: ePdf ? 'pdf' : 'foto', leitura }));
+    erroIa = '';
+    const leituraLocal = qr ? (temTexto ? 'qr+ocr' : 'qr') : 'ocr';
+    const extra = { imagem, origem: ePdf ? 'pdf' : 'foto' };
+    if (iaLigada()) {
+      try {
+        const lida = await decifrarComIa(ultimoFicheiro.ficheiro, junto, texto);
+        abrirRevisao(comDicionario(montarFatura(juntarComIa(lida, qr), { ...extra, leitura: qr ? 'qr+ia' : 'ia' })));
+        return;
+      } catch (e) {
+        console.warn('[faturas] IA', e);
+        erroIa = e?.message || 'A IA não respondeu.';
+        if (!qr && !temTexto && !junto.total) {
+          aLer = false;
+          ultimoFicheiro.imagem = imagem;
+          desenharScan({ preview, pdf: ePdf ? file.name : '', erro: `Não consegui ler o talão. ${erroIa}`, semLeitura: true });
+          return;
+        }
+      }
+    }
+    abrirRevisao(comDicionario(montarFatura(junto, { ...extra, leitura: leituraLocal })));
   } catch (e) {
     console.error('[faturas]', e);
     aLer = false;
@@ -327,20 +383,20 @@ async function processarFicheiro(file) {
 async function lerComIa() {
   if (!ultimoFicheiro || aLer) return;
   aLer = true;
-  passo('A ler com IA…', 'A foto é enviada ao Gemini da Google');
-  if (currentPage() !== PAG_SCAN) toast('A ler com IA…');
+  if (currentPage() !== PAG_SCAN) toast('A decifrar com IA…');
   try {
-    const lida = await lerFatura(ultimoFicheiro.ficheiro);
-    const qr = qrAtual ? Object.fromEntries(Object.entries(qrAtual).filter(([, v]) => v !== '' && v != null)) : {};
+    const lida = await decifrarComIa(ultimoFicheiro.ficheiro, atual, '');
     const imagem = atual?.imagem || ultimoFicheiro.imagem
       || (ultimoFicheiro.preview ? await compressImage(await (await fetch(ultimoFicheiro.preview)).blob(), { maxSize: 900, quality: 0.6 }) : '');
-    abrirRevisao(montarFatura({ ...lida, hora: lida.hora || atual?.hora || '', ...qr }, {
+    erroIa = '';
+    abrirRevisao(comDicionario(montarFatura(juntarComIa({ ...lida, hora: lida.hora || atual?.hora || '' }, qrAtual), {
       imagem, origem: ultimoFicheiro.ePdf ? 'pdf' : 'foto', leitura: qrAtual ? 'qr+ia' : 'ia',
-    }));
+    })));
   } catch (e) {
     aLer = false;
+    erroIa = e?.message || 'Não foi possível ler com IA.';
     if (currentPage() === PAG_SCAN) desenharScan({ preview: ultimoFicheiro.preview, erro: e.message, semLeitura: true });
-    else toast(e.message || 'Não foi possível ler com IA.', 'error');
+    else { toast(erroIa, 'error'); desenharFatura(); }
   }
 }
 
@@ -348,8 +404,8 @@ const LEITURAS = {
   qr: 'Lido no telemóvel pelo código QR. Os produtos não vêm no QR: adiciona-os ou usa a IA.',
   'qr+ocr': 'Loja, data e total lidos no telemóvel pelo código QR; produtos lidos do texto. Confirma-os.',
   ocr: 'Sem código QR: lido no telemóvel a partir do texto. Confirma a loja, o total e os produtos.',
-  ia: 'Lido com IA. Confirma os dados.',
-  'qr+ia': 'Loja, data e total pelo código QR; produtos lidos com IA. Confirma-os.',
+  ia: 'Produtos decifrados com IA. Confirma os dados.',
+  'qr+ia': 'Loja, data e total pelo código QR; produtos decifrados com IA. Confirma-os.',
 };
 
 // ---------- Página: Fatura (revisão e detalhe) ----------
@@ -368,6 +424,7 @@ function desenharFatura() {
         ${icon(f.leitura?.startsWith('qr') || f.leitura === 'ocr' ? 'shield' : 'check', 18)}
         <span>${LEITURAS[f.leitura] || 'Confirma os dados lidos.'} Toca num campo ou produto para corrigir.</span>
       </div>` : ''}
+    ${rascunho && erroIa ? html`<div class="fat-aviso fat-aviso--alerta card glass-soft">${icon('alert', 18)}<span>A IA não decifrou esta fatura: ${erroIa} Os nomes foram expandidos no telemóvel.</span></div>` : ''}
     ${dup ? html`<div class="fat-aviso fat-aviso--alerta card glass-soft">${icon('alert', 18)}<span>Já existe uma fatura igual (${f.loja}, ${dataCurta(f.data)}, ${euro(f.total)}).</span></div>` : ''}
     <section class="card glass-soft fat-cabecalho pressable" data-action="faturas:editar-cabecalho">
       <div class="fat-cabecalho__topo">
@@ -397,8 +454,9 @@ function desenharFatura() {
       ${(f.itens || []).map((i, idx) => html`
         <button class="fat-produto pressable" data-action="faturas:editar-item" data-idx="${idx}">
           <span class="fat-produto__info">
-            <strong>${i.produto || i.nome}</strong>
-            <small>${i.quantidade !== 1 ? `${String(i.quantidade).replace('.', ',')} ${i.unidade} × ${euro(i.precoUnitario)} · ` : ''}${CATEGORIAS[i.categoria] || 'Outros'}</small>
+            <strong>${i.produto || i.nome}${i.aprendido || i.confirmado ? html` <span class="fat-aprendido" title="Nome aprendido">${icon('check', 12)}</span>` : ''}</strong>
+            <small>${i.quantidade !== 1 ? `${String(i.quantidade).replace('.', ',')} ${i.unidade} × ${euro(i.precoUnitario)} · ` : ''}${CATEGORIAS[i.categoria] || 'Outros'}${porUnidadeTxt(i)}</small>
+            ${i.nome && i.nome !== i.produto ? html`<small class="fat-talao">${i.nome}</small>` : ''}
           </span>
           <span class="fat-produto__preco">
             <strong>${euro(i.total)}</strong>
@@ -411,7 +469,7 @@ function desenharFatura() {
       <div class="fat-produtos__acoes">
         <button class="btn btn--small pressable" data-action="faturas:novo-item">${icon('plus', 16)} Adicionar produto</button>
         ${rascunho && ultimoFicheiro && !String(f.leitura).includes('ia') ? html`
-          <button class="btn btn--small pressable" data-action="faturas:ler-ia" title="Envia a foto ao Gemini da Google">${icon('sparkles', 16)} Ler com IA</button>` : ''}
+          <button class="btn btn--small pressable" data-action="faturas:ler-ia" title="Envia a foto ao Gemini da Google">${icon('sparkles', 16)} ${erroIa ? 'Tentar IA de novo' : 'Decifrar com IA'}</button>` : ''}
       </div>
     </section>
     <div class="btn-row">
@@ -424,6 +482,11 @@ function desenharFatura() {
   `);
 }
 
+function porUnidadeTxt(i) {
+  const pu = precoPorUnidade(i);
+  return pu ? ` · ${euro(pu.valor)}/${pu.unidade}` : '';
+}
+
 const opcoesCategoria = (sel) => Object.entries(CATEGORIAS)
   .map(([k, nome]) => html`<option value="${k}" ${k === sel ? 'selected' : ''}>${nome}</option>`);
 
@@ -431,6 +494,16 @@ async function persistir() {
   if (rascunho || !atual?.id) return;
   const { id, ...dados } = atual;
   await updateDoc(sharedDoc(COLECAO, id), dados);
+  aprenderNomes(dados);
+}
+
+/** Guarda no dicionário do casal o nome padrão de cada linha do talão. */
+function aprenderNomes(f) {
+  const novas = aprenderFatura(f, dicionario);
+  if (!Object.keys(novas).length) return Promise.resolve();
+  dicionario = { ...dicionario, ...novas };
+  return setDoc(sharedDoc('config', 'produtos'), { aliases: novas }, { merge: true })
+    .catch((e) => console.warn('[faturas] produtos', e));
 }
 
 // ---------- Página: Comparar preços ----------
@@ -438,17 +511,31 @@ async function persistir() {
 function desenharPrecos() {
   const alvo = byId('fat-precos');
   if (!alvo) return;
+  requestAnimationFrame(() => positionIndicator(document.querySelector('[data-tabs="fat-precos"]')));
   const q = pesquisa.trim().toLowerCase();
   const todos = compararPrecos(faturas);
-  const lista = q ? todos.filter((p) => p.nome.toLowerCase().includes(q)) : todos;
-  const variasLojas = todos.filter((p) => p.lojas.length > 1).length;
   const resumo = byId('fat-precos-resumo');
+  if (modoPrecos === 'lojas') {
+    if (resumo) resumo.textContent = 'Abre a pesquisa oficial de cada loja com o preço de hoje. Ao lado, o que vocês pagaram.';
+    desenharLojas(alvo, q, todos);
+    return;
+  }
+  const lista = q ? todos.filter((p) => corresponde(p.nome, q)) : todos;
+  const variasLojas = todos.filter((p) => p.lojas.length > 1).length;
+  const porDecifrar = linhasPorDecifrar().length;
   if (resumo) {
     resumo.textContent = todos.length
       ? `${todos.length} produtos · ${variasLojas} comprados em mais de uma loja`
       : '';
   }
-  render(alvo, lista.length
+  const unid = (p, l) => (l.porUnidade ? ` · ${euro(l.porUnidade)}/${p.porUnidade}` : '');
+  render(alvo, html`
+    ${porDecifrar ? html`
+      <button class="fat-aviso card glass-soft pressable" data-action="faturas:decifrar-antigas" ${aDecifrar ? 'disabled' : ''}>
+        ${icon('sparkles', 18)}
+        <span>${aDecifrar ? 'A decifrar nomes…' : `${porDecifrar} ${porDecifrar === 1 ? 'nome de talão ainda não foi decifrado' : 'nomes de talão ainda não foram decifrados'}. Toca para os decifrar com IA e juntar os produtos iguais.`}</span>
+      </button>` : ''}
+    ${lista.length
     ? lista.slice(0, 150).map((p) => html`
       <button class="fat-preco card glass-soft pressable" data-action="faturas:produto" data-chave="${p.chave}">
         <div class="fat-preco__topo">
@@ -456,11 +543,97 @@ function desenharPrecos() {
           ${p.tendencia ? html`<span class="fat-variacao ${p.tendencia > 0 ? 'is-subiu' : 'is-desceu'}">${icon(p.tendencia > 0 ? 'trendUp' : 'trendDown', 12)} ${euro(Math.abs(p.tendencia))}</span>` : ''}
         </div>
         <div class="fat-preco__lojas">
-          ${p.lojas.map((l, i) => html`<span class="chip ${i === 0 && p.lojas.length > 1 ? 'chip--accent' : 'chip--muted'}">${l.loja} ${euro(l.preco)}</span>`)}
+          ${p.lojas.map((l, i) => html`<span class="chip ${i === 0 && p.lojas.length > 1 ? 'chip--accent' : 'chip--muted'}">${l.loja} ${euro(l.preco)}${unid(p, l)}</span>`)}
         </div>
         ${p.lojas.length > 1 ? html`<small class="fat-verde">Mais barato no ${p.maisBarata.loja} · poupas ${euro(p.diferenca)}${p.unidade === 'kg' ? '/kg' : ''}</small>` : html`<small>Comprado ${p.vezes}× · último ${euro(p.ultimo.preco)}</small>`}
       </button>`)
-    : html`<p class="fat-nada">${faturas.length ? 'Nenhum produto encontrado.' : 'Digitaliza faturas para comparar preços.'}</p>`);
+    : html`<p class="fat-nada">${faturas.length ? 'Nenhum produto encontrado.' : 'Digitaliza faturas para comparar preços.'}</p>`}
+  `);
+}
+
+/** Modo "Nas lojas": pesquisa um produto em todas as lojas online. */
+function desenharLojas(alvo, q, todos) {
+  const nosso = q ? todos.filter((p) => corresponde(p.nome, q)).slice(0, 5) : [];
+  const termo = pesquisa.trim();
+  render(alvo, html`
+    ${!termo ? html`
+      <p class="fat-nada">Escreve um produto (ex.: "leite meio-gordo 1 L") para ver o preço de hoje em cada loja.</p>
+      ${todos.length ? html`<h3 class="section-title">Os que mais compram</h3>
+        <div class="fat-preco__lojas">${todos.slice(0, 12).map((p) => html`<button class="chip chip--muted pressable" data-action="faturas:pesquisar-lojas" data-q="${p.nome}">${p.nome}</button>`)}</div>` : ''}`
+    : html`
+      <section class="card glass-soft">
+        <h3 class="card__title">${icon('search', 18)} Preço de hoje para “${termo}”</h3>
+        <div class="fat-lojas-online">
+          ${LOJAS_ONLINE.map((l) => html`
+            <a class="fat-loja-online pressable" href="${linkPesquisa(l.id, termo)}" target="_blank" rel="noopener noreferrer">
+              <span>${l.nome}</span>${icon('chevronRight', 16)}
+            </a>`)}
+        </div>
+      </section>
+      ${nosso.length ? html`
+        <h3 class="section-title">O que vocês pagaram</h3>
+        ${nosso.map((p) => html`
+          <button class="fat-preco card glass-soft pressable" data-action="faturas:produto" data-chave="${p.chave}">
+            <div class="fat-preco__topo"><strong>${p.nome}</strong></div>
+            <div class="fat-preco__lojas">${p.lojas.map((l, i) => html`<span class="chip ${i === 0 && p.lojas.length > 1 ? 'chip--accent' : 'chip--muted'}">${l.loja} ${euro(l.preco)}</span>`)}</div>
+            <small>Último: ${euro(p.ultimo.preco)} · ${dataCurta(p.ultimo.data)}</small>
+          </button>`)}` : ''}`}
+    <p class="fat-meta">${icon('shield', 14)} As lojas portuguesas não têm uma API pública de preços, por isso a pesquisa abre o site de cada loja.</p>
+  `);
+}
+
+/** Linhas de talão guardadas que ainda não estão no dicionário (nomes nunca decifrados). */
+function linhasPorDecifrar() {
+  const vistas = new Map();
+  for (const f of faturas) {
+    for (const i of f.itens || []) {
+      if (!i.nome || i.confirmado || procurarAlias(dicionario, f.loja, i.nome)) continue;
+      const k = `${chaveLoja(f.loja)}:${chaveTalao(i.nome)}`;
+      if (!vistas.has(k)) vistas.set(k, { loja: f.loja, nome: i.nome });
+    }
+  }
+  return [...vistas.values()];
+}
+
+/** Decifra com IA os nomes das faturas antigas, guarda-os no dicionário e atualiza as faturas. */
+async function decifrarAntigas() {
+  const linhas = linhasPorDecifrar();
+  if (!linhas.length || aDecifrar) return;
+  aDecifrar = true;
+  desenharPrecos();
+  try {
+    const exemplos = exemplosParaIa(dicionario, '', 40);
+    const novas = {};
+    for (let i = 0; i < linhas.length; i += 80) {
+      const lote = linhas.slice(i, i + 80);
+      const r = await decifrarNomes(lote, exemplos);
+      lote.forEach((l, j) => {
+        if (!r[j]) return;
+        const k = chaveTalao(l.nome);
+        const v = { o: l.nome, produto: r[j].produto, categoria: r[j].categoria, n: 1, c: false, t: Date.now() };
+        novas[`${chaveLoja(l.loja)}:${k}`] = v;
+        if (!dicionario[`*:${k}`]) novas[`*:${k}`] = v;
+      });
+    }
+    if (!Object.keys(novas).length) throw new Error('A IA não devolveu nomes.');
+    dicionario = { ...dicionario, ...novas };
+    await setDoc(sharedDoc('config', 'produtos'), { aliases: novas }, { merge: true });
+    // Atualiza as faturas guardadas (só os produtos que não foram corrigidos à mão).
+    let alteradas = 0;
+    for (const f of faturas) {
+      const itens = aplicarDicionario(f.itens, dicionario, f.loja).map((i, idx) => (f.itens[idx].confirmado ? f.itens[idx] : i));
+      if (JSON.stringify(itens) !== JSON.stringify(f.itens)) {
+        alteradas += 1;
+        await updateDoc(sharedDoc(COLECAO, f.id), { itens });
+      }
+    }
+    toast(`Nomes decifrados${alteradas ? ` em ${alteradas} ${alteradas === 1 ? 'fatura' : 'faturas'}` : ''}`);
+  } catch (e) {
+    toast(e?.message || 'Não foi possível decifrar os nomes.', 'error');
+  } finally {
+    aDecifrar = false;
+    desenharPrecos();
+  }
 }
 
 function abrirProduto(chave) {
@@ -471,6 +644,8 @@ function abrirProduto(chave) {
     <h3 class="section-title">Preço por loja</h3>
     ${p.lojas.map((l, i) => html`
       <div class="fat-top"><span>${i === 0 && p.lojas.length > 1 ? icon('star', 14) : ''} ${l.loja}</span><small>${euro(l.preco)} · ${dataCurta(l.data)}</small></div>`)}
+    <h3 class="section-title">Preço de hoje nas lojas</h3>
+    <div class="fat-preco__lojas">${LOJAS_ONLINE.slice(0, 6).map((l) => html`<a class="chip chip--muted pressable" href="${linkPesquisa(l.id, p.nome)}" target="_blank" rel="noopener noreferrer">${l.nome}</a>`)}</div>
     <h3 class="section-title">Histórico</h3>
     ${[...p.historico].reverse().map((h) => html`<div class="fat-top"><span>${dataCurta(h.data)} · ${h.loja}</span><small>${euro(h.preco)}</small></div>`)}
     <p class="fat-meta">Mín. ${euro(p.min)} · Máx. ${euro(p.max)}</p>
@@ -531,7 +706,11 @@ export default {
               <input type="file" accept="application/pdf,.pdf" hidden data-change="faturas:ficheiro">
             </label>
           </div>
-          <p class="fat-privado">${icon('shield', 14)} Lida no teu telemóvel pelo código QR e pelo texto. Nada é enviado.</p>
+          <label class="fat-ia-toggle">
+            <input type="checkbox" data-change="faturas:ia-toggle" ${iaLigada() ? 'checked' : ''}>
+            <span>${icon('sparkles', 14)} Decifrar os produtos com IA (a foto do talão é enviada ao Gemini da Google)</span>
+          </label>
+          <p class="fat-privado">${icon('shield', 14)} O código QR e o texto são lidos no teu telemóvel. A app aprende os nomes com cada fatura guardada.</p>
         </div>`,
     },
     {
@@ -546,7 +725,8 @@ export default {
       onEnter: desenharPrecos,
       template: () => html`
         <div class="fat">
-          <input class="input" type="search" placeholder="Procurar produto…" data-input="faturas:pesquisa" aria-label="Procurar produto">
+          ${tabsTpl('fat-precos', [{ id: 'compras', label: 'As nossas compras' }, { id: 'lojas', label: 'Nas lojas hoje' }], modoPrecos)}
+          <input class="input" type="search" id="fat-precos-pesquisa" placeholder="Procurar produto…" data-input="faturas:pesquisa" aria-label="Procurar produto">
           <p class="fat-meta" id="fat-precos-resumo"></p>
           <div class="list" id="fat-precos"></div>
         </div>`,
@@ -566,7 +746,8 @@ export default {
       <div class="btn-row"><button class="btn btn--primary pressable" data-action="faturas:guardar-cabecalho">Guardar</button></div>
     `)}
     ${modalTemplate('modal-fat-item', 'Editar produto', html`
-      ${campo('fat-it-produto', 'Produto', html`<input class="input" id="fat-it-produto">`)}
+      ${campo('fat-it-produto', 'Nome padrão', html`<input class="input" id="fat-it-produto" placeholder="Ex.: Leite meio-gordo Mimosa 1 L">`)}
+      <p class="fat-meta" id="fat-it-talao"></p>
       <div class="field-row">
         ${campo('fat-it-qtd', 'Quantidade', html`<input class="input" type="number" step="0.001" inputmode="decimal" id="fat-it-qtd">`)}
         ${campo('fat-it-total', 'Total (€)', html`<input class="input" type="number" step="0.01" inputmode="decimal" id="fat-it-total">`)}
@@ -585,6 +766,7 @@ export default {
     'faturas:scan': () => navigate(PAG_SCAN),
     'faturas:ficheiro': ({ ev }) => processarFicheiro(takeFile(ev)),
     'faturas:ler-ia': () => lerComIa(),
+    'faturas:ia-toggle': ({ ev }) => { try { localStorage.setItem(CHAVE_IA, ev.target.checked ? '1' : '0'); } catch { /* sem armazenamento */ } },
     'faturas:manual': () => abrirRevisao({
       loja: 'Supermercado', local: '', data: '', hora: '', total: 0, poupanca: 0, saldoCartao: 0, pagamento: '',
       itens: [], descontos: [], imagem: ultimoFicheiro?.imagem || '', origem: ultimoFicheiro?.ePdf ? 'pdf' : 'foto', leitura: 'manual',
@@ -610,6 +792,7 @@ export default {
         const { id, ...dados } = atual;
         await addDoc(sharedCol(COLECAO), { ...dados, criadoPor: session.uid, criadoEm: Date.now() });
         aprenderLoja(dados);
+        aprenderNomes(dados);
         ultimoFicheiro = null;
         qrAtual = null;
         mes = (atual.data || '').slice(0, 7) || mesAtual();
@@ -622,7 +805,7 @@ export default {
         toast(/exceeds|too large|1048576/i.test(e?.message || '') ? 'Fatura demasiado grande para guardar.' : 'Não foi possível guardar.', 'error');
       }
     },
-    'faturas:descartar': () => { atual = null; rascunho = false; ultimoFicheiro = null; qrAtual = null; back(); },
+    'faturas:descartar': () => { erroIa = ''; atual = null; rascunho = false; ultimoFicheiro = null; qrAtual = null; back(); },
     'faturas:apagar': async () => {
       if (!atual?.id) return;
       if (!(await confirmDialog('Apagar esta fatura? Os gastos e preços deixam de a contar.', { confirmLabel: 'Apagar', danger: true }))) return;
@@ -657,6 +840,7 @@ export default {
       const i = atual?.itens?.[itemEditar];
       if (!i) return;
       byId('fat-it-produto').value = i.produto || i.nome;
+      byId('fat-it-talao').textContent = i.nome && i.nome !== i.produto ? `No talão: ${i.nome}. O nome que escreveres passa a ser usado sempre que esta linha aparecer.` : '';
       byId('fat-it-qtd').value = i.quantidade;
       byId('fat-it-total').value = i.total;
       byId('fat-it-cat').value = CATEGORIAS[i.categoria] ? i.categoria : 'outros';
@@ -667,6 +851,7 @@ export default {
       atual.itens ||= [];
       itemEditar = atual.itens.length;
       byId('fat-it-produto').value = '';
+      byId('fat-it-talao').textContent = '';
       byId('fat-it-qtd').value = 1;
       byId('fat-it-total').value = '';
       byId('fat-it-cat').value = 'outros';
@@ -684,6 +869,8 @@ export default {
       const quantidade = Number(byId('fat-it-qtd').value) || 1;
       const total = arred(byId('fat-it-total').value);
       Object.assign(i, {
+        confirmado: true,
+        aprendido: false,
         produto: byId('fat-it-produto').value.trim() || i.nome,
         quantidade,
         total,
@@ -702,11 +889,22 @@ export default {
       await persistir();
     },
     'faturas:pesquisa': ({ value }) => { pesquisa = value || ''; desenharPrecos(); },
+    'faturas:pesquisar-lojas': ({ data }) => {
+      pesquisa = data.q || '';
+      const input = byId('fat-precos-pesquisa');
+      if (input) input.value = pesquisa;
+      desenharPrecos();
+    },
+    'faturas:decifrar-antigas': () => decifrarAntigas(),
     'faturas:produto': ({ data }) => abrirProduto(data.chave),
   },
   start() {
     carregado = false;
     faturas = [];
+    scope.add(on('tabs:fat-precos', (modo) => { modoPrecos = modo === 'lojas' ? 'lojas' : 'compras'; desenharPrecos(); }));
+    scope.add(onSnapshot(sharedDoc('config', 'produtos'), (snap) => {
+      dicionario = snap.exists() ? snap.data().aliases || {} : {};
+    }, () => { dicionario = {}; }));
     scope.add(onSnapshot(sharedDoc('config', 'lojas_nif'), (snap) => {
       lojasNif = snap.exists() ? snap.data().lojas || {} : {};
     }, () => { lojasNif = {}; }));

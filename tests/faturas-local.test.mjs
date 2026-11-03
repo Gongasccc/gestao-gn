@@ -75,7 +75,7 @@ test('analisarTexto lê um talão típico', () => {
   assert.equal(f.itens[2].desconto, 2);
   assert.equal(f.itens[0].categoria, 'laticinios');
   assert.equal(f.itens[1].categoria, 'frescos');
-  assert.equal(f.itens[0].produto, 'Leite Uht Mg Mimosa 1 L');
+  assert.equal(f.itens[0].produto, 'Leite UHT meio-gordo Mimosa 1 L');
 });
 
 test('analisarTexto não inventa produtos num texto vazio', () => {

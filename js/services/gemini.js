@@ -75,6 +75,34 @@ async function obterModelo(nome) {
   return modelo;
 }
 
+/**
+ * Pergunta com pesquisa Google (grounding): o Gemini pesquisa na web antes de responder.
+ * Devolve { json, fontes } — fontes são os endereços das páginas que usou.
+ */
+export async function pedirComPesquisa(texto) {
+  await ativarAppCheck();
+  const { getAI, getGenerativeModel, GoogleAIBackend } = await import(
+    `https://www.gstatic.com/firebasejs/${FIREBASE_SDK}/firebase-ai.js`
+  );
+  const ai = getAI(app, { backend: new GoogleAIBackend() });
+  let ultimoErro;
+  for (const nome of MODELOS) {
+    try {
+      // A pesquisa Google não aceita resposta em modo JSON: pedimos JSON no texto e lemo-lo.
+      const modelo = getGenerativeModel(ai, { model: nome, tools: [{ googleSearch: {} }], generationConfig: { temperature: 0.1 } });
+      const res = await modelo.generateContent(texto);
+      const cand = res.response.candidates?.[0];
+      const fontes = (cand?.groundingMetadata?.groundingChunks || []).map((c) => c.web?.uri).filter(Boolean);
+      return { json: extrairJson(res.response.text()), fontes };
+    } catch (e) {
+      ultimoErro = e;
+      console.warn(`[gemini+pesquisa] ${nome} falhou`, e);
+      if (ERRO_FATAL.test(e?.message || '')) break;
+    }
+  }
+  throw traduzirErro(ultimoErro);
+}
+
 export function extrairJson(texto) {
   const limpo = String(texto || '').replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
   const inicio = limpo.indexOf('{');

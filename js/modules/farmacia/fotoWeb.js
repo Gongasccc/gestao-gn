@@ -1,9 +1,15 @@
 // Foto da caixa a partir do nome: quando o medicamento é escrito à mão (sem foto), procura uma imagem
-// da frente da embalagem na pesquisa de imagens do Bing. O browser não pode ler o Bing diretamente
-// (CORS), por isso usamos os mesmos leitores/proxies públicos do importador de receitas.
+// da frente da embalagem. 1.º o Gemini pesquisa no Google a página do produto numa farmácia online e
+// lemos a imagem principal; se falhar, pesquisa de imagens do Bing com confirmação da IA.
+// O browser não pode ler outros sites diretamente (CORS), por isso usamos leitores/proxies públicos.
 import { miniatura, comLimite, reduzirParaIA } from './imagem.js';
 
 const PAGINAS = [
+  { build: (u) => `https://r.jina.ai/${u}`, headers: { 'X-Return-Format': 'html' } },
+  { build: (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
+  { build: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
+];
+const PAGINAS_PRODUTO = [
   { build: (u) => `https://r.jina.ai/${u}`, headers: { 'X-Return-Format': 'html' } },
   { build: (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
   { build: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
@@ -13,6 +19,47 @@ const IMAGENS = [
   { build: (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
   { build: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
 ];
+
+/** Lê a imagem principal de uma página de produto (og:image / twitter:image / JSON-LD image). */
+export function imagemDaPagina(html, base = '') {
+  const t = String(html || '');
+  const meta = t.match(/<meta[^>]+(?:property|name)=["'](?:og:image(?::secure_url)?|twitter:image)["'][^>]*>/i)?.[0];
+  let url = meta?.match(/content=["']([^"']+)["']/i)?.[1];
+  if (!url) url = t.match(/"image"\s*:\s*(?:\[\s*)?"(https?:[^"]+)"/i)?.[1];
+  if (!url) return '';
+  url = url.replace(/&amp;/g, '&');
+  try { return new URL(url, base || undefined).href; } catch { return /^https?:/.test(url) ? url : ''; }
+}
+
+/** Endereços http(s) de páginas na resposta da IA (sem duplicados). */
+export function enderecosValidos(lista) {
+  const out = [];
+  for (const u of lista || []) {
+    try {
+      const url = new URL(String(u));
+      if (/^https?:$/.test(url.protocol) && !out.includes(url.href)) out.push(url.href);
+    } catch { /* ignora */ }
+  }
+  return out;
+}
+
+// 1.ª via (mais fiável): o Gemini pesquisa no Google a página do produto numa farmácia online e a app
+// lê a imagem principal dessa página.
+async function fotoPelaPesquisaGoogle(descricao) {
+  const { pedirComPesquisa } = await import('../../services/gemini.js');
+  const { json, fontes } = await pedirComPesquisa(`Pesquisa no Google a página de produto do medicamento "${descricao}" em farmácias online portuguesas (ex.: farmacias portuguesas, wells.pt, farmaciasoude, farmacia-online) ou no site do fabricante.
+Devolve APENAS JSON: {"paginas": ["endereço completo da página de produto", ...]} com até 4 páginas, a mais fiável primeiro. Só endereços que existam de facto nos resultados.`);
+  const paginas = enderecosValidos([...(json?.paginas || []), ...fontes]).slice(0, 6);
+  for (const pagina of paginas) {
+    const html = await buscar(PAGINAS_PRODUTO, pagina, 'html');
+    const img = imagemDaPagina(html, pagina);
+    if (!img || /logo|placeholder|favicon/i.test(img)) continue;
+    const blob = await buscar(IMAGENS, img, 'imagem');
+    const foto = blob && await miniatura(blob);
+    if (foto) return foto;
+  }
+  return '';
+}
 
 const desfazer = (s) => s.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'");
 
@@ -44,6 +91,9 @@ async function buscar(lista, url, tipo) {
       if (tipo === 'texto') {
         const t = await res.text();
         if (t.includes('murl')) return t;
+      } else if (tipo === 'html') {
+        const t = await res.text();
+        if (imagemDaPagina(t)) return t;
       } else {
         const b = await res.blob();
         if (b.size > 2000 && /^image\//.test(b.type || 'image/')) return b;
@@ -72,6 +122,13 @@ Responde APENAS com JSON: {"indice": número da melhor imagem, ou null se nenhum
  */
 export async function procurarFotoCaixa(descricao) {
   if (!String(descricao || '').trim()) return '';
+  const pelaPesquisa = await fotoPelaPesquisaGoogle(descricao).catch((e) => { console.warn('[farmacia] pesquisa Google', e); return ''; });
+  if (pelaPesquisa) return pelaPesquisa;
+  return fotoPeloBing(descricao);
+}
+
+// 2.ª via: pesquisa de imagens do Bing; a IA confirma qual miniatura é a caixa certa (ou nenhuma).
+async function fotoPeloBing(descricao) {
   const pesquisa = `https://www.bing.com/images/search?q=${encodeURIComponent(termoPesquisa(descricao))}&form=HDRSC2`;
   const pagina = await buscar(PAGINAS, pesquisa, 'texto');
   const resultados = extrairImagensBing(pagina).slice(0, 6);

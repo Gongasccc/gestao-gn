@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { extrairImagensBing, termoPesquisa } from '../js/modules/farmacia/fotoWeb.js';
+import { extrairImagensBing, termoPesquisa, imagemDaPagina, enderecosValidos } from '../js/modules/farmacia/fotoWeb.js';
 
 test('lê só os resultados reais da página do Bing', () => {
   const m = (o) => JSON.stringify(o).replace(/"/g, '&quot;').replace(/&(?!quot;)/g, '&amp;');
@@ -17,4 +17,15 @@ test('lê só os resultados reais da página do Bing', () => {
 
 test('termo de pesquisa pede a caixa', () => {
   assert.equal(termoPesquisa(' Paracetamol 1000 '), 'Paracetamol 1000 embalagem caixa farmácia');
+});
+
+test('lê a imagem principal de uma página de produto', () => {
+  assert.equal(imagemDaPagina('<head><meta property="og:image" content="https://loja.pt/img/ben-u-ron.jpg?a=1&amp;b=2"></head>'), 'https://loja.pt/img/ben-u-ron.jpg?a=1&b=2');
+  assert.equal(imagemDaPagina('<meta content="/media/caixa.png" name="twitter:image">', 'https://loja.pt/p/x'), 'https://loja.pt/media/caixa.png');
+  assert.equal(imagemDaPagina('<script type="application/ld+json">{"@type":"Product","image":["https://loja.pt/c.webp"]}</script>'), 'https://loja.pt/c.webp');
+  assert.equal(imagemDaPagina('<p>sem imagem</p>'), '');
+});
+
+test('filtra endereços de páginas', () => {
+  assert.deepEqual(enderecosValidos(['https://a.pt/p', 'nada', 'https://a.pt/p', 'ftp://x', 'http://b.pt']), ['https://a.pt/p', 'http://b.pt/']);
 });

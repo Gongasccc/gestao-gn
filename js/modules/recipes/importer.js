@@ -1,8 +1,7 @@
 // Importar receitas da web. A maioria dos sites de receitas (Pingo Doce, Continente, SaborIntenso,
 // Teleculinária, …) publica os dados em JSON-LD schema.org/Recipe, que lemos aqui.
-// Como o browser não deixa ler outros sites diretamente (CORS), usamos primeiro a nossa função
-// no Netlify (netlify/functions/receita.mjs), depois o pedido direto, um leitor que executa o
-// JavaScript da página (r.jina.ai) e proxies públicos. Se a página não tiver JSON-LD, a IA lê o texto.
+// Como o browser não deixa ler outros sites diretamente (CORS), tentamos o pedido direto, um leitor
+// que executa o JavaScript da página (r.jina.ai) e proxies públicos. Se a página não tiver JSON-LD, a IA lê o texto.
 import { formatDuration, sourceName, servingsNumber } from './parse.js';
 
 const PROXIES = [
@@ -150,7 +149,7 @@ export function pageTextForAI(htmlText) {
 
 /** Vai buscar a página e extrai a receita. Lança erro se não conseguir ler a página. */
 export async function importRecipe(url) {
-  const attempts = [(u) => `/.netlify/functions/receita?url=${encodeURIComponent(u)}`, (u) => u, ...PROXIES];
+  const attempts = [(u) => u, ...PROXIES];
   let partial = null;
   let pagina = '';
   for (const attempt of attempts) {

@@ -60,3 +60,8 @@
 .auth__card .btn--primary { margin-top: 6px; }
 .auth__hint { font-size: 13px; color: var(--text-muted); text-align: left; }
 .auth__error { color: var(--red); font-size: 13px; animation: fade-in var(--dur); }
+
+/* Arranque preso: motivo e botões para recuperar */
+.auth__preso { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 18px; max-width: 300px; text-align: center; }
+.auth__preso .btn { width: 100%; }
+.auth__preso-erro { color: var(--red, #ef4444); word-break: break-word; margin: 0; }

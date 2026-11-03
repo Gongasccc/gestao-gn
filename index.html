@@ -96,6 +96,44 @@
 
   <div id="modal-root"></div>
 
+  <script>
+    // Se a app ficar presa a "verificar sessão" (erro ao carregar ou base de dados local bloqueada),
+    // mostra o motivo e botões para tentar outra vez ou limpar os dados locais (a conta e os dados na nuvem ficam).
+    (function () {
+      var erros = [];
+      function guardar(msg) { if (msg && erros.length < 3) erros.push(String(msg).slice(0, 200)); }
+      window.addEventListener('error', function (e) { guardar(e.message || (e.target && e.target.src ? 'Falhou: ' + e.target.src : '')); }, true);
+      window.addEventListener('unhandledrejection', function (e) { guardar(e.reason && (e.reason.message || e.reason)); });
+      function limpar() {
+        var tarefas = [];
+        try {
+          if (indexedDB.databases) {
+            tarefas.push(indexedDB.databases().then(function (dbs) {
+              return Promise.all(dbs.filter(function (d) { return d.name && d.name.indexOf('firestore') === 0; })
+                .map(function (d) { return new Promise(function (ok) { var r = indexedDB.deleteDatabase(d.name); r.onsuccess = r.onerror = r.onblocked = function () { ok(); }; }); }));
+            }));
+          }
+        } catch (e) { /* sem IndexedDB */ }
+        if (window.caches) tarefas.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
+        if (navigator.serviceWorker) tarefas.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
+        Promise.all(tarefas).catch(function () {}).then(function () { location.reload(); });
+      }
+      setTimeout(function () {
+        var caixa = document.getElementById('auth-loading');
+        if (!caixa || caixa.hidden || document.body.classList.contains('is-authed') || caixa.offsetParent === null) return;
+        var div = document.createElement('div');
+        div.className = 'auth__preso';
+        div.innerHTML = '<p class="muted small">Está a demorar mais do que o normal.</p>'
+          + (erros.length ? '<p class="small auth__preso-erro"></p>' : '')
+          + '<button type="button" class="btn pressable" data-x="tentar">Tentar outra vez</button>'
+          + '<button type="button" class="btn btn--primary pressable" data-x="limpar">Limpar dados locais e entrar</button>';
+        if (erros.length) div.querySelector('.auth__preso-erro').textContent = erros.join(' · ');
+        div.querySelector('[data-x="tentar"]').onclick = function () { location.reload(); };
+        div.querySelector('[data-x="limpar"]').onclick = function (ev) { ev.target.disabled = true; ev.target.textContent = 'A limpar…'; limpar(); };
+        caixa.appendChild(div);
+      }, 12000);
+    })();
+  </script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

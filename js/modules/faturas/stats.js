@@ -1,5 +1,6 @@
 // Contas das faturas do supermercado: gastos por mês, por loja e por categoria,
 // poupanças e comparação de preços. Funções puras (testadas em tests/faturas.test.mjs).
+import { precoPorUnidade } from './produtos.js';
 
 export const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 const MESES_LONGOS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -128,7 +129,9 @@ export function compararPrecos(faturas) {
         produtos.set(chave, p);
       }
       const loja = f.loja || 'Outra loja';
-      p.lojas[loja] = { preco, data: f.data };
+      const pu = precoPorUnidade(item);
+      if (pu) p.porUnidade = pu.unidade;
+      p.lojas[loja] = { preco, data: f.data, ...(pu ? { porUnidade: pu.valor } : {}) };
       p.historico.push({ data: f.data, loja, preco });
     }
   }

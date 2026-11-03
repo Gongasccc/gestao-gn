@@ -3,6 +3,7 @@
 // o resultado é sempre mostrado para confirmar antes de guardar.
 import { arred } from './stats.js';
 import { nifValido } from './qr.js';
+import { agruparRepetidos, expandirNome } from './produtos.js';
 
 const CADEIAS = [
   ['Continente', /CONTINENTE|MODELO CONTINENTE/],
@@ -33,6 +34,10 @@ const eTotal = (rotulo) => /^(TOTAL|A PAGAR|VALOR A PAGAR)\b/.test(rotulo)
 const VALOR_FIM = /(-?\s?\d{1,4}(?:[.\s]\d{3})*[.,]\d{2})\s*(?:€|EUR)?\s*(?:[A-F]|\d{1,2}%)?\s*\*?\s*$/;
 // Linha de quantidade, ex.: "2 X 0,89", "1,234 kg x 1,29 EUR/kg", "3 UN x 1,00".
 const QTD = /^(\d+(?:[.,]\d{1,3})?)\s*(KG|UN|L|X)?\s*[X×*]\s*(\d+[.,]\d{2})/;
+// Quantidade no meio da linha do produto, ex.: "IOGURTE NAT 4 X 0,45 1,80" ou "BANANA 1,234 KG X 1,29 1,59".
+const QTD_MEIO = /\s(\d+(?:[.,]\d{1,3})?)\s*(KG|UN|L)?\s*[X×*]\s*(\d+[.,]\d{2})(?:\s*(?:€|EUR)?\/?\s*(?:KG|UN|L)?)?\s+(?=-?\d)/;
+// Formato Lidl: preço × quantidade, ex.: "LEITE MEIO GORDO 0,79 X 2 1,58 A".
+const PRECO_X_QTD = /\s(\d+[.,]\d{2})\s*[X×*]\s*(\d{1,3})\s+(?=-?\d)/;
 
 const paraNumero = (s) => {
   const limpo = String(s).replace(/\s/g, '');
@@ -171,6 +176,19 @@ export function analisarTexto(texto) {
 
     nomePendente = '';
     if (NAO_PRODUTO.test(nome) || valor <= 0 || valor > 500) continue;
+    const meio = linha.match(QTD_MEIO);
+    const lidl = !meio && linha.match(PRECO_X_QTD);
+    if (meio || lidl) {
+      const quantidade = paraNumero(meio ? meio[1] : lidl[2]);
+      const precoUnitario = paraNumero(meio ? meio[3] : lidl[1]);
+      const unidade = meio && meio[2] === 'KG' ? 'kg' : (meio && meio[2] === 'L' ? 'L' : 'un');
+      const nomeLimpo = limparNome(linha.slice(0, (meio || lidl).index));
+      // Só aceita se a conta bater certo (evita confundir "6X1L" com uma quantidade).
+      if (quantidade > 0 && Math.abs(quantidade * precoUnitario - valor) <= 0.02 + valor * 0.01 && /\p{L}{2}/u.test(nomeLimpo)) {
+        itens.push(novoItem(nomeLimpo, quantidade, unidade, precoUnitario, valor));
+        continue;
+      }
+    }
     itens.push(novoItem(nome, 1, 'un', valor, valor));
   }
 
@@ -182,21 +200,23 @@ export function analisarTexto(texto) {
     hora: lerHora(linhas),
     total: total || arred(itens.reduce((s, i) => s + i.total, 0)),
     poupanca,
-    itens,
+    itens: agruparRepetidos(itens),
     descontos,
   };
 }
 
 function novoItem(nome, quantidade, unidade, precoUnitario, total) {
+  const produto = expandirNome(nome);
+  const cat = categoriaPorNome(nome);
   return {
     nome,
-    produto: titulo(nome),
+    produto,
     quantidade: quantidade || 1,
     unidade,
     precoUnitario: arred(precoUnitario),
     total: arred(total),
     desconto: 0,
-    categoria: categoriaPorNome(nome),
+    categoria: cat !== 'outros' ? cat : categoriaPorNome(produto),
   };
 }
 

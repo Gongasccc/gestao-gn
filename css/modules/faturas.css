@@ -150,3 +150,53 @@
 .fat-scan__alternativas { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
 .fat-produtos__acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .fat-produtos__acoes .btn { flex: 1 1 auto; }
+
+/* ---------- Nomes decifrados e aprendidos ---------- */
+.fat-produto__info .fat-talao {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  opacity: .6;
+  letter-spacing: .02em;
+}
+.fat-aprendido {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  border-radius: 50%;
+  vertical-align: middle;
+  color: #fff;
+  background: var(--accent);
+}
+.fat-ia-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.fat-ia-toggle input { margin-top: 2px; accent-color: var(--accent); width: 18px; height: 18px; flex-shrink: 0; }
+.fat-ia-toggle span { display: inline-flex; gap: 6px; align-items: flex-start; }
+button.fat-aviso { width: 100%; text-align: left; font: inherit; color: inherit; }
+
+/* ---------- Preço de hoje nas lojas ---------- */
+.fat-lojas-online { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.fat-loja-online {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md, 14px);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-tint-1, transparent);
+  color: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: transform var(--dur, .2s), border-color var(--dur, .2s);
+}
+.fat-loja-online:hover { border-color: var(--accent); }
+.fat-loja-online span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

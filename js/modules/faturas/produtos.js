@@ -207,3 +207,80 @@ export function corresponde(nome, q) {
   const n = semAcentos(nome).toLowerCase();
   return semAcentos(q).toLowerCase().split(/\s+/).filter(Boolean).every((p) => n.includes(p));
 }
+
+// ---------- Consistência com as compras anteriores ----------
+// O dicionário acima reconhece linhas de talão já vistas. Mas o mesmo produto pode aparecer com
+// outra abreviatura (ou noutra loja) e a IA pode dar-lhe um nome ligeiramente diferente
+// ("Leite meio-gordo UHT Mimosa 1 L" vs "Leite UHT meio-gordo Mimosa 1 L") ou outra categoria.
+// O catálogo junta os nomes padrão já usados nas faturas guardadas e serve para:
+// 1) mostrar à IA os nomes e categorias que o casal já usa; 2) corrigir no fim as pequenas diferenças.
+
+const PALAVRAS_VAZIAS = new Set(['de', 'do', 'da', 'dos', 'das', 'e', 'em', 'o', 'a', 'os', 'as', 'para', 'c', 's']);
+
+/** Chave que ignora a ordem das palavras, acentos, maiúsculas e palavras vazias. */
+export function chaveNome(nome) {
+  return semAcentos(nome).toLowerCase()
+    .replace(/(\d),(\d)/g, '$1.$2')
+    .replace(/×/g, 'x')
+    .replace(/(\d)\s*(kg|g|l|ml|cl|un)\b/g, '$1$2')
+    .split(/[^a-z0-9.]+/)
+    .filter((p) => p && !PALAVRAS_VAZIAS.has(p))
+    .sort()
+    .join(' ');
+}
+
+/**
+ * Catálogo dos nomes padrão já usados: chaveNome -> { produto, categoria, n }.
+ * A categoria é a mais usada para esse produto (correções à mão valem mais).
+ */
+export function catalogoProdutos(faturas) {
+  const mapa = new Map();
+  for (const f of faturas || []) {
+    for (const i of f.itens || []) {
+      const nome = String(i.produto || '').trim();
+      const k = chaveNome(nome);
+      if (!k) continue;
+      let p = mapa.get(k);
+      if (!p) { p = { nomes: {}, cats: {}, n: 0 }; mapa.set(k, p); }
+      const peso = i.confirmado ? 3 : 1;
+      p.n += 1;
+      p.nomes[nome] = (p.nomes[nome] || 0) + peso;
+      const cat = i.categoria || 'outros';
+      p.cats[cat] = (p.cats[cat] || 0) + peso;
+    }
+  }
+  const melhor = (o) => Object.entries(o).sort((a, b) => b[1] - a[1])[0]?.[0];
+  const out = new Map();
+  for (const [k, p] of mapa) {
+    const cats = { ...p.cats };
+    // "outros" só ganha se não houver outra categoria.
+    if (Object.keys(cats).length > 1) delete cats.outros;
+    out.set(k, { produto: melhor(p.nomes), categoria: melhor(cats), n: p.n });
+  }
+  return out;
+}
+
+/**
+ * Alinha os produtos de uma fatura nova com o catálogo: mesmo produto => mesmo nome e mesma categoria.
+ * Não toca nos produtos corrigidos à mão.
+ */
+export function harmonizarItens(itens, catalogo) {
+  if (!catalogo?.size) return itens || [];
+  return (itens || []).map((i) => {
+    if (i.confirmado) return i;
+    const c = catalogo.get(chaveNome(i.produto || i.nome));
+    if (!c) return i;
+    const item = { ...i };
+    if (!i.aprendido) item.produto = c.produto;
+    if (c.categoria) item.categoria = c.categoria;
+    return item;
+  });
+}
+
+/** Nomes padrão mais comprados, para a IA reutilizar ("Nome — categoria"). */
+export function nomesParaIa(catalogo, max = 150) {
+  return [...(catalogo || new Map()).values()]
+    .sort((a, b) => b.n - a.n)
+    .slice(0, max)
+    .map((c) => `${c.produto} — ${c.categoria}`);
+}

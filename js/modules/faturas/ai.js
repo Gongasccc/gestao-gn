@@ -52,8 +52,11 @@ Outras regras:
 Nunca inventes produtos ou valores que não estão no talão.`;
 
 /** Texto extra com o que a app já sabe: o texto lido no telemóvel e nomes padrão já aprendidos. */
-function contextoTpl({ textoOcr = '', exemplos = [] } = {}) {
+function contextoTpl({ textoOcr = '', exemplos = [], catalogo = [] } = {}) {
   const partes = [];
+  if (catalogo.length) {
+    partes.push(`Produtos que este casal já comprou antes (nome padrão — categoria). Se uma linha for um destes produtos (mesmo tipo, variante, marca e embalagem), usa EXATAMENTE este nome e esta categoria, para as compras ficarem consistentes:\n${catalogo.join('\n')}`);
+  }
   if (exemplos.length) {
     partes.push(`Nomes padrão que este casal já confirmou (linha do talão => nome padrão). Usa EXATAMENTE estes nomes quando a linha for a mesma ou equivalente, e segue o mesmo estilo nas outras:\n${exemplos.join('\n')}`);
   }
@@ -133,10 +136,11 @@ Usa o mesmo "i" de cada linha. Se não souberes o que é, devolve o nome expandi
  * Decifra uma lista de nomes de talão de uma vez (só texto, sem imagens).
  * linhas: [{ loja, nome }] -> [{ produto, categoria } | null] na mesma ordem.
  */
-export async function decifrarNomes(linhas, exemplos = []) {
+export async function decifrarNomes(linhas, exemplos = [], catalogo = []) {
   const corpo = linhas.map((l, i) => `${i}\t${l.loja || ''}\t${l.nome}`).join('\n');
   const partes = [{ texto: PROMPT_NOMES }];
   if (exemplos.length) partes.push({ texto: `Nomes já confirmados (segue o mesmo estilo):\n${exemplos.join('\n')}` });
+  if (catalogo.length) partes.push({ texto: `Produtos já comprados (nome padrão — categoria). Se for o mesmo produto, usa EXATAMENTE o mesmo nome e categoria:\n${catalogo.join('\n')}` });
   partes.push({ texto: `Linhas (i, loja, nome):\n${corpo}` });
   const r = await pedirJson(partes);
   const out = linhas.map(() => null);

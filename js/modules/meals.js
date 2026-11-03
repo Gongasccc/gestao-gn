@@ -5,7 +5,7 @@ import { createScope, session } from '../core/state.js';
 import { modalTemplate, openModal, closeModal, toast, confirmDialog } from '../core/ui.js';
 import { toISODate, parseISODate } from '../core/dates.js';
 import { isoToShort } from '../core/format.js';
-import { setDoc, deleteDoc, getDocs, addDoc, onSnapshot } from '../services/firebase.js';
+import { setDoc, deleteDoc, getDocs, addDoc, updateDoc, onSnapshot } from '../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../services/paths.js';
 import { parseIngredients, shoppingText } from './recipes/parse.js';
 
@@ -131,13 +131,19 @@ export default {
         parseIngredients(r?.ingredientes).filter((i) => !i.header).map((i) => shoppingText(i))
           .forEach((l) => { if (!ingredients.has(l.toLowerCase())) ingredients.set(l.toLowerCase(), l); });
       });
-      const existing = new Set(snapToList(await getDocs(sharedCol('semanais'))).filter((i) => !i.feita).map((i) => String(i.texto).toLowerCase()));
-      const toAdd = [...ingredients].filter(([k]) => !existing.has(k)).map(([, v]) => v);
-      if (!toAdd.length) return toast('A lista semanal já tem estes ingredientes.', 'info');
-      const ok = await confirmDialog(`Adicionar ${toAdd.length} ingrediente(s) à Lista Semanal?`, { title: 'Lista de compras', confirmLabel: 'Adicionar' });
+      // A lista semanal é fixa: um ingrediente que já lá está marcado ("já tenho") volta a ficar por comprar.
+      const atuais = snapToList(await getDocs(sharedCol('semanais')));
+      const porTexto = new Map(atuais.map((i) => [String(i.texto).toLowerCase(), i]));
+      const toAdd = [...ingredients].filter(([k]) => !porTexto.has(k)).map(([, v]) => v);
+      const toReset = [...ingredients].map(([k]) => porTexto.get(k)).filter((i) => i?.feita);
+      if (!toAdd.length && !toReset.length) return toast('A lista semanal já tem estes ingredientes.', 'info');
+      const ok = await confirmDialog(`Adicionar ${toAdd.length + toReset.length} ingrediente(s) à Lista Semanal?`, { title: 'Lista de compras', confirmLabel: 'Adicionar' });
       if (!ok) return;
       const now = Date.now();
-      await Promise.all(toAdd.map((texto, i) => addDoc(sharedCol('semanais'), { texto, feita: false, timestamp: now + i, origem: 'refeicoes' })));
+      await Promise.all([
+        ...toAdd.map((texto, i) => addDoc(sharedCol('semanais'), { texto, feita: false, timestamp: now + i, origem: 'refeicoes' })),
+        ...toReset.map((i) => updateDoc(sharedDoc('semanais', i.id), { feita: false })),
+      ]);
       toast('Ingredientes adicionados à Lista Semanal');
     },
   },

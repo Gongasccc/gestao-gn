@@ -38,7 +38,10 @@ test('agrupa por supermercado e por corredor, sem loja primeiro', () => {
   const { grupos, feitos } = agruparLista(itens, { memoria: { detergente: { loja: 'Continente' } }, ordens: { lidl: ['congelados'] } });
   assert.deepEqual(grupos.map((g) => g.loja), ['', 'Lidl', 'Continente']);
   assert.deepEqual(grupos[1].seccoes.map((s) => s.id), ['congelados', 'frescos', 'outros']);
-  assert.equal(grupos[2].seccoes[0].itens[0].texto, 'detergente');
+  // Os artigos marcados ("já tenho") ficam no seu corredor: a lista semanal é fixa.
+  assert.deepEqual(grupos[2].seccoes.map((s) => s.itens[0].texto), ['pão', 'detergente']);
+  assert.equal(grupos[2].total, 1);
+  assert.equal(grupos[2].comprados, 1);
   assert.equal(feitos.length, 1);
 });
 

@@ -2,7 +2,7 @@
 // Semanal: cada artigo tem um supermercado e uma secção. A lista agrupa por supermercado e, dentro
 // de cada um, pela ordem dos corredores (personalizável por loja), para passar em cada corredor uma vez.
 // A app lembra-se da loja e da secção escolhidas para cada artigo (config/lista_compras.memoria).
-import { html, byId, render, emptyState } from '../../core/dom.js';
+import { html, raw, byId, render, emptyState } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { money } from '../../core/format.js';
 import { createScope, session, on } from '../../core/state.js';
@@ -18,7 +18,7 @@ import { corresponde } from '../faturas/produtos.js';
 import {
   SECCOES, LOJAS_PADRAO, agruparLista, chaveArtigo, chaveLoja, ordemDaLoja, nomeSeccao, emojiSeccao, listaLojas, marcaLoja,
 } from './seccoes.js';
-import { LOGOS_SVG, LOGOS_SITE, faviconUrl } from './logos.js';
+import { LOGOS_SVG, LOGOS_COR, LOGOS_SITE, faviconUrl } from './logos.js';
 
 const scope = createScope();
 export const PAG_LISTA = 'menu-lista-compras';
@@ -68,6 +68,9 @@ function seloTpl(loja, tam = 44) {
   const m = marcaLoja(loja);
   const estilo = `--marca:${m.cor};--marca2:${m.cor2};--marca-texto:${m.texto};--tam:${tam}px`;
   const sigla = html`<b class="lista-selo__sigla">${m.sigla}</b>`;
+  if (LOGOS_COR[m.id]) {
+    return html`<span class="lista-selo lista-selo--logo lista-selo--cor" style="${estilo}" aria-hidden="true">${raw(LOGOS_COR[m.id])}</span>`;
+  }
   if (LOGOS_SVG[m.id]) {
     return html`<span class="lista-selo lista-selo--logo" style="${estilo}" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="${LOGOS_SVG[m.id]}"/></svg></span>`;
@@ -105,14 +108,15 @@ function atualizarEntrada() {
 function artigoTpl(i) {
   return html`
     <div class="list-item glass-soft ${i.feita ? 'is-done' : ''}" data-id="${i.id}">
-      <button class="check pressable" data-action="lista:toggle" data-id="${i.id}" data-done="${i.feita ? '1' : ''}" aria-label="Marcar">${icon('check', 14)}</button>
+      <button class="check pressable" data-action="lista:toggle" data-id="${i.id}" data-done="${i.feita ? '1' : ''}" aria-label="${i.feita ? 'Desmarcar' : 'Já tenho'}">${icon('check', 14)}</button>
       <span class="list-item__text" data-action="lista:toggle" data-id="${i.id}" data-done="${i.feita ? '1' : ''}">${i.texto}</span>
-      ${i.feita && i.loja ? html`<small class="lista-item__loja">${i.loja}</small>` : ''}
+      ${i.feita ? html`<small class="lista-item__loja">já tenho</small>` : ''}
       <button class="icon-btn icon-btn--subtle" data-action="lista:opcoes" data-id="${i.id}" aria-label="Supermercado e secção">${icon('more', 16)}</button>
     </div>`;
 }
 
-function grupoTpl(g, feitosLoja) {
+function grupoTpl(g) {
+  const feitosLoja = g.comprados;
   const total = g.total + feitosLoja;
   const pct = total ? Math.round((feitosLoja / total) * 100) : 0;
   if (!g.chave) {
@@ -132,10 +136,10 @@ function grupoTpl(g, feitosLoja) {
       <header class="lista-loja__banner">
         <button class="lista-loja__id pressable" data-action="lista:loja-atual" data-loja="${g.loja}" aria-label="Adicionar artigos ao ${g.loja}">
           ${seloTpl(g.loja, 46)}
-          <span class="lista-loja__nome"><strong>${g.loja}</strong><small>${g.total} ${g.total === 1 ? 'artigo' : 'artigos'} · ${g.seccoes.length} ${g.seccoes.length === 1 ? 'corredor' : 'corredores'}</small></span>
+          <span class="lista-loja__nome"><strong>${g.loja}</strong><small>${g.total ? `${g.total} por comprar` : 'Tudo tratado ✓'}${feitosLoja ? ` · ${feitosLoja} já tens` : ''} · ${g.seccoes.length} ${g.seccoes.length === 1 ? 'corredor' : 'corredores'}</small></span>
         </button>
         <button class="lista-loja__btn pressable" data-action="lista:ordem" data-loja="${g.loja}" aria-label="Ordem dos corredores">${icon('repeat', 14)} Corredores</button>
-        <div class="lista-loja__progresso" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" title="${feitosLoja} de ${total} no carrinho"><span style="width:${pct}%"></span></div>
+        <div class="lista-loja__progresso" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" title="${feitosLoja} de ${total} já tratados"><span style="width:${pct}%"></span></div>
       </header>
       ${seccoesTpl(g)}
     </section>`;
@@ -153,11 +157,6 @@ function desenhar() {
   render('lista-lojas-wrap', lojasTpl());
   atualizarEntrada();
   const { grupos, feitos } = agruparLista(itens, { memoria: config.memoria || {}, ordens: config.ordens || {}, categoria: categoriaFaturas });
-  const feitosPorLoja = new Map();
-  for (const f of feitos) {
-    const k = f.loja ? chaveLoja(f.loja) : '';
-    feitosPorLoja.set(k, (feitosPorLoja.get(k) || 0) + 1);
-  }
   const pendentes = grupos.reduce((n, g) => n + g.total, 0);
   const resumo = byId('lista-resumo');
   if (resumo) {
@@ -167,16 +166,12 @@ function desenhar() {
       : '';
   }
   render(alvo, itens.length ? html`
-    ${grupos.map((g) => grupoTpl(g, feitosPorLoja.get(g.chave) || 0))}
-    ${!pendentes ? html`<div class="card glass">${emptyState('Está tudo no carrinho! 🎉')}</div>` : ''}
+    ${grupos.map((g) => grupoTpl(g))}
     ${feitos.length ? html`
-      <section class="card glass lista-loja lista-loja--feitos">
-        <div class="lista-loja__topo">
-          <h3 class="card__title">${icon('check', 18)} No carrinho <span class="chip chip--muted">${feitos.length}</span></h3>
-          <button class="btn btn--small pressable" data-action="lista:limpar">Limpar</button>
-        </div>
-        <div class="list">${feitos.map(artigoTpl)}</div>
-      </section>` : ''}
+      <div class="lista-semana">
+        <span>${!pendentes ? 'Já tens tudo desta semana! 🎉' : `${feitos.length} ${feitos.length === 1 ? 'artigo marcado' : 'artigos marcados'} como já tenho.`}</span>
+        <button class="btn btn--small pressable" data-action="lista:nova-semana">${icon('repeat', 14)} Nova semana</button>
+      </div>` : ''}
   ` : html`<div class="card glass">${emptyState('Lista vazia. Escolhe o supermercado e adiciona o primeiro artigo!')}</div>`, { stagger: primeira });
   primeira = false;
 }
@@ -308,13 +303,13 @@ const actions = {
       setTimeout(() => deleteDoc(sharedDoc(COL, item.id)), 220);
     }
   },
-  'lista:limpar': async () => {
+  'lista:nova-semana': async () => {
     const feitos = itens.filter((i) => i.feita);
     if (!feitos.length) return;
-    const ok = await confirmDialog(`Tirar ${feitos.length} ${feitos.length === 1 ? 'artigo comprado' : 'artigos comprados'} da lista?`, { confirmLabel: 'Limpar' });
+    const ok = await confirmDialog('Desmarcar todos os artigos para começar a lista de uma nova semana? Nenhum artigo é apagado.', { title: 'Nova semana', confirmLabel: 'Desmarcar tudo' });
     if (!ok) return;
-    await Promise.all(feitos.map((i) => deleteDoc(sharedDoc(COL, i.id))));
-    toast('Lista limpa');
+    await Promise.all(feitos.map((i) => updateDoc(sharedDoc(COL, i.id), { feita: false })));
+    toast('Lista pronta para a nova semana');
   },
   'lista:ordem': ({ data }) => {
     lojaOrdem = data.loja;

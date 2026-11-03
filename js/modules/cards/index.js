@@ -9,7 +9,9 @@ import { readAsDataURL, takeFile, dataUrlBytes } from '../../core/images.js';
 import { addDoc, updateDoc, deleteDoc, onSnapshot, getDoc, setDoc } from '../../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../../services/paths.js';
 import { prepararCapa } from './fundo.js';
-import { normalizarLink } from './util.js';
+import {
+  normalizarLink, folhetoPadrao, normalizarDias, proximoFolheto, listaDias, DIAS_CURTOS,
+} from './util.js';
 
 const COL = 'cartoes';
 export const PAG_CARTOES = 'menu-cartoes';
@@ -26,6 +28,7 @@ let capaOriginal = ''; // foto escolhida, antes de retirar o fundo
 let capaFinal = '';
 let semFundo = true;
 let linkAberto = '';
+let diasEdicao = []; // dias do folheto no formulário
 
 // Lojas antigas (página "Lojas & Cartões") para trazer cartões já guardados.
 const LOJAS_ANTIGAS = [
@@ -40,13 +43,26 @@ const CORES = ['#059669', '#2563EB', '#DC2626', '#D97706', '#7C3AED', '#0891B2',
 const corDe = (nome) => CORES[[...String(nome || '')].reduce((s, c) => s + c.charCodeAt(0), 0) % CORES.length];
 const atual = () => cartoes.find((c) => c.id === atualId);
 
+/** Link do folheto: o do cartão ou, se não tiver, o da cadeia (Continente, Pingo Doce, Lidl…). */
+const linkFolheto = (c) => c.link || folhetoPadrao(c.nome)?.link || '';
+const diasFolheto = (c) => normalizarDias(c.folhetoDias);
+
 const dominio = (link) => { try { return new URL(link).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
+/** Botão "Folheto" na frente do cartão, com o próximo dia em que o folheto muda. */
+function botaoFolhetoTpl(c) {
+  if (!linkFolheto(c)) return '';
+  const prox = proximoFolheto(diasFolheto(c));
+  return html`<span class="cartao__folheto pressable" role="button" tabindex="0" data-action="cartoes:folheto" data-id="${c.id}"
+    aria-label="Abrir o folheto${prox ? ` (${prox.toLowerCase()})` : ''}">${icon('external', 12)} Folheto</span>`;
+}
+
 function capaTpl(c, { grande = false } = {}) {
+  // A capa mostra-se sempre inteira (sem cortes), com cantos de cartão, dentro de uma moldura com a proporção de um cartão.
   return c.imagem
-    ? html`<span class="cartao ${grande ? 'cartao--grande' : ''} ${c.semFundo ? 'cartao--recortado' : ''}"><img src="${c.imagem}" alt="${c.nome}" loading="lazy"></span>`
+    ? html`<span class="cartao cartao--foto ${grande ? 'cartao--grande' : ''}"><span class="cartao__capa"><img src="${c.imagem}" alt="${c.nome}" loading="lazy">${botaoFolhetoTpl(c)}</span></span>`
     : html`<span class="cartao cartao--cor ${grande ? 'cartao--grande' : ''}" style="--cartao-cor:${corDe(c.nome)}">
-        <strong>${c.nome}</strong>${c.numero ? html`<small>${c.numero}</small>` : ''}
+        <strong>${c.nome}</strong>${c.numero ? html`<small>${c.numero}</small>` : ''}${botaoFolhetoTpl(c)}
       </span>`;
 }
 
@@ -57,10 +73,11 @@ function desenharLista() {
   render(alvo, cartoes.length
     ? html`<div class="cartoes-grid stagger-on-enter">
         ${cartoes.map((c) => html`
-          <button class="cartoes-item pressable" data-action="cartoes:abrir" data-id="${c.id}" aria-label="${c.nome}">
+          <div class="cartoes-item pressable" role="button" tabindex="0" data-action="cartoes:abrir" data-id="${c.id}" aria-label="${c.nome}">
             ${capaTpl(c)}
-            <span class="cartoes-item__nome">${c.nome}${c.link ? html` ${icon('external', 12)}` : ''}</span>
-          </button>`)}
+            <span class="cartoes-item__nome">${c.nome}</span>
+            ${proximoFolheto(diasFolheto(c)) ? html`<small class="cartoes-item__folheto">${proximoFolheto(diasFolheto(c))}</small>` : ''}
+          </div>`)}
       </div>`
     : html`<div class="card glass sup-vazio">
         <span class="sup-vazio__icone">${icon('card', 26)}</span>
@@ -75,18 +92,19 @@ function desenharDetalhe() {
   if (!alvo) return;
   if (!c) { render(alvo, html`<p class="muted">Este cartão já não existe.</p>`); return; }
   render(alvo, html`
-    <button class="cartao-hero pressable" data-action="cartoes:ver-capa">${capaTpl(c, { grande: true })}</button>
+    <div class="cartao-hero pressable" role="button" tabindex="0" data-action="cartoes:ver-capa">${capaTpl(c, { grande: true })}</div>
+    ${diasFolheto(c).length ? html`<p class="cartao-folheto-dias">${icon('repeat', 14)} <strong>${proximoFolheto(diasFolheto(c))}</strong>${diasFolheto(c).length > 1 ? ` · sai ${listaDias(diasFolheto(c))}` : ''}</p>` : ''}
     ${c.numero ? html`
       <div class="card glass cartao-numero">
         <span class="eyebrow">Número do cartão</span>
         <strong>${c.numero}</strong>
         <button class="btn btn--small btn--glass pressable" data-action="cartoes:copiar">${icon('copy', 14)} Copiar</button>
       </div>` : ''}
-    ${c.link ? html`
+    ${linkFolheto(c) ? html`
       <button class="btn btn--primary btn--large btn--block pressable" data-action="cartoes:link">
         ${icon('external', 18)} ${c.linkNome || 'Abrir folheto'}
       </button>
-      <p class="muted small cartao-dominio">${dominio(c.link)}</p>` : ''}
+      <p class="muted small cartao-dominio">${dominio(linkFolheto(c))}</p>` : ''}
     ${c.notas ? html`<div class="card glass"><span class="eyebrow">Notas</span><p class="cartao-notas">${c.notas}</p></div>` : ''}
     <div class="btn-row">
       <button class="btn btn--danger-soft pressable" data-action="cartoes:apagar">${icon('trash', 16)} Remover</button>
@@ -139,10 +157,29 @@ function abrirFormulario(c = null) {
   byId('cartao-f-link').value = c?.link || '';
   byId('cartao-f-linknome').value = c?.linkNome || '';
   byId('cartao-f-notas').value = c?.notas || '';
+  diasEdicao = normalizarDias(c?.folhetoDias);
+  byId('cartao-f-link').placeholder = 'ex: https://folhetos.continente.pt';
+  desenharDias();
+  sugerirFolheto();
   byId('cartao-f-semfundo').checked = true;
   desenharPreviewCapa();
   openModal('modal-cartao');
   setTimeout(() => byId('cartao-f-nome')?.focus(), 250);
+}
+
+function desenharDias() {
+  render('cartao-f-dias', [1, 2, 3, 4, 5, 6, 0].map((d) => html`
+    <button type="button" class="cartao-dia pressable ${diasEdicao.includes(d) ? 'is-active' : ''}" data-action="cartoes:dia" data-d="${d}"
+      aria-pressed="${diasEdicao.includes(d) ? 'true' : 'false'}">${DIAS_CURTOS[d]}</button>`));
+}
+
+/** Ao escrever o nome de uma cadeia conhecida, sugere o link e os dias do folheto (se ainda estiverem vazios). */
+function sugerirFolheto() {
+  const sug = folhetoPadrao(byId('cartao-f-nome').value);
+  if (!sug) return;
+  const link = byId('cartao-f-link');
+  if (!link.value.trim()) link.placeholder = sug.link;
+  if (!diasEdicao.length && sug.dias.length) { diasEdicao = normalizarDias(sug.dias); desenharDias(); }
 }
 
 function formularioTpl() {
@@ -161,10 +198,15 @@ function formularioTpl() {
       <label class="switch"><input type="checkbox" id="cartao-f-semfundo" checked data-change="cartoes:fundo"><span class="switch__track"></span></label>
     </div>
     <p class="muted small" id="cartao-capa-estado"></p>
-    ${campo('cartao-f-nome', 'Nome', html`<input class="input" id="cartao-f-nome" placeholder="ex: Continente, Pingo Doce, Ginásio" autocomplete="off">`)}
+    ${campo('cartao-f-nome', 'Nome', html`<input class="input" id="cartao-f-nome" placeholder="ex: Continente, Pingo Doce, Ginásio" autocomplete="off" data-change="cartoes:nome">`)}
     ${campo('cartao-f-numero', 'Número do cartão (opcional)', html`<input class="input" id="cartao-f-numero" inputmode="numeric" autocomplete="off">`)}
     ${campo('cartao-f-link', 'Link (opcional)', html`<input class="input" type="url" id="cartao-f-link" placeholder="ex: https://folhetos.continente.pt" autocomplete="off">`,
-      'Por exemplo o folheto, que atualiza todos os dias. Abre dentro da app.')}
+      'O folheto da loja. Abre dentro da app. No Continente, Pingo Doce, Lidl, Auchan e Intermarché, se ficar vazio, usa a página dos folhetos.')}
+    <div class="field">
+      <span class="field__label">Dias em que sai o folheto novo</span>
+      <div class="cartao-dias" id="cartao-f-dias"></div>
+      <span class="field__hint">Aparece no cartão "Novo folheto à terça", por exemplo.</span>
+    </div>
     ${campo('cartao-f-linknome', 'Nome do botão', html`<input class="input" id="cartao-f-linknome" placeholder="Abrir folheto" autocomplete="off">`)}
     ${campo('cartao-f-notas', 'Notas', html`<textarea class="input textarea" id="cartao-f-notas" placeholder="ex: pontos, PIN da app…"></textarea>`)}
     <div class="btn-row">
@@ -275,6 +317,7 @@ export default {
         link,
         linkNome: byId('cartao-f-linknome').value.trim(),
         notas: byId('cartao-f-notas').value.trim(),
+        folhetoDias: normalizarDias(diasEdicao),
         imagem: capaFinal,
         semFundo: !!(capaOriginal ? semFundo && byId('cartao-f-semfundo').dataset.ok : cartoes.find((c) => c.id === editarId)?.semFundo),
       };
@@ -299,7 +342,20 @@ export default {
       if (!c?.numero) return;
       try { await navigator.clipboard.writeText(c.numero); toast('Número copiado'); } catch { toast('Não foi possível copiar', 'error'); }
     },
-    'cartoes:link': () => { const c = atual(); if (c?.link) abrirLink(c.link); },
+    'cartoes:link': () => { const c = atual(); if (c && linkFolheto(c)) abrirLink(linkFolheto(c)); },
+    'cartoes:folheto': ({ ev, data }) => {
+      ev.stopPropagation();
+      const c = cartoes.find((x) => x.id === data.id);
+      if (!c) return;
+      atualId = c.id;
+      abrirLink(linkFolheto(c));
+    },
+    'cartoes:dia': ({ data }) => {
+      const d = Number(data.d);
+      diasEdicao = diasEdicao.includes(d) ? diasEdicao.filter((x) => x !== d) : normalizarDias([...diasEdicao, d]);
+      desenharDias();
+    },
+    'cartoes:nome': () => sugerirFolheto(),
     'cartoes:link-fora': () => { if (linkAberto) window.open(linkAberto, '_blank', 'noopener'); },
     'cartoes:link-recarregar': () => {
       const frame = byId('cartao-frame');

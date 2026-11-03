@@ -16,6 +16,7 @@ import {
   estadoValidade, textoContagem, formatarData, linksOficiais, DIAS_ALERTA,
   estadoStock, textoStock, textoFimStock, chaveNome,
 } from './util.js';
+import { iniciarTratamentos, pararTratamentos, blocoTratamentos, paginaTratamento, tratamentosAlertas } from './tratamentos.js';
 
 const COLECAO = 'farmacia';
 const PAGINA = 'menu-farmacia';
@@ -369,6 +370,7 @@ function renderDetalhe() {
         <button class="btn btn--primary" data-action="farmacia:repor">${icon('plus', 18)} Voltámos a comprar</button>
       </section>` : html`
       ${blocoInventario(m)}
+      ${blocoTratamentos(m)}
       <section class="farm-contagem farm-contagem--${estado} glass">
         <span class="farm-contagem__rotulo">${estado === 'alerta' ? 'Expira em' : estado === 'expirado' ? 'Fora de validade' : 'Validade'}</span>
         ${chipValidade(m.validade)}
@@ -538,7 +540,7 @@ export function farmaciaAlertas() {
       out.push({ fonte: 'Farmácia', icon: 'pill', tom: 'rose', titulo: s === 'vazio' ? `${m.nome} acabou` : `${m.nome}: ${textoStock(m)}`, quando: textoFimStock(m).replace(/^Dá para /, '').replace(/ \(.*\)$/, '') || 'A acabar', ordem: 0, page: PAGINA, id: m.id });
     }
   });
-  return out;
+  return [...tratamentosAlertas(), ...out];
 }
 
 // ---------- Módulo ----------
@@ -560,6 +562,7 @@ export default {
       template: () => html`<div class="farm farm-detalhe" id="farm-detalhe"></div>`,
       onEnter: renderDetalhe,
     },
+    paginaTratamento,
   ],
 
   actions: {
@@ -705,12 +708,17 @@ export default {
       notificarAvisos();
       emit('records:update', 'farmacia');
     }));
+    iniciarTratamentos(scope, {
+      medicamentos: () => medicamentos,
+      aoMudar: () => { if (atualId && byId(PAGINA_DETALHE)?.classList.contains('is-active')) renderDetalhe(); },
+    });
     const relogio = setInterval(tique, 1000);
     scope.add(() => clearInterval(relogio));
   },
 
   stop() {
     scope.clear();
+    pararTratamentos();
     medicamentos = [];
     rascunho = null;
     atualId = null;

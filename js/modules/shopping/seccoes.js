@@ -195,13 +195,12 @@ export const chaveLoja = (loja) => semAcentos(loja).toLowerCase().replace(/[^a-z
  * opts.memoria: { [chaveArtigo]: { loja?, seccao? } }  (escolhas anteriores do casal)
  * opts.ordens: { [chaveLoja]: [seccaoId…] }
  * opts.categoria: (texto) => categoria das faturas ou '' (opcional, quando as palavras não chegam)
- * Devolve { grupos: [{ loja, chave, total, seccoes: [{ id, nome, itens }] }], feitos: [...] }.
+ * Devolve { grupos: [{ loja, chave, total (por comprar), comprados, seccoes: [{ id, nome, itens }] }], feitos: [...] }.
  * Os artigos sem loja ficam no grupo loja '' (primeiro), as lojas seguem por n.º de artigos.
  */
 export function agruparLista(itens, { memoria = {}, ordens = {}, categoria = () => '' } = {}) {
-  const pendentes = [];
-  const feitos = [];
-  for (const i of itens) {
+  // A lista semanal é fixa: os artigos marcados ("já tenho") continuam no seu corredor, no fim.
+  const todos = itens.map((i) => {
     const lembrado = memoria[chaveArtigo(i.texto)] || {};
     const loja = (i.loja ?? lembrado.loja ?? '').trim();
     const seccao = (ORDEM_PADRAO.includes(i.seccao) && i.seccao)
@@ -209,26 +208,24 @@ export function agruparLista(itens, { memoria = {}, ordens = {}, categoria = () 
       || adivinharSeccao(i.texto)
       || seccaoDeCategoria(categoria(i.texto))
       || 'outros';
-    (i.feita ? feitos : pendentes).push({ ...i, loja, seccao });
-  }
+    return { ...i, loja, seccao };
+  });
   const porLoja = new Map();
-  for (const i of pendentes) {
+  for (const i of todos) {
     const k = i.loja ? chaveLoja(i.loja) : '';
     if (!porLoja.has(k)) porLoja.set(k, { loja: i.loja, chave: k, itens: [] });
     porLoja.get(k).itens.push(i);
   }
+  const porOrdem = (a, b) => (a.feita ? 1 : 0) - (b.feita ? 1 : 0) || (a.timestamp || 0) - (b.timestamp || 0);
   const grupos = [...porLoja.values()].map((g) => {
     const ordem = ordemDaLoja(ordens[g.chave]);
     const seccoes = ordem
-      .map((id) => ({
-        id,
-        nome: nomeSeccao(id),
-        itens: g.itens.filter((i) => i.seccao === id).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0)),
-      }))
+      .map((id) => ({ id, nome: nomeSeccao(id), itens: g.itens.filter((i) => i.seccao === id).sort(porOrdem) }))
       .filter((s) => s.itens.length);
-    return { loja: g.loja, chave: g.chave, total: g.itens.length, seccoes };
+    const comprados = g.itens.filter((i) => i.feita).length;
+    return { loja: g.loja, chave: g.chave, total: g.itens.length - comprados, comprados, seccoes };
   }).sort((a, b) => (a.chave === '' ? -1 : b.chave === '' ? 1 : b.total - a.total || a.loja.localeCompare(b.loja)));
-  feitos.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+  const feitos = todos.filter((i) => i.feita).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   return { grupos, feitos };
 }
 

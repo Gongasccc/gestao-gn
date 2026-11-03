@@ -200,3 +200,18 @@
 .lista-selo--logo.sem-logo img { display: none; }
 .lista-selo--logo.sem-logo { background: linear-gradient(135deg, var(--marca) 0%, var(--marca2) 130%); color: var(--marca-texto); }
 .lista-selo--logo.sem-logo .lista-selo__sigla { display: block; }
+
+/* Lista fixa: artigos que já tens ficam no corredor, esbatidos */
+.lista-loja .list-item.is-done { opacity: .6; }
+.lista-semana {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 4px 4px 18px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.lista-selo--cor { padding: 0; border: 0; background: none; }
+.lista-selo--cor svg { width: 100%; height: 100%; display: block; }
+.lista-loja__banner .lista-selo--cor { background: none; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45), 0 0 0 2px #fff; }

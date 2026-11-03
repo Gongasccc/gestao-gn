@@ -32,7 +32,7 @@
     };
     const texto = (e) => [e?.code, e?.message, e?.customData && JSON.stringify(e.customData)].filter(Boolean).join(' | ');
 
-    passo(true, 'Endereço', `${location.hostname} · ${navigator.userAgent}`);
+    passo(true, 'Endereço e chave', `${location.hostname} · chave ${RECAPTCHA_SITE_KEY.slice(0, 10)}… · ${navigator.userAgent}`);
 
     // 1) reCAPTCHA Enterprise direto: mostra se a chave aceita este domínio.
     try {

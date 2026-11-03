@@ -98,22 +98,18 @@
 
   <script>
     // Se a app ficar presa a "verificar sessão" (erro ao carregar ou base de dados local bloqueada),
-    // mostra o motivo e botões para tentar outra vez ou limpar os dados locais (a conta e os dados na nuvem ficam).
+    // recupera sozinha uma vez; se voltar a acontecer, mostra o motivo e um botão. Nunca apaga dados.
     (function () {
       var erros = [];
       function guardar(msg) { if (msg && erros.length < 3) erros.push(String(msg).slice(0, 200)); }
       window.addEventListener('error', function (e) { guardar(e.message || (e.target && e.target.src ? 'Falhou: ' + e.target.src : '')); }, true);
       window.addEventListener('unhandledrejection', function (e) { guardar(e.reason && (e.reason.message || e.reason)); });
-      function limpar() {
+      // Renova a versão da app (service worker e cache do código) e recarrega.
+      // Nunca apaga a base de dados local: alterações feitas sem internet continuam lá até sincronizar.
+      // Sem internet não mexe na cache (a app precisa dela para abrir offline): só recarrega.
+      function renovar() {
+        if (!navigator.onLine) { location.reload(); return; }
         var tarefas = [];
-        try {
-          if (indexedDB.databases) {
-            tarefas.push(indexedDB.databases().then(function (dbs) {
-              return Promise.all(dbs.filter(function (d) { return d.name && d.name.indexOf('firestore') === 0; })
-                .map(function (d) { return new Promise(function (ok) { var r = indexedDB.deleteDatabase(d.name); r.onsuccess = r.onerror = r.onblocked = function () { ok(); }; }); }));
-            }));
-          }
-        } catch (e) { /* sem IndexedDB */ }
         if (window.caches) tarefas.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
         if (navigator.serviceWorker) tarefas.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
         Promise.all(tarefas).catch(function () {}).then(function () { location.reload(); });
@@ -121,17 +117,27 @@
       setTimeout(function () {
         var caixa = document.getElementById('auth-loading');
         if (!caixa || caixa.hidden || document.body.classList.contains('is-authed') || caixa.offsetParent === null) return;
+        // 1.ª vez: recupera sozinha (renova a versão da app e recarrega, sem apagar dados). Só mostra botões se voltar a ficar presa.
+        var chave = 'ninho:recuperado', antes = 0;
+        try { antes = Number(localStorage.getItem(chave)) || 0; } catch (e) { /* sem storage */ }
+        if (Date.now() - antes > 10 * 60 * 1000) {
+          try { localStorage.setItem(chave, String(Date.now())); } catch (e) { /* sem storage */ }
+          var aviso = document.createElement('p');
+          aviso.className = 'muted small auth__preso';
+          aviso.textContent = 'A recuperar a app…';
+          caixa.appendChild(aviso);
+          renovar();
+          return;
+        }
         var div = document.createElement('div');
         div.className = 'auth__preso';
         div.innerHTML = '<p class="muted small">Está a demorar mais do que o normal.</p>'
           + (erros.length ? '<p class="small auth__preso-erro"></p>' : '')
-          + '<button type="button" class="btn pressable" data-x="tentar">Tentar outra vez</button>'
-          + '<button type="button" class="btn btn--primary pressable" data-x="limpar">Limpar dados locais e entrar</button>';
+          + '<button type="button" class="btn btn--primary pressable" data-x="tentar">Tentar outra vez</button>';
         if (erros.length) div.querySelector('.auth__preso-erro').textContent = erros.join(' · ');
-        div.querySelector('[data-x="tentar"]').onclick = function () { location.reload(); };
-        div.querySelector('[data-x="limpar"]').onclick = function (ev) { ev.target.disabled = true; ev.target.textContent = 'A limpar…'; limpar(); };
+        div.querySelector('[data-x="tentar"]').onclick = function (ev) { ev.target.disabled = true; renovar(); };
         caixa.appendChild(div);
-      }, 12000);
+      }, 10000);
     })();
   </script>
   <script type="module" src="js/main.js"></script>

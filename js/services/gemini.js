@@ -18,22 +18,34 @@ export const RECAPTCHA_SITE_KEY = '6Lf7ZA0uAAAAACgNcYyOsvjJsOVKLvW_zM8Tm06r';
 export const RECAPTCHA_TIPO = 'enterprise';
 
 let appCheckPronto = null;
+let erroAppCheck = ''; // motivo real da falha do token, para mostrar na mensagem
 function ativarAppCheck() {
   if (!appCheckPronto) {
     appCheckPronto = (async () => {
       const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
       if (!RECAPTCHA_SITE_KEY && !local) return;
       if (local) self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; // o token aparece na consola para registar
-      const { initializeAppCheck, ReCaptchaV3Provider, ReCaptchaEnterpriseProvider } = await import(
+      const { initializeAppCheck, getToken, ReCaptchaV3Provider, ReCaptchaEnterpriseProvider } = await import(
         `https://www.gstatic.com/firebasejs/${FIREBASE_SDK}/firebase-app-check.js`
       );
-      initializeAppCheck(app, {
+      const appCheck = initializeAppCheck(app, {
         provider: RECAPTCHA_TIPO === 'enterprise'
           ? new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY || 'debug')
           : new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY || 'debug'),
         isTokenAutoRefreshEnabled: true,
       });
-    })().catch((e) => console.warn('[app-check]', e));
+      // Pede já o token: se falhar, guardamos o motivo (domínio não autorizado, chave errada…).
+      try {
+        await getToken(appCheck);
+        erroAppCheck = '';
+      } catch (e) {
+        erroAppCheck = e?.code || e?.message || String(e);
+        console.warn('[app-check] token', e);
+      }
+    })().catch((e) => {
+      erroAppCheck = e?.message || String(e);
+      console.warn('[app-check]', e);
+    });
   }
   return appCheckPronto;
 }
@@ -65,7 +77,8 @@ export function extrairJson(texto) {
 function traduzirErro(e) {
   const msg = e?.message || String(e);
   if (/app.?check|UNAUTHENTICATED|\b401\b/i.test(msg)) {
-    return new Error('A IA está bloqueada pela proteção App Check do Firebase (a app ainda não envia o token).');
+    const motivo = erroAppCheck ? ` Motivo: ${erroAppCheck}` : '';
+    return new Error(`A IA está bloqueada pela proteção App Check do Firebase.${motivo}`);
   }
   if (/api-not-enabled|firebasevertexai|firebaseml|AI Logic|has not been used|PERMISSION_DENIED/i.test(msg)) {
     return new Error('A IA não está ativa no projeto Firebase (Firebase AI Logic).');

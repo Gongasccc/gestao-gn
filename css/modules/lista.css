@@ -290,3 +290,15 @@
 .lista-selo--img.sem-logo img { display: none; }
 .lista-selo--img.sem-logo .lista-selo__sigla { display: block; }
 .lista-loja__banner .lista-selo--img { background: none; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45), 0 0 0 2px #fff; }
+
+/* Atalhos para os folhetos (Supermercados e Promoções) */
+.folhetos .card__title { margin-top: 0; }
+.folhetos__lojas { display: flex; gap: 6px; overflow-x: auto; margin: 0 -8px; padding: 4px 8px 2px; scrollbar-width: none; }
+.folhetos__lojas::-webkit-scrollbar { display: none; }
+.folhetos__lojas .lista-loja-btn { text-decoration: none; color: var(--text-muted); }
+.lista-promos__topo + .folhetos { margin-bottom: 14px; }
+.lista-promos__estado { display: block; }
+.lista-promos__estado-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+.lista-promos__estado-topo b { color: var(--accent); }
+.lista-promos__estado .fat-meta { display: block; margin-top: 6px; }
+.lista-promos__estado .fat-progresso { width: 100%; margin: 0; }

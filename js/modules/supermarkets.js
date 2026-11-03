@@ -1,5 +1,5 @@
 // Supermercados: como nas Finanças, um seletor de mês e três separadores
-// (Resumo, Faturas, Preços). Os cartões passaram para "Cartões" e as listas para "Lista de compras".
+// (Resumo, Faturas, Preços), com atalhos para os folhetos das lojas. As listas estão em "Lista de compras".
 import { html, render } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { createScope, on, session } from '../core/state.js';
@@ -8,6 +8,7 @@ import { toast } from '../core/ui.js';
 import { onSnapshot, addDoc, updateDoc } from '../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../services/paths.js';
 import { tabsTpl, positionIndicator } from '../components/tabs.js';
+import { folhetosTpl } from './shopping/selo.js';
 import faturas, { listaFaturas, faturasCarregadas, PAG_GASTOS } from './faturas/index.js';
 import {
   nomeMes, deslocarMes, mesAtual, daMes, resumoMes, porLoja, porCategoria, compararPrecos, maisComprados,
@@ -109,6 +110,7 @@ function desenharResumo(lista) {
     </span>`;
   render('sup-resumo', html`
     ${mes === mesAtual() ? sugestoesTpl(lista) : ''}
+    ${folhetosTpl()}
     <div class="card glass fin-hero">
       <span class="eyebrow">Gasto no supermercado</span>
       <span class="fin-hero__total">${money(r.total)}</span>

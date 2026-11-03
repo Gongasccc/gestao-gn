@@ -456,6 +456,19 @@ async function processarFoto(ficheiro) {
   }
 }
 
+// Sem foto tirada pelo utilizador: depois de a IA identificar o medicamento, procura na web uma foto
+// da frente da caixa e a IA confirma qual é a certa. Se nenhuma servir, fica sem foto.
+function buscarFotoCaixa(id, info) {
+  if (rascunho?.ficheiro || (rascunho?.foto && !rascunho.fotoWeb)) return;
+  const descricao = [info.nome, info.dosagem].filter(Boolean).join(' ');
+  if (rascunho?.fotoWeb) atualizarRascunho({ foto: '', fotoWeb: false });
+  rascunho.fotoPedida = descricao;
+  procurarFotoCaixa(descricao).then((foto) => {
+    if (!foto || rascunho?.id !== id || rascunho.fotoPedida !== descricao || rascunho.ficheiro) return;
+    atualizarRascunho({ foto, fotoWeb: true });
+  }).catch((e) => console.warn('[farmacia] foto da caixa', e));
+}
+
 async function pesquisarNome(nome) {
   if (!nome?.trim()) { toast('Escreve o nome do medicamento.', 'error'); return; }
   const validade = byId('farm-val-mes') ? lerValidade() : rascunho?.validade;
@@ -463,20 +476,12 @@ async function pesquisarNome(nome) {
   rascunho = { ...rascunho, id, porNome: true, progresso: { txt: 'a procurar', pct: 0 } };
   atualizarRascunho({ fase: 'ia', erro: null, info: null, validade });
   const prog = progressoRascunho(id).fase(96, 8000, 'a procurar');
-  // Sem foto tirada pelo utilizador: vai buscar à web uma foto da frente da caixa (em paralelo com a IA).
-  if (!rascunho.ficheiro && (!rascunho.foto || rascunho.fotoWeb)) {
-    const pedido = nome.trim();
-    rascunho.fotoPedida = pedido;
-    procurarFotoCaixa(pedido).then((foto) => {
-      if (!foto || rascunho?.id !== id || rascunho.fotoPedida !== pedido || rascunho.ficheiro) return;
-      atualizarRascunho({ foto, fotoWeb: true });
-    }).catch((e) => console.warn('[farmacia] foto da caixa', e));
-  }
   try {
     const info = await analisarNome(nome.trim());
     prog.concluir('pronto');
     if (!info.identificado) throw new Error(`Não encontrei "${nome}". Verifica o nome escrito na embalagem.`);
     atualizarRascunho({ info, fase: 'pronto', validade: validade || info.validade || '' });
+    buscarFotoCaixa(id, info);
   } catch (e) {
     atualizarRascunho({ fase: 'erro', erro: e.message, info: { nome } });
   } finally {

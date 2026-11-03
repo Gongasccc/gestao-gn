@@ -129,3 +129,9 @@ async function fotoNitida(blob) {
 
 // Sem remoção de fundo (falha ou dispositivo fraco): guarda a foto sem recorte.
 export const miniatura = (ficheiro) => fotoNitida(ficheiro).catch(() => '');
+
+// Imagem pequena em JPEG (base64 sem prefixo) para enviar várias de uma vez à IA.
+export async function reduzirParaIA(blob, lado = 384) {
+  const url = await redimensionar(blob, lado, 'image/jpeg', 0.8);
+  return url.split(',')[1] || '';
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ninho · Diagnóstico da IA</title>
+  <meta name="robots" content="noindex">
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; background: #0F172A; color: #E2E8F0; margin: 0; padding: 20px; }
+    h1 { font-size: 18px; }
+    li { margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: #1E293B; list-style: none; word-break: break-word; }
+    ul { padding: 0; }
+    .ok { border-left: 4px solid #10B981; }
+    .erro { border-left: 4px solid #F59E0B; }
+    code { font-size: 13px; color: #94A3B8; }
+  </style>
+</head>
+<body>
+  <h1>Diagnóstico da IA (App Check)</h1>
+  <ul id="passos"></ul>
+  <script type="module">
+    import { app } from './js/services/firebase.js';
+    import { RECAPTCHA_SITE_KEY } from './js/services/gemini.js';
+
+    const SDK = '11.10.0';
+    const lista = document.getElementById('passos');
+    const passo = (ok, titulo, detalhe = '') => {
+      const li = document.createElement('li');
+      li.className = ok ? 'ok' : 'erro';
+      li.innerHTML = `<strong>${ok ? '✓' : '✗'} ${titulo}</strong>${detalhe ? `<br><code></code>` : ''}`;
+      if (detalhe) li.querySelector('code').textContent = detalhe;
+      lista.append(li);
+    };
+    const texto = (e) => [e?.code, e?.message, e?.customData && JSON.stringify(e.customData)].filter(Boolean).join(' | ');
+
+    passo(true, 'Endereço', `${location.hostname} · ${navigator.userAgent}`);
+
+    // 1) reCAPTCHA Enterprise direto: mostra se a chave aceita este domínio.
+    try {
+      await new Promise((ok, falha) => {
+        const s = document.createElement('script');
+        s.src = `https://www.google.com/recaptcha/enterprise.js?render=${RECAPTCHA_SITE_KEY}`;
+        s.onload = ok; s.onerror = () => falha(new Error('Não carregou enterprise.js'));
+        document.head.append(s);
+      });
+      const token = await new Promise((ok, falha) => {
+        grecaptcha.enterprise.ready(() => grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, { action: 'diagnostico' }).then(ok, falha));
+        setTimeout(() => falha(new Error('Sem resposta do reCAPTCHA em 15 s')), 15000);
+      });
+      passo(true, 'reCAPTCHA Enterprise deu um token', `${String(token).slice(0, 24)}… (${String(token).length} caracteres)`);
+    } catch (e) {
+      passo(false, 'reCAPTCHA Enterprise falhou', texto(e) || String(e));
+    }
+
+    // 2) App Check: troca o token do reCAPTCHA por um token do Firebase.
+    try {
+      const { initializeAppCheck, ReCaptchaEnterpriseProvider, getToken } = await import(
+        `https://www.gstatic.com/firebasejs/${SDK}/firebase-app-check.js`
+      );
+      const ac = initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY) });
+      const { token } = await getToken(ac, true);
+      passo(true, 'App Check deu um token do Firebase', `${token.slice(0, 24)}…`);
+    } catch (e) {
+      passo(false, 'App Check falhou', texto(e));
+    }
+
+    // 3) Pedido pequeno ao Gemini.
+    try {
+      const { pedirJson } = await import('./js/services/gemini.js');
+      const r = await pedirJson([{ texto: 'Responde só com o JSON {"ok": true}' }]);
+      passo(true, 'Gemini respondeu', JSON.stringify(r));
+    } catch (e) {
+      passo(false, 'Gemini falhou', texto(e));
+    }
+  </script>
+</body>
+</html>

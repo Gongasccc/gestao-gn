@@ -11,6 +11,7 @@ import { criarProgresso } from '../../core/progress.js';
 import { icon } from '../../core/icons.js';
 import { session, createScope, emit } from '../../core/state.js';
 import { analisarFoto, analisarNome } from './ai.js';
+import { procurarFotoCaixa } from './fotoWeb.js';
 import { removerFundo, prepararParaIA, miniatura, comLimite } from './imagem.js';
 import {
   estadoValidade, textoContagem, formatarData, linksOficiais, DIAS_ALERTA,
@@ -462,6 +463,15 @@ async function pesquisarNome(nome) {
   rascunho = { ...rascunho, id, porNome: true, progresso: { txt: 'a procurar', pct: 0 } };
   atualizarRascunho({ fase: 'ia', erro: null, info: null, validade });
   const prog = progressoRascunho(id).fase(96, 8000, 'a procurar');
+  // Sem foto tirada pelo utilizador: vai buscar à web uma foto da frente da caixa (em paralelo com a IA).
+  if (!rascunho.ficheiro && (!rascunho.foto || rascunho.fotoWeb)) {
+    const pedido = nome.trim();
+    rascunho.fotoPedida = pedido;
+    procurarFotoCaixa(pedido).then((foto) => {
+      if (!foto || rascunho?.id !== id || rascunho.fotoPedida !== pedido || rascunho.ficheiro) return;
+      atualizarRascunho({ foto, fotoWeb: true });
+    }).catch((e) => console.warn('[farmacia] foto da caixa', e));
+  }
   try {
     const info = await analisarNome(nome.trim());
     prog.concluir('pronto');

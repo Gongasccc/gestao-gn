@@ -225,3 +225,54 @@
 .farm-arquivar { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .farm-arquivar svg { width: 16px; height: 16px; margin: 0; }
 @media (max-width: 380px) { .farm-campos2 { grid-template-columns: 1fr; } }
+
+/* ---------- Tratamentos ---------- */
+.trat { display: flex; flex-direction: column; gap: 12px; }
+.trat-plano { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: var(--soft-bg); border: 1px solid var(--hairline); }
+.trat-plano.is-terminado { opacity: .7; }
+.trat-plano__topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.trat-plano__topo strong { font-size: 14.5px; }
+.trat-plano__linha { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; color: var(--text-muted); line-height: 1.35; }
+.trat-plano__linha svg { width: 13px; height: 13px; margin: 2px 0 0; flex: none; }
+.trat-plano__prox { font-size: 12.5px; font-weight: 600; color: var(--accent); }
+.trat-plano__acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.trat-plano__acoes .btn { display: inline-flex; align-items: center; gap: 6px; }
+.trat-plano__acoes svg { width: 14px; height: 14px; margin: 0; }
+
+.trat-form .farm-bloco { display: flex; flex-direction: column; gap: 10px; }
+.trat-med { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; }
+.trat-med div { display: flex; flex-direction: column; min-width: 0; }
+.trat-med small { color: var(--text-muted); font-size: 12.5px; }
+.trat-dose { align-items: center; }
+.trat-dose .input { max-width: 110px; text-align: center; }
+.trat-dose span { color: var(--text-muted); font-size: 14px; }
+.trat-horas { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.trat-hora { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 0; border-radius: 12px; }
+.trat-hora .input { width: 128px; min-height: 40px; padding: 6px 8px; text-align: center; font-variant-numeric: tabular-nums; }
+.trat-hora .icon-btn { width: 28px; height: 28px; }
+.trat-continuo { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text-muted); }
+.trat-continuo input { width: 18px; height: 18px; accent-color: var(--accent); }
+.trat-resumo { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 16px; font-size: 13.5px; border-left: 3px solid var(--accent); }
+.trat-resumo p { margin: 0; font-weight: 600; }
+.trat-resumo span { display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
+.trat-resumo svg { width: 13px; height: 13px; margin: 0; flex: none; }
+.trat-resumo .trat-resumo__falta { color: var(--farm-alerta); }
+.trat-form .link { color: var(--accent); font-weight: 600; font-size: inherit; }
+input[type="time"].input, input[type="date"].input { -webkit-appearance: none; appearance: none; min-width: 0; }
+
+/* Medicação de hoje (Tarefas e Início) */
+.meds-today:empty { display: none; }
+.meds-today { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 4px; border-radius: 14px; background: rgba(var(--accent-rgb), .07); border: 1px solid rgba(var(--accent-rgb), .18); }
+.meds-today__head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: var(--accent); }
+.meds-today__head span { display: inline-flex; align-items: center; gap: 6px; }
+.meds-today__head span + span { color: var(--text-muted); font-weight: 600; }
+.meds-today__head svg { width: 14px; height: 14px; margin: 0; }
+.meds-today__ok { display: flex; align-items: center; gap: 6px; margin: 6px 0 8px; font-size: 13px; color: var(--text-muted); }
+.meds-today__ok svg { width: 14px; height: 14px; margin: 0; color: var(--accent); }
+.meds-today__mais { align-self: flex-start; margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--accent); }
+.med-toma__hora { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-muted); min-width: 42px; }
+.med-toma__texto { display: flex; flex-direction: column; }
+.med-toma__texto small { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.med-toma--agora .med-toma__hora { color: var(--accent); }
+.med-toma--atrasada .med-toma__hora { color: var(--red); }
+.med-toma__agora { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: var(--on-accent); background: var(--accent); animation: farm-pulsar 1.6s ease-in-out infinite; }

@@ -51,3 +51,17 @@ test('normalizarLink', () => {
   assert.equal(normalizarLink('javascript:alert(1)'), '');
   assert.equal(normalizarLink('nada'), '');
 });
+
+test('folheto: sugestões, próximo dia e lista de dias', async () => {
+  const { folhetoPadrao, proximoFolheto, listaDias, normalizarDias } = await import('../js/modules/cards/util.js');
+  assert.equal(folhetoPadrao('Cartão Continente').dias[0], 2);
+  assert.equal(folhetoPadrao('Ginásio'), null);
+  const terca = new Date(2026, 10, 3); // terça
+  assert.equal(proximoFolheto([2], terca), 'Novo folheto hoje');
+  assert.equal(proximoFolheto([3], terca), 'Novo folheto amanhã');
+  assert.equal(proximoFolheto([1, 4], terca), 'Novo folheto à quinta');
+  assert.equal(proximoFolheto([6], terca), 'Novo folheto ao sábado');
+  assert.equal(proximoFolheto([], terca), '');
+  assert.deepEqual(normalizarDias([0, 4, 1, 4, 9]), [1, 4, 0]);
+  assert.equal(listaDias([4, 1]), 'segunda e quinta');
+});

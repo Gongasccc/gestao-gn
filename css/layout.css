@@ -44,8 +44,9 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
   place-items: center;
 }
 
-/* Botão sol/lua */
-.theme-toggle {
+/* Sino das notificações (canto superior direito) */
+.topbar-bell {
+  overflow: visible !important;
   width: 38px;
   height: 38px;
   border-radius: 11px;
@@ -57,13 +58,18 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
   box-shadow: var(--card-shadow);
   transition: color var(--dur-fast), transform var(--dur) var(--ease-spring);
 }
-
-.theme-toggle:hover { color: var(--text); }
-.theme-toggle:active { transform: scale(.9) rotate(-20deg); }
-.theme-toggle > span { display: grid; grid-area: 1 / 1; transition: transform var(--dur-slow) var(--ease-spring), opacity var(--dur); }
-.theme-toggle__moon { opacity: 0; transform: rotate(-90deg) scale(.5); }
-[data-theme="light"] .theme-toggle__sun { opacity: 0; transform: rotate(90deg) scale(.5); }
-[data-theme="light"] .theme-toggle__moon { opacity: 1; transform: none; }
+.topbar-bell:hover, .topbar-bell.is-active { color: var(--text); }
+.topbar-bell:active { transform: scale(.9); }
+.topbar-bell__icon { display: grid; transform-origin: 50% 10%; }
+.topbar-bell:has(.badge:not([hidden])) .topbar-bell__icon { animation: bell-ring 1.2s var(--ease-spring) 1; }
+.topbar-bell .badge { top: -6px; right: -7px; background: var(--red, #EF4444); color: #fff; box-shadow: 0 0 0 2px var(--bg); }
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+}
 
 /* ---------- Páginas ---------- */
 .page-container {

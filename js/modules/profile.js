@@ -26,8 +26,31 @@ function drawSettings() {
     : html`${icon('shield', 18)} Adicionar email de recuperação`);
   const p = session.profile || {};
   const notif = byId('switch-notifications');
-  if (notif) notif.checked = !!p.allowNotifications;
+  if (notif) notif.checked = !!p.allowNotifications && estadoNotificacoes() === 'ok';
+  const hint = byId('notif-hint');
+  if (hint) {
+    const msg = MENSAGENS_NOTIF[estadoNotificacoes()];
+    hint.hidden = !msg;
+    hint.textContent = msg || '';
+  }
 }
+
+const eIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const eAppInstalada = () => window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true;
+
+/** ok | ios-safari (falta adicionar ao ecrã principal) | sem-suporte | bloqueadas */
+function estadoNotificacoes() {
+  if (eIOS() && !eAppInstalada()) return 'ios-safari';
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return 'sem-suporte';
+  if (Notification.permission === 'denied') return 'bloqueadas';
+  return 'ok';
+}
+
+const MENSAGENS_NOTIF = {
+  'ios-safari': 'No iPhone, as notificações só funcionam com a app no ecrã principal: no Safari toca em Partilhar e depois em "Adicionar ao ecrã principal". Abre o Ninho a partir desse ícone e ativa aqui.',
+  'sem-suporte': 'Este browser não suporta notificações.',
+  bloqueadas: 'As notificações estão bloqueadas. Ativa-as nas definições do telemóvel (iPhone: Definições > Notificações > Ninho).',
+};
 
 export default {
   id: 'profile',
@@ -67,6 +90,7 @@ export default {
             <span>${icon('bell', 18)} Notificações push</span>
             <label class="switch"><input type="checkbox" id="switch-notifications" data-change="settings:notifications"><span class="switch__track"></span></label>
           </div>
+          <p class="muted setting-hint" id="notif-hint" hidden></p>
         </div>
         <button class="row-link glass pressable" data-action="settings:theme"><span id="theme-toggle-label"></span></button>
         <button class="row-link glass pressable" data-action="settings:recovery"><span id="recovery-email-label"></span>${icon('chevronRight', 18)}</button>
@@ -96,14 +120,15 @@ export default {
       drawSettings();
       await saveProfile({ theme });
     },
-    // Botão sol/lua no canto superior direito.
-    'theme:toggle': async () => {
-      const theme = applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
-      drawSettings();
-      await saveProfile({ theme }).catch(() => {});
-    },
     'settings:notifications': async ({ el }) => {
-      if (el.checked && 'Notification' in window) {
+      const estado = estadoNotificacoes();
+      if (el.checked && estado !== 'ok') {
+        el.checked = false;
+        drawSettings();
+        toast(MENSAGENS_NOTIF[estado], 'info', 6000);
+        return;
+      }
+      if (el.checked) {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') toast('Notificações ativadas');
         else { el.checked = false; toast('Permissão de notificações recusada', 'error'); }

@@ -29,13 +29,14 @@ export const MENU = [
   { group: 'gestao', page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
   { group: 'gestao', page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true },
   { group: 'gestao', page: 'menu-viagens', label: 'Viagens', icon: 'map', library: true },
-  { group: 'conta', page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications', library: true },
+  { group: 'conta', page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications', sidebar: false },
   { group: 'conta', page: 'menu-definicoes', label: 'Definições', icon: 'settings', library: true },
 ];
 
-// Barra inferior no telemóvel (4 itens). "Menu" abre a lista de todas as secções.
+// Barra inferior no telemóvel. O resto das secções abre pelo avatar no canto superior esquerdo.
+// As notificações abrem pelo sino no canto superior direito.
 export const BOTTOM_NAV = [
   { page: 'menu-principal', label: 'Início', icon: 'home' },
   { page: 'menu-tarefas', label: 'Tarefas', icon: 'check' },
-  { page: 'menu-refeicoes', label: 'Refeições', icon: 'restaurant' },
+  { page: 'menu-financas', label: 'Finanças', icon: 'wallet' },
 ];

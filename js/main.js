@@ -73,6 +73,12 @@ initAuth({
     emit('avatar:refresh');
     resetRouter();
     navigate('menu-principal');
+    // Aberta a partir de uma notificação do sistema (ex.: ./#menu-notificacoes).
+    const destino = location.hash.slice(1);
+    if (destino === 'menu-notificacoes') {
+      navigate(destino);
+      history.replaceState(null, '', location.pathname + location.search);
+    }
   },
   onLogout() {
     closeSidebar();
@@ -84,4 +90,8 @@ initAuth({
 // PWA: guarda a "casca" da app para abrir offline e permitir lembretes como notificação.
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch((err) => console.warn('[sw]', err)));
+  // Tocar numa notificação com a app aberta leva à página certa.
+  navigator.serviceWorker.addEventListener('message', (ev) => {
+    if (ev.data?.type === 'navigate' && ev.data.page) navigate(ev.data.page);
+  });
 }

@@ -5,7 +5,7 @@ import { html, raw, esc, render, byId, emptyState } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { createScope, session } from '../core/state.js';
 import { navigate, back, currentPage, refreshHeader } from '../core/router.js';
-import { modalTemplate, openModal, closeModal, toast, confirmDialog, promptDialog, withLoading, showImage } from '../core/ui.js';
+import { modalTemplate, openModal, closeModal, toast, confirmDialog, promptDialog, withLoading, withProgress, showImage } from '../core/ui.js';
 import { toISODate } from '../core/dates.js';
 import {
   addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, onSnapshot, arrayUnion, arrayRemove,
@@ -876,7 +876,7 @@ export default {
       if (!sourceName(url)) return toast('Cola um link válido.', 'error');
       const btn = el.closest('.modal')?.querySelector('[data-action="rc:import"].btn--primary') || el;
       try {
-        const recipe = await withLoading(btn, () => importRecipe(url));
+        const recipe = await withProgress(btn, (prog) => importRecipe(url, prog), 'A importar…');
         await closeModal('rc-import');
         openEditor(recipe);
         if (recipe.incompleta) toast('Não encontrámos a receita completa nesta página. Completa os campos em falta.', 'info', 4500);

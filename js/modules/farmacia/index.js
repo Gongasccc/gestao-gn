@@ -7,6 +7,7 @@ import { notifyUser } from '../../services/notifications.js';
 import { navigate, back } from '../../core/router.js';
 import { html, raw, byId, render } from '../../core/dom.js';
 import { toast, confirmDialog, withLoading } from '../../core/ui.js';
+import { criarProgresso } from '../../core/progress.js';
 import { icon } from '../../core/icons.js';
 import { session, createScope, emit } from '../../core/state.js';
 import { analisarFoto, analisarNome } from './ai.js';
@@ -279,8 +280,9 @@ function renderNovo() {
 
   const passosHtml = fase === 'ia' ? html`
     <ol class="farm-passos">
-      <li class="ativo"><span class="farm-passo__ponto"></span>A ler a embalagem com IA
-        <small id="farm-progresso">${textoProgresso(progresso)}</small></li>
+      <li class="ativo"><span class="farm-passo__ponto"></span>${rascunho.ficheiro && !rascunho.porNome ? 'A ler a embalagem com IA' : 'A procurar o medicamento com IA'}
+        <small id="farm-progresso">${textoProgresso(progresso)}</small>
+        <span class="progress-line" id="farm-progresso-barra" style="--progresso:${progresso?.pct || 0}%"><i></i></span></li>
     </ol>` : '';
 
   let corpo = '';
@@ -390,7 +392,18 @@ function renderDetalhe() {
 
 // ---------- Fluxo de adição ----------
 
-const textoProgresso = (p) => (p?.txt ? `${p.txt}${p.p ? ` ${Math.round(p.p * 100)}%` : ''}` : '');
+const textoProgresso = (p) => (p?.txt ? `${p.txt} · ${p.pct || 0}%` : '');
+
+/** Percentagem durante a leitura: atualiza só o texto e a barra (sem redesenhar a animação). */
+function progressoRascunho(id) {
+  return criarProgresso((pct, txt) => {
+    if (rascunho?.id !== id) return;
+    rascunho.progresso = { pct, txt };
+    const t = byId('farm-progresso');
+    if (t) t.textContent = textoProgresso(rascunho.progresso);
+    byId('farm-progresso-barra')?.style.setProperty('--progresso', `${pct}%`);
+  });
+}
 
 function atualizarRascunho(mudancas) {
   rascunho = { ...rascunho, ...mudancas };
@@ -414,35 +427,48 @@ async function melhorarFoto(ficheiro, id) {
 async function processarFoto(ficheiro) {
   const id = Date.now();
   const original = URL.createObjectURL(ficheiro);
-  rascunho = { id, ficheiro, original, fase: 'ia', progresso: { txt: 'a enviar a foto…' } };
+  rascunho = { id, ficheiro, original, fase: 'ia', progresso: { txt: 'a preparar a foto', pct: 0 } };
   navigate(PAGINA_NOVO);
+  const prog = progressoRascunho(id).fase(12, 1500, 'a preparar a foto');
   const foto = await miniatura(ficheiro);
-  if (rascunho?.id !== id) return;
+  if (rascunho?.id !== id) { prog.parar(); return; }
   rascunho.foto = foto || '';
   renderNovo();
 
   try {
     const imagem = await prepararParaIA(ficheiro);
-    const info = await analisarFoto(imagem);
+    prog.fase(25, 1500, 'a enviar a foto');
+    const pedido = analisarFoto(imagem);
+    setTimeout(() => prog.fase(96, 10000, 'a ler a embalagem'), 900);
+    const info = await pedido;
+    prog.concluir('pronto');
     if (rascunho?.id !== id) return;
     if (!info.identificado) throw new Error('Não consegui ler o nome na foto. Tira outra foto com o nome da caixa bem visível, ou escreve o nome.');
     atualizarRascunho({ info, fase: 'pronto', validade: info.validade || '' });
     melhorarFoto(ficheiro, id);
   } catch (e) {
     if (rascunho?.id === id) atualizarRascunho({ fase: 'erro', erro: e.message });
+  } finally {
+    prog.parar();
   }
 }
 
 async function pesquisarNome(nome) {
   if (!nome?.trim()) { toast('Escreve o nome do medicamento.', 'error'); return; }
   const validade = byId('farm-val-mes') ? lerValidade() : rascunho?.validade;
+  const id = rascunho?.id ?? Date.now();
+  rascunho = { ...rascunho, id, porNome: true, progresso: { txt: 'a procurar', pct: 0 } };
   atualizarRascunho({ fase: 'ia', erro: null, info: null, validade });
+  const prog = progressoRascunho(id).fase(96, 8000, 'a procurar');
   try {
     const info = await analisarNome(nome.trim());
+    prog.concluir('pronto');
     if (!info.identificado) throw new Error(`Não encontrei "${nome}". Verifica o nome escrito na embalagem.`);
     atualizarRascunho({ info, fase: 'pronto', validade: validade || info.validade || '' });
   } catch (e) {
     atualizarRascunho({ fase: 'erro', erro: e.message, info: { nome } });
+  } finally {
+    prog.parar();
   }
 }
 

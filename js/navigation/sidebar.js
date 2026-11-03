@@ -52,9 +52,8 @@ function renderSidebar() {
   `);
 }
 
-function renderThemeToggle() {
-  document.querySelectorAll('.theme-toggle__sun').forEach((el) => { el.innerHTML = String(icon('sun', 18)); });
-  document.querySelectorAll('.theme-toggle__moon').forEach((el) => { el.innerHTML = String(icon('moon', 18)); });
+function renderTopbarBell() {
+  document.querySelectorAll('.topbar-bell__icon').forEach((el) => { el.innerHTML = String(icon('bell', 20)); });
 }
 
 function renderBottomNav() {
@@ -74,7 +73,7 @@ export function setBadge(key, count) {
   document.querySelectorAll(`[data-badge="${key}"]`).forEach((el) => {
     const changed = el.textContent !== String(count);
     el.hidden = !count;
-    el.textContent = count > 99 ? '99+' : String(count);
+    el.textContent = count > 9 ? '+9' : String(count);
     if (changed && count) {
       el.classList.remove('pop');
       void el.offsetWidth;
@@ -118,7 +117,7 @@ function initGestures() {
 export function initNavigation() {
   renderSidebar();
   renderBottomNav();
-  renderThemeToggle();
+  renderTopbarBell();
   // Linha por baixo do topo só quando há conteúdo a passar por baixo.
   const onScroll = () => document.body.classList.toggle('is-scrolled', window.scrollY > 4);
   window.addEventListener('scroll', onScroll, { passive: true });

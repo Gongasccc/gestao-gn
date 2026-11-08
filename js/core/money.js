@@ -3,10 +3,14 @@ export { money as eur } from './format.js';
 
 /**
  * Partes de cada membro numa despesa.
- * divisao: 'metade' (por omissão) | 'pagador' (só de quem pagou) | 'outro' (toda do outro membro)
+ * divisao: 'metade' (partes iguais, por omissão) | 'pagador' (só de quem pagou) | 'outro' (toda dos outros)
+ * entre: [uids] opcional, para dividir só por algumas pessoas do grupo.
  */
 export function shares(e, members) {
   const valor = Number(e.valor) || 0;
+  // "Dividir entre": só algumas pessoas do grupo (vazio = todos).
+  const entre = Array.isArray(e.entre) ? e.entre.filter((m) => members.includes(m)) : [];
+  if (entre.length) members = entre;
   const others = members.filter((m) => m !== e.pagoPor);
   if (e.divisao === 'pagador') return { [e.pagoPor]: valor };
   // Acerto num grupo com mais de duas pessoas: o valor vai todo para quem recebe.
@@ -52,3 +56,30 @@ export function totalsByCategory(expenses, ym) {
 }
 
 export const sum = (arr, key = 'valor') => arr.reduce((a, x) => a + (Number(x[key]) || 0), 0);
+
+/**
+ * Todos os pagamentos para ficarem quites, no menor número razoável de transferências
+ * (quem deve mais paga primeiro a quem tem mais a receber). Devolve [{ from, to, valor }].
+ */
+export function transfers(bal) {
+  const dev = [];
+  const cred = [];
+  Object.entries(bal).forEach(([uid, v]) => {
+    const c = Math.round(v * 100);
+    if (c < 0) dev.push({ uid, c: -c }); else if (c > 0) cred.push({ uid, c });
+  });
+  dev.sort((a, b) => b.c - a.c);
+  cred.sort((a, b) => b.c - a.c);
+  const out = [];
+  let i = 0;
+  let j = 0;
+  while (i < dev.length && j < cred.length) {
+    const p = Math.min(dev[i].c, cred[j].c);
+    if (p > 0) out.push({ from: dev[i].uid, to: cred[j].uid, valor: p / 100 });
+    dev[i].c -= p;
+    cred[j].c -= p;
+    if (!dev[i].c) i += 1;
+    if (!cred[j].c) j += 1;
+  }
+  return out;
+}

@@ -168,7 +168,7 @@ export function drawExpenses() {
   const list = sortExpenses(tripState.expenses);
 
   if (!list.length) {
-    render('expenses-list', emptyState('Sem despesas. Regista a primeira e o Ninho faz as contas por vocês.', icon('wallet', 28)));
+    render('expenses-list', emptyState('Sem despesas. Regista a primeira e a app faz as contas por vocês.', icon('wallet', 28)));
     return;
   }
 

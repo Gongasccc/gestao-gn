@@ -34,9 +34,9 @@ function alertarNovas(lista) {
   if (primeiraLeitura) { primeiraLeitura = false; return; }
   if (!ativas || !novas.length) return;
   if (document.visibilityState === 'visible' && currentPage() === 'menu-notificacoes') return;
-  navigator.serviceWorker?.ready.then((reg) => Promise.all(novas.map((n) => reg.showNotification('Ninho', {
-    body: n.texto, icon: 'assets/brand/ninho-192.png', badge: 'assets/brand/ninho-192.png', tag: `notif-${n.id}`, data: { page: 'menu-notificacoes' },
-  })))).catch(() => { novas.forEach((n) => { try { new Notification('Ninho', { body: n.texto }); } catch { /* sem suporte */ } }); });
+  navigator.serviceWorker?.ready.then((reg) => Promise.all(novas.map((n) => reg.showNotification('Nós', {
+    body: n.texto, icon: 'assets/brand/nos-192.png', badge: 'assets/brand/nos-192.png', tag: `notif-${n.id}`, data: { page: 'menu-notificacoes' },
+  })))).catch(() => { novas.forEach((n) => { try { new Notification('Nós', { body: n.texto }); } catch { /* sem suporte */ } }); });
 }
 
 function draw() {
@@ -56,7 +56,7 @@ function draw() {
   const notifHtml = sorted.map((n) => html`
     <div class="notif glass-soft ${n.lida ? '' : 'is-unread'}">
       <div class="notif__head">
-        <span class="notif__brand"><img src="assets/brand/ninho.svg" alt="">Ninho</span>
+        <span class="notif__brand"><img src="assets/brand/nos.svg" alt="">Nós</span>
         <span class="notif__time">${n.timestamp ? relativeTime(n.timestamp) : n.horaStr || ''}</span>
         <button class="icon-btn icon-btn--subtle" data-action="notif:delete" data-id="${n.id}" aria-label="Apagar">${icon('trash', 14)}</button>
       </div>

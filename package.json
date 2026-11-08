@@ -2,7 +2,7 @@
   "name": "gestao-gn",
   "private": true,
   "type": "module",
-  "description": "Ninho: a casa e a vida a dois, organizadas num só sítio.",
+  "description": "Nós: a casa, a família e os amigos, organizados num só sítio.",
   "scripts": {
     "start": "python3 -m http.server 8080",
     "test": "node --test tests/*.mjs",

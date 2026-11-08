@@ -240,7 +240,7 @@ export default {
         <div class="list" id="edit-trip-members"></div>
         <h3 class="section-title">Convidar amigo</h3>
         <div class="input-row" id="edit-trip-invite"></div>
-        <h3 class="section-title">Pessoa sem conta no Ninho</h3>
+        <h3 class="section-title">Pessoa sem conta na app</h3>
         <p class="muted small">Entra nas contas e nos saldos, mas não vê a viagem.</p>
         <div class="input-row">
           <input type="text" id="guest-name" class="input" placeholder="Nome (ex: Rita)" data-enter="trips:add-guest">

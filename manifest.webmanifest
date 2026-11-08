@@ -1,7 +1,7 @@
 {
-  "name": "Ninho",
-  "short_name": "Ninho",
-  "description": "A casa e a vida a dois, organizadas num só sítio.",
+  "name": "Nós",
+  "short_name": "Nós",
+  "description": "A casa, a família e os amigos, organizados num só sítio.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -10,9 +10,9 @@
   "theme_color": "#0F172A",
   "lang": "pt-PT",
   "icons": [
-    { "src": "assets/brand/ninho-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "assets/brand/ninho-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "assets/brand/ninho-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "assets/brand/ninho.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "assets/brand/nos-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/nos-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/nos-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/brand/nos.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }

@@ -192,7 +192,7 @@ async function avisarTomas() {
 function notificacaoLocal(titulo, body, tag) {
   if (!session.profile?.allowNotifications || !('Notification' in window) || Notification.permission !== 'granted') return;
   navigator.serviceWorker?.ready
-    .then((reg) => reg.showNotification(titulo, { body, icon: 'assets/brand/ninho-192.png', tag }))
+    .then((reg) => reg.showNotification(titulo, { body, icon: 'assets/brand/nos-192.png', tag }))
     .catch(() => { try { new Notification(titulo, { body }); } catch { /* sem suporte */ } });
 }
 

@@ -21,6 +21,7 @@ import { corresponde } from '../faturas/produtos.js';
 import {
   SECCOES, LOJAS_PADRAO, agruparLista, chaveArtigo, chaveLoja, ordemDaLoja, nomeSeccao, emojiSeccao, listaLojas, marcaLoja,
 } from './seccoes.js';
+import { categoria, nomeSub, rotulo } from '../../data/categorias.js';
 import { seloTpl, folhetosTpl } from './selo.js';
 import {
   indicePrecos, estimarLoja, estimarArtigo, melhorNoutraLoja, promoAtiva, promoAoPeso, promosDoArtigo, semanaIso,
@@ -152,7 +153,7 @@ function artigoTpl(i, est, ctx) {
   return html`
     <div class="list-item glass-soft ${i.feita ? 'is-done' : ''}" data-id="${i.id}">
       <button class="check pressable" data-action="lista:toggle" data-id="${i.id}" data-done="${i.feita ? '1' : ''}" aria-label="${i.feita ? 'Desmarcar' : 'Já tenho'}">${icon('check', 14)}</button>
-      <span class="list-item__text" data-action="lista:toggle" data-id="${i.id}" data-done="${i.feita ? '1' : ''}">${i.texto}${dicaTpl(i, est, ctx)}</span>
+      <span class="list-item__text" data-action="lista:toggle" data-id="${i.id}" data-done="${i.feita ? '1' : ''}">${i.texto}${i.sub && !i.feita ? html`<small class="lista-item__sub">${nomeSub(i.sub)}</small>` : ''}${dicaTpl(i, est, ctx)}</span>
       ${i.feita ? html`<small class="lista-item__loja">já tenho</small>` : precoTpl(i, est)}
       <button class="icon-btn icon-btn--subtle" data-action="lista:opcoes" data-id="${i.id}" aria-label="Supermercado e secção">${icon('more', 16)}</button>
     </div>`;
@@ -504,11 +505,21 @@ async function escolherLoja(item) {
   lembrar(item.texto, { loja });
 }
 
-async function escolherSeccao(item, atual) {
-  const escolha = await actionSheet(SECCOES.map((s) => ({ id: s.id, label: s.nome, active: s.id === atual })), { title: item.texto });
+// Categoria e depois a subcategoria do SuperSave (a prateleira dentro do corredor).
+async function escolherSeccao(item, atual, subAtual) {
+  const escolha = await actionSheet(SECCOES.map((s) => ({ id: s.id, label: `${s.emoji} ${s.nome}`, active: s.id === atual })), { title: item.texto });
   if (!escolha) return;
-  await updateDoc(sharedDoc(COL, item.id), { seccao: escolha });
-  lembrar(item.texto, { seccao: escolha });
+  const subs = categoria(escolha).subs;
+  let sub = '';
+  if (subs.length > 1) {
+    sub = await actionSheet([
+      ...subs.map((s) => ({ id: s.id, label: s.nome, active: s.id === subAtual })),
+      { id: '__auto', label: 'Deixar a app escolher' },
+    ], { title: `${categoria(escolha).nome} · subcategoria` }) || '';
+    if (sub === '__auto') sub = '';
+  }
+  await updateDoc(sharedDoc(COL, item.id), { seccao: escolha, sub });
+  lembrar(item.texto, { seccao: escolha, sub });
 }
 
 function adicionarLojaPersonalizada(loja) {
@@ -599,11 +610,11 @@ const actions = {
     const efetivo = grupos[0]?.seccoes[0]?.itens[0] || feitos[0] || item;
     const escolha = await actionSheet([
       { id: 'loja', label: `Supermercado: ${efetivo.loja || 'nenhum'}`, icon: 'cart' },
-      { id: 'seccao', label: `Secção: ${nomeSeccao(efetivo.seccao)}`, icon: 'grid' },
+      { id: 'seccao', label: `Categoria: ${rotulo(efetivo.seccao, efetivo.sub)}`, icon: 'grid' },
       { id: 'apagar', label: 'Apagar', danger: true },
     ], { title: item.texto });
     if (escolha === 'loja') await escolherLoja({ ...item, loja: efetivo.loja });
-    if (escolha === 'seccao') await escolherSeccao(item, efetivo.seccao);
+    if (escolha === 'seccao') await escolherSeccao(item, efetivo.seccao, efetivo.sub);
     if (escolha === 'apagar') {
       document.querySelector(`#lista-semanal .list-item[data-id="${item.id}"]`)?.classList.add('is-removing');
       setTimeout(() => deleteDoc(sharedDoc(COL, item.id)), 220);

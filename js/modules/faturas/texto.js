@@ -4,6 +4,7 @@
 import { arred } from './stats.js';
 import { nifValido } from './qr.js';
 import { agruparRepetidos, expandirNome } from './produtos.js';
+import { classificar, subcategoriaDe } from '../../data/categorias.js';
 
 const CADEIAS = [
   ['Continente', /CONTINENTE|MODELO CONTINENTE/],
@@ -74,7 +75,8 @@ const CATEGORIA_POR_PALAVRA = [
 export function categoriaPorNome(nome) {
   const n = String(nome || '').toUpperCase().normalize('NFC');
   const hit = CATEGORIA_POR_PALAVRA.find(([, re]) => re.test(n));
-  return hit ? hit[0] : 'outros';
+  // Sem palavra de talão conhecida: tenta as categorias do SuperSave (papelaria, casa, bio…).
+  return hit ? hit[0] : (classificar(nome).cat || 'outros');
 }
 
 function lerData(linhas) {
@@ -209,7 +211,7 @@ export function analisarTexto(texto) {
 function novoItem(nome, quantidade, unidade, precoUnitario, total) {
   const produto = expandirNome(nome);
   const cat = categoriaPorNome(nome);
-  return {
+  const item = {
     nome,
     produto,
     quantidade: quantidade || 1,
@@ -219,6 +221,8 @@ function novoItem(nome, quantidade, unidade, precoUnitario, total) {
     desconto: 0,
     categoria: cat !== 'outros' ? cat : categoriaPorNome(produto),
   };
+  item.sub = subcategoriaDe(produto, item.categoria) || subcategoriaDe(nome, item.categoria);
+  return item;
 }
 
 /**

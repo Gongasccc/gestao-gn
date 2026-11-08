@@ -132,6 +132,7 @@ export function aplicarDicionario(itens, dic, loja) {
     if (alias) {
       item.produto = alias.produto;
       if (alias.categoria) item.categoria = alias.categoria;
+      if (alias.sub) item.sub = alias.sub;
       item.aprendido = true;
     } else if (!i.produto || chaveTalao(i.produto) === chaveTalao(i.nome)) {
       item.produto = expandirNome(i.nome || i.produto);
@@ -161,6 +162,7 @@ export function aprenderFatura(fatura, dic = {}, editados = new Set(), agora = D
         o: i.nome,
         produto: i.produto,
         categoria: i.categoria || 'outros',
+        sub: i.sub || '',
         n: (antes?.produto === i.produto ? antes.n || 1 : 0) + 1,
         c: confirmado || !!(antes?.c && antes.produto === i.produto),
         t: agora,

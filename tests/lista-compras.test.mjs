@@ -9,7 +9,7 @@ test('adivinha a secção pelo nome do artigo', () => {
     '2 pacotes de leite': 'laticinios', 'Leite de coco': 'mercearia', bananas: 'frescos', Pães: 'padaria',
     'ervilhas congeladas': 'congelados', 'Sardinhas em lata': 'mercearia', sardinhas: 'talho',
     'papel higiénico': 'higiene', 'Papel de cozinha': 'limpeza', 'Bebida de aveia': 'laticinios',
-    cereais: 'pequeno', 'batata doce': 'frescos', queijo: 'charcutaria', fraldas: 'bebe', 'ração gato': 'animais',
+    cereais: 'mercearia', gin: 'bebidas', caderno: 'papelaria', 'pilhas AA': 'casa', 'batata doce': 'frescos', queijo: 'charcutaria', fraldas: 'bebe', 'ração gato': 'animais',
     '6 ovos': 'laticinios', pizza: 'congelados', limões: 'frescos',
   };
   for (const [t, s] of Object.entries(casos)) assert.equal(adivinharSeccao(t), s, t);

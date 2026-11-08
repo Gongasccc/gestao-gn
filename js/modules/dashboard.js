@@ -1,4 +1,5 @@
-// Início: grelha modular (bento) com o casal, as tarefas de hoje, a casa & refeições e lembretes rápidos.
+// Início: grelha modular (bento) com o grupo, as tarefas de hoje, a casa & refeições e lembretes rápidos.
+import { tipoGrupo } from '../services/espacos.js';
 import { html, render, byId } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { createScope, session, on } from '../core/state.js';
@@ -31,7 +32,7 @@ const hojeLongo = () => {
   return t.charAt(0).toUpperCase() + t.slice(1);
 };
 
-// ---------- Cartão do casal ----------
+// ---------- Cartão do grupo ----------
 
 function resumoDia() {
   const n = pendingTasks();
@@ -43,9 +44,12 @@ function resumoDia() {
 function drawCouple() {
   const primeiro = session.name ? session.name.split(' ')[0] : '';
   const eu = { name: session.name, avatar: session.avatar };
-  const outro = session.members.find((m) => m.uid !== session.uid);
+  const outros = session.members.filter((m) => m.uid !== session.uid);
   const h = session.household;
-  const dias = h?.desde ? -daysUntil(parseISODate(h.desde)) : null;
+  const tipo = tipoGrupo(h);
+  const dias = tipo.id === 'casal' && h?.desde ? -daysUntil(parseISODate(h.desde)) : null;
+  const estado = dias != null && dias >= 0 ? `${dias.toLocaleString('pt-PT')} dias juntos`
+    : `${h?.name || 'Grupo'} · ${session.members.length} pessoas`;
 
   render('dash-couple', html`
     <div class="dash-hero__text">
@@ -56,12 +60,14 @@ function drawCouple() {
     <div class="dash-pair">
       <div class="dash-pair__avatars">
         ${avatar(eu.name, eu.avatar, 'lg')}
-        <span class="dash-pair__link ${outro ? 'is-linked' : ''}">${icon(outro ? 'heart' : 'plus', 14)}</span>
-        ${outro ? avatar(outro.name, outro.avatar, 'lg') : html`<span class="avatar avatar--lg dash-pair__empty">${icon('userPlus', 20)}</span>`}
+        <span class="dash-pair__link ${outros.length ? 'is-linked' : ''}">${icon(outros.length ? tipo.icon : 'plus', 14)}</span>
+        ${outros.length
+          ? outros.slice(0, 3).map((o) => avatar(o.name, o.avatar, 'lg'))
+          : html`<span class="avatar avatar--lg dash-pair__empty">${icon('userPlus', 20)}</span>`}
       </div>
-      ${outro
-        ? html`<button class="dash-pair__status pressable" data-action="nav:go" data-page="menu-casal">${dias != null && dias >= 0 ? `${dias.toLocaleString('pt-PT')} dias juntos` : 'Ligados como casal'}</button>`
-        : html`<button class="btn btn--small btn--primary pressable" data-action="nav:go" data-page="menu-casal">Convidar parceiro(a)</button>`}
+      ${outros.length
+        ? html`<button class="dash-pair__status pressable" data-action="nav:go" data-page="menu-casal">${estado}</button>`
+        : html`<button class="btn btn--small btn--primary pressable" data-action="nav:go" data-page="menu-casal">${h ? 'Convidar pessoas' : 'Criar um grupo'}</button>`}
     </div>`);
 }
 

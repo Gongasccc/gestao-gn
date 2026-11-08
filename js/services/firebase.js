@@ -33,6 +33,7 @@ export {
   orderBy,
   limit,
   serverTimestamp,
+  deleteField,
 } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
 
 // A configuração web do Firebase é pública por natureza; a segurança vem das regras do Firestore.

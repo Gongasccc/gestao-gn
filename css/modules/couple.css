@@ -174,8 +174,72 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 .upcoming--memory .upcoming__icon { animation: heartbeat 1.8s var(--ease-soft) infinite; }
 .on-this-day p { font-size: 13.5px; margin: 4px 0; }
 
+/* ---------- Grupos: tipos, lista, membros e páginas partilhadas ---------- */
+.tipo-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 14px; }
+.tipo-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline); background: var(--bg-elevated); color: var(--text-muted);
+  font: inherit; font-size: 13.5px; font-weight: 600;
+  transition: background var(--dur) var(--ease-soft), color var(--dur), border-color var(--dur), transform var(--dur) var(--ease-spring);
+}
+.tipo-chip:active { transform: scale(.95); }
+.tipo-chip.is-active { background: rgba(var(--accent-rgb), .12); border-color: rgba(var(--accent-rgb), .45); color: var(--accent); }
+.tipo-chip--small { padding: 5px 10px; font-size: 12.5px; }
+.collab-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: var(--radius-pill);
+  background: rgba(var(--accent-rgb), .12); color: var(--accent); font-size: 12.5px; font-weight: 600;
+}
+.grupo-lista { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.grupo-item, .partilha-item {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; text-align: left;
+  border-radius: var(--radius-md); border: 1px solid transparent; background: transparent; color: inherit; font: inherit;
+  transition: background var(--dur) var(--ease-soft), border-color var(--dur);
+}
+.grupo-item:hover { background: rgba(var(--accent-rgb), .06); }
+.grupo-item.is-active { border-color: rgba(var(--accent-rgb), .35); background: rgba(var(--accent-rgb), .08); color: var(--accent); }
+.grupo-item__icon {
+  flex: none; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+  background: rgba(var(--accent-rgb), .12); color: var(--accent);
+}
+.grupo-item__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.grupo-item__text strong { color: var(--text); font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.partilha-item.is-shared .grupo-item__icon { background: var(--accent); color: var(--on-accent); }
+.grupo-membros { display: flex; flex-direction: column; gap: 8px; }
+.grupo-membro { display: flex; align-items: center; gap: 10px; }
+.grupo-membro__nome { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.tag {
+  padding: 2px 8px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  background: rgba(var(--accent-rgb), .12); color: var(--accent);
+}
+
+/* ---------- Indicador de modo colaborativo (barra de cima) ---------- */
+.collab-chip {
+  position: relative; overflow: visible; height: 38px; min-width: 38px; padding: 0 9px; border-radius: 11px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  color: var(--text-muted); background: var(--bg-elevated); border: 1px solid var(--hairline); box-shadow: var(--card-shadow);
+  font: inherit; font-size: 13px; font-weight: 700;
+  transition: color var(--dur), background var(--dur), border-color var(--dur), transform var(--dur) var(--ease-spring);
+}
+.collab-chip[hidden] { display: none; }
+.collab-chip:active { transform: scale(.9); }
+.collab-chip__icon { display: grid; }
+.collab-chip.is-collab { color: var(--accent); border-color: rgba(var(--accent-rgb), .45); background: rgba(var(--accent-rgb), .1); }
+.collab-chip.is-shared { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
+.collab-chip__dot {
+  position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--bg);
+  animation: collab-pulse 2.4s var(--ease-soft) infinite;
+}
+.collab-chip.is-shared .collab-chip__dot { background: var(--on-accent); }
+@keyframes collab-pulse {
+  0% { box-shadow: 0 0 0 2px var(--bg), 0 0 0 2px rgba(var(--accent-rgb), .55); }
+  70% { box-shadow: 0 0 0 2px var(--bg), 0 0 0 9px rgba(var(--accent-rgb), 0); }
+  100% { box-shadow: 0 0 0 2px var(--bg), 0 0 0 2px rgba(var(--accent-rgb), 0); }
+}
+.dash-pair__avatars .avatar + .avatar { margin-left: -12px; }
+
 @media (prefers-reduced-motion: reduce) {
-  .couple-hero__icon, .couple-hero__heart, .upcoming--memory .upcoming__icon, .progress > span { animation: none; }
+  .collab-chip__dot, .couple-hero__icon, .couple-hero__heart, .upcoming--memory .upcoming__icon, .progress > span { animation: none; }
 }
 
 /* Importar extrato do banco */

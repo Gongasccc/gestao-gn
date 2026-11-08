@@ -83,7 +83,7 @@ export default {
       root: true,
       template: () => html`
         <button class="row-link glass pressable" data-action="nav:go" data-page="menu-casal">
-          <span>${icon('heart', 18)} O nosso casal</span>${icon('chevronRight', 18)}
+          <span>${icon('users', 18)} Grupos e partilhas</span>${icon('chevronRight', 18)}
         </button>
         <div class="card glass">
           <div class="setting-row">

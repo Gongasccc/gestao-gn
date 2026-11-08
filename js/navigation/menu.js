@@ -30,6 +30,7 @@ export const MENU = [
   { group: 'gestao', page: 'menu-carros', label: 'Garagem', icon: 'car', library: true },
   { group: 'gestao', page: 'menu-farmacia', label: 'Farmácia', icon: 'pill', library: true },
   { group: 'gestao', page: 'menu-viagens', label: 'Viagens', icon: 'map', library: true },
+  { group: 'conta', page: 'menu-casal', label: 'Grupos', icon: 'users', library: true },
   { group: 'conta', page: 'menu-notificacoes', label: 'Notificações', icon: 'bell', badge: 'notifications', sidebar: false },
   { group: 'conta', page: 'menu-definicoes', label: 'Definições', icon: 'settings', library: true },
 ];

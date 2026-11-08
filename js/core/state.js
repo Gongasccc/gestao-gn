@@ -5,22 +5,27 @@ export const session = {
   name: '',
   avatar: '',
   profile: {},
+  /** Grupo ativo (família, amigos, casal...). null = só eu (espaço pessoal). */
   householdId: null,
-  /** { id, name, members: [uid], ownerUid, inviteCode, ... } */
+  /** Todos os grupos de que faço parte (ids). */
+  householdIds: [],
+  /** Resumo dos meus grupos para o seletor: [{ id, name, tipo, n }] */
+  grupos: [],
+  /** { id, name, tipo, members: [uid], ownerUid, inviteCode, ligacoes, ... } */
   household: null,
-  /** Perfis dos membros do casal: [{ uid, name, avatar }] */
+  /** Perfis dos membros do grupo ativo: [{ uid, name, avatar }] */
   members: [],
 };
 
-/** Nome curto de um membro do casal (ou "Eu"). */
+/** Nome curto de um membro do grupo (ou "Eu"). */
 export function memberName(uid, { short = true } = {}) {
   if (!uid) return '';
   const m = session.members.find((x) => x.uid === uid);
-  const name = m?.name || (uid === session.uid ? session.name : 'Parceiro(a)');
+  const name = m?.name || (uid === session.uid ? session.name : 'Membro');
   return short ? name.split(' ')[0] : name;
 }
 
-/** uid do outro membro do casal, se existir. */
+/** uid de outro membro do grupo, se existir (o primeiro que não sou eu). */
 export const partnerUid = () => session.members.find((m) => m.uid !== session.uid)?.uid || null;
 
 const listeners = new Map();

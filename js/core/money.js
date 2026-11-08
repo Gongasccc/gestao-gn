@@ -1,4 +1,4 @@
-// Contas do casal: totais, saldos e acertos. Funções puras (testadas em tests/).
+// Contas do grupo: totais, saldos e acertos. Funções puras (testadas em tests/).
 export { money as eur } from './format.js';
 
 /**
@@ -9,6 +9,8 @@ export function shares(e, members) {
   const valor = Number(e.valor) || 0;
   const others = members.filter((m) => m !== e.pagoPor);
   if (e.divisao === 'pagador') return { [e.pagoPor]: valor };
+  // Acerto num grupo com mais de duas pessoas: o valor vai todo para quem recebe.
+  if (e.para && e.para !== e.pagoPor) return { [e.para]: valor };
   if (e.divisao === 'outro' && others.length) {
     return Object.fromEntries(others.map((m) => [m, valor / others.length]));
   }
@@ -28,11 +30,11 @@ export function balances(expenses, members) {
   return bal;
 }
 
-/** Quem deve a quem (para dois membros). Devolve { from, to, valor } ou null. */
+/** Próximo acerto (quem mais deve paga a quem mais tem a receber). Devolve { from, to, valor } ou null. */
 export function settlement(bal) {
   const entries = Object.entries(bal);
-  const debtor = entries.find(([, v]) => v < -0.004);
-  const creditor = entries.find(([, v]) => v > 0.004);
+  const debtor = entries.filter(([, v]) => v < -0.004).sort((a, b) => a[1] - b[1])[0];
+  const creditor = entries.filter(([, v]) => v > 0.004).sort((a, b) => b[1] - a[1])[0];
   if (!debtor || !creditor) return null;
   return { from: debtor[0], to: creditor[0], valor: Math.min(-debtor[1], creditor[1]) };
 }

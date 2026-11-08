@@ -17,7 +17,10 @@ import {
   estadoValidade, textoContagem, formatarData, DIAS_ALERTA,
   estadoStock, textoStock, textoFimStock, chaveNome,
 } from './util.js';
-import { iniciarTratamentos, pararTratamentos, blocoTratamentos, paginaTratamento, tratamentosAlertas } from './tratamentos.js';
+import {
+  iniciarTratamentos, pararTratamentos, blocoTratamentos, paginaTratamento, tratamentosAlertas,
+  resumoTratamentosMed, blocoPosologiaNovo, lerPosologiaNovo, criarPlanoRapido,
+} from './tratamentos.js';
 
 const COLECAO = 'farmacia';
 const PAGINA = 'menu-farmacia';
@@ -62,6 +65,7 @@ function cartao(m, i) {
         ${arquivado
           ? html`<span class="farm-stock farm-stock--sem">Já não temos em casa</span>`
           : html`${chipStock(m)}${chipValidade(m.validade)}`}
+        ${arquivado ? '' : resumoTratamentosMed(m.id).map((t) => html`<span class="farm-quem">${icon('users', 12)} ${t.texto}</span>`)}
       </div>
     </button>`;
 }
@@ -152,7 +156,7 @@ const avisoMedico = html`<p class="farm-legal">Informação gerada por IA a part
 function filtrar(itens) {
   const q = chaveNome(filtro);
   if (!q) return itens;
-  return itens.filter((m) => chaveNome([m.nome, m.substancia, m.tipo, m.notas, ...(m.sintomas || [])].join(' ')).includes(q));
+  return itens.filter((m) => chaveNome([m.nome, m.substancia, m.tipo, m.notas, ...(m.sintomas || []), ...resumoTratamentosMed(m.id).map((t) => t.quem)].join(' ')).includes(q));
 }
 
 function renderLista() {
@@ -236,15 +240,12 @@ function blocoInventarioNovo(info, existente) {
         ? html`<p class="farm-lido">${icon('check', 14)} A caixa diz <strong>${lido} ${info.unidade}</strong>.</p>`
         : html`<p class="farm-dica">Não consegui ler a quantidade na caixa. Escreve quantas unidades tem.</p>`}
       ${existente ? html`<p class="farm-dica">Já tinham ${existente.nome} na biblioteca${emCasa(existente) && existente.quantidade ? ` (${textoStock(existente)} em casa)` : ''}. Esta caixa é somada ao que já têm.</p>` : ''}
-      <div class="farm-campos2">
-        <div class="farm-campo"><label for="farm-qtd">Unidades nesta caixa</label>
-          <input class="input" id="farm-qtd" type="number" inputmode="numeric" min="0" value="${lido ?? ''}" placeholder="Ex.: 20"></div>
-        <div class="farm-campo"><label for="farm-toma">Toma por dia (opcional)</label>
-          <input class="input" id="farm-toma" type="number" inputmode="decimal" min="0" step="0.5" value="${existente?.tomaDiaria ?? ''}" placeholder="Ex.: 2"></div>
-      </div>
+      <div class="farm-campo"><label for="farm-qtd">Unidades nesta caixa</label>
+        <input class="input" id="farm-qtd" type="number" inputmode="numeric" min="0" value="${lido ?? ''}" placeholder="Ex.: 20"></div>
     </section>
+    ${blocoPosologiaNovo()}
     <section class="farm-bloco glass"><h3>${icon('edit', 18)} Notas</h3>
-      <textarea class="input textarea" id="farm-notas" placeholder="Ex.: Para a Nádia, tomar depois do jantar. Receitado pelo Dr. Silva.">${existente?.notas || ''}</textarea>
+      <textarea class="input textarea" id="farm-notas" placeholder="Ex.: Tomar depois do jantar. Receitado pelo Dr. Silva.">${existente?.notas || ''}</textarea>
     </section>`;
 }
 
@@ -682,7 +683,7 @@ export default {
       if (!info) return;
       const nome = byId('farm-nome')?.value.trim() || info.nome;
       const qtd = numOuNull(byId('farm-qtd')?.value);
-      const toma = numOuNull(byId('farm-toma')?.value);
+      const posologia = lerPosologiaNovo();
       const notas = byId('farm-notas')?.value.trim() || '';
       const validade = lerValidade();
       const existente = procurarExistente(nome, info.dosagem);
@@ -696,7 +697,7 @@ export default {
           foto: foto || existente.foto || '',
           unidadesEmbalagem: info.unidadesEmbalagem || qtd || existente.unidadesEmbalagem || null,
           quantidade: qtd == null ? (existente.quantidade ?? null) : base + qtd,
-          tomaDiaria: toma ?? existente.tomaDiaria ?? null,
+          tomaDiaria: existente.tomaDiaria ?? null,
           notas: notas || existente.notas || '',
           validade: validade || existente.validade || '',
           arquivado: false,
@@ -712,7 +713,7 @@ export default {
           foto: foto || '',
           unidadesEmbalagem: info.unidadesEmbalagem || qtd || null,
           quantidade: qtd,
-          tomaDiaria: toma,
+          tomaDiaria: null,
           notas,
           validade,
           arquivado: false,
@@ -721,10 +722,28 @@ export default {
         atualId = ref.id;
         toast(`${nome} guardado na farmácia`);
       }
+      if (posologia) {
+        const med = { id: atualId, nome, unidade: ficha.unidade || existente?.unidade, tomaDiaria: existente?.tomaDiaria };
+        try {
+          const plano = await criarPlanoRapido(med, posologia);
+          toast(`${nome}: ${plano.horas.length}x por dia${plano.dias ? ` durante ${plano.dias} dias` : ''}. As tomas aparecem nas Tarefas.`);
+        } catch (e) {
+          console.warn('[farmacia] tratamento rápido falhou', e);
+          toast('Guardado, mas não consegui criar o tratamento. Planeia-o no medicamento.', 'error');
+        }
+      }
       rascunho = null;
       navigate(PAGINA_DETALHE, { replace: true });
     },
 
+    'farmacia:posQuem': ({ el, data }) => {
+      const campo = byId('farm-pos-quem');
+      if (!campo) return;
+      if (data.nome != null && el.tagName === 'BUTTON') { campo.value = data.nome; }
+      const k = chaveNome(campo.value);
+      document.querySelectorAll('.farm-pos-sugestoes .task-chip').forEach((b) => b.classList.toggle('is-on', !!k && chaveNome(b.dataset.nome) === k));
+      if (el.tagName === 'BUTTON') byId('farm-pos-vezes')?.focus();
+    },
     'farmacia:stock': ({ data }) => mudarStock(Number(data.delta) || 0),
     'farmacia:caixa': () => {
       const m = atual();
@@ -786,7 +805,7 @@ export default {
     }));
     iniciarTratamentos(scope, {
       medicamentos: () => medicamentos,
-      aoMudar: () => { if (atualId && byId(PAGINA_DETALHE)?.classList.contains('is-active')) renderDetalhe(); },
+      aoMudar: () => { renderLista(); if (atualId && byId(PAGINA_DETALHE)?.classList.contains('is-active')) renderDetalhe(); },
     });
     const relogio = setInterval(tique, 1000);
     scope.add(() => clearInterval(relogio));

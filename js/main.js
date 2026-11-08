@@ -12,6 +12,7 @@ import { initAuth } from './app/auth.js';
 import { resetChecklists } from './components/checklist.js';
 import { MODULES } from './modules/index.js';
 import { watchHousehold } from './services/household.js';
+import { garantirPartilhas } from './services/partilhas.js';
 import { cacheLocalAtiva } from './services/firebase.js';
 import { toast } from './core/ui.js';
 
@@ -46,6 +47,8 @@ function startModules() {
   MODULES.forEach((mod) => {
     try { mod.start?.(); } catch (err) { console.error(`[${mod.id}] start`, err); }
   });
+  // Quem entrou num grupo que já tinha páginas partilhadas entra também nessas partilhas.
+  garantirPartilhas().then((entrou) => { if (entrou) emit('household:changed'); }).catch(() => {});
   // Apaga (uma vez) os dados dos menus que já saíram da app.
   setTimeout(() => import('./services/limpeza.js').then((m) => m.limparMenusAntigos()), 4000);
 }
@@ -65,7 +68,7 @@ mountModules();
 initNavigation();
 initGlassEffects();
 
-// Ao criar/entrar/sair de um casal, os dados passam a vir de outro sítio: reinicia os módulos.
+// Ao criar/entrar/sair/mudar de grupo (ou partilhar uma página), os dados passam a vir de outro sítio: reinicia os módulos.
 on('household:changed', () => {
   stopModules();
   startModules();

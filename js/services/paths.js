@@ -1,7 +1,8 @@
-// Caminhos do Firestore centralizados. A estrutura de dados é a mesma da versão anterior,
+// Caminhos do Firestore centralizados. Os grupos usam os mesmos households/{hid} do antigo casal,
 // por isso os dados existentes continuam a funcionar sem migração.
 import { db, APP_ID, doc, collection } from './firebase.js';
 import { session } from '../core/state.js';
+import { espacoPara } from './espacos.js';
 
 const root = ['artifacts', APP_ID];
 
@@ -15,21 +16,25 @@ export const otherUserCol = (uid, ...segments) => collection(db, ...root, 'users
 export const otherUserDoc = (uid, ...segments) => doc(db, ...root, 'users', uid, ...segments);
 
 /**
- * Espaço partilhado do casal. Se o utilizador ainda não tem casal, cai no espaço pessoal,
- * por isso os módulos funcionam igual nos dois casos.
+ * Espaço partilhado do grupo ativo (família, amigos, casal...). Sem grupo cai no espaço pessoal,
+ * e uma página partilhada com outras pessoas vai para partilhas/{sid} (ver espacos.js).
+ * Assim os módulos funcionam igual em todos os casos.
  */
-export const spaceSegments = () => (session.householdId
-  ? ['households', session.householdId]
-  : ['users', session.uid]);
-export const sharedCol = (...segments) => collection(db, ...root, ...spaceSegments(), ...segments);
-export const sharedDoc = (...segments) => doc(db, ...root, ...spaceSegments(), ...segments);
+const ctx = () => ({ uid: session.uid, householdId: session.householdId, household: session.household, profile: session.profile });
+export const spaceSegments = (segments = []) => espacoPara(segments, ctx());
+export const sharedCol = (...segments) => collection(db, ...root, ...spaceSegments(segments), ...segments);
+export const sharedDoc = (...segments) => doc(db, ...root, ...spaceSegments(segments), ...segments);
 /** Pasta no Firebase Storage correspondente ao espaço atual (ver storage.rules). */
-export const storageScope = () => spaceSegments().join('/');
+export const storageScope = () => (session.householdId ? ['households', session.householdId] : ['users', session.uid]).join('/');
 
 export const householdsCol = () => collection(db, ...root, 'households');
 export const householdDoc = (hid = session.householdId) => doc(db, ...root, 'households', hid);
 export const householdColOf = (hid, ...segments) => collection(db, ...root, 'households', hid, ...segments);
 export const householdDocOf = (hid, ...segments) => doc(db, ...root, 'households', hid, ...segments);
+export const partilhaDoc = (sid) => doc(db, ...root, 'partilhas', sid);
+export const partilhasCol = () => collection(db, ...root, 'partilhas');
+export const partilhaDocOf = (sid, ...segments) => doc(db, ...root, 'partilhas', sid, ...segments);
+export const partilhaColOf = (sid, ...segments) => collection(db, ...root, 'partilhas', sid, ...segments);
 export const inviteDoc = (code) => doc(db, ...root, 'invites', code);
 /** Nome de utilizador -> email de recuperação (lido antes de iniciar sessão). */
 export const loginDoc = (key) => doc(db, ...root, 'logins', key);

@@ -14,6 +14,7 @@ import {
 } from '../services/firebase.js';
 import { profileDoc, loginDoc } from '../services/paths.js';
 import { loadHousehold } from '../services/household.js';
+import { gruposDoPerfil } from '../services/espacos.js';
 import { emit } from '../core/state.js';
 import { comPrazo, guardarSessao, lerSessao, esquecerSessao } from '../services/arranque.js';
 
@@ -211,6 +212,8 @@ async function loadProfile(user) {
   if (guardada) {
     aplicarPerfil(user, guardada.profile, { sincronizar: false });
     session.householdId = guardada.profile?.householdId || null;
+    session.householdIds = gruposDoPerfil(guardada.profile);
+    session.grupos = guardada.grupos || [];
     session.household = guardada.household || null;
     session.members = guardada.members?.length ? guardada.members
       : [{ uid: session.uid, name: session.name, avatar: session.avatar }];
@@ -218,6 +221,7 @@ async function loadProfile(user) {
     // Sem cópia guardada: usa o que se conseguiu ler (o perfil pode ter vindo e só o casal falhou).
     if (!session.profile?.username) aplicarPerfil(user, null, { sincronizar: false });
     session.householdId = session.profile?.householdId || null;
+    session.householdIds = gruposDoPerfil(session.profile);
     session.members = [{ uid: session.uid, name: session.name, avatar: session.avatar }];
   }
   atualizarDepois(user);
@@ -261,7 +265,7 @@ export function initAuth({ onLogin, onLogout }) {
     } else {
       if (loggedIn) onLogout();
       loggedIn = false;
-      Object.assign(session, { uid: null, name: '', avatar: '', profile: {}, householdId: null, household: null, members: [] });
+      Object.assign(session, { uid: null, name: '', avatar: '', profile: {}, householdId: null, householdIds: [], grupos: [], household: null, members: [] });
       document.body.classList.remove('is-authed');
       overlay.hidden = false;
       show('auth-loading', false);

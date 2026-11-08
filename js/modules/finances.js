@@ -134,10 +134,10 @@ function drawSummary() {
   setText('fin-total', money(sum(monthItems)));
   setText('fin-count', `${monthItems.length} despesa(s)`);
 
-  // Saldo do casal (todas as despesas, não só do mês).
+  // Saldo do grupo (todas as despesas, não só do mês).
   const s = session.members.length > 1 ? settlement(balances(all, memberUids())) : null;
   render('fin-balance', session.members.length < 2
-    ? html`<p class="muted small">Cria o casal em "O nosso casal" para dividirem despesas.</p>`
+    ? html`<p class="muted small">Cria ou entra num grupo em "Grupos" para dividirem despesas.</p>`
     : s
       ? html`<div class="balance">
           <span><strong>${memberName(s.from)}</strong> deve <strong class="accent">${money(s.valor)}</strong> a <strong>${memberName(s.to)}</strong></span>
@@ -259,7 +259,7 @@ export default {
       const ok = await confirmDialog(`${memberName(s.from)} pagou ${money(s.valor)} a ${memberName(s.to)}?`, { title: 'Acertar contas', confirmLabel: 'Sim, acertar' });
       if (!ok) return;
       await addDoc(sharedCol('despesas'), {
-        descricao: 'Acerto de contas', valor: s.valor, pagoPor: s.from, divisao: 'outro', tipo: 'acerto',
+        descricao: 'Acerto de contas', valor: s.valor, pagoPor: s.from, para: s.to, divisao: 'outro', tipo: 'acerto',
         categoria: 'outros', data: todayISO(), createdBy: session.uid, timestamp: Date.now(),
       });
       toast('Contas acertadas');

@@ -13,7 +13,7 @@ import recipes from './recipes.js';
 import garage from './garage.js';
 import supermarkets from './supermarkets.js';
 import shopping from './shopping/index.js';
-import couple from './couple.js';
+import grupos from './grupos.js';
 import finances from './finances.js';
 import meals from './meals.js';
 import farmacia from './farmacia/index.js';
@@ -31,7 +31,7 @@ export const MODULES = [
   garage,
   supermarkets,
   shopping,
-  couple,
+  grupos,
   finances,
   meals,
   farmacia,

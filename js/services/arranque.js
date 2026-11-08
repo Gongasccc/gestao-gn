@@ -1,5 +1,5 @@
 // Ajudas para o arranque nunca ficar preso à espera da rede ou da base de dados local.
-// Guardamos no telemóvel uma cópia leve do perfil e do casal da última entrada com sucesso,
+// Guardamos no telemóvel uma cópia leve do perfil e do grupo ativo da última entrada com sucesso,
 // para a app abrir logo (e no espaço certo) mesmo que o Firestore demore ou esteja bloqueado.
 
 /** Rejeita se a promessa não terminar em `ms` milissegundos. */
@@ -21,13 +21,13 @@ function simples(obj) {
   try { return JSON.parse(JSON.stringify(obj ?? null)); } catch { return null; }
 }
 
-export function guardarSessao(uid, { profile, household, members }) {
+export function guardarSessao(uid, { profile, household, members, grupos }) {
   if (!uid) return;
   try {
     const p = simples(profile) || {};
     if (p.avatarUrl) p.avatarUrl = leve(p.avatarUrl);
     const m = (members || []).map((x) => ({ uid: x.uid, name: x.name, avatar: leve(x.avatar) }));
-    localStorage.setItem(chave(uid), JSON.stringify({ profile: p, household: simples(household), members: m }));
+    localStorage.setItem(chave(uid), JSON.stringify({ profile: p, household: simples(household), members: m, grupos: simples(grupos) || [] }));
   } catch { /* sem espaço ou modo privado */ }
 }
 

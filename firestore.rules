@@ -48,25 +48,36 @@ service cloud.firestore {
         }
       }
 
-      // ---------- Casal (household) ----------
+      // ---------- Grupos (households): família, amigos, casal, casa partilhada ----------
+      // Cada pessoa pode estar em vários grupos. O antigo casal é um grupo como os outros.
       match /households/{hid} {
         allow read: if signedIn() && request.auth.uid in resource.data.members;
 
-        // Quem cria fica como único membro.
+        // Quem cria fica como único membro e dono.
         allow create: if signedIn()
           && request.resource.data.members == [request.auth.uid]
           && request.resource.data.ownerUid == request.auth.uid;
 
-        // Membros podem editar nome/definições, mas não mexer na lista de membros
-        // a não ser para sair (removerem-se a si próprios).
-        allow update: if isMember(hid) && (
-            request.resource.data.members == resource.data.members
-            || request.resource.data.members == resource.data.members.removeAll([request.auth.uid])
-          )
-          // Entrar com código de convite: só se o casal tiver 1 membro e o código bater certo.
+        allow update: if
+          // Membros editam nome, tipo, código e páginas partilhadas, sem mexer na lista de membros nem no dono.
+          (isMember(hid)
+            && request.resource.data.members == resource.data.members
+            && request.resource.data.ownerUid == resource.data.ownerUid)
+          // Sair do grupo (o dono que sai passa o grupo a quem fica).
+          || (isMember(hid)
+            && request.resource.data.members == resource.data.members.removeAll([request.auth.uid])
+            && (request.resource.data.ownerUid == resource.data.ownerUid
+              || (resource.data.ownerUid == request.auth.uid
+                && request.resource.data.ownerUid in request.resource.data.members)))
+          // O dono pode tirar outras pessoas do grupo.
+          || (signedIn() && resource.data.ownerUid == request.auth.uid
+            && request.auth.uid in request.resource.data.members
+            && resource.data.members.hasAll(request.resource.data.members)
+            && request.resource.data.ownerUid == resource.data.ownerUid)
+          // Entrar com o código de convite (várias pessoas podem usar o mesmo código).
           || (signedIn()
             && !(request.auth.uid in resource.data.members)
-            && resource.data.members.size() == 1
+            && resource.data.members.size() < 30
             && resource.data.inviteCode != null
             && request.resource.data.joinCode == resource.data.inviteCode
             && request.resource.data.members == resource.data.members.concat([request.auth.uid])
@@ -74,18 +85,55 @@ service cloud.firestore {
 
         allow delete: if signedIn() && request.auth.uid == resource.data.ownerUid;
 
-        // Todas as subcoleções do casal (tarefas, compras, finanças, calendário, ...).
+        // Todas as subcoleções do grupo (tarefas, compras, finanças, ...).
         match /{col}/{docId=**} {
           allow read, write: if isMember(hid);
         }
       }
 
-      // Códigos de convite: quem conhece o código consegue descobrir o casal.
+      // ---------- Páginas partilhadas (ex.: só a Lista de compras com alguém de fora do grupo) ----------
+      function partilha(sid) {
+        return get(/databases/$(database)/documents/artifacts/$(appId)/partilhas/$(sid)).data;
+      }
+      function inPartilha(sid) {
+        return signedIn() && request.auth.uid in partilha(sid).membros_uids;
+      }
+      match /partilhas/{sid} {
+        allow read: if signedIn() && request.auth.uid in resource.data.membros_uids;
+        allow create: if signedIn()
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.auth.uid in request.resource.data.membros_uids;
+        allow update: if
+          (inPartilha(sid)
+            && request.resource.data.membros_uids == resource.data.membros_uids
+            && request.resource.data.ownerUid == resource.data.ownerUid)
+          || (inPartilha(sid)
+            && request.resource.data.membros_uids == resource.data.membros_uids.removeAll([request.auth.uid])
+            && request.resource.data.ownerUid == resource.data.ownerUid)
+          || (signedIn()
+            && !(request.auth.uid in resource.data.membros_uids)
+            && resource.data.membros_uids.size() < 30
+            && resource.data.inviteCode != null
+            && request.resource.data.joinCode == resource.data.inviteCode
+            && request.resource.data.membros_uids == resource.data.membros_uids.concat([request.auth.uid])
+            && request.resource.data.ownerUid == resource.data.ownerUid);
+        allow delete: if signedIn() && request.auth.uid == resource.data.ownerUid;
+
+        match /{col}/{docId=**} {
+          allow read, write: if inPartilha(sid);
+        }
+      }
+
+      // Códigos de convite (de um grupo ou de uma página partilhada): quem conhece o código descobre-o.
       match /invites/{code} {
         allow get: if signedIn();
         allow list: if false;
-        allow create: if signedIn() && isMember(request.resource.data.householdId);
-        allow delete: if signedIn() && isMember(resource.data.householdId);
+        allow create: if signedIn() && (
+          (request.resource.data.get('householdId', null) != null && isMember(request.resource.data.householdId))
+          || (request.resource.data.get('partilhaId', null) != null && inPartilha(request.resource.data.partilhaId)));
+        allow delete: if signedIn() && (
+          (resource.data.get('householdId', null) != null && isMember(resource.data.householdId))
+          || (resource.data.get('partilhaId', null) != null && inPartilha(resource.data.partilhaId)));
       }
 
       // Nome de utilizador -> email de recuperação. Lido antes do login (entrar com o

@@ -1,6 +1,6 @@
 // Service worker do Nós.
 // Estratégia: rede primeiro (para receber sempre a versão mais recente) e cache como reserva offline.
-const CACHE = 'ninho-shell-v30';
+const CACHE = 'ninho-shell-v31';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {

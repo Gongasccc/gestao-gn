@@ -9,6 +9,7 @@ import { toast } from '../core/ui.js';
 import { notifyUser } from '../services/notifications.js';
 import { addDoc, updateDoc, deleteDoc, onSnapshot } from '../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../services/paths.js';
+import { registarAtividade } from '../services/atividade.js';
 
 const COL = 'tarefas';
 const PRIORIDADES = [
@@ -154,6 +155,7 @@ registerActions({
     const feita = !t.feita;
     el.closest('.task')?.classList.toggle('is-done', feita);
     await updateDoc(sharedDoc(COL, t.id), { feita, feitaEm: feita ? Date.now() : null });
+    if (feita) registarAtividade(`fez a tarefa "${t.texto}"`, { icon: 'check', page: 'menu-tarefas' });
   },
   'tasks:assign': async ({ data }) => {
     // Ninguém -> eu -> parceiro(a) -> os dois -> ninguém

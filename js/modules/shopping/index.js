@@ -15,6 +15,7 @@ import { checklistTpl, subscribeChecklist } from '../../components/checklist.js'
 import { actionSheet } from '../../components/action-sheet.js';
 import { addDoc, updateDoc, deleteDoc, setDoc, onSnapshot } from '../../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../../services/paths.js';
+import { registarAtividade } from '../../services/atividade.js';
 import { listaFaturas } from '../faturas/index.js';
 import { compararPrecos } from '../faturas/stats.js';
 import { corresponde } from '../faturas/produtos.js';
@@ -570,6 +571,7 @@ const actions = {
     const dados = { texto, feita: false, timestamp: Date.now(), createdBy: session.uid };
     if (lojaAtual) dados.loja = lojaAtual;
     await addDoc(sharedCol(COL), dados);
+    registarAtividade(`juntou ${texto} à lista`, { icon: 'cart', page: PAG_LISTA });
     if (lojaAtual) lembrar(texto, { loja: lojaAtual });
   },
   'lista:loja-atual': ({ data }) => {
@@ -602,6 +604,8 @@ const actions = {
   'lista:toggle': async ({ el, data }) => {
     el.closest('.list-item')?.classList.toggle('is-done', !data.done);
     await updateDoc(sharedDoc(COL, data.id), { feita: !data.done });
+    const texto = itens.find((i) => i.id === data.id)?.texto;
+    if (!data.done && texto) registarAtividade(`riscou ${texto} da lista`, { icon: 'cart', page: PAG_LISTA });
   },
   'lista:opcoes': async ({ data }) => {
     const item = itens.find((i) => i.id === data.id);

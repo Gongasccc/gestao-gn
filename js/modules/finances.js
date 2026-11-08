@@ -47,6 +47,7 @@ const expenses = createRecordList({
   addTitle: 'Nova despesa',
   editTitle: 'Editar despesa',
   addedToast: 'Despesa registada',
+  atividade: (d) => ({ texto: `registou a despesa ${d.descricao} (${money(d.valor)})`, icon: 'wallet', page: 'menu-financas' }),
   empty: 'Sem despesas neste mês.',
   emptyIcon: 'wallet',
   fields: [

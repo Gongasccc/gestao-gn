@@ -19,7 +19,7 @@ import {
 } from './util.js';
 import {
   iniciarTratamentos, pararTratamentos, blocoTratamentos, paginaTratamento, tratamentosAlertas,
-  resumoTratamentosMed, blocoPosologiaNovo, lerPosologiaNovo, criarPlanoRapido,
+  resumoTratamentosMed, blocoPosologiaNovo, lerPosologiaNovo, criarPlanoRapido, paginaCalendario, PAGINA_CALENDARIO,
 } from './tratamentos.js';
 
 const COLECAO = 'farmacia';
@@ -221,6 +221,7 @@ const templateLista = () => html`
         </label>
         <button class="btn" data-action="farmacia:porNome">${icon('edit', 18)} Escrever nome</button>
       </div>
+      <button class="btn btn--glass btn--block pressable farm-btn-cal" data-action="nav:go" data-page="${PAGINA_CALENDARIO}">${icon('calendar', 18)} Calendário de tomas</button>
     </section>
     <div class="farm-tabs" role="tablist">
       <button class="farm-tab is-active" data-vista="casa" data-action="farmacia:vista">Em casa</button>
@@ -619,6 +620,7 @@ export default {
       onEnter: renderDetalhe,
     },
     paginaTratamento,
+    paginaCalendario,
   ],
 
   actions: {

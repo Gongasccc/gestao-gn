@@ -4,6 +4,7 @@
 import { onSnapshot, addDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove } from '../../services/firebase.js';
 import { sharedCol, sharedDoc, snapToList } from '../../services/paths.js';
 import { notifyUser } from '../../services/notifications.js';
+import { registarAtividade } from '../../services/atividade.js';
 import { navigate, back } from '../../core/router.js';
 import { html, raw, byId, render } from '../../core/dom.js';
 import { toast, confirmDialog, withLoading } from '../../core/ui.js';
@@ -163,6 +164,7 @@ export function pararTratamentos() {
 
 function desenharTudo() {
   desenharMedicacao();
+  desenharCalendario();
   ctx.aoMudar?.();
 }
 
@@ -202,6 +204,7 @@ async function marcarToma(planoId, chave) {
   const feita = !(plano.feitas || []).includes(chave);
   plano.feitas = feita ? [...(plano.feitas || []), chave] : (plano.feitas || []).filter((k) => k !== chave);
   desenharMedicacao();
+  desenharCalendario();
   await updateDoc(sharedDoc(COL, planoId), { feitas: feita ? arrayUnion(chave) : arrayRemove(chave) });
   // Desconta (ou devolve) a dose no inventário.
   const med = medDe(plano.medId);
@@ -212,6 +215,8 @@ async function marcarToma(planoId, chave) {
     updateDoc(sharedDoc('farmacia', med.id), { quantidade }).catch(() => {});
   }
   if (feita) {
+    const para = chave.split('_').pop();
+    registarAtividade(`marcou a toma de ${plano.medNome}${para !== session.uid ? ` (${nomePessoa(para, plano)})` : ''}`, { icon: 'pill', page: 'menu-farmacia' });
     const { feitas, total } = progresso(plano, hoje(), membros());
     if (total && feitas >= total) toast(`${plano.medNome}: tratamento concluído 🎉`);
   }
@@ -569,4 +574,82 @@ export const paginaTratamento = {
   title: () => (form?.id ? 'Editar tratamento' : 'Planear tratamento'),
   template: () => html`<div class="farm trat-form" id="trat-form"></div>`,
   onEnter: renderForm,
+};
+
+// ---------- Calendário de tomas ----------
+// Sete dias (3 para trás, hoje e 3 para a frente) com um anel de progresso em cada dia.
+// Tocar num dia mostra as tomas desse dia, que se podem marcar como "já tomei" (também as passadas).
+
+export const PAGINA_CALENDARIO = 'page-farmacia-calendario';
+let diaCal = null;
+
+function diasCalendario() {
+  const base = new Date();
+  return Array.from({ length: 7 }, (_, k) => { const d = new Date(base); d.setDate(base.getDate() + k - 3); return iso(d); });
+}
+
+const anel = (feitas, total, falha) => {
+  const r = 9; const c = 2 * Math.PI * r;
+  const pct = total ? feitas / total : 0;
+  return html`<svg class="cal-anel ${falha ? 'is-falha' : ''}" viewBox="0 0 22 22" aria-hidden="true">
+    <circle class="bg" cx="11" cy="11" r="${r}"/>
+    <circle class="fg" cx="11" cy="11" r="${r}" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${(c * (1 - pct)).toFixed(2)}"/></svg>`;
+};
+
+export function desenharCalendario() {
+  const box = byId('trat-cal');
+  if (!box) return;
+  const h = hoje();
+  if (!diaCal) diaCal = h;
+  const dias = diasCalendario();
+  const doDia = (d) => tomasDoDia(planos, d, membros());
+  // Cumprimento por pessoa nos últimos 7 dias (só tomas que já deviam ter sido feitas).
+  const agora = new Date();
+  const porPessoa = new Map();
+  for (let k = 6; k >= 0; k--) {
+    const d = new Date(); d.setDate(d.getDate() - k);
+    for (const t of doDia(iso(d))) {
+      if (!t.feita && momentoToma(t) > agora) continue;
+      const nome = nomePessoa(t.pessoa, t.plano);
+      const v = porPessoa.get(nome) || { feitas: 0, total: 0 };
+      v.total += 1; if (t.feita) v.feitas += 1;
+      porPessoa.set(nome, v);
+    }
+  }
+  const tomas = doDia(diaCal);
+  const dataSel = deISOLocal(diaCal).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+  render(box, html`
+    <div class="cal-dias">
+      ${dias.map((d) => {
+        const ts = doDia(d);
+        const feitas = ts.filter((t) => t.feita).length;
+        const falha = d < h && feitas < ts.length;
+        const dt = deISOLocal(d);
+        return html`<button class="cal-dia pressable ${d === diaCal ? 'is-sel' : ''} ${d === h ? 'is-hoje' : ''}" data-action="trat:cal-dia" data-dia="${d}">
+          <small>${['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][dt.getDay()]}</small>
+          <strong>${dt.getDate()}</strong>
+          ${ts.length ? anel(feitas, ts.length, falha) : html`<svg class="cal-anel" viewBox="0 0 22 22"></svg>`}
+        </button>`;
+      })}
+    </div>
+    ${porPessoa.size ? html`<div class="cal-resumo">${[...porPessoa].map(([nome, v]) => html`
+      <span class="chip ${v.feitas === v.total ? 'chip--accent' : ''}">${icon('user', 12)} ${nome}: ${Math.round((v.feitas / v.total) * 100)}% em 7 dias</span>`)}</div>` : ''}
+    <h4 class="section-title">${dataSel.charAt(0).toUpperCase() + dataSel.slice(1)}</h4>
+    ${tomas.length
+      ? html`<div class="card glass"><ul class="task-list">${tomas.map((t) => tomaTpl(t, agora))}</ul></div>`
+      : emptyStateSimples(planos.length ? 'Sem tomas neste dia.' : 'Ainda não há tratamentos. Abre um medicamento e toca em "Planear tratamento".')}`);
+}
+
+const deISOLocal = (s) => { const [a, m, d] = s.split('-').map(Number); return new Date(a, m - 1, d); };
+const emptyStateSimples = (t) => html`<div class="empty-state">${icon('calendar', 28)}<p>${t}</p></div>`;
+
+registerActions({
+  'trat:cal-dia': ({ data }) => { diaCal = data.dia; desenharCalendario(); },
+});
+
+export const paginaCalendario = {
+  id: PAGINA_CALENDARIO,
+  title: 'Calendário de tomas',
+  template: () => html`<div class="farm" id="trat-cal"></div>`,
+  onEnter: () => { diaCal = hoje(); desenharCalendario(); },
 };

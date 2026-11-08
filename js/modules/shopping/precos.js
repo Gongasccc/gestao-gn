@@ -2,20 +2,41 @@
 // (faturas) e das promoções dos folhetos. Se um artigo nunca foi comprado naquela loja, usa o preço
 // pago noutras lojas como aproximação. Funções puras (testadas em tests/lista-precos.test.mjs).
 import { palavras, chaveLoja } from './seccoes.js';
+import { lerEmbalagem } from '../faturas/produtos.js';
 
 const arred = (v) => Math.round((Number(v) || 0) * 100) / 100;
 
 /** Quantidade pedida no texto do artigo: "2x leite", "leite x2", "3 iogurtes" -> 2, 2, 3. Por omissão 1. */
 export function quantidadeArtigo(texto) {
   const t = String(texto || '').trim().toLowerCase();
+  // "200 g de carne", "1,5 kg batatas": é o peso, não o número de embalagens.
+  if (/^\d+(?:[.,]\d+)?\s?(?:kg|g|gr|grs|l|lt|cl|ml)\b/.test(t)) return 1;
   const m = t.match(/^(\d{1,2})\s*(?:x|×)?\s+\D/) || t.match(/^(\d{1,2})\s*(?:x|×)(?=\s*\D)/) || t.match(/\D\s(?:x|×)\s*(\d{1,2})$/);
   const n = m ? Number(m[1]) : 1;
   return n >= 1 && n <= 50 ? n : 1;
 }
 
 /** As palavras do artigo aparecem todas no nome do produto? ("queijo flamengo" ~ "Queijo flamengo fatiado Limiano 200 g") */
+const LIGACOES = new Set(['de', 'da', 'do', 'com', 'e', 'em', 'a', 'o', 'para', 'sem']);
+
+/** Peso ou volume pedido no artigo ("200g carne picada" -> { qtd: 0.2, unidade: 'kg' }), ou null. */
+export function pesoPedido(texto) {
+  const e = lerEmbalagem(texto);
+  return e && (e.unidade === 'kg' || e.unidade === 'L') ? e : null;
+}
+
+/** Preço por kg ou litro de uma compra (ao peso, ou pela embalagem "500 g"), ou null. */
+function precoMedida(item) {
+  const q = Number(item.quantidade) || 1;
+  const pu = Number(item.precoUnitario) || (Number(item.total) || 0) / q;
+  if (!(pu > 0)) return null;
+  if (item.unidade === 'kg') return { valor: pu, unidade: 'kg' };
+  const e = item.embalagem || lerEmbalagem(item.produto || item.nome);
+  return e && e.qtd > 0 && (e.unidade === 'kg' || e.unidade === 'L') ? { valor: pu / e.qtd, unidade: e.unidade } : null;
+}
+
 export function condiz(texto, nomeProduto) {
-  const q = palavras(texto);
+  const q = palavras(texto).filter((w) => !LIGACOES.has(w));
   if (!q.length) return false;
   const n = palavras(nomeProduto);
   return q.every((w) => n.some((x) => x === w || (w.length >= 4 && x.startsWith(w))));
@@ -48,7 +69,8 @@ export function indicePrecos(faturas) {
       if (!p) { p = { nome, vezes: 0, lojas: {} }; mapa.set(k, p); }
       p.vezes += 1;
       p.nome = nome;
-      p.lojas[chaveLoja(loja)] = { loja, preco, data: f.data || '' };
+      const medida = precoMedida(i);
+      p.lojas[chaveLoja(loja)] = { loja, preco, data: f.data || '', ...(medida ? { medida } : {}) };
       if (i.unidade === 'kg' && Number(i.quantidade) > 0) p.kg = Number(i.quantidade); // quanto costuma levar
     }
   }
@@ -76,22 +98,31 @@ export function promosDoArtigo(texto, promos, hoje) {
  */
 export function estimarArtigo(texto, loja, { indice = [], promos = [], hoje = '' } = {}) {
   const quantidade = quantidadeArtigo(texto);
+  const peso = pesoPedido(texto);
   const k = loja ? chaveLoja(loja) : '';
   const out = (unitario, fonte, extra = {}) => ({ preco: arred(unitario * quantidade), unitario: arred(unitario), quantidade, fonte, ...extra });
+  // Com peso pedido ("200 g"): preço por kg/L da última compra × o peso. Sem peso: o que se pagou da última vez.
+  const valor = (l) => (peso && l.medida?.unidade === peso.unidade ? l.medida.valor * peso.qtd : l.preco);
+  const porPeso = (ls) => !!peso && ls.some((l) => l.medida?.unidade === peso.unidade);
 
   const produto = (indice || []).find((p) => condiz(texto, p.nome));
   const promosAqui = promosDoArtigo(texto, promos, hoje);
   const promo = k && promosAqui.find((p) => chaveLoja(p.loja) === k);
-  // Ao peso, o folheto dá o preço por kg: conta com o que costumam levar (1 kg se não souber).
-  if (promo) return out(Number(promo.preco) * (promoAoPeso(promo) ? (produto?.kg || 1) : 1), 'promo', { promo, ref: [promo.loja] });
+  // Ao peso, o folheto dá o preço por kg: conta com o peso pedido ou o que costumam levar (1 kg se não souber).
+  if (promo) return out(Number(promo.preco) * (promoAoPeso(promo) ? (peso?.qtd || produto?.kg || 1) : 1), 'promo', { promo, ref: [promo.loja] });
 
   if (!produto) return null;
   const aqui = k && produto.lojas[k];
-  if (aqui) return out(aqui.preco, 'loja', { ref: [aqui.loja], produto: produto.nome });
+  if (aqui) return out(valor(aqui), 'loja', { ref: [aqui.loja], produto: produto.nome, porPeso: porPeso([aqui]) ? aqui.medida : null });
   const outras = Object.values(produto.lojas);
   if (!outras.length) return null;
-  const media = outras.reduce((s, l) => s + l.preco, 0) / outras.length;
-  return out(media, 'outras', { ref: outras.map((l) => l.loja), produto: produto.nome });
+  const media = outras.reduce((s, l) => s + valor(l), 0) / outras.length;
+  const comMedida = outras.filter((l) => peso && l.medida?.unidade === peso.unidade);
+  return out(media, 'outras', {
+    ref: outras.map((l) => l.loja),
+    produto: produto.nome,
+    porPeso: comMedida.length ? { valor: comMedida.reduce((s, l) => s + l.medida.valor, 0) / comMedida.length, unidade: peso.unidade } : null,
+  });
 }
 
 /**
@@ -120,7 +151,7 @@ export function melhorNoutraLoja(texto, loja, estimativa, { indice = [], promos 
   const p = promosDoArtigo(texto, promos, hoje).find((x) => chaveLoja(x.loja) !== k);
   if (!p) return null;
   if (!estimativa) return p;
-  const kg = (indice || []).find((x) => condiz(texto, x.nome))?.kg || 1;
+  const kg = pesoPedido(texto)?.qtd || (indice || []).find((x) => condiz(texto, x.nome))?.kg || 1;
   const custo = p.preco * (promoAoPeso(p) ? kg : quantidadeArtigo(texto));
   return arred(custo) < estimativa.preco ? p : null;
 }

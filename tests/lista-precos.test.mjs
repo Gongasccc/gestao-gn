@@ -118,3 +118,24 @@ test('dia das compras', async () => {
   assert.equal(quandoCompras(3, terca), 'amanhã');
   assert.equal(quandoCompras(6, terca), 'daqui a 4 dias');
 });
+
+test('peso pedido: preço por kg da última compra × o peso', async () => {
+  const { pesoPedido } = await import('../js/modules/shopping/precos.js');
+  const faturas = [
+    { loja: 'Continente', data: '2026-10-01', itens: [
+      { produto: 'Carne picada de vaca', quantidade: 0.5, unidade: 'kg', precoUnitario: 9.98, total: 4.99 },
+      { produto: 'Queijo ralado Continente 200 g', quantidade: 1, precoUnitario: 1.6, total: 1.6 },
+    ] },
+  ];
+  const indice = indicePrecos(faturas);
+  assert.deepEqual(pesoPedido('200g carne picada de vaca'), { qtd: 0.2, unidade: 'kg', texto: '200 g' });
+  assert.equal(quantidadeArtigo('200 g carne picada'), 1);
+  const e = estimarArtigo('200g carne picada de vaca', 'Continente', { indice, hoje: '2026-11-08' });
+  assert.equal(e.preco, 2.0); // 9,98 €/kg × 0,2 kg
+  assert.equal(e.porPeso.valor, 9.98);
+  // Embalagem conhecida: 1,60 € por 200 g = 8 €/kg; 100 g -> 0,80 €
+  assert.equal(estimarArtigo('100g queijo ralado', 'Continente', { indice }).preco, 0.8);
+  // Sem peso: o que se pagou da última vez
+  assert.equal(estimarArtigo('carne picada', 'Continente', { indice }).preco, 4.99);
+  assert.equal(estimarArtigo('200g carne picada', 'Lidl', { indice }).preco, 2.0);
+});

@@ -137,8 +137,8 @@ function precoTpl(i, est) {
     : est.fonte === 'promo'
       ? html`<small class="lista-preco lista-preco--promo" title="Promoção ${validadeTxt(est.promo)}">🏷 ${money(est.preco)}</small>`
       : est.fonte === 'outras'
-        ? html`<small class="lista-preco lista-preco--aprox" title="Estimativa: preço pago no ${est.ref.join(', ')}">≈ ${money(est.preco)}</small>`
-        : html`<small class="lista-preco" title="Último preço pago no ${est.ref[0]}">${money(est.preco)}</small>`;
+        ? html`<small class="lista-preco lista-preco--aprox" title="Estimativa: preço pago no ${est.ref.join(', ')}${est.porPeso ? ` (${money(est.porPeso.valor)}/${est.porPeso.unidade})` : ''}">≈ ${money(est.preco)}</small>`
+        : html`<small class="lista-preco" title="Último preço pago no ${est.ref[0]}${est.porPeso ? ` (${money(est.porPeso.valor)}/${est.porPeso.unidade})` : ''}">${money(est.preco)}</small>`;
   return chip;
 }
 

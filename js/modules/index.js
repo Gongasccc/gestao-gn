@@ -19,8 +19,6 @@ import meals from './meals.js';
 import farmacia from './farmacia/index.js';
 import tasks from './tasks.js';
 import juntos from './juntos/index.js';
-import despensa from './despensa.js';
-import pesquisa from './pesquisa.js';
 
 export const MODULES = [
   dashboard,
@@ -39,6 +37,4 @@ export const MODULES = [
   meals,
   farmacia,
   juntos,
-  despensa,
-  pesquisa,
 ];

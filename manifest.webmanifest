@@ -70,17 +70,6 @@
           "type": "image/png"
         }
       ]
-    },
-    {
-      "name": "Pesquisar",
-      "url": "./#menu-pesquisa",
-      "icons": [
-        {
-          "src": "assets/brand/nos-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
     }
   ]
 }

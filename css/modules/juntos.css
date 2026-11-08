@@ -91,34 +91,6 @@
 .ranking__bar i { display: block; height: 100%; width: var(--pct); background: var(--accent); border-radius: 3px; transition: width var(--dur-slow) var(--ease-spring); }
 .ranking__pts { font-weight: 700; font-variant-numeric: tabular-nums; }
 
-/* Despensa */
-.desp-item { display: flex; align-items: center; gap: 10px; }
-.desp-item__nome { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.desp-item__nome strong { font-weight: 600; font-size: 14.5px; }
-.desp-item__nome small { font-size: 12px; color: var(--text-muted); }
-.desp-item--pouco .desp-item__nome small { color: var(--amber); }
-.desp-item--acabou .desp-item__nome small { color: #F43F5E; }
-.desp-step { display: inline-flex; align-items: center; gap: 2px; background: var(--soft-bg); border-radius: var(--radius-pill); padding: 2px; }
-.desp-step button { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: none; border: 0; color: inherit; cursor: pointer; font-size: 18px; }
-.desp-step button:active { transform: scale(.85); }
-.desp-step span { min-width: 26px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
-.desp-step span.bump { animation: pop var(--dur-slow) var(--ease-spring); }
-.desp-acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-.desp-acoes .btn { flex: 1 1 140px; font-size: 13px; padding-left: 10px; padding-right: 10px; }
-
-/* Pesquisa geral */
-.pesq__box { position: relative; }
-.pesq__box .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-.pesq__box .input { padding-left: 42px; }
-.pesq__res { margin-top: 12px; }
-.pesq__row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; width: 100%; text-align: left; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; border-radius: var(--radius-md); }
-.pesq__row + .pesq__row { border-top: 1px solid var(--hairline); }
-.pesq__ico { width: 34px; height: 34px; flex: none; border-radius: var(--radius-sm); display: grid; place-items: center; background: rgba(var(--accent-rgb), .12); color: var(--accent); }
-.pesq__txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.pesq__txt strong { font-weight: 600; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pesq__txt small { font-size: 12px; color: var(--text-muted); }
-.pesq__grupo { margin-bottom: 10px; border-radius: var(--radius-lg); padding: 4px; }
-
 /* Farmácia: calendário de tomas */
 .cal-dias { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
 .cal-dia {

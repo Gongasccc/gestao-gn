@@ -1,4 +1,4 @@
-// Contas sem dependências (testadas em tests/juntos.test.mjs): votações, eventos, rotinas e despensa.
+// Contas sem dependências (testadas em tests/juntos.test.mjs): votações, eventos e rotinas.
 
 const pad = (n) => String(n).padStart(2, '0');
 export const isoDia = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -144,53 +144,4 @@ export function ranking(rotinas) {
     }
   }
   return [...tot.values()].sort((a, b) => b.pontos - a.pontos || a.nome.localeCompare(b.nome, 'pt'));
-}
-
-// ---------- Despensa ----------
-
-/** 'acabou' | 'pouco' (no mínimo ou abaixo) | 'ok'. */
-export function estadoDespensa(item) {
-  const q = Number(item?.quantidade) || 0;
-  const min = Number(item?.minimo) || 0;
-  if (q <= 0) return 'acabou';
-  if (min && q <= min) return 'pouco';
-  return 'ok';
-}
-
-const chave = (t) => String(t || '').toLocaleLowerCase('pt').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-export const chaveProduto = chave;
-
-/**
- * Junta os produtos de uma fatura à despensa: soma a quantidade aos que já existem (pelo nome)
- * e devolve os novos à parte. itensFatura: [{ produto | nome | descricao, quantidade }].
- */
-export function juntarFatura(despensa, itensFatura) {
-  const porNome = new Map(despensa.map((d) => [chave(d.nome), d]));
-  const atualizar = new Map();
-  const novos = new Map();
-  for (const i of itensFatura || []) {
-    const nome = String(i.produto || i.nome || i.descricao || i.texto || '').trim();
-    const k = chave(nome);
-    if (!k) continue;
-    const qtd = Math.max(1, Math.round(Number(i.quantidade) || 1));
-    const existente = porNome.get(k);
-    if (existente) {
-      const base = atualizar.get(existente.id)?.quantidade ?? (Number(existente.quantidade) || 0);
-      atualizar.set(existente.id, { id: existente.id, quantidade: base + qtd });
-    } else {
-      const n = novos.get(k);
-      novos.set(k, { nome, quantidade: (n?.quantidade || 0) + qtd });
-    }
-  }
-  return { atualizar: [...atualizar.values()], novos: [...novos.values()] };
-}
-
-// ---------- Pesquisa geral ----------
-
-/** Pontuação simples: todas as palavras têm de aparecer; começar pela pesquisa vale mais. */
-export function pontuar(texto, pesquisa) {
-  const t = chave(texto);
-  const palavras = chave(pesquisa).split(' ').filter(Boolean);
-  if (!palavras.length || !palavras.every((p) => t.includes(p))) return 0;
-  return (t.startsWith(palavras[0]) ? 3 : 1) + (t === chave(pesquisa) ? 5 : 0);
 }

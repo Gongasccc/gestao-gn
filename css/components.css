@@ -746,7 +746,7 @@ input[type="date"].input, input[type="time"].input { min-width: 0; }
 #toast-stack {
   position: fixed;
   z-index: 7000;
-  top: calc(var(--safe-top) + var(--topbar-height) + 20px);
+  top: calc(var(--safe-top) + var(--topo-folga) + var(--topbar-height) + 20px);
   left: 0;
   right: 0;
   display: flex;

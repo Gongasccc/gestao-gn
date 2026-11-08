@@ -318,3 +318,6 @@
 .lista-promo__tag--fora { background: var(--text-faint); }
 .lista-loja-btn--so-logo, .folhetos__loja { width: 60px; }
 .folhetos__dias { font-size: 10.5px; font-weight: 600; color: var(--text-faint); letter-spacing: .02em; }
+
+/* Subcategoria do SuperSave (prateleira) por baixo do nome do artigo. */
+.lista-item__sub { display: block; font-size: 11px; color: var(--text-faint); margin-top: 1px; }

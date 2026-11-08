@@ -1,6 +1,7 @@
 // Leitura automática de faturas/talões de supermercado com o Gemini.
 import { pedirJson } from '../../services/gemini.js';
 import { CATEGORIAS, arred } from './stats.js';
+import { listaParaIa, subPorNome, subcategoriaDe } from '../../data/categorias.js';
 
 const PROMPT = `Lês talões e faturas de supermercados portugueses (Continente, Pingo Doce, Lidl, Auchan, Intermarché, Mercadona, Minipreço, Aldi, etc.).
 Os talões ENCURTAM os nomes (ex.: "LEITE UHT M/G MIM 1L", "IOG NAT CONT 4X125G", "DET ROUP SKIP LIQ 40D", "FGO PEITO BIFE KG").
@@ -26,11 +27,14 @@ Devolve APENAS um objeto JSON com esta forma exata:
       "precoUnitario": 0.00,
       "total": 0.00,
       "desconto": 0.00,
-      "categoria": "${Object.keys(CATEGORIAS).join(' | ')}"
+      "categoria": "${Object.keys(CATEGORIAS).join(' | ')}",
+      "subcategoria": "nome exato de uma subcategoria dessa categoria (lista abaixo), ou vazio"
     }
   ],
   "descontos": [{ "descricao": "ex.: Desconto imediato, Promoção leve 2 pague 1, Cupão", "valor": 0.00 }]
 }
+Categorias e subcategorias (as do SuperSave; usa o id da categoria e o nome exato da subcategoria):
+${listaParaIa()}
 Regras do nome padrão ("produto"):
 - Português de Portugal, palavras completas, só a primeira letra maiúscula (e as marcas): "Iogurte natural Continente 4 × 125 g", "Água mineral Luso 6 × 1,5 L", "Peito de frango", "Banana".
 - Expande abreviaturas: MG ou M/G = meio-gordo, MAG = magro, IOG = iogurte, QJ = queijo, FGO = frango, DET = detergente, ROUP = roupa, LIQ = líquido, AG = água, S/ = sem, C/ = com, CONT = Continente, PD = Pingo Doce, 40D = 40 doses.
@@ -89,7 +93,8 @@ export function normalizarFatura(d) {
         desconto: arred(Math.abs(num(i.desconto))),
         categoria: CATEGORIAS[i.categoria] ? i.categoria : 'outros',
       };
-    });
+    })
+    .map((i, n) => ({ ...i, sub: subDaIa(d.itens.filter((x) => x && (x.nome || x.produto))[n], i) }));
   const descontos = (Array.isArray(d.descontos) ? d.descontos : [])
     .filter((x) => x && num(x.valor))
     .map((x) => ({ descricao: String(x.descricao || 'Desconto'), valor: arred(Math.abs(num(x.valor))) }));
@@ -130,7 +135,9 @@ export async function lerFatura(ficheiro, contexto = {}) {
 const PROMPT_NOMES = `És especialista em talões de supermercados portugueses. Recebes linhas de produtos tal como aparecem nos talões (abreviadas), com a loja.
 Para cada linha, decifra o produto e dá um nome padrão igual em todas as lojas: tipo + variante + marca + embalagem,
 em português de Portugal, palavras completas, só a primeira letra maiúscula (e as marcas). Ex.: "LEITE UHT M/G MIM 1L" => "Leite UHT meio-gordo Mimosa 1 L".
-Devolve APENAS JSON: {"itens": [{"i": 0, "produto": "...", "categoria": "${Object.keys(CATEGORIAS).join(' | ')}"}]}
+Devolve APENAS JSON: {"itens": [{"i": 0, "produto": "...", "categoria": "${Object.keys(CATEGORIAS).join(' | ')}", "subcategoria": "..."}]}
+Categorias e subcategorias (as do SuperSave):
+${listaParaIa()}
 Usa o mesmo "i" de cada linha. Se não souberes o que é, devolve o nome expandido o melhor possível.`;
 
 /**
@@ -148,8 +155,15 @@ export async function decifrarNomes(linhas, exemplos = [], catalogo = []) {
   for (const x of Array.isArray(r?.itens) ? r.itens : []) {
     const i = Number(x?.i);
     if (Number.isInteger(i) && i >= 0 && i < out.length && x.produto) {
-      out[i] = { produto: String(x.produto).trim(), categoria: CATEGORIAS[x.categoria] ? x.categoria : 'outros' };
+      const categoria = CATEGORIAS[x.categoria] ? x.categoria : 'outros';
+      const produto = String(x.produto).trim();
+      out[i] = { produto, categoria, sub: subPorNome(categoria, x.subcategoria) || subcategoriaDe(produto, categoria) };
     }
   }
   return out;
+}
+
+/** Subcategoria (id) a partir do nome que a IA deu, ou adivinhada pelo nome do produto. */
+function subDaIa(bruto, item) {
+  return subPorNome(item.categoria, bruto?.subcategoria) || subcategoriaDe(item.produto, item.categoria);
 }

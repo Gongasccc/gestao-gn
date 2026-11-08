@@ -19,6 +19,9 @@ import { faturaDoQr, lerCamposQr, LOJAS_NIF } from './qr.js';
 import { analisarTexto, juntarLeituras, reclassificarCharcutaria, categoriaPorNome } from './texto.js';
 import { carregarImagem, procurarQr, textoPorOcr, lerPdf } from './local.js';
 import {
+  CATEGORIAS as LISTA_CATEGORIAS, categoria as categoriaDados, rotulo, subcategoriaDe,
+} from '../../data/categorias.js';
+import {
   CATEGORIAS, nomeMes, deslocarMes, mesAtual, daMes, resumoMes, evolucaoMensal,
   porLoja, porCategoria, compararPrecos, maisComprados, duplicada, arred,
 } from './stats.js';
@@ -541,7 +544,7 @@ function desenharFatura() {
         <button class="fat-produto pressable" data-action="faturas:editar-item" data-idx="${idx}">
           <span class="fat-produto__info">
             <strong>${i.produto || i.nome}${i.aprendido || i.confirmado ? html` <span class="fat-aprendido" title="Nome aprendido">${icon('check', 12)}</span>` : ''}</strong>
-            <small>${i.quantidade !== 1 ? `${String(i.quantidade).replace('.', ',')} ${i.unidade} × ${euro(i.precoUnitario)} · ` : ''}${CATEGORIAS[i.categoria] || 'Outros'}${porUnidadeTxt(i)}</small>
+            <small>${i.quantidade !== 1 ? `${String(i.quantidade).replace('.', ',')} ${i.unidade} × ${euro(i.precoUnitario)} · ` : ''}${rotuloItem(i)}${porUnidadeTxt(i)}</small>
             ${i.nome && i.nome !== i.produto ? html`<small class="fat-talao">${i.nome}</small>` : ''}
           </span>
           <span class="fat-produto__preco">
@@ -573,8 +576,20 @@ function porUnidadeTxt(i) {
   return pu ? ` · ${euro(pu.valor)}/${pu.unidade}` : '';
 }
 
-const opcoesCategoria = (sel) => Object.entries(CATEGORIAS)
-  .map(([k, nome]) => html`<option value="${k}" ${k === sel ? 'selected' : ''}>${nome}</option>`);
+const opcoesCategoria = (sel) => LISTA_CATEGORIAS
+  .map((c) => html`<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${c.emoji} ${c.nome}</option>`);
+
+/** Subcategoria guardada (se ainda for dessa categoria) ou adivinhada pelo nome. */
+const subDoItem = (i) => (i.sub && String(i.sub).startsWith(`${i.categoria}:`) ? i.sub : subcategoriaDe(i.produto || i.nome, i.categoria));
+const rotuloItem = (i) => rotulo(CATEGORIAS[i.categoria] ? i.categoria : 'outros', subDoItem(i));
+
+/** Opções de subcategoria da categoria escolhida no editor de produto. */
+function preencherSubs(cat, sel = '') {
+  const subs = categoriaDados(cat).subs;
+  const campoSub = byId('fat-it-sub-campo');
+  if (campoSub) campoSub.hidden = subs.length < 2;
+  render('fat-it-sub', html`<option value="">Automática</option>${subs.map((s) => html`<option value="${s.id}" ${s.id === sel ? 'selected' : ''}>${s.nome}</option>`)}`);
+}
 
 async function persistir() {
   if (rascunho || !atual?.id) return;
@@ -659,7 +674,7 @@ async function decifrarAntigas() {
       lote.forEach((l, j) => {
         if (!r[j]) return;
         const k = chaveTalao(l.nome);
-        const v = { o: l.nome, produto: r[j].produto, categoria: r[j].categoria, n: 1, c: false, t: Date.now() };
+        const v = { o: l.nome, produto: r[j].produto, categoria: r[j].categoria, sub: r[j].sub || '', n: 1, c: false, t: Date.now() };
         novas[`${chaveLoja(l.loja)}:${k}`] = v;
         if (!dicionario[`*:${k}`]) novas[`*:${k}`] = v;
       });
@@ -822,7 +837,8 @@ export default {
         ${campo('fat-it-qtd', 'Quantidade', html`<input class="input" type="number" step="0.001" inputmode="decimal" id="fat-it-qtd">`)}
         ${campo('fat-it-total', 'Total (€)', html`<input class="input" type="number" step="0.01" inputmode="decimal" id="fat-it-total">`)}
       </div>
-      ${campo('fat-it-cat', 'Categoria', html`<select class="input" id="fat-it-cat">${opcoesCategoria('outros')}</select>`)}
+      ${campo('fat-it-cat', 'Categoria', html`<select class="input" id="fat-it-cat" data-change="faturas:cat-item">${opcoesCategoria('outros')}</select>`)}
+      <div id="fat-it-sub-campo">${campo('fat-it-sub', 'Subcategoria', html`<select class="input" id="fat-it-sub"></select>`)}</div>
       <div class="btn-row">
         <button class="btn btn--danger-soft pressable" data-action="faturas:remover-item">${icon('trash', 16)} Remover</button>
         <button class="btn btn--primary pressable" data-action="faturas:guardar-item">Guardar</button>
@@ -915,6 +931,7 @@ export default {
       byId('fat-it-qtd').value = i.quantidade;
       byId('fat-it-total').value = i.total;
       byId('fat-it-cat').value = CATEGORIAS[i.categoria] ? i.categoria : 'outros';
+      preencherSubs(byId('fat-it-cat').value, i.sub && String(i.sub).startsWith(`${i.categoria}:`) ? i.sub : '');
       openModal('modal-fat-item');
     },
     'faturas:novo-item': () => {
@@ -926,7 +943,11 @@ export default {
       byId('fat-it-qtd').value = 1;
       byId('fat-it-total').value = '';
       byId('fat-it-cat').value = 'outros';
+      preencherSubs('outros');
       openModal('modal-fat-item');
+    },
+    'faturas:cat-item': () => {
+      preencherSubs(byId('fat-it-cat').value);
     },
     'faturas:guardar-item': async () => {
       if (!atual) return;
@@ -947,6 +968,7 @@ export default {
         total,
         precoUnitario: arred(total / quantidade),
         categoria: byId('fat-it-cat').value,
+        sub: byId('fat-it-sub').value,
       });
       await closeModal('modal-fat-item');
       desenharFatura();

@@ -254,7 +254,7 @@
 .modal--sheet { z-index: 5500; }
 .action-sheet { background: transparent; border: 0; box-shadow: none; padding: 0 10px calc(var(--safe-bottom) + 10px); max-width: 480px; }
 .action-sheet__title { text-align: center; font-size: 13px; color: var(--text-muted); padding: 12px; background: var(--bg-elevated); border-radius: 14px 14px 0 0; border-bottom: 1px solid var(--hairline); }
-.action-sheet__group { border-radius: 14px; overflow: hidden; background: var(--bg-elevated); }
+.action-sheet__group { border-radius: 14px; overflow: hidden auto; max-height: min(62vh, 560px); overscroll-behavior: contain; background: var(--bg-elevated); }
 .action-sheet__title + .action-sheet__group { border-radius: 0 0 14px 14px; }
 .action-sheet__item {
   width: 100%;

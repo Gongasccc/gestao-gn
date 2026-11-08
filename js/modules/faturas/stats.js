@@ -1,25 +1,13 @@
 // Contas das faturas do supermercado: gastos por mês, por loja e por categoria,
 // poupanças e comparação de preços. Funções puras (testadas em tests/faturas.test.mjs).
 import { precoPorUnidade } from './produtos.js';
+import { CATEGORIAS as LISTA_CATEGORIAS } from '../../data/categorias.js';
 
 export const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 const MESES_LONGOS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
-export const CATEGORIAS = {
-  frescos: 'Fruta e legumes',
-  talho: 'Carne e peixe',
-  charcutaria: 'Charcutaria',
-  laticinios: 'Laticínios e ovos',
-  padaria: 'Padaria',
-  mercearia: 'Mercearia',
-  congelados: 'Congelados',
-  bebidas: 'Bebidas',
-  limpeza: 'Limpeza',
-  higiene: 'Higiene',
-  bebe: 'Bebé',
-  animais: 'Animais',
-  outros: 'Outros',
-};
+// As mesmas categorias da lista de compras, vindas do SuperSave (js/data/categorias.js).
+export const CATEGORIAS = Object.fromEntries(LISTA_CATEGORIAS.map((c) => [c.id, c.nome]));
 
 export const arred = (v) => Math.round((Number(v) || 0) * 100) / 100;
 

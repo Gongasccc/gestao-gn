@@ -15,7 +15,8 @@ const lists = new Map();
 
 /**
  * Campos: { name, label, type, options, placeholder, required, default, hint }
- * type: text | textarea | number | money | date | time | select | member | photo | url | tel | checkbox
+ * type: text | textarea | number | money | date | time | select | member | members | photo | url | tel | checkbox
+ * members: escolher várias pessoas do grupo (devolve uma lista de uids; vazio = todos)
  */
 export function createRecordList(cfg) {
   const state = { items: [], editing: null, filter: null };
@@ -45,6 +46,15 @@ export function createRecordList(cfg) {
         const opts = f.type === 'member' ? memberOptions(f.both !== false) : (typeof f.options === 'function' ? f.options() : f.options);
         return html`<div class="field">${label}<select id="${id}" class="input">${opts.map((o) => html`<option value="${o.value}" ${String(o.value) === String(v) ? 'selected' : ''}>${o.label}</option>`)}</select></div>`;
       }
+      case 'members': {
+        if (session.members.length < 2) return '';
+        const marcados = Array.isArray(v) && v.length ? v : session.members.map((m) => m.uid);
+        return html`<div class="field"><span class="field__label">${f.label}</span>
+          <div class="member-chips" id="${id}">${session.members.map((m) => html`
+            <label class="member-chip pressable"><input type="checkbox" value="${m.uid}" ${marcados.includes(m.uid) ? 'checked' : ''}>
+              <span>${m.uid === session.uid ? `${m.name.split(' ')[0]} (eu)` : m.name.split(' ')[0]}</span></label>`)}
+          </div>${f.hint ? html`<span class="field__hint">${f.hint}</span>` : ''}</div>`;
+      }
       case 'photo':
         return html`<div class="field">${photoPickerTpl(id, f.label, { maxSize: f.maxSize || 1400 })}</div>`;
       case 'checkbox':
@@ -63,6 +73,12 @@ export function createRecordList(cfg) {
       const el = byId(fieldId(f.name));
       if (f.type === 'photo') out[f.name] = getPhoto(fieldId(f.name));
       else if (f.type === 'checkbox') out[f.name] = !!el?.checked;
+      else if (f.type === 'members') {
+        const todos = el ? [...el.querySelectorAll('input')] : [];
+        const sel = todos.filter((i) => i.checked).map((i) => i.value);
+        // Todos marcados (ou nenhum) = dividir por todos, também por quem entrar depois no grupo.
+        out[f.name] = sel.length && sel.length < todos.length ? sel : [];
+      }
       else if (f.type === 'number' || f.type === 'money') out[f.name] = el?.value === '' ? null : Number(el.value);
       else out[f.name] = (el?.value ?? '').trim();
     }

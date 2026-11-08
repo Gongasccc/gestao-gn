@@ -1,11 +1,12 @@
-// Finanças do casal: despesas do dia a dia, quem deve a quem, contas fixas e orçamento mensal.
+// Finanças do grupo (casal, família, amigos, casa partilhada): despesas do dia a dia, quem deve a quem, contas fixas e orçamento mensal.
 import { html, render, byId, setText } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { createScope, session, memberName, on } from '../core/state.js';
 import { toast, openModal, closeModal, modalTemplate, confirmDialog } from '../core/ui.js';
 import { money, todayISO, isoToShort, pad2 } from '../core/format.js';
 import { daysUntil } from '../core/dates.js';
-import { balances, settlement, totalsByCategory, sum } from '../core/money.js';
+import { balances, transfers, totalsByCategory, sum } from '../core/money.js';
+import { avatar } from '../components/avatar.js';
 import { addDoc, updateDoc, setDoc, onSnapshot, arrayUnion, arrayRemove } from '../services/firebase.js';
 import { sharedCol, sharedDoc } from '../services/paths.js';
 import { createRecordList } from '../components/record-list.js';
@@ -59,12 +60,13 @@ const expenses = createRecordList({
       name: 'divisao',
       label: 'Como se divide',
       type: 'select',
-      options: [
-        { value: 'metade', label: 'A meias' },
+      options: () => [
+        { value: 'metade', label: session.members.length > 2 ? 'Partes iguais' : 'A meias' },
         { value: 'pagador', label: 'Só de quem pagou (pessoal)' },
-        { value: 'outro', label: 'Toda do outro (adiantei)' },
+        { value: 'outro', label: session.members.length > 2 ? 'Toda dos outros (adiantei)' : 'Toda do outro (adiantei)' },
       ],
     },
+    { name: 'entre', label: 'Dividir entre', type: 'members', hint: 'Desmarca quem não participou (ex.: o jantar em que a Ana não foi).' },
     { name: 'data', label: 'Data', type: 'date', default: todayISO },
   ],
   filter: (e) => String(e.data || '').startsWith(ym()),
@@ -74,7 +76,7 @@ const expenses = createRecordList({
     <span class="record__icon ${e.tipo === 'acerto' ? 'record__icon--green' : ''}">${icon(e.tipo === 'acerto' ? 'check' : cat(e.categoria).icon, 18)}</span>
     <span class="record__main">
       <span class="record__title">${e.descricao}</span>
-      <span class="record__meta">${memberName(e.pagoPor)} pagou${e.divisao === 'pagador' ? ' · pessoal' : e.divisao === 'outro' ? ' · adiantado' : ''}${e.combustivel?.litros ? ` · ${String(e.combustivel.litros).replace('.', ',')} L` : ''}${e.fatura ? ' · fatura' : ''}</span>
+      <span class="record__meta">${e.tipo === 'acerto' && e.para ? `${memberName(e.pagoPor)} pagou a ${memberName(e.para)}` : `${memberName(e.pagoPor)} pagou`}${e.divisao === 'pagador' ? ' · pessoal' : e.divisao === 'outro' && e.tipo !== 'acerto' ? ' · adiantado' : ''}${e.entre?.length && e.divisao !== 'pagador' ? ` · entre ${e.entre.map((u) => memberName(u)).join(', ')}` : ''}${e.combustivel?.litros ? ` · ${String(e.combustivel.litros).replace('.', ',')} L` : ''}${e.fatura ? ' · fatura' : ''}</span>
     </span>
     <span class="record__value">${money(e.valor)}</span>`,
   onChange: () => drawSummary(),
@@ -94,6 +96,7 @@ const bills = createRecordList({
     { name: 'dia', label: 'Dia de pagamento (1-31)', type: 'number', default: 1 },
     { name: 'categoria', label: 'Categoria', type: 'select', options: CATEGORIES, default: 'contas' },
     { name: 'pagoPor', label: 'Quem costuma pagar', type: 'member', both: false, default: () => session.uid },
+    { name: 'entre', label: 'Dividir entre', type: 'members', hint: 'Ao marcar como paga, a despesa divide-se por estas pessoas.' },
     { name: 'debito', label: 'Débito direto', type: 'checkbox' },
   ],
   sort: (a, b) => (a.dia || 0) - (b.dia || 0),
@@ -128,6 +131,26 @@ export function pendingBills(items = bills.items()) {
   return items.filter((b) => !(b.pagoMeses || []).includes(cur));
 }
 
+/** Saldo de cada pessoa e os pagamentos que faltam para ficarem quites. */
+function balanceTpl(bal) {
+  const pagamentos = transfers(bal);
+  const pessoas = session.members.filter((m) => Math.abs(bal[m.uid] || 0) >= 0.01);
+  if (!pagamentos.length) return html`<div class="balance"><span>${icon('check', 16)} ${session.members.length > 2 ? 'Estão todos quites!' : 'Estão quites!'}</span></div>`;
+  return html`
+    ${session.members.length > 2 ? html`<div class="saldos">
+      ${pessoas.map((m) => {
+        const v = bal[m.uid];
+        return html`<div class="saldo">${avatar(m.name, m.avatar, 'sm')}
+          <span class="saldo__nome">${m.uid === session.uid ? 'Eu' : m.name.split(' ')[0]}</span>
+          <span class="saldo__valor ${v > 0 ? 'is-pos' : 'is-neg'}">${v > 0 ? 'recebe' : 'deve'} ${money(Math.abs(v))}</span></div>`;
+      })}
+    </div>` : ''}
+    ${pagamentos.map((t) => html`<div class="balance">
+      <span><strong>${t.from === session.uid ? 'Eu' : memberName(t.from)}</strong> ${t.from === session.uid ? 'devo' : 'deve'} <strong class="accent">${money(t.valor)}</strong> a <strong>${t.to === session.uid ? 'mim' : memberName(t.to)}</strong></span>
+      <button class="btn btn--small btn--primary pressable" data-action="fin:settle" data-from="${t.from}" data-to="${t.to}" data-valor="${t.valor}">${icon('check', 14)} Acertar</button>
+    </div>`)}`;
+}
+
 function drawSummary() {
   const all = expenses.items();
   const monthItems = all.filter((e) => String(e.data || '').startsWith(ym()) && e.tipo !== 'acerto');
@@ -136,15 +159,9 @@ function drawSummary() {
   setText('fin-count', `${monthItems.length} despesa(s)`);
 
   // Saldo do grupo (todas as despesas, não só do mês).
-  const s = session.members.length > 1 ? settlement(balances(all, memberUids())) : null;
   render('fin-balance', session.members.length < 2
     ? html`<p class="muted small">Cria ou entra num grupo em "Grupos" para dividirem despesas.</p>`
-    : s
-      ? html`<div class="balance">
-          <span><strong>${memberName(s.from)}</strong> deve <strong class="accent">${money(s.valor)}</strong> a <strong>${memberName(s.to)}</strong></span>
-          <button class="btn btn--small btn--primary pressable" data-action="fin:settle">${icon('check', 14)} Acertar</button>
-        </div>`
-      : html`<div class="balance"><span>${icon('check', 16)} Estão quites!</span></div>`);
+    : balanceTpl(balances(all, memberUids())));
 
   const totals = totalsByCategory(all, ym());
   const rows = CATEGORIES.filter((c) => totals[c.value] || budget[c.value]).map((c) => {
@@ -204,7 +221,7 @@ export default {
           <span class="muted small" id="fin-count"></span>
         </div>
         <div class="card glass">
-          <h3 class="card__title">${icon('users', 18)} Entre nós</h3>
+          <h3 class="card__title">${icon('users', 18)} Quem deve a quem</h3>
           <div id="fin-balance"></div>
         </div>
         <div class="card glass">
@@ -249,14 +266,14 @@ export default {
         const day = billDueDate(b);
         await addDoc(sharedCol('despesas'), {
           descricao: b.nome, valor: Number(b.valor), categoria: b.categoria || 'contas', pagoPor: b.pagoPor || session.uid,
-          divisao: 'metade', data: `${ym()}-${pad2(day.getDate())}`, contaFixaId: b.id, createdBy: session.uid, timestamp: Date.now(),
+          divisao: 'metade', entre: b.entre || [], data: `${ym()}-${pad2(day.getDate())}`, contaFixaId: b.id, createdBy: session.uid, timestamp: Date.now(),
         });
         toast(`${b.nome} marcada como paga e registada nas despesas`);
       }
     },
-    'fin:settle': async () => {
-      const s = settlement(balances(expenses.items(), memberUids()));
-      if (!s) return;
+    'fin:settle': async ({ data }) => {
+      const s = { from: data.from, to: data.to, valor: Number(data.valor) };
+      if (!s.from || !s.to || !s.valor) return;
       const ok = await confirmDialog(`${memberName(s.from)} pagou ${money(s.valor)} a ${memberName(s.to)}?`, { title: 'Acertar contas', confirmLabel: 'Sim, acertar' });
       if (!ok) return;
       await addDoc(sharedCol('despesas'), {

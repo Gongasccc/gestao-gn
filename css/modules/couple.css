@@ -301,3 +301,23 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 .ffat-combustivel[hidden] { display: none; }
 .ffat-igual { margin-top: 12px; border-color: var(--accent); }
 @media (max-width: 380px) { .fin-importar, .ffat-botoes { grid-template-columns: 1fr; } }
+
+/* ---------- Despesas do grupo: dividir entre e saldos por pessoa ---------- */
+.member-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.member-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline); background: var(--bg-elevated); color: var(--text-muted);
+  font-size: 13.5px; font-weight: 600; cursor: pointer; user-select: none;
+  transition: background var(--dur) var(--ease-soft), color var(--dur), border-color var(--dur), transform var(--dur) var(--ease-spring);
+}
+.member-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.member-chip:has(input:checked) { background: rgba(var(--accent-rgb), .12); border-color: rgba(var(--accent-rgb), .45); color: var(--accent); }
+.member-chip:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.member-chip:active { transform: scale(.95); }
+.saldos { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
+.saldo { display: flex; align-items: center; gap: 10px; }
+.saldo__nome { flex: 1; font-weight: 600; }
+.saldo__valor { font-weight: 700; font-size: 13.5px; }
+.saldo__valor.is-pos { color: var(--green); }
+.saldo__valor.is-neg { color: var(--red); }
+#fin-balance .balance + .balance { margin-top: 8px; }

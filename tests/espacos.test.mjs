@@ -68,3 +68,23 @@ test('acertos de contas com três pessoas', () => {
   assert.deepEqual(balances(despesas, m), { a: 0, b: 0, c: 0 });
   assert.equal(settlement(balances(despesas, m)), null);
 });
+
+test('despesas do grupo: dividir só entre quem participou', async () => {
+  const { transfers } = await import('../js/core/money.js');
+  const m = ['a', 'b', 'c', 'd'];
+  const desp = [
+    { valor: 800, pagoPor: 'a' }, // renda, todos
+    { valor: 60, pagoPor: 'b', entre: ['b', 'c'] }, // jantar só dos dois
+    { valor: 30, pagoPor: 'c', divisao: 'outro', entre: ['c', 'd'] }, // adiantou à d
+  ];
+  const bal = balances(desp, m);
+  assert.deepEqual(bal, { a: 600, b: -170, c: -200, d: -230 });
+  const t = transfers(bal);
+  assert.equal(t.reduce((s, x) => s + x.valor, 0), 600);
+  assert.ok(t.every((x) => x.to === 'a'));
+  // Depois de pagar tudo, ficam quites.
+  t.forEach((x) => desp.push({ valor: x.valor, pagoPor: x.from, para: x.to, divisao: 'outro', tipo: 'acerto' }));
+  assert.deepEqual(transfers(balances(desp, m)), []);
+  // entre com alguém que já saiu do grupo é ignorado.
+  assert.deepEqual(balances([{ valor: 10, pagoPor: 'a', entre: ['a', 'zz'] }], ['a', 'b']), { a: 0, b: 0 });
+});

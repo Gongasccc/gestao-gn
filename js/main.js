@@ -3,7 +3,7 @@ import { byId } from './core/dom.js';
 import { initEvents, registerActions } from './core/events.js';
 import { initUI } from './core/ui.js';
 import { initRouter, registerPage, navigate, resetRouter } from './core/router.js';
-import { emit, on, createScope } from './core/state.js';
+import { emit, on, createScope, session } from './core/state.js';
 import { restoreThemeFromCache } from './core/theme.js';
 import { initViewportFix } from './core/viewport.js';
 import { initGlassEffects } from './core/glass.js';
@@ -15,6 +15,7 @@ import { watchHousehold } from './services/household.js';
 import { garantirPartilhas } from './services/partilhas.js';
 import { cacheLocalAtiva } from './services/firebase.js';
 import { toast } from './core/ui.js';
+import { initOffline } from './core/offline.js';
 
 const householdScope = createScope();
 
@@ -61,8 +62,37 @@ function stopModules() {
   resetChecklists();
 }
 
+// Atalhos do ícone da app (manifest.webmanifest > shortcuts) e notificações: ./#<destino>.
+const ATALHOS = {
+  'menu-notificacoes': { page: 'menu-notificacoes' },
+  'menu-lista-compras': { page: 'menu-lista-compras', foco: 'lista-input' },
+  'menu-tarefas': { page: 'menu-tarefas' },
+  'menu-despensa': { page: 'menu-despensa', foco: 'desp-input' },
+  'menu-pesquisa': { page: 'menu-pesquisa' },
+  'nova-despesa': { page: 'menu-financas', clicar: '[data-action="rl:new"][data-list="despesas"]' },
+};
+function abrirAtalho(destino) {
+  const a = ATALHOS[destino];
+  if (!a) return;
+  navigate(a.page);
+  history.replaceState(history.state, '', location.pathname + location.search);
+  setTimeout(() => {
+    if (a.clicar) document.querySelector(a.clicar)?.click();
+    if (a.foco) byId(a.foco)?.focus();
+  }, 350);
+}
+
+// Computador: "/" ou Ctrl/Cmd+K abre a pesquisa geral.
+document.addEventListener('keydown', (ev) => {
+  const aEscrever = ev.target.closest?.('input, textarea, select, [contenteditable]');
+  if (((ev.key === 'k' || ev.key === 'K') && (ev.metaKey || ev.ctrlKey)) || (ev.key === '/' && !aEscrever)) {
+    if (session.uid) { ev.preventDefault(); navigate('menu-pesquisa'); }
+  }
+});
+
 initEvents();
 initUI();
+initOffline();
 initRouter();
 mountModules();
 initNavigation();
@@ -89,12 +119,8 @@ initAuth({
     emit('avatar:refresh');
     resetRouter();
     navigate('menu-principal');
-    // Aberta a partir de uma notificação do sistema (ex.: ./#menu-notificacoes).
-    const destino = location.hash.slice(1);
-    if (destino === 'menu-notificacoes') {
-      navigate(destino);
-      history.replaceState(null, '', location.pathname + location.search);
-    }
+    // Aberta a partir de uma notificação do sistema (ex.: ./#menu-notificacoes) ou de um atalho do ícone.
+    abrirAtalho(location.hash.slice(1));
   },
   onLogout() {
     closeSidebar();

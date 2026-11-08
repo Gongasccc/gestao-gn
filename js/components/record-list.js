@@ -9,6 +9,7 @@ import { addDoc, updateDoc, deleteDoc, onSnapshot } from '../services/firebase.j
 import { snapToList, storageScope } from '../services/paths.js';
 import { uploadDataUrl, removeFile } from '../services/storage.js';
 import { photoPickerTpl, setPhoto, getPhoto } from './photo-picker.js';
+import { registarAtividade } from '../services/atividade.js';
 
 const lists = new Map();
 
@@ -111,6 +112,11 @@ export function createRecordList(cfg) {
       if (state.editing) await updateDoc(cfg.docRef(state.editing.id), payload);
       else await addDoc(cfg.col(), { ...payload, createdBy: session.uid, timestamp: Date.now() });
     });
+    // Atividade recente do grupo (ex.: "registou a despesa Jantar · 24,00 €").
+    if (!state.editing && cfg.atividade) {
+      const a = cfg.atividade(data);
+      if (a) registarAtividade(a.texto ?? a, typeof a === 'object' ? a : {});
+    }
     closeModal(ids.modal);
     toast(state.editing ? 'Alterações guardadas' : (cfg.addedToast || 'Adicionado'));
   }

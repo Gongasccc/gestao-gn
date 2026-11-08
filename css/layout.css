@@ -10,8 +10,8 @@ body.is-authed .app { display: block; }
   top: 0;
   left: 0;
   right: 0;
-  height: calc(var(--safe-top) + var(--topbar-height));
-  padding: var(--safe-top) 12px 0;
+  height: calc(var(--safe-top) + var(--topo-folga) + var(--topbar-height));
+  padding: calc(var(--safe-top) + var(--topo-folga)) 12px 0;
   display: grid;
   grid-template-columns: minmax(44px, auto) 1fr minmax(44px, auto);
   align-items: center;
@@ -76,7 +76,7 @@ body.is-scrolled .topbar { border-bottom-color: var(--hairline); }
   max-width: var(--content-max);
   margin: 0 auto;
   padding:
-    calc(var(--safe-top) + var(--topbar-height) + 8px)
+    calc(var(--safe-top) + var(--topo-folga) + var(--topbar-height) + 8px)
     16px
     calc(var(--safe-bottom) + var(--bottom-nav-height) + 28px);
 }

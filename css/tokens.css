@@ -38,6 +38,8 @@
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* Folga entre a barra de estado do iPhone e o topo da app (só na app do ecrã principal, ver abaixo) */
+  --topo-folga: 0px;
 
   /* Movimento */
   --ease-out: cubic-bezier(.22, 1, .36, 1);
@@ -118,4 +120,11 @@
   --soft-bg: #F1F5F9;
   --soft-bg-hover: #E2E8F0;
   --overlay: rgba(15, 23, 42, .35);
+}
+
+/* App do ecrã principal (iPhone): desde o iOS 26 o sistema desenha um desfoque por baixo da barra de estado
+   que "puxa" o que está logo abaixo (avatar, título). Com uma pequena folga de fundo liso o desfoque
+   só apanha a cor do fundo e deixa de se ver. */
+@media (display-mode: standalone) {
+  :root { --topo-folga: 10px; }
 }

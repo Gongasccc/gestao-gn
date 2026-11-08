@@ -112,6 +112,9 @@
 .lista-loja__id {
   flex: 1;
   min-width: 0;
+  /* O botão corta o que sai dele (efeito de toque): espaço para o aro branco e a sombra do logótipo não ficarem cortados */
+  padding: 6px 0 10px 6px;
+  margin: -6px 0 -10px -6px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -119,7 +122,6 @@
   border: 0;
   color: inherit;
   text-align: left;
-  padding: 0;
 }
 .lista-loja__nome { display: flex; flex-direction: column; min-width: 0; }
 .lista-loja__nome strong { font-size: 18px; font-weight: 800; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

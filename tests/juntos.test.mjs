@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   resultado, votar, proximaData, diasAte, idadeQueFaz, proximosEventos, textoFaltam,
-  vezDe, concluirRotina, estadoRotina, ranking, estadoDespensa, juntarFatura, pontuar,
+  vezDe, concluirRotina, estadoRotina, ranking,
 } from '../js/modules/juntos/logica.js';
 
 test('votação: tocar escolhe, tocar outra vez tira, e conta percentagens', () => {
@@ -59,23 +59,4 @@ test('rotina passa para a pessoa seguinte e dá pontos a quem fez', () => {
   assert.equal(estadoRotina({ proxima: '2026-11-07' }, new Date(2026, 10, 8)), 'atrasada');
   const rk = ranking([{ ...rotina, pontos: { a: 1, c: 4 } }, { pessoas: [{ id: 'a', nome: 'Ana' }], pontos: { a: 5 } }]);
   assert.deepEqual(rk.map((x) => [x.nome, x.pontos]), [['Ana', 6], ['Carla', 4], ['Bruno', 0]]);
-});
-
-test('despensa: estados e juntar produtos de uma fatura', () => {
-  assert.equal(estadoDespensa({ quantidade: 0 }), 'acabou');
-  assert.equal(estadoDespensa({ quantidade: 1, minimo: 2 }), 'pouco');
-  assert.equal(estadoDespensa({ quantidade: 3, minimo: 2 }), 'ok');
-  const { atualizar, novos } = juntarFatura(
-    [{ id: 'x', nome: 'Leite Mimosa', quantidade: 1 }],
-    [{ produto: 'leite mimosa', quantidade: 6 }, { produto: 'Arroz', quantidade: 1 }, { produto: 'Arroz' }],
-  );
-  assert.deepEqual(atualizar, [{ id: 'x', quantidade: 7 }]);
-  assert.deepEqual(novos, [{ nome: 'Arroz', quantidade: 2 }]);
-});
-
-test('pesquisa exige todas as palavras e ignora acentos', () => {
-  assert.ok(pontuar('Arroz de pato', 'pato arroz') > 0);
-  assert.equal(pontuar('Arroz de pato', 'frango'), 0);
-  assert.ok(pontuar('Paracetamol', 'paracetamol') > pontuar('Ben-u-ron paracetamol', 'paracetamol'));
-  assert.ok(pontuar('Água Luso', 'agua') > 0);
 });

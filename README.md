@@ -127,12 +127,10 @@ export default {
 - Ficheiros vão para o Firebase Storage; o Firestore guarda só o link.
 - `sw.js` guarda a app para abrir offline e o Firestore tem cache local persistente.
 
-## Juntos, Rotinas, Despensa e Pesquisa
+## Juntos e Rotinas
 
 - **Juntos** (`js/modules/juntos/`): Atividade recente (`atividade`, escrita por `services/atividade.js` com `registarAtividade()`), Votações (`votacoes`) e Eventos/aniversários com ideias de presente (`eventos_grupo`; não usar `eventos`, que a limpeza dos menus antigos apaga).
 - **Rotinas** (Tarefas > Rotinas, `rotinas`): tarefas que se repetem e passam à pessoa seguinte, com pontos e ranking. Aceita pessoas escritas à mão.
-- **Despensa** (`despensa`, `config/despensa`): quantidades e mínimos; o que acaba vai para a Lista de compras (`semanais`). Importa produtos de uma fatura.
 - **Farmácia > Calendário de tomas**: 7 dias com anel de progresso e cumprimento por pessoa.
-- **Pesquisar**: procura em receitas, lista, despensa, medicamentos, despesas, tarefas, rotinas e eventos. No computador abre com `/` ou Ctrl+K.
-- Sem rede aparece um aviso; o ícone da app tem atalhos (Android/computador) para Lista, Nova despesa, Tarefas e Pesquisar (`./#<destino>`, ver `ATALHOS` em `js/main.js`).
+- Sem rede aparece um aviso; o ícone da app tem atalhos (Android/computador) para Lista, Nova despesa e Tarefas (`./#<destino>`, ver `ATALHOS` em `js/main.js`).
 - As contas puras estão em `js/modules/juntos/logica.js` (testes em `tests/juntos.test.mjs`).

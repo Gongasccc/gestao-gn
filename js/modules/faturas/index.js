@@ -19,7 +19,7 @@ import { faturaDoQr, lerCamposQr, LOJAS_NIF } from './qr.js';
 import { analisarTexto, juntarLeituras, reclassificarCharcutaria, categoriaPorNome } from './texto.js';
 import { carregarImagem, procurarQr, textoPorOcr, lerPdf } from './local.js';
 import {
-  CATEGORIAS as LISTA_CATEGORIAS, categoria as categoriaDados, rotulo, subcategoriaDe,
+  CATEGORIAS as LISTA_CATEGORIAS, categoria as categoriaDados, rotulo, subcategoriaDe, nomeSub,
 } from '../../data/categorias.js';
 import {
   CATEGORIAS, nomeMes, deslocarMes, mesAtual, daMes, resumoMes, evolucaoMensal,
@@ -580,7 +580,7 @@ const opcoesCategoria = (sel) => LISTA_CATEGORIAS
   .map((c) => html`<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${c.emoji} ${c.nome}</option>`);
 
 /** Subcategoria guardada (se ainda for dessa categoria) ou adivinhada pelo nome. */
-const subDoItem = (i) => (i.sub && String(i.sub).startsWith(`${i.categoria}:`) ? i.sub : subcategoriaDe(i.produto || i.nome, i.categoria));
+const subDoItem = (i) => (i.sub && String(i.sub).startsWith(`${i.categoria}:`) && nomeSub(i.sub) ? i.sub : subcategoriaDe(i.produto || i.nome, i.categoria));
 const rotuloItem = (i) => rotulo(CATEGORIAS[i.categoria] ? i.categoria : 'outros', subDoItem(i));
 
 /** Opções de subcategoria da categoria escolhida no editor de produto. */

@@ -62,7 +62,7 @@ export function placeFromNominatim(r) {
   const a = r.address || {};
   const cidade = a.city || a.town || a.village || a.municipality || a.county || '';
   const nome = r.name || cidade || (r.display_name || '').split(',')[0];
-  return {
+  const place = {
     nome,
     cidade: cidade && cidade !== nome ? cidade : '',
     pais: a.country || '',
@@ -70,12 +70,32 @@ export function placeFromNominatim(r) {
     lat: Number(r.lat),
     lng: Number(r.lon),
   };
+  if (r.category) place.tipo = `${r.category}:${r.type || ''}`;
+  return place;
+}
+
+/** Categoria legível de um sítio (spot), a partir do tipo do OpenStreetMap. */
+export function spotCategory(tipo = '') {
+  const [cat, type] = String(tipo).split(':');
+  const T = {
+    museum: 'Museu', gallery: 'Galeria', viewpoint: 'Miradouro', attraction: 'Atração', zoo: 'Zoo', theme_park: 'Parque temático',
+    aquarium: 'Aquário', artwork: 'Arte', restaurant: 'Restaurante', cafe: 'Café', bar: 'Bar', pub: 'Bar', fast_food: 'Comida rápida',
+    ice_cream: 'Gelataria', place_of_worship: 'Igreja / templo', castle: 'Castelo', monument: 'Monumento', memorial: 'Memorial',
+    ruins: 'Ruínas', archaeological_site: 'Sítio arqueológico', park: 'Parque', garden: 'Jardim', beach: 'Praia', peak: 'Montanha',
+    hotel: 'Alojamento', hostel: 'Alojamento', guest_house: 'Alojamento', marketplace: 'Mercado', theatre: 'Teatro', cinema: 'Cinema',
+    station: 'Estação', aerodrome: 'Aeroporto', square: 'Praça', city: 'Cidade', town: 'Vila', village: 'Aldeia',
+  };
+  if (T[type]) return T[type];
+  const C = { historic: 'Histórico', tourism: 'Turismo', natural: 'Natureza', leisure: 'Lazer', shop: 'Compras', amenity: 'Serviço', place: 'Local' };
+  return C[cat] || '';
 }
 
 const NOMINATIM = 'https://nominatim.openstreetmap.org';
 
-export async function searchPlaces(q) {
-  const url = `${NOMINATIM}/search?format=jsonv2&addressdetails=1&limit=6&accept-language=pt-PT&q=${encodeURIComponent(q)}`;
+export async function searchPlaces(q, { near = null } = {}) {
+  let url = `${NOMINATIM}/search?format=jsonv2&addressdetails=1&limit=6&accept-language=pt-PT&q=${encodeURIComponent(q)}`;
+  // Perto de um destino: dá prioridade a resultados nessa zona (sem excluir os outros).
+  if (hasCoords(near)) url += `&viewbox=${near.lng - 0.35},${near.lat + 0.25},${near.lng + 0.35},${near.lat - 0.25}`;
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return (await res.json()).map(placeFromNominatim);
@@ -86,6 +106,45 @@ export async function reversePlace(lat, lng) {
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return { ...placeFromNominatim(await res.json()), lat, lng };
+}
+
+const OVERPASS = 'https://overpass-api.de/api/interpreter';
+
+/**
+ * Sítios populares perto de um ponto (OpenStreetMap / Overpass): monumentos, museus, miradouros…
+ * Os que têm artigo na Wikipédia aparecem primeiro (são normalmente os mais conhecidos).
+ */
+export async function discoverSpots(center, radius = 5000) {
+  if (!hasCoords(center)) return [];
+  const a = `(around:${radius},${center.lat},${center.lng})`;
+  const q = `[out:json][timeout:20];(
+    nwr${a}[tourism~"^(attraction|museum|viewpoint|gallery|zoo|theme_park|aquarium)$"][name];
+    nwr${a}[historic~"^(monument|castle|memorial|ruins|archaeological_site|fort|palace)$"][name];
+    nwr${a}[natural=beach][name];
+    nwr${a}[leisure~"^(park|garden)$"][name][wikidata];
+  );out center tags 80;`;
+  const res = await fetch(OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(q)}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  const seen = new Set();
+  return (json.elements || [])
+    .map((e) => {
+      const t = e.tags || {};
+      const lat = e.lat ?? e.center?.lat;
+      const lng = e.lon ?? e.center?.lon;
+      const key = t.tourism ? 'tourism' : t.historic ? 'historic' : t.natural ? 'natural' : 'leisure';
+      return {
+        nome: t['name:pt'] || t.name,
+        lat: Number(lat),
+        lng: Number(lng),
+        tipo: `${key}:${t[key]}`,
+        fama: (t.wikipedia || t.wikidata ? 2 : 0) + (t.tourism === 'attraction' || t.tourism === 'museum' ? 1 : 0),
+        dist: haversineKm(center, { lat: Number(lat), lng: Number(lng) }),
+      };
+    })
+    .filter((p) => p.nome && hasCoords(p) && !seen.has(p.nome) && seen.add(p.nome))
+    .sort((x, y) => y.fama - x.fama || x.dist - y.dist)
+    .slice(0, 24);
 }
 
 export function currentPosition() {
@@ -126,5 +185,37 @@ export function tileUrl(theme) {
     ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 }
+
+export const SATELLITE_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+export const SATELLITE_ATTRIBUTION = 'Imagens &copy; Esri, Maxar, Earthstar Geographics';
+
+/** Pontos de um arco suave entre a e b (para trajetos de avião no mapa). */
+export function arcPoints(a, b, n = 24) {
+  const dx = b.lng - a.lng;
+  const dy = b.lat - a.lat;
+  const bend = 0.18;
+  const cx = (a.lng + b.lng) / 2 - dy * bend;
+  const cy = (a.lat + b.lat) / 2 + dx * bend;
+  const out = [];
+  for (let i = 0; i <= n; i += 1) {
+    const t = i / n;
+    const lng = (1 - t) ** 2 * a.lng + 2 * (1 - t) * t * cx + t ** 2 * b.lng;
+    const lat = (1 - t) ** 2 * a.lat + 2 * (1 - t) * t * cy + t ** 2 * b.lat;
+    out.push([lat, lng]);
+  }
+  return out;
+}
+
+/** Meios de transporte (como se chegou a uma paragem). */
+export const TRANSPORTS = [
+  { id: 'carro', label: 'Carro', icon: 'car' },
+  { id: 'aviao', label: 'Avião', icon: 'plane' },
+  { id: 'comboio', label: 'Comboio', icon: 'train' },
+  { id: 'autocarro', label: 'Autocarro', icon: 'bus' },
+  { id: 'barco', label: 'Barco', icon: 'boat' },
+  { id: 'a-pe', label: 'A pé', icon: 'walk' },
+  { id: 'bicicleta', label: 'Bicicleta', icon: 'bike' },
+];
+export const transportOf = (id) => TRANSPORTS.find((t) => t.id === id) || null;
 
 export const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';

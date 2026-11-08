@@ -9,7 +9,7 @@ import { html, raw, byId, render } from '../../core/dom.js';
 import { toast, confirmDialog, withLoading } from '../../core/ui.js';
 import { icon } from '../../core/icons.js';
 import { registerActions } from '../../core/events.js';
-import { session, memberName, partnerUid, on, emit } from '../../core/state.js';
+import { session, memberName, on, emit } from '../../core/state.js';
 import {
   iso, calcularHoras, ordenarHoras, tomasDoDia, progresso, consumoDiario, estadoToma, momentoToma,
   textoFrequencia, textoDuracao, fimPlano, ultimoDiaTomas, tomasPorDia, pessoasDoPlano,
@@ -34,7 +34,102 @@ function nomePessoa(pessoa, plano) {
   if (pessoa === session.uid && session.members.length < 2) return 'Eu';
   return memberName(pessoa) || 'Parceiro(a)';
 }
-const nomeQuem = (p) => (p.quem === 'ambos' ? 'Os dois' : nomePessoa(p.quem, p));
+const nomeTodos = () => (session.members.length > 2 ? 'Todos' : 'Os dois');
+const nomeQuem = (p) => (p.quem === 'ambos' ? nomeTodos() : nomePessoa(p.quem, p));
+const outrosMembros = () => session.members.filter((m) => m.uid !== session.uid).map((m) => m.uid);
+const chaveTexto = (t) => String(t || '').trim().toLocaleLowerCase('pt').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+/** Nomes escritos à mão em tratamentos anteriores (os mais recentes primeiro), para escolher com um toque. */
+export function nomesUsados(limite = 8) {
+  const vistos = new Map();
+  [...planos]
+    .filter((p) => p.quem === 'outro' && String(p.quemNome || '').trim())
+    .sort((a, b) => (b.atualizadoEm || b.criadoEm || 0) - (a.atualizadoEm || a.criadoEm || 0))
+    .forEach((p) => { const k = chaveTexto(p.quemNome); if (!vistos.has(k)) vistos.set(k, p.quemNome.trim()); });
+  return [...vistos.values()].slice(0, limite);
+}
+
+/** Texto escrito em "Quem toma" → { quem, quemNome }. "Eu" ou o nome de alguém do grupo ligam a essa pessoa. */
+export function pessoaDeTexto(texto) {
+  const k = chaveTexto(texto);
+  if (!k || k === 'eu') return { quem: session.uid, quemNome: '' };
+  if (['os dois', 'ambos', 'todos'].includes(k) && outrosMembros().length) return { quem: 'ambos', quemNome: '' };
+  const membro = session.members.find((m) => [memberName(m.uid), memberName(m.uid, { short: false })].some((n) => n && chaveTexto(n) === k));
+  if (membro) return { quem: membro.uid, quemNome: '' };
+  return { quem: 'outro', quemNome: String(texto).trim() };
+}
+
+/** Resumo dos tratamentos ativos de um medicamento, para o cartão da lista: "Avó · 3x/dia · faltam 4 dias". */
+export function resumoTratamentosMed(medId) {
+  return planosDoMed(medId).filter(ativo).map((p) => {
+    const prog = progresso(p, hoje(), membros());
+    const faltam = prog.dias ? Math.max(1, prog.dias - Math.max(0, prog.diaAtual) + 1) : null;
+    const resto = faltam == null ? 'contínuo' : faltam === 1 ? 'último dia' : `faltam ${Math.min(faltam, prog.dias)} dias`;
+    return { quem: nomeQuem(p), texto: `${nomeQuem(p)} · ${tomasPorDia(p)}x/dia · ${resto}` };
+  });
+}
+
+// ---------- Posologia rápida ao adicionar um medicamento ----------
+
+/** Bloco "Quem toma e como" no ecrã de adicionar: nome (escrito ou escolhido), vezes por dia e dias. */
+export function blocoPosologiaNovo() {
+  const sugestoes = ['Eu', ...outrosMembros().map((u) => memberName(u)).filter(Boolean), ...nomesUsados()]
+    .filter((n, i, a) => a.findIndex((x) => chaveTexto(x) === chaveTexto(n)) === i);
+  return html`
+    <section class="farm-bloco glass farm-posologia"><h3>${icon('users', 18)} Quem toma e como <small>(opcional)</small></h3>
+      <div class="farm-campo"><label for="farm-pos-quem">Quem toma</label>
+        <input class="input" id="farm-pos-quem" placeholder="Escreve o nome (ex.: Avó, Tomás)" autocomplete="off" data-input="farmacia:posQuem"></div>
+      <div class="task-chips farm-pos-sugestoes">
+        ${sugestoes.map((n) => html`<button type="button" class="task-chip" data-action="farmacia:posQuem" data-nome="${n}">${n}</button>`)}
+      </div>
+      <div class="farm-campos3">
+        <div class="farm-campo"><label for="farm-pos-vezes">Vezes por dia</label>
+          <input class="input" id="farm-pos-vezes" type="number" inputmode="numeric" min="1" max="12" placeholder="Ex.: 3"></div>
+        <div class="farm-campo"><label for="farm-pos-dias">Durante (dias)</label>
+          <input class="input" id="farm-pos-dias" type="number" inputmode="numeric" min="1" placeholder="Sem fim"></div>
+        <div class="farm-campo"><label for="farm-pos-dose">Por toma</label>
+          <input class="input" id="farm-pos-dose" type="number" inputmode="decimal" min="0.25" step="0.25" value="1"></div>
+      </div>
+      <p class="farm-dica">Com as vezes por dia, a app distribui as tomas pelo dia (ex.: 3x = 08:00, 14:00 e 20:00) e elas aparecem nas Tarefas. Podes acertar tudo depois em "Tratamento".</p>
+    </section>`;
+}
+
+/** Lê o bloco acima. Devolve null quando não indicaram as vezes por dia. */
+export function lerPosologiaNovo() {
+  const vezes = Math.round(Number(byId('farm-pos-vezes')?.value));
+  if (!(vezes >= 1)) return null;
+  const diasTxt = byId('farm-pos-dias')?.value;
+  const dias = diasTxt === '' || diasTxt == null ? null : Math.round(Number(diasTxt));
+  const dose = Number(String(byId('farm-pos-dose')?.value || '1').replace(',', '.'));
+  return {
+    ...pessoaDeTexto(byId('farm-pos-quem')?.value || ''),
+    vezesDia: Math.min(12, vezes),
+    dias: dias >= 1 ? dias : null,
+    dose: dose > 0 ? dose : 1,
+  };
+}
+
+const HORAS_DIA = {
+  1: ['09:00'], 2: ['08:00', '20:00'], 3: ['08:00', '14:00', '20:00'], 4: ['08:00', '12:00', '16:00', '20:00'],
+};
+
+/** Cria um tratamento a partir da posologia rápida. */
+export async function criarPlanoRapido(med, pos) {
+  const base = { modo: 'vezes', vezesDia: pos.vezesDia, intervaloHoras: Math.round(24 / pos.vezesDia), primeiraHora: '08:00' };
+  // "N vezes ao dia" costuma ser durante o dia (com as refeições), não a meio da noite.
+  const horas = HORAS_DIA[pos.vezesDia] || calcularHoras(base);
+  const dados = {
+    medId: med.id, medNome: med.nome, unidade: med.unidade || 'unidades',
+    quem: pos.quem, quemNome: pos.quem === 'outro' ? pos.quemNome : '',
+    dose: pos.dose, ...base, horas, inicio: hoje(), dias: pos.dias, notas: '',
+    terminado: false, atualizadoEm: Date.now(),
+    feitas: [], avisadas: [], criadoPor: session.uid, criadoEm: Date.now(),
+  };
+  await addDoc(sharedCol(COL), dados);
+  const consumo = pos.dose * horas.length * pessoasDoPlano(dados, membros()).length;
+  updateDoc(sharedDoc('farmacia', med.id), { tomaDiaria: Math.round(((Number(med.tomaDiaria) || 0) + consumo) * 100) / 100, avisadoStock: null }).catch(() => {});
+  return dados;
+}
 
 export const planosDoMed = (medId) => planos.filter((p) => p.medId === medId);
 const ativo = (p) => !progresso(p, hoje(), membros()).terminou;
@@ -231,8 +326,9 @@ function novoForm(med, plano) {
 
 function opcoesQuem() {
   const op = [{ id: session.uid, label: 'Eu' }];
-  const p = partnerUid();
-  if (p) op.push({ id: p, label: memberName(p) || 'Parceiro(a)' }, { id: 'ambos', label: 'Os dois' });
+  const outros = outrosMembros();
+  outros.forEach((u) => op.push({ id: u, label: memberName(u) || 'Parceiro(a)' }));
+  if (outros.length) op.push({ id: 'ambos', label: nomeTodos() });
   op.push({ id: 'outro', label: 'Outra pessoa' });
   return op;
 }
@@ -296,7 +392,10 @@ function renderForm() {
       <div class="task-chips">
         ${opcoesQuem().map((o) => html`<button type="button" class="task-chip ${f.quem === o.id ? 'is-on' : ''}" data-action="trat:escolher" data-campo="quem" data-v="${o.id}">${o.label}</button>`)}
       </div>
-      ${f.quem === 'outro' ? html`<input class="input" id="trat-quem-nome" placeholder="Nome (ex.: Avó, Bebé)" value="${f.quemNome || ''}" data-input="trat:campo" data-campo="quemNome">` : ''}
+      ${f.quem === 'outro' ? html`
+        <input class="input" id="trat-quem-nome" placeholder="Escreve o nome (ex.: Avó, Bebé)" value="${f.quemNome || ''}" data-input="trat:campo" data-campo="quemNome">
+        ${nomesUsados().length ? html`<div class="task-chips trat-nomes">${nomesUsados().map((n) => html`<button type="button" class="task-chip ${chaveTexto(n) === chaveTexto(f.quemNome) ? 'is-on' : ''}" data-action="trat:nome" data-nome="${n}">${n}</button>`)}</div>` : ''}
+        <p class="farm-dica">Não precisa de estar no grupo: escreve só o nome.</p>` : ''}
       ${f.quem === 'ambos' ? html`<p class="farm-dica">Cada um marca a sua toma em separado.</p>` : ''}
     </section>
 
@@ -403,6 +502,11 @@ registerActions({
     form.horasManuais = true;
     atualizarParcial();
   },
+  'trat:nome': ({ data }) => {
+    if (!form) return;
+    form.quemNome = data.nome;
+    renderForm();
+  },
   'trat:recalcular': () => { form.horasManuais = false; form.horas = calcularHoras(form); atualizarParcial(); },
   'trat:continuo': ({ el }) => {
     form.dias = el.checked ? null : 7;
@@ -432,10 +536,8 @@ registerActions({
     } else {
       await withLoading(el, () => addDoc(sharedCol(COL), { ...dados, feitas: [], avisadas: [], criadoPor: session.uid, criadoEm: Date.now() }));
       toast(`Tratamento planeado: ${tomasPorDia(dados)}x por dia. As tomas aparecem nas Tarefas.`);
-      const outro = partnerUid();
-      if (outro && (f.quem === outro || f.quem === 'ambos')) {
-        notifyUser(outro, `💊 ${session.name.split(' ')[0]} planeou um tratamento para ti: ${f.medNome}, ${textoFrequencia(dados).toLowerCase()}.`).catch(() => {});
-      }
+      const avisar = f.quem === 'ambos' ? outrosMembros() : outrosMembros().filter((u) => u === f.quem);
+      avisar.forEach((u) => notifyUser(u, `💊 ${session.name.split(' ')[0]} planeou um tratamento para ti: ${f.medNome}, ${textoFrequencia(dados).toLowerCase()}.`).catch(() => {}));
     }
     sincronizarTomaDiaria(f.medId, [...planos.filter((p) => p.id !== f.id), { ...dados, id: f.id || 'novo' }]);
     form = null;

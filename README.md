@@ -1,6 +1,6 @@
-# Ninho
+# Nós
 
-A app de organização do casal: um espaço partilhado pelos dois com tarefas, finanças, plano de refeições, viagens, receitas, garagem, farmácia e listas de compras. Pensada para o telemóvel: tema escuro e simples, sem zoom.
+A app de organização da família, da casa ou do grupo de amigos: um espaço partilhado com tarefas, finanças, plano de refeições, viagens, receitas, garagem, farmácia e listas de compras. Pensada para o telemóvel: tema escuro e simples, sem zoom.
 
 Site estático (GitHub Pages) com Firebase (Auth + Firestore). Não há passo de build: o browser carrega os ES modules diretamente.
 

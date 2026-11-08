@@ -47,9 +47,9 @@ function estadoNotificacoes() {
 }
 
 const MENSAGENS_NOTIF = {
-  'ios-safari': 'No iPhone, as notificações só funcionam com a app no ecrã principal: no Safari toca em Partilhar e depois em "Adicionar ao ecrã principal". Abre o Ninho a partir desse ícone e ativa aqui.',
+  'ios-safari': 'No iPhone, as notificações só funcionam com a app no ecrã principal: no Safari toca em Partilhar e depois em "Adicionar ao ecrã principal". Abre a app a partir desse ícone e ativa aqui.',
   'sem-suporte': 'Este browser não suporta notificações.',
-  bloqueadas: 'As notificações estão bloqueadas. Ativa-as nas definições do telemóvel (iPhone: Definições > Notificações > Ninho).',
+  bloqueadas: 'As notificações estão bloqueadas. Ativa-as nas definições do telemóvel (iPhone: Definições > Notificações > Nós).',
 };
 
 export default {

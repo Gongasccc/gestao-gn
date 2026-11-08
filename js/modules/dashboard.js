@@ -119,8 +119,8 @@ function remindOncePerDay(items) {
   } catch { return; }
   const body = due.map((i) => `• ${i.titulo} (${i.quando.toLowerCase()})`).join('\n');
   navigator.serviceWorker?.ready
-    .then((reg) => reg.showNotification('Ninho', { body, icon: 'assets/brand/ninho-192.png', tag: 'daily' }))
-    .catch(() => { try { new Notification('Ninho', { body }); } catch { /* sem suporte */ } });
+    .then((reg) => reg.showNotification('Nós', { body, icon: 'assets/brand/nos-192.png', tag: 'daily' }))
+    .catch(() => { try { new Notification('Nós', { body }); } catch { /* sem suporte */ } });
 }
 
 // ---------- Casa & Refeições ----------

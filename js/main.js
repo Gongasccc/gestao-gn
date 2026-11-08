@@ -67,8 +67,6 @@ const ATALHOS = {
   'menu-notificacoes': { page: 'menu-notificacoes' },
   'menu-lista-compras': { page: 'menu-lista-compras', foco: 'lista-input' },
   'menu-tarefas': { page: 'menu-tarefas' },
-  'menu-despensa': { page: 'menu-despensa', foco: 'desp-input' },
-  'menu-pesquisa': { page: 'menu-pesquisa' },
   'nova-despesa': { page: 'menu-financas', clicar: '[data-action="rl:new"][data-list="despesas"]' },
 };
 function abrirAtalho(destino) {
@@ -81,14 +79,6 @@ function abrirAtalho(destino) {
     if (a.foco) byId(a.foco)?.focus();
   }, 350);
 }
-
-// Computador: "/" ou Ctrl/Cmd+K abre a pesquisa geral.
-document.addEventListener('keydown', (ev) => {
-  const aEscrever = ev.target.closest?.('input, textarea, select, [contenteditable]');
-  if (((ev.key === 'k' || ev.key === 'K') && (ev.metaKey || ev.ctrlKey)) || (ev.key === '/' && !aEscrever)) {
-    if (session.uid) { ev.preventDefault(); navigate('menu-pesquisa'); }
-  }
-});
 
 initEvents();
 initUI();

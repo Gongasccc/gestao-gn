@@ -1,6 +1,6 @@
 // Service worker do Nós.
 // Estratégia: rede primeiro (para receber sempre a versão mais recente) e cache como reserva offline.
-const CACHE = 'ninho-shell-v32';
+const CACHE = 'ninho-shell-v33';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
@@ -22,7 +22,9 @@ self.addEventListener('fetch', (event) => {
   // Só ficheiros da própria app (o Firebase tem a sua própria cache offline).
   if (url.origin !== self.location.origin) return;
   event.respondWith(
-    fetch(request)
+    // 'no-cache': pergunta sempre ao servidor se há versão nova (sem isto o browser podia usar
+    // ficheiros com até 10 minutos depois de uma atualização no GitHub Pages).
+    fetch(request, { cache: 'no-cache' })
       .then((res) => {
         if (res.ok) {
           const copy = res.clone();

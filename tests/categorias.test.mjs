@@ -25,19 +25,19 @@ test('classifica categoria e subcategoria pelo nome', () => {
   assert.deepEqual(classificar('2 pacotes de leite'), { cat: 'laticinios', sub: 'laticinios:leite' });
   assert.deepEqual(classificar('Sardinhas em lata'), { cat: 'mercearia', sub: 'mercearia:conservas' });
   assert.equal(classificar('Fita cola').cat, 'casa');
-  assert.equal(classificar('Lápis de cor').sub, 'papelaria:pintura-e-desenho');
+  assert.equal(classificar('Lápis de cor').sub, 'papelaria:desenho-arte-e-pintura');
   assert.equal(classificar('xpto').cat, '');
   assert.equal(subcategoriaDe('Iogurte grego natural', 'laticinios'), 'laticinios:iogurtes');
   assert.equal(subcategoriaDe('Pão de forma', 'padaria'), 'padaria:padaria-e-pastelaria');
 });
 
 test('rótulos, nomes da IA e ids antigos', () => {
-  assert.equal(rotulo('mercearia', 'mercearia:arroz-e-massa'), 'Mercearia › Arroz e massa');
+  assert.equal(rotulo('mercearia', 'mercearia:arroz-massa-e-farinha'), 'Mercearia › Arroz, Massa e Farinha');
   assert.equal(rotulo('mercearia', 'limpeza:loica'), 'Mercearia');
-  assert.equal(subPorNome('bebidas', 'Águas'), 'bebidas:aguas');
+  assert.equal(subPorNome('bebidas', 'Água'), 'bebidas:agua');
   assert.equal(subPorNome('bebidas', 'Inexistente'), '');
   assert.equal(idAtual('pequeno'), 'mercearia');
-  assert.ok(listaParaIa().includes('limpeza (Limpeza): Detergente para roupa'));
+  assert.ok(listaParaIa().includes('limpeza (Limpeza): Roupa | Cozinha'));
 });
 
 test('dados antigos com a secção "pequeno" passam para a mercearia', () => {
@@ -45,7 +45,7 @@ test('dados antigos com a secção "pequeno" passam para a mercearia', () => {
   assert.deepEqual(o.slice(0, 2), ['congelados', 'mercearia']);
   const { grupos } = agruparLista([{ id: 1, texto: 'granola', seccao: 'pequeno', timestamp: 1 }]);
   assert.equal(grupos[0].seccoes[0].id, 'mercearia');
-  assert.equal(grupos[0].seccoes[0].itens[0].sub, 'mercearia:pequeno-almoco-e-cereais');
+  assert.equal(grupos[0].seccoes[0].itens[0].sub, 'mercearia:cereais-e-barras');
 });
 
 test('faturas: nomes sem palavra de talão vão para as novas categorias', () => {

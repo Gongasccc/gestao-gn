@@ -1,5 +1,5 @@
 // Viagens partilhadas: lista, criação, detalhe (resumo / planeamento / despesas) e edição.
-import { html, render, byId, emptyState, setText, countUp } from '../../core/dom.js';
+import { html, render, byId, setText, countUp } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { createScope, session, on, emit } from '../../core/state.js';
 import { navigate, back, currentPage, refreshHeader } from '../../core/router.js';
@@ -7,7 +7,7 @@ import { toast, confirmDialog, withLoading, showImage } from '../../core/ui.js';
 import { compressImage, takeFile } from '../../core/images.js';
 import { dateRange, daysBetween, todayISO, money, plural } from '../../core/format.js';
 import { addDoc, updateDoc, deleteDoc, onSnapshot, query, where } from '../../services/firebase.js';
-import { tripsCol, tripDoc, tripCol, snapToList } from '../../services/paths.js';
+import { tripsCol, tripDoc, tripCol, snapToList, userDoc } from '../../services/paths.js';
 import { notifyUser } from '../../services/notifications.js';
 import { avatar } from '../../components/avatar.js';
 import { tabsTpl, selectTab, positionIndicator } from '../../components/tabs.js';
@@ -19,50 +19,21 @@ import { journalTabTpl, drawJournal, drawMap, resetMap, journalModalTpl, journal
 import { routeLegs, countriesOf, flag, formatKm } from './geo.js';
 import { CURRENCIES } from './currency.js';
 import { expensesTabTpl, drawExpenses, expensesModalsTpl, expensesActions } from './expenses.js';
+import { planTabTpl, drawPlan, drawPlanMap, drawDest, destPage, planModalsTpl, planActions, resetPlanMaps } from './plan.js';
+import { overviewTpl, drawOverview, statsTpl, drawStats, overviewModalsTpl, overviewActions, loadAllTripData, resetOverview } from './overview.js';
+import { placePickerModalTpl, placePickerActions } from './place-picker.js';
+import { tripPhase } from './stats.js';
 
 const scope = createScope();
 const detailScope = createScope();
-
-function countdownLabel(trip) {
-  const today = todayISO();
-  if (!trip.dataInicio) return '';
-  if (trip.dataInicio > today) {
-    const n = daysBetween(today, trip.dataInicio);
-    return n === 1 ? 'Amanhã' : `Faltam ${n} dias`;
-  }
-  if (!trip.dataFim || trip.dataFim >= today) return 'A decorrer';
-  return '';
-}
 
 function avatarsStack(list, max = 4) {
   return html`<span class="avatar-stack">${list.slice(0, max).map((m) => avatar(m.nome, m.avatarUrl, 'xs'))}${list.length > max ? html`<span class="avatar avatar--xs avatar--more">+${list.length - max}</span>` : ''}</span>`;
 }
 
 function drawTripsList() {
-  const trips = [...tripState.trips].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-  countUp('stat-trips', trips.length);
-  const today = todayISO();
-  const next = trips.filter((t) => t.dataInicio && t.dataInicio >= today).sort((a, b) => a.dataInicio.localeCompare(b.dataInicio))[0];
-  setText('stat-next-trip', next ? next.nome : '—');
-
-  render('trips-list', trips.length
-    ? trips.map((t) => {
-      const badge = countdownLabel(t);
-      return html`
-        <article class="media-card glass pressable" data-action="trips:open" data-id="${t.id}">
-          <img class="media-card__img" src="${t.capa || FALLBACK_COVER}" alt="" loading="lazy">
-          ${badge ? html`<span class="media-card__badge glass-chip">${badge}</span>` : ''}
-          <div class="media-card__overlay">
-            <div>
-              <h3 class="media-card__title">${t.nome || 'Sem título'}</h3>
-              <span class="media-card__sub">${icon('pin', 12)} ${t.paisCode || '—'} · ${dateRange(t.dataInicio, t.dataFim)}</span>
-            </div>
-            ${(t.membros_info?.length || 0) > 1 ? avatarsStack(t.membros_info) : ''}
-          </div>
-        </article>`;
-    })
-    : emptyState('Ainda não há viagens. Que tal planear a próxima aventura?', icon('map', 32)),
-  { stagger: true });
+  if (currentPage() === 'menu-viagens') drawOverview();
+  if (currentPage() === 'page-viagens-stats') drawStats();
 }
 
 function drawHero() {
@@ -138,10 +109,43 @@ function drawEdit() {
 
 function refreshDetail() {
   drawHero();
+  drawPlan();
   drawSummary();
   drawJournal();
   drawExpenses();
   drawCharts();
+}
+
+function openTrip(id, tab) {
+  tripState.currentTripId = id;
+  tripState.expenses = [];
+  tripState.timeline = tripState.allSteps[id] || [];
+  tripState.plan = tripState.allPlans[id] || [];
+  detailScope.clear();
+  detailScope.add(onSnapshot(tripCol(id, 'despesas'), (s) => {
+    tripState.expenses = snapToList(s);
+    drawExpenses();
+    drawSummary();
+    drawCharts();
+  }));
+  detailScope.add(onSnapshot(tripCol(id, 'timeline'), (s) => {
+    tripState.timeline = snapToList(s);
+    tripState.allSteps[id] = tripState.timeline;
+    drawJournal();
+    drawSummary();
+  }));
+  detailScope.add(onSnapshot(tripCol(id, 'plano'), (s) => {
+    tripState.plan = snapToList(s);
+    tripState.allPlans[id] = tripState.plan;
+    drawPlan();
+    drawDest();
+  }));
+  // Viagem por fazer (ou ainda vazia) abre no Plano; as outras no Diário.
+  const t = tripState.trips.find((x) => x.id === id);
+  const phase = tripPhase(t, todayISO());
+  const auto = phase === 'futura' || phase === 'sem-datas' || (!tripState.timeline.length && tripState.plan.length) ? 'plano' : 'diario';
+  navigate('page-viagem-detalhe');
+  selectTab('trip', tab || auto);
 }
 
 function resetNewTripForm() {
@@ -156,14 +160,25 @@ export default {
       id: 'menu-viagens',
       title: 'Viagens',
       root: true,
-      template: () => html`
-        <div class="stat-grid">
-          <div class="stat glass"><span class="stat__num" id="stat-trips">0</span><span class="stat__label">Viagens</span></div>
-          <div class="stat glass"><span class="stat__num stat__num--text" id="stat-next-trip">—</span><span class="stat__label">Próxima aventura</span></div>
-        </div>
-        <button class="btn btn--primary btn--block pressable" data-action="nav:go" data-page="menu-nova-viagem">${icon('plus', 18)} Nova viagem</button>
-        <div class="card-stack" id="trips-list"></div>`,
+      width: 'medium',
+      template: overviewTpl,
+      onEnter: () => {
+        drawOverview();
+        loadAllTripData().then(() => { if (currentPage() === 'menu-viagens') drawOverview(); });
+      },
     },
+    {
+      id: 'page-viagens-stats',
+      title: 'Estatísticas de viagens',
+      width: 'medium',
+      headerAction: () => html`<button class="icon-btn glass-chip pressable" data-action="tw:share" aria-label="Partilhar">${icon('share', 18)}</button>`,
+      template: statsTpl,
+      onEnter: () => {
+        drawStats();
+        loadAllTripData().then(() => { if (currentPage() === 'page-viagens-stats') drawStats(); });
+      },
+    },
+    destPage,
     {
       id: 'menu-nova-viagem',
       title: 'Nova Viagem',
@@ -190,8 +205,9 @@ export default {
             <div class="hero__meta" id="trip-hero-meta"></div>
           </div>
         </div>
-        ${tabsTpl('trip', [{ id: 'diario', label: 'Diário' }, { id: 'despesas', label: 'Contas' }, { id: 'resumo', label: 'Resumo' }])}
-        <section data-tab-panel="trip:diario">${journalTabTpl()}</section>
+        ${tabsTpl('trip', [{ id: 'plano', label: 'Plano' }, { id: 'diario', label: 'Diário' }, { id: 'despesas', label: 'Contas' }, { id: 'resumo', label: 'Resumo' }])}
+        <section data-tab-panel="trip:plano">${planTabTpl()}</section>
+        <section data-tab-panel="trip:diario" hidden>${journalTabTpl()}</section>
         <section data-tab-panel="trip:despesas" hidden>${expensesTabTpl()}</section>
         <section data-tab-panel="trip:resumo" class="trip-summary" hidden>
           <div class="stat-grid stat-grid--3">
@@ -251,10 +267,13 @@ export default {
       onEnter: drawEdit,
     },
   ],
-  modals: () => html`${journalModalTpl()}${expensesModalsTpl()}`,
+  modals: () => html`${journalModalTpl()}${expensesModalsTpl()}${planModalsTpl()}${overviewModalsTpl()}${placePickerModalTpl()}`,
   actions: {
     ...journalActions,
     ...expensesActions,
+    ...planActions,
+    ...overviewActions,
+    ...placePickerActions,
     'trips:create': async ({ el }) => {
       const nome = byId('new-trip-name').value.trim();
       const destino = byId('new-trip-dest').value.trim();
@@ -262,7 +281,7 @@ export default {
       const dataFim = byId('new-trip-end').value;
       if (!nome || !destino) return toast('Preenche o título e o destino.', 'error');
       if (dataInicio && dataFim && dataFim < dataInicio) return toast('A data de fim é anterior ao início.', 'error');
-      await withLoading(el, () => addDoc(tripsCol(), {
+      const ref = await withLoading(el, () => addDoc(tripsCol(), {
         nome,
         paisCode: destino,
         dataInicio,
@@ -274,28 +293,11 @@ export default {
         dono: session.uid,
       }));
       resetNewTripForm();
-      toast('Viagem criada');
+      toast('Viagem criada. Agora junta os destinos!');
       navigate('menu-viagens');
+      if (ref?.id) openTrip(ref.id, 'plano');
     },
-    'trips:open': ({ data }) => {
-      tripState.currentTripId = data.id;
-      tripState.expenses = [];
-      tripState.timeline = [];
-      detailScope.clear();
-      detailScope.add(onSnapshot(tripCol(data.id, 'despesas'), (s) => {
-        tripState.expenses = snapToList(s);
-        drawExpenses();
-        drawSummary();
-        drawCharts();
-      }));
-      detailScope.add(onSnapshot(tripCol(data.id, 'timeline'), (s) => {
-        tripState.timeline = snapToList(s);
-        drawJournal();
-        drawSummary();
-      }));
-      selectTab('trip', 'diario');
-      navigate('page-viagem-detalhe');
-    },
+    'trips:open': ({ data }) => openTrip(data.id),
     'trips:cover': () => showImage(currentTrip()?.capa || FALLBACK_COVER),
     'trips:notes': async ({ value }) => {
       await updateDoc(tripDoc(tripState.currentTripId), { notasGerais: value });
@@ -370,7 +372,13 @@ export default {
     scope.add(on('tabs:trip', (tab) => {
       if (tab === 'resumo') requestAnimationFrame(drawCharts);
       if (tab === 'diario') requestAnimationFrame(() => drawMap());
+      if (tab === 'plano') requestAnimationFrame(() => drawPlanMap());
     }));
+    scope.add(onSnapshot(userDoc('viagens', 'perfil'), (snap) => {
+      tripState.perfil = snap.exists() ? snap.data() : {};
+      drawTripsList();
+      if (currentPage() === 'page-viagem-detalhe') drawPlan();
+    }, (err) => console.warn('[trips] perfil', err)));
     const q = query(tripsCol(), where('membros_uids', 'array-contains', session.uid));
     scope.add(onSnapshot(q, (s) => {
       tripState.trips = snapToList(s);
@@ -381,11 +389,13 @@ export default {
           // A viagem foi apagada ou deixei de ser membro.
           detailScope.clear();
           tripState.currentTripId = null;
-          if (['page-viagem-detalhe', 'page-detalhes-viagem-edit'].includes(currentPage())) navigate('menu-viagens');
+          if (['page-viagem-detalhe', 'page-detalhes-viagem-edit', 'page-viagem-destino'].includes(currentPage())) navigate('menu-viagens');
           return;
         }
         drawHero();
         drawSummary();
+        drawPlan();
+        drawDest();
         refreshHeader();
         if (currentPage() === 'page-detalhes-viagem-edit') drawEdit();
       }
@@ -398,6 +408,11 @@ export default {
     scope.clear();
     detailScope.clear();
     resetMap();
-    Object.assign(tripState, { trips: [], currentTripId: null, expenses: [], timeline: [], friends: [] });
+    resetPlanMaps();
+    resetOverview();
+    Object.assign(tripState, {
+      trips: [], currentTripId: null, expenses: [], timeline: [], plan: [], friends: [],
+      allSteps: {}, allPlans: {}, allLoadedAt: 0, perfil: {}, currentDestId: null,
+    });
   },
 };

@@ -1,9 +1,8 @@
 // Diário da viagem: paragens com local, mapa da rota, fotos e notas.
 // Os dados ficam na subcoleção "timeline" (compatível com o antigo planeamento).
 import { html, render, byId, emptyState, esc } from '../../core/dom.js';
-import { icon } from '../../core/icons.js';
+import { icon, iconSvg } from '../../core/icons.js';
 import { session } from '../../core/state.js';
-import { currentTheme } from '../../core/theme.js';
 import { modalTemplate, openModal, closeModal, confirmDialog, toast, showImage, withLoading } from '../../core/ui.js';
 import { compressImage, dataUrlBytes } from '../../core/images.js';
 import { isoToShort, daysBetween, todayISO } from '../../core/format.js';
@@ -12,8 +11,9 @@ import { tripCol, tripSubDoc } from '../../services/paths.js';
 import { tripState, currentTrip } from './store.js';
 import {
   hasCoords, sortSteps, routeLegs, flag, formatKm,
-  searchPlaces, reversePlace, currentPosition, loadLeaflet, tileUrl, TILE_ATTRIBUTION,
+  searchPlaces, reversePlace, currentPosition, arcPoints, TRANSPORTS, transportOf,
 } from './geo.js';
+import { newMapState, ensureMap, resetMapState, animateLine, fitTo } from './mapkit.js';
 
 const MAX_PHOTOS = 6;
 const MAX_DOC_BYTES = 850 * 1024;
@@ -27,8 +27,15 @@ export function journalTabTpl() {
   return html`
     <div class="journal">
       <div class="journal__map-wrap">
-        <div class="trip-map glass" id="trip-map">
-          <div class="trip-map__empty" id="trip-map-empty">${icon('map', 26)}<span>Adiciona paragens com local para ver a rota no mapa.</span></div>
+        <div class="trip-map-box">
+          <div class="trip-map glass" id="trip-map">
+            <div class="trip-map__empty" id="trip-map-empty">${icon('map', 26)}<span>Adiciona paragens com local para ver a rota no mapa.</span></div>
+          </div>
+          <div class="map-tools" id="trip-map-tools" hidden>
+            <button class="map-tool pressable" data-action="journal:sat" aria-label="Mudar entre mapa e satélite">${icon('layers', 18)}</button>
+            <button class="map-tool pressable" data-action="journal:play" id="journal-play-btn" aria-label="Reproduzir a viagem">${icon('play', 18)}</button>
+          </div>
+          <div class="play-card" id="play-card" hidden></div>
         </div>
         <div class="route-stats" id="route-stats"></div>
       </div>
@@ -51,6 +58,12 @@ export function journalModalTpl() {
       </div>
       <div class="place-results" id="step-place-results"></div>
       <div id="step-place-chosen"></div>
+    </div>
+    <div class="field">
+      <span class="field__label">Como chegaram aqui?</span>
+      <div class="transport-pick" id="step-transport">
+        ${TRANSPORTS.map((t) => html`<button type="button" class="transport-pick__btn pressable" data-action="journal:transport" data-t="${t.id}" aria-label="${t.label}" title="${t.label}">${icon(t.icon, 18)}</button>`)}
+      </div>
     </div>
     <div class="field"><label class="field__label" for="step-title">Título</label>
       <input type="text" id="step-title" class="input" placeholder="ex: Pôr do sol no miradouro"></div>
@@ -131,7 +144,7 @@ export function drawJournal() {
             <div class="step__meta">
               ${s.hora ? html`<span>${icon('clock', 12)} ${s.hora}</span>` : ''}
               ${planned ? html`<span class="chip chip--muted">Planeado</span>` : ''}
-              ${legs[s.id] ? html`<span class="step__leg">${icon('compare', 12)} ${formatKm(legs[s.id])}</span>` : ''}
+              ${legs[s.id] ? html`<span class="step__leg">${icon(transportOf(s.transporte)?.icon || 'compare', 12)} ${formatKm(legs[s.id])}</span>` : ''}
             </div>
           </div>
           <span class="step__actions">
@@ -161,73 +174,136 @@ function drawRouteStats(steps, totalKm) {
 
 // ---------- Mapa ----------
 
-const mapState = { map: null, tiles: null, theme: null, layer: null, markers: {} };
+const mapState = newMapState();
+const play = { on: false, timer: 0, i: 0 };
 
 export async function drawMap(steps = sortSteps(tripState.timeline)) {
   const el = byId('trip-map');
   if (!el || !el.offsetParent) return; // só desenha quando o separador está visível
   const located = steps.filter((s) => hasCoords(s.lugar));
   byId('trip-map-empty').hidden = located.length > 0;
+  byId('trip-map-tools').hidden = !located.length;
   if (!located.length) {
     if (mapState.layer) mapState.layer.clearLayers();
     el.classList.remove('has-map');
     return;
   }
-  let L;
-  try { L = await loadLeaflet(); } catch {
+  const L = await ensureMap(mapState, el);
+  if (!L) {
     byId('trip-map-empty').hidden = false;
     return;
   }
   el.classList.add('has-map');
-  if (!mapState.map || mapState.map.getContainer() !== el) {
-    mapState.map = L.map(el, { zoomControl: false, attributionControl: true, scrollWheelZoom: false });
-    L.control.zoom({ position: 'bottomright' }).addTo(mapState.map);
-    mapState.layer = L.layerGroup().addTo(mapState.map);
-    mapState.tiles = null;
-  }
-  const theme = currentTheme();
-  if (!mapState.tiles || mapState.theme !== theme) {
-    if (mapState.tiles) mapState.tiles.remove();
-    mapState.tiles = L.tileLayer(tileUrl(theme), { attribution: TILE_ATTRIBUTION, maxZoom: 19, subdomains: 'abcd' }).addTo(mapState.map);
-    mapState.theme = theme;
-  }
-  mapState.map.invalidateSize();
   mapState.layer.clearLayers();
   mapState.markers = {};
   const pts = located.map((s) => [s.lugar.lat, s.lugar.lng]);
   if (pts.length > 1) {
-    L.polyline(pts, { className: 'route-glow', weight: 8 }).addTo(mapState.layer);
-    L.polyline(pts, { className: 'route-line', weight: 3, dashArray: '2 8', lineCap: 'round' }).addTo(mapState.layer);
+    // Cada troço segue o meio de transporte: avião em arco, o resto em linha.
+    const path = [pts[0]];
+    for (let i = 1; i < located.length; i += 1) {
+      const a = located[i - 1].lugar;
+      const b = located[i].lugar;
+      if (located[i].transporte === 'aviao') path.push(...arcPoints(a, b).slice(1));
+      else path.push(pts[i]);
+      const t = transportOf(located[i].transporte);
+      if (t) {
+        const mid = located[i].transporte === 'aviao' ? arcPoints(a, b)[12] : [(a.lat + b.lat) / 2, (a.lng + b.lng) / 2];
+        L.marker(mid, {
+          icon: L.divIcon({ className: '', html: `<span class="map-transport">${iconSvg(t.icon, 13)}</span>`, iconSize: [26, 26], iconAnchor: [13, 13] }),
+          interactive: false,
+          keyboard: false,
+        }).addTo(mapState.layer);
+      }
+    }
+    const glow = L.polyline(path, { className: 'route-glow', weight: 8 }).addTo(mapState.layer);
+    L.polyline(path, { className: 'route-line', weight: 3, dashArray: '2 8', lineCap: 'round' }).addTo(mapState.layer);
+    animateLine(glow, 1500);
   }
   const today = todayISO();
   located.forEach((s, i) => {
     const last = i === located.length - 1;
     const planned = s.data && s.data > today;
+    const foto = photosOf(s)[0];
     const m = L.marker([s.lugar.lat, s.lugar.lng], {
       icon: L.divIcon({
         className: '',
-        html: `<span class="map-pin ${last ? 'map-pin--last' : ''} ${planned ? 'map-pin--planned' : ''}">${i + 1}</span>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
+        html: foto
+          ? `<span class="map-photo ${last ? 'map-photo--last' : ''}" style="--i:${i}"><img src="${foto}" alt=""><b>${i + 1}</b></span>`
+          : `<span class="map-pin ${last ? 'map-pin--last' : ''} ${planned ? 'map-pin--planned' : ''}" style="--i:${i}">${i + 1}</span>`,
+        iconSize: foto ? [40, 40] : [28, 28],
+        iconAnchor: foto ? [20, 20] : [14, 14],
       }),
       title: s.titulo || s.lugar.nome,
     }).addTo(mapState.layer);
-    m.bindTooltip(`${esc(s.titulo || s.lugar.nome)}`, { direction: 'top', offset: [0, -12] });
+    m.bindTooltip(`${esc(s.titulo || s.lugar.nome)}`, { direction: 'top', offset: [0, -14] });
     m.on('click', () => byId(`step-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
     mapState.markers[s.id] = m;
   });
-  if (pts.length === 1) mapState.map.setView(pts[0], 11);
-  else mapState.map.fitBounds(pts, { padding: [36, 36], maxZoom: 12 });
+  if (!play.on) fitTo(mapState, pts);
 }
 
 export function resetMap() {
-  if (mapState.map) mapState.map.remove();
-  Object.assign(mapState, { map: null, tiles: null, theme: null, layer: null, markers: {} });
+  stopPlay();
+  resetMapState(mapState);
+}
+
+// ---------- Reproduzir a viagem ----------
+
+function playCard(s, i, total) {
+  const foto = photosOf(s)[0];
+  render('play-card', html`
+    <div class="play-card__inner" key="${s.id}">
+      ${foto ? html`<img class="play-card__img" src="${foto}" alt="">` : html`<span class="play-card__flag">${flag(s.lugar?.paisCode) || icon('pin', 22)}</span>`}
+      <div class="play-card__text">
+        <span class="play-card__step">Paragem ${i + 1} de ${total}${s.data ? ` · ${isoToShort(s.data)}` : ''}</span>
+        <strong>${s.titulo || s.lugar?.nome || 'Paragem'}</strong>
+        ${s.notas ? html`<span class="play-card__notes">${s.notas}</span>` : ''}
+      </div>
+    </div>
+    <div class="play-card__bar"><span style="width:${((i + 1) / total) * 100}%"></span></div>`);
+  const card = byId('play-card');
+  card.hidden = false;
+  card.classList.remove('is-in');
+  void card.offsetWidth;
+  card.classList.add('is-in');
+}
+
+function stopPlay() {
+  play.on = false;
+  clearTimeout(play.timer);
+  const card = byId('play-card');
+  if (card) card.hidden = true;
+  const btn = byId('journal-play-btn');
+  if (btn) btn.innerHTML = iconSvg('play', 18);
+  document.querySelectorAll('.map-pin.is-playing, .map-photo.is-playing').forEach((e) => e.classList.remove('is-playing'));
+}
+
+function playStep() {
+  const located = sortSteps(tripState.timeline).filter((s) => hasCoords(s.lugar));
+  if (!play.on || !mapState.map) return;
+  if (play.i >= located.length) {
+    play.timer = setTimeout(() => {
+      stopPlay();
+      fitTo(mapState, located.map((s) => [s.lugar.lat, s.lugar.lng]));
+    }, 2200);
+    return;
+  }
+  const s = located[play.i];
+  document.querySelectorAll('.map-pin.is-playing, .map-photo.is-playing').forEach((e) => e.classList.remove('is-playing'));
+  mapState.markers[s.id]?.getElement()?.firstElementChild?.classList.add('is-playing');
+  mapState.map.flyTo([s.lugar.lat, s.lugar.lng], Math.max(8, Math.min(13, mapState.map.getZoom() + 1)), { duration: play.i === 0 ? 1.2 : 1.8 });
+  playCard(s, play.i, located.length);
+  play.i += 1;
+  play.timer = setTimeout(playStep, 3400);
 }
 
 // ---------- Formulário ----------
 
-const form = { lugar: null, fotos: [], results: [] };
+const form = { lugar: null, fotos: [], results: [], transporte: '' };
+
+function drawTransport() {
+  document.querySelectorAll('#step-transport .transport-pick__btn').forEach((b) => b.classList.toggle('is-active', b.dataset.t === form.transporte));
+}
 
 function drawChosenPlace() {
   const p = form.lugar;
@@ -266,9 +342,11 @@ function fillForm(s = {}) {
   form.lugar = s.lugar || null;
   form.fotos = [...photosOf(s)];
   form.results = [];
+  form.transporte = s.transporte || '';
   render('step-place-results', '');
   drawChosenPlace();
   drawPhotos();
+  drawTransport();
   byId('modal-step-title').textContent = s.id ? 'Editar paragem' : 'Nova paragem';
 }
 
@@ -290,6 +368,24 @@ export const journalActions = {
   'journal:photo': ({ data }) => {
     const s = tripState.timeline.find((e) => e.id === data.id);
     showImage(photosOf(s || {})[Number(data.i) || 0]);
+  },
+  'journal:transport': ({ data }) => {
+    form.transporte = form.transporte === data.t ? '' : data.t;
+    drawTransport();
+  },
+  'journal:sat': () => {
+    mapState.sat = !mapState.sat;
+    drawMap();
+  },
+  'journal:play': () => {
+    if (play.on) return stopPlay();
+    const located = sortSteps(tripState.timeline).filter((s) => hasCoords(s.lugar));
+    if (!located.length) return;
+    play.on = true;
+    play.i = 0;
+    byId('journal-play-btn').innerHTML = iconSvg('pause', 18);
+    byId('trip-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    playStep();
   },
   'journal:focus': ({ data }) => {
     const m = mapState.markers[data.id];
@@ -350,6 +446,7 @@ export const journalActions = {
       titulo,
       notas: byId('step-notes').value.trim(),
       lugar: form.lugar || null,
+      transporte: form.transporte || '',
       fotos: form.fotos,
       foto: '',
       timestamp: Date.now(),

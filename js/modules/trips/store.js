@@ -9,7 +9,16 @@ export const tripState = {
   currentTripId: null,
   expenses: [],
   timeline: [],
+  /** Destinos do plano da viagem aberta (subcoleção "plano"). */
+  plan: [],
   friends: [],
+  /** Paragens e planos de todas as viagens (para o globo e as estatísticas). */
+  allSteps: {},
+  allPlans: {},
+  allLoadedAt: 0,
+  /** Perfil de viagens do utilizador: { casa, paisesExtra[] }. */
+  perfil: {},
+  currentDestId: null,
 };
 
 export const currentTrip = () => tripState.trips.find((t) => t.id === tripState.currentTripId) || null;

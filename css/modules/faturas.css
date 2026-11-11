@@ -93,7 +93,6 @@
 .fat-moldura__linha {
   position: absolute; left: 30px; right: 30px; top: 30px; height: 2px; z-index: 3; border-radius: 2px;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  box-shadow: 0 0 14px rgba(var(--accent-rgb), .8);
   animation: fat-varrer 2.6s ease-in-out infinite alternate;
 }
 .fat-moldura.is-a-ler .fat-moldura__linha { animation-duration: 1s; }
